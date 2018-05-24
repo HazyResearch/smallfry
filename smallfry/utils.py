@@ -14,7 +14,7 @@ import struct
 
 
 
-def rowwise_KM(row,k,max_iters=150,num_inits=3,init_dist='default'):
+def rowwise_KM(row,k,max_iters=200,num_inits=10,init_dist='default'):
     kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=1).fit(row)
     return np.concatenate(kmeans.cluster_centers_[kmeans.labels_]), kmeans.labels_, kmeans.cluster_centers_
     
