@@ -1,4 +1,4 @@
-import utils
+import smallfry.utils as utils
 import struct
 import numpy as np
 
