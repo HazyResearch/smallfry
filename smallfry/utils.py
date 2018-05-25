@@ -53,6 +53,26 @@ def allocation_round(bit_allot_vect, sort=False):
     bit_allot_vect = np.array(bit_allot_vect).astype(int)
     return np.array(sorted(bit_allot_vect,reverse=True)) if sort else bit_allot_vect
 
+
+
+def downsample(bit_allot_vect,dim):
+    budget = 0
+    V = len(bit_allot_vect)
+    maxrate = np.floor(np.log2(dim))
+    for i in range(0,V):
+        if bit_allot_vect[i] > maxrate:
+            budget += bit_allot_vect[i] - maxrate
+            bit_allot_vect[i] = maxrate
+        elif bit_allot_vect[i] < maxrate and budget > 0:
+            bit_allot_vect[i] += 1
+            budget -=1
+
+    print(bit_allot_vect)
+    return bit_allot_vect
+        
+   
+
+
 def text2npy(path,dim):
     embed_path = path.replace(".txt", ".npy")
     word_path = path.replace(".txt", ".word")
