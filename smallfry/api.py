@@ -36,7 +36,6 @@ def query(word, word2idx, dim, sfry_path):
     row_hex = f.read(readend_in_bytes - offset_in_bytes)
     row_bitstring = ""
     for i in range(0,len(row_hex)):
-        print(i)
         bitstring = bin(struct.unpack("B",row_hex[i])[0])[2:]
         if len(bitstring) < 8:
             bitstring = '0' * (8-len(bitstring)) + bitstring
@@ -45,9 +44,7 @@ def query(word, word2idx, dim, sfry_path):
     row_bitstring = row_bitstring[offset_correction:len(row_bitstring)-readend_correction]
 
     inflated_row = np.zeros(dim)
-    print(len(row_bitstring))
     for i in range(0,dim):
-        print(row_bitstring[i*R_i:(i+1)*R_i])
         code = int(row_bitstring[i*R_i:(i+1)*R_i],2)
         inflated_row[i] = codebk[R_i][code]
      
