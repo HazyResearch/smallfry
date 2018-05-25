@@ -32,11 +32,17 @@ def query(word, word2idx, dim, sfry_path):
     readend_in_bytes = readend_in_bits/8 + 1
     readend_correction = 8-(readend_in_bits%8) - 0**(readend_in_bits%8)*8
 
+    offset_in_bytes = int(offset_in_bytes)
+    readend_in_bytes = int(readend_in_bytes)
+    offset_correction = int(offset_correction)
+    readend_correction = int(readend_correction)
+
     f.seek(offset_in_bytes,0)
     row_hex = f.read(readend_in_bytes - offset_in_bytes)
     row_bitstring = ""
     for i in range(0,len(row_hex)):
-        bitstring = bin(struct.unpack("B",row_hex[i])[0])[2:]
+        bitstring = bin(row_hex[i])[2:]   
+    #bitstring = bin(struct.unpack("B",row_hex[i])[0])[2:]
         if len(bitstring) < 8:
             bitstring = '0' * (8-len(bitstring)) + bitstring
         row_bitstring += bitstring 

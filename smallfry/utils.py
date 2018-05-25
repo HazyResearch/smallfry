@@ -9,7 +9,7 @@ import math
 import multiprocessing
 from joblib import Parallel, delayed
 from sklearn.cluster import KMeans
-from cStringIO import StringIO
+from io import StringIO
 import struct
 
 
@@ -81,7 +81,7 @@ def text2npy(path,dim):
     #print("convert {} to {}".format(glove_path, embed_path))
     
     words = list()
-    prior = np.load("prior.npy").item()
+    prior = np.load("prior.npy",encoding='latin1').item()
     word2row = dict()
     p2word = dict()
 	
@@ -181,7 +181,7 @@ def bitwrite_submats(quant_submats, codebks, path):
                     b = b + '0' * (8 - len(b))
                 j = int(b, 2)
                 c = chr(j)
-                f.write(c)
+                f.write(c.encode())
             f.close()
 
     return sfry_path
