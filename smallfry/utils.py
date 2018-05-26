@@ -157,7 +157,7 @@ def km_quantize(X,R):
     return inflated_embs.reshape(orig_shape), quant_embs.reshape(orig_shape), codebk
 
 
-def bitwrite_submats(quant_submats, codebks, path):
+def bitwrite_submats(quant_submats, codebks, path, endian = 'little'):
     sfry_path = path.replace(".txt", ".sfry")
     os.mkdir(sfry_path)
 
@@ -180,8 +180,7 @@ def bitwrite_submats(quant_submats, codebks, path):
                 if len(b) < 8:
                     b = b + '0' * (8 - len(b))
                 j = int(b, 2)
-                c = chr(j)
-                f.write(c.encode())
+                f.write(int.to_bytes(j,1,endian))
             f.close()
 
     return sfry_path
