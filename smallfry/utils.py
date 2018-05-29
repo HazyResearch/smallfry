@@ -11,8 +11,159 @@ from joblib import Parallel, delayed
 from sklearn.cluster import KMeans
 from io import StringIO
 import struct
+import logging
 
 
+DP_memo = dict()
+args_table = dict() 
+lin_prefix_sums = np.array([])
+quad_prefix_sums = np.array([])
+clusters = 0
+
+def centroid_factory(i,j):
+    global lin_prefix_sums
+    global quad_prefix_sums
+    linsum = lin_prefix_sums[j] - lin_prefix_sums[i-1]
+    quadsum = quad_prefix_sums[j] - quad_prefix_sums[i-1]
+    centroid = 1.0*linsum/(j-i+1)
+    return (j-i+1)*centroid**2 - 2*centroid * linsum + quadsum
+    
+def DP_solver(memokey):
+    global DP_memo
+    if memokey in DP_memo:
+        return DP_memo[memokey]
+    
+    sol = 0
+    argsol = memokey[1]
+    if memokey[1] <= memokey[0]:
+        sol = 0
+    elif memokey[0] == 1:
+        sol = centroid_factory(1,memokey[1])
+    else:
+        DP = [DP_solver((memokey[0]-1,jj-1)) + centroid_factory(jj,memokey[1])\
+            for jj in range(1,memokey[1]+1)]
+        sol =  min(DP)
+        argsol = np.argmin(DP)+1
+        
+    DP_memo[memokey] = sol
+    args_table[memokey] = argsol
+    return sol
+        
+
+def monotone_matrix_query(m,j):
+    global clusters
+    cost = 0
+    memokey = (clusters-1,min(j-1,m))
+    if j <= m:
+        cost = centroid_factory(j,m)
+    return -1*(DP_solver(memokey) + cost)
+    
+def fast_KM(row,k):
+    vector = np.array(sorted(row))
+    global clusters
+    global lin_prefix_sums  
+    global quad_prefix_sums
+    global DP_memo
+    global args_table
+    DP_memo = dict()
+    args_table = dict()
+    clusters = k
+    lin_prefix_sums = np.zeros(len(vector)+1)
+    quad_prefix_sums = np.zeros(len(vector)+1)
+
+    for i in range(0,len(vector)+1):
+        lin_prefix_sums[i] = sum(vector[0:i])
+        quad_prefix_sums[i] = sum(vector[0:i]**2) 
+    
+    rows = [i for i in range(1,len(vector)+1)]
+    cols = [m for m in range(1,len(vector)+1)]
+    lookup = monotone_matrix_query
+   
+    solution = monotone_mat_search(rows,cols,lookup)
+    clusterstarts = np.zeros(k,dtype=int)
+    codebk = np.zeros(k)
+    clusterstarts[k-1] = solution[len(vector)]
+    clusterstarts[0] = 1
+    for i in range(1,k-1):
+        l = k-i
+        clusterstarts[l-1] = args_table[(l,clusterstarts[l]-1)] 
+       
+    for i in range(0,k):
+        if i+1 < len(clusterstarts):
+            a = clusterstarts[i+1]-1
+        else:
+            a = len(vector)
+        b = clusterstarts[i]-1
+        linsum = lin_prefix_sums[a] - lin_prefix_sums[b]
+        codebk[i] = 1.0*linsum/(a-b)
+ 
+    inflated_embs = np.zeros(len(vector))
+    quant_embs = np.zeros(len(vector),dtype=int)
+    s = 0
+
+    for i in range(0,len(vector)):
+        quant_embs[i] = np.argmin(np.abs(row[i] - codebk))
+        inflated_embs[i] = codebk[quant_embs[i]]
+     
+#    for i in range(0,len(vector)):
+#        c = clusterstarts[s+1]-1 if s+1 < len(clusterstarts) else len(vector)
+#        if c <= i#:
+#            s += 1
+#        inflated_embs[i] = codebk[s]
+ #       quant_embs[i] = s
+#    
+    #print(clusterstarts)
+    '''
+    for i in range(0,len(clusterstarts)-1):
+        linsum = lin_prefix_sums[j] 
+        codebk[i] = (lin_prefix_sums[clusterstarts[i+1]-1] - lin_prefix_sums[clusterstarts[i]])/(j-i+1)         
+    codebk[k-1] = lin_prefix_sums
+    '''
+
+    # linsum = lin_prefix_sums[j] - lin_prefix_sums[i-1]
+    #quadsum = quad_prefix_sums[j] - quad_prefix_sums[i-1]
+    #centroid = linsum/(j-i+1)i
+    codelist = list()
+    for i in range(0,len(codebk)):
+        codelist.append(np.array([codebk[i]]))
+
+    codelist = np.array(codelist)
+    
+
+    return inflated_embs,quant_embs,codelist
+
+def monotone_mat_search(rows,cols,lookup):
+    xrange = range
+    # base case of recursion
+    if not rows: return {}
+    # reduce phase: make number of columns at most equal to number of rows
+    stack = []
+    for c in cols:
+        while len(stack) >= 1 and \
+          lookup(rows[len(stack)-1],stack[-1]) < lookup(rows[len(stack)-1],c):
+            stack.pop()
+        if len(stack) != len(rows):
+            stack.append(c)
+
+    cols = stack
+    # recursive call to search for every odd row
+    result = monotone_mat_search([rows[i] for i in xrange(1,len(rows),2)],cols,lookup)
+    # go back and fill in the even rows
+    c = 0
+    for r in xrange(0,len(rows),2):
+        row = rows[r]
+        if r == len(rows) - 1:
+            cc = len(cols)-1  # if r is last row, search through last col
+        else:
+            cc = c            # otherwise only until pos of max in row r+1
+            target = result[rows[r+1]]
+            while cols[cc] != target:
+                cc += 1
+        result[row] = max([ (lookup(row,cols[x]),-x,cols[x]) \
+                            for x in xrange(c,cc+1) ]) [2]
+        c = cc
+    return result
+    
 
 def rowwise_KM(row,k,max_iters=200,num_inits=10,init_dist='default'):
     kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=1).fit(row)
@@ -54,6 +205,38 @@ def allocation_round(bit_allot_vect, sort=False):
     return np.array(sorted(bit_allot_vect,reverse=True)) if sort else bit_allot_vect
 
 
+def bit_allocator_2D(spectrum, weights, bits_per_entry):
+    num_cols = len(spectrum)
+    num_rows = len(weights)
+    total_budget = bits_per_entry*num_cols*num_rows
+    lamb = 2.0**(-4)
+    while(compute_bit_allot_grid(spectrum,weights,num_cols,num_rows,lamb)[0] < total_budget):
+        lamb = lamb*2
+
+    upper_b = np.ceil(lamb)
+    lower_b = np.floor(lamb/2)
+    while(upper_b - lower_b > 1.1):
+        mid_p = 0.5*(upper_b + lower_b)
+        budget_usage,_ = compute_bit_allot_grid(spectrum, weights, num_cols, num_rows, mid_p)
+        increase = (budget_usage < total_budget)
+        mid_p = np.floor(mid_p) if increase else np.ceil(mid_p)
+        if increase:
+            lower_b = mid_p
+        else:
+            upper_b = mid_p
+
+    return compute_bit_allot_grid(spectrum, weights, num_cols, num_rows, lower_b)
+         
+
+def compute_bit_allot_grid(spectrum, weights, num_cols, num_rows, lamb):
+    bit_allot_grid = 0
+    with np.errstate(divide='ignore'):
+        bit_allot_grid = np.add.outer( np.floor(np.log2(spectrum)) , np.floor(0.5*np.log2(weights)) + lamb )
+    bit_allot_grid = np.maximum(bit_allot_grid, np.zeros([num_cols,num_rows]))
+    budget_usage = np.sum(bit_allot_grid)
+    return budget_usage,bit_allot_grid.astype(int)
+    
+
 
 def downsample(bit_allot_vect,dim):
     budget = 0
@@ -69,11 +252,9 @@ def downsample(bit_allot_vect,dim):
 
     print(bit_allot_vect)
     return bit_allot_vect
-        
-   
+      
 
-
-def text2npy(path,dim):
+def text2npy(path,priorpath,dim):
     embed_path = path.replace(".txt", ".npy")
     word_path = path.replace(".txt", ".word")
     word_dict_path = path.replace(".txt",".word.npy")

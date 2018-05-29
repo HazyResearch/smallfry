@@ -1,6 +1,10 @@
 import smallfry.utils as utils
 import struct
 import numpy as np
+import argh
+import logging
+
+
 
 def query(word, word2idx, dim, sfry_path): 
     
@@ -58,9 +62,12 @@ def query(word, word2idx, dim, sfry_path):
      
     
     
-def compress(path, dim, R):
-    print("Converting text to npy...")
-    emb_mat, p, words, word2idx = utils.text2npy(path,dim)
+def compress(path, priorpath, dim, R):
+    
+    logging.basicConfig(filename=path+'smallfry.log',level=logging.DEBUG)
+
+    logging.info("Converting text to npy...")
+    emb_mat, p, words, word2idx = utils.text2npy(path,priorpath,dim)
      
     print("Computing optimal bit allocations...")
     bit_allocations = utils.allocation_round(utils.bit_allocator(p,R),sort=True)
