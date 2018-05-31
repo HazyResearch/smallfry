@@ -3,8 +3,8 @@
 
 DISCLAIMER: Not robust. Contact tginart if bugs are found.
 
-Usage for compression: ```python src/smallfry.py compress {path} {priorpath} {R} {memorybudget}```
-Usage for querying: ```python src/smallfry.py query {word} {index_dict} {dim} {sfry_path}```
+Usage for compression: ```python src/smallfry.py compress {path} {priorpath} {R} {memorybudget}```<br />
+Usage for querying: ```python src/smallfry.py query {word} {index_dict} {dim} {sfry_path}```<br />
 
 Can also be used as API. Import the module and call the functions.
 
