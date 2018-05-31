@@ -1,4 +1,4 @@
-import smallfry.utils as utils
+import utils
 import struct
 import numpy as np
 import argh
@@ -65,12 +65,13 @@ def query(word, word2idx, dim, sfry_path):
      
     
     
-def compress(path, priorpath, dim, R):
-    
+def compress(path, priorpath, dim, R, mem_budget=None):
     logging.basicConfig(filename=path+'smallfry.log',level=logging.DEBUG)
 
     logging.info("Converting text to npy...")
     emb_mat, p, words, word2idx = utils.text2npy(path,priorpath,dim)
+    if mem_budet != None:
+        R = 7.99*mem_budget/(len(p)*dim)
      
     print("Computing optimal bit allocations...")
     bit_allocations = utils.allocation_round(utils.bit_allocator(p,R),sort=True)
@@ -91,7 +92,7 @@ def compress(path, priorpath, dim, R):
     return word2idx, sfry_path
 
 parser = argh.ArghParser()
-parser.add_commands([echo,greeter])
+parser.add_commands([compress,query])
 
 if __name__ == '__main__':
     parser.dispatch()

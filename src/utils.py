@@ -239,6 +239,7 @@ def compute_bit_allot_grid(spectrum, weights, num_cols, num_rows, lamb):
 
 
 def downsample(bit_allot_vect,dim):
+#This method downsamples such that the k-means is always assigns less cluster than points
     budget = 0
     V = len(bit_allot_vect)
     maxrate = np.floor(np.log2(dim))
@@ -262,7 +263,7 @@ def text2npy(path,priorpath,dim):
     #print("convert {} to {}".format(glove_path, embed_path))
     
     words = list()
-    prior = np.load("prior.npy",encoding='latin1').item()
+    prior = np.load(priorpath,encoding='latin1').item()
     word2row = dict()
     p2word = dict()
 	
@@ -305,6 +306,7 @@ def text2npy(path,priorpath,dim):
     
 
 def mat_partition(embmat, bit_allocations):
+#partitions the matrix in submatrices based on the bit allocations
     allots, allot_indices = np.unique(bit_allocations,return_index=True)
     submats = list()
     prev_idx = len(embmat)
@@ -317,6 +319,7 @@ def mat_partition(embmat, bit_allocations):
         
 
 def quantize(submats):
+#quantizes each submatrix
     inf_submats = list()
     quant_submats = list()
     codebks = list()  
