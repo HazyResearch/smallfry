@@ -308,7 +308,7 @@ def text2npy(path,priorpath, word_rep,dim):
         word_trie = marisa_trie.RecordTrie('<H',zip(keys,vals))
         np.save(word_trie_path, word_trie)
     
-    return embed_matrix, p, words, word2idx 
+    return embed_matrix, p, words, word2idx, dim 
     
 
 def mat_partition(embmat, bit_allocations):
