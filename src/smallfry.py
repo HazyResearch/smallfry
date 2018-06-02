@@ -74,7 +74,7 @@ def compress(path, priorpath, mem_budget, write_inflated=False, word_rep="dict",
     logging.basicConfig(filename=path+'smallfry.log',level=logging.DEBUG)
 
     logging.info("Converting text to npy...")
-    emb_mat, p, words, word2idx, dim  = utils.text2npy(path,priorpath,,word_rep,dim)
+    emb_mat, p, words, word2idx, dim  = utils.text2npy(path,priorpath,word_rep,dim)
     if R == None:
         R = 7.99*mem_budget/(len(p)*dim)
      
