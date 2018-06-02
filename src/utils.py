@@ -13,7 +13,10 @@ from io import StringIO
 import struct
 import logging
 
+#INTERNAL UTILS FOR SMALL-FRY API: Direct usage not recommended
 
+#global variables here
+#these are automatically cleaned when needed, if only the API methods are called
 DP_memo = dict()
 args_table = dict() 
 lin_prefix_sums = np.array([])
@@ -21,6 +24,7 @@ quad_prefix_sums = np.array([])
 clusters = 0
 
 def centroid_factory(i,j):
+#TODO: this method is under active development -- not recommended for use
     global lin_prefix_sums
     global quad_prefix_sums
     linsum = lin_prefix_sums[j] - lin_prefix_sums[i-1]
@@ -29,6 +33,7 @@ def centroid_factory(i,j):
     return (j-i+1)*centroid**2 - 2*centroid * linsum + quadsum
     
 def DP_solver(memokey):
+#TODO: this method is under active development -- not recommended for use
     global DP_memo
     if memokey in DP_memo:
         return DP_memo[memokey]
@@ -51,6 +56,7 @@ def DP_solver(memokey):
         
 
 def monotone_matrix_query(m,j):
+#TODO: this method is under active development -- not recommended for use    
     global clusters
     cost = 0
     memokey = (clusters-1,min(j-1,m))
@@ -59,6 +65,7 @@ def monotone_matrix_query(m,j):
     return -1*(DP_solver(memokey) + cost)
     
 def fast_KM(row,k):
+#TODO: this method is under active development -- not recommended for use
     vector = np.array(sorted(row))
     global clusters
     global lin_prefix_sums  
@@ -105,24 +112,6 @@ def fast_KM(row,k):
         quant_embs[i] = np.argmin(np.abs(row[i] - codebk))
         inflated_embs[i] = codebk[quant_embs[i]]
      
-#    for i in range(0,len(vector)):
-#        c = clusterstarts[s+1]-1 if s+1 < len(clusterstarts) else len(vector)
-#        if c <= i#:
-#            s += 1
-#        inflated_embs[i] = codebk[s]
- #       quant_embs[i] = s
-#    
-    #print(clusterstarts)
-    '''
-    for i in range(0,len(clusterstarts)-1):
-        linsum = lin_prefix_sums[j] 
-        codebk[i] = (lin_prefix_sums[clusterstarts[i+1]-1] - lin_prefix_sums[clusterstarts[i]])/(j-i+1)         
-    codebk[k-1] = lin_prefix_sums
-    '''
-
-    # linsum = lin_prefix_sums[j] - lin_prefix_sums[i-1]
-    #quadsum = quad_prefix_sums[j] - quad_prefix_sums[i-1]
-    #centroid = linsum/(j-i+1)i
     codelist = list()
     for i in range(0,len(codebk)):
         codelist.append(np.array([codebk[i]]))
@@ -133,6 +122,7 @@ def fast_KM(row,k):
     return inflated_embs,quant_embs,codelist
 
 def monotone_mat_search(rows,cols,lookup):
+#TODO: this method is under active development -- not recommended for use
     xrange = range
     # base case of recursion
     if not rows: return {}
@@ -166,25 +156,26 @@ def monotone_mat_search(rows,cols,lookup):
     
 
 def rowwise_KM(row,k,max_iters=200,num_inits=10,init_dist='default'):
+#uses sklearn scalar KMeans which implements Lloyd's iterative algo
     kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=1).fit(row)
     return np.concatenate(kmeans.cluster_centers_[kmeans.labels_]), kmeans.labels_, kmeans.cluster_centers_
     
-def bit_allocator(var_vect, bitrate, err_tol=0.1):
+def bit_allocator(weight_vect, bitrate, err_tol=0.1):
 #computes bit allotment, needs weights as input 
-    total_budget = len(var_vect)*bitrate          
-    lamb_max = max(var_vect)
+    total_budget = len(weight_vect)*bitrate          
+    lamb_max = max(weight_vect)
     lamb_min = 1e-100
     lamb = 0
     rate = 0
     while(np.abs(rate - total_budget) > err_tol):
         lamb = (lamb_max - lamb_min)/2 + lamb_min
-        rate = 0.5*sum(np.log2(var_vect/np.minimum(var_vect,lamb)))
+        rate = 0.5*sum(np.log2(weight_vect/np.minimum(weight_vect,lamb)))
         if(rate > total_budget):
             lamb_min = lamb
         else:
             lamb_max = lamb
 
-    return 0.5*np.log2(var_vect/np.minimum(var_vect,lamb))
+    return 0.5*np.log2(weight_vect/np.minimum(weight_vect,lamb))
 
 def allocation_round(bit_allot_vect, sort=False):
 #rounds the bit allot vect such that <1 bit goes unused in aggregate
@@ -206,6 +197,7 @@ def allocation_round(bit_allot_vect, sort=False):
 
 
 def bit_allocator_2D(spectrum, weights, bits_per_entry):
+#TODO: this method is under active development -- not recommended for use
     num_cols = len(spectrum)
     num_rows = len(weights)
     total_budget = bits_per_entry*num_cols*num_rows
@@ -229,6 +221,7 @@ def bit_allocator_2D(spectrum, weights, bits_per_entry):
          
 
 def compute_bit_allot_grid(spectrum, weights, num_cols, num_rows, lamb):
+#TODO: this method is under active development -- not recommended for use
     bit_allot_grid = 0
     with np.errstate(divide='ignore'):
         bit_allot_grid = np.add.outer( np.floor(np.log2(spectrum)) , np.floor(0.5*np.log2(weights)) + lamb )
@@ -255,12 +248,13 @@ def downsample(bit_allot_vect,dim):
     return bit_allot_vect
       
 
-def text2npy(path,priorpath,dim):
-    embed_path = path.replace(".txt", ".npy")
-    word_path = path.replace(".txt", ".word")
-    word_dict_path = path.replace(".txt",".word.npy")
+def text2npy(path,priorpath, word_rep,dim):
+#preprocssing textfile embeddings input
+    embed_path = path+".npy"
+    word_path = path+".word"
+    word_dict_path = path+".word.npy"
+    word_trie_path = path+".word.marisa-trie"
     f_wordout = open(word_path, "w")
-    #print("convert {} to {}".format(glove_path, embed_path))
     
     words = list()
     prior = np.load(priorpath,encoding='latin1').item()
@@ -276,6 +270,8 @@ def text2npy(path,priorpath,dim):
         txtline = line.rstrip().split(' ')
         word = txtline[0]
         row = np.array(txtline[1:], dtype='float32')
+        if dim == None:
+            dim = len(row)
         try:
             p[i] = prior[word]
         except KeyError: #if word not in prior... well... occurs at least ~1?
@@ -297,11 +293,20 @@ def text2npy(path,priorpath,dim):
             embed_matrix[i] = vec	
             words.append(word)
             word2idx[word] = i
-            f_wordout.write(word + "\n")
+            if word_rep == 'list'
+                f_wordout.write(word + "\n")
   
     p = p/sum(p)
-    np.save(embed_path, embed_matrix) 
-    np.save(word_dict_path, word2idx)
+    #np.save(embed_path, embed_matrix) 
+    if word_rep == 'dict'
+        np.save(word_dict_path, word2idx)
+    if word_rep == 'trie':
+        import marisa_trie
+        keys = list(word2idx.keys())
+        vals = [word2idx[k] for k in keys]
+        word_trie = marisa_trie.RecordTrie('<H',zip(keys,vals))
+        np.save(word_trie_path, word_trie)
+    
     return embed_matrix, p, words, word2idx 
     
 
@@ -334,6 +339,7 @@ def quantize(submats):
     return inflated_mat, quant_submats, codebks 
 
 def km_quantize(X,R):
+#k-means for submatrix
     orig_shape = X.shape
     X = X.reshape(-1,1)
     k = 2**R
@@ -368,63 +374,5 @@ def bitwrite_submats(quant_submats, codebks, path, endian = 'little'):
             f.close()
 
     return sfry_path
-
-'''
-def query(word, word2idx, allot_indices, codebk, dim):
-    idx = word2idx[word]
-    R_i = 0
-    prev_index = 0
-    submat = 0
-    while R_i < len(allot_indices):
-        if idx > allot_indices[R_i]:
-            break
-        else:
-            R_i += 1
-
-    if R_i == 0:
-        return np.zeros(dim)
-    
-    f = open(str(R_i),'rb')
-    offset_in_bits = int((idx - allot_indices[R_i])*dim*R_i)
-    readend_in_bits = dim*R_i + offset_in_bits
-    
-
-    #correction is in bits from start of byte
-    offset_in_bytes = offset_in_bits/8
-    offset_correction = offset_in_bits%8
-   
-    #correction is in bits from end of byte
-    readend_in_bytes = readend_in_bits/8 + 1
-    readend_correction = 8-(readend_in_bits%8)
-
-    f.seek(offset_in_bytes,0)
-    row_hex = f.read(readend_in_bytes - offset_in_bytes)
-    row_bitstring = ""
-    for i in range(0,len(row_hex)):
-        bitstring = bin(struct.unpack("B",row_hex[i])[0])[2:]
-        if len(bitstring) < 8:
-            bitstring = '0' * (8-len(bitstring)) + bitstring
-        row_bitstring += bitstring 
-    
-    row_bitstring = row_bitstring[offset_correction:len(row_bitstring)-readend_correction]
-
-    print("meep" +str(row_bitstring))
-    inflated_row = np.zeros(dim)
-    for i in range(0,dim):
-        code = int(row_bitstring[i*R_i:(i+1)*R_i],2)
-        inflated_row[i] = codebk[R_i][code]
-     
-    return inflated_row,row_bitstring
-     
-    
-    
-def compress(path, dim, R):
-    emb_mat, p, words, word2idx = text2npy(path,dim)
-    bit_allocations = allocation_round(bit_allocator(p,R),sort=True)
-    submats,allot_indices = mat_partition(emb_mat, bit_allocations)
-    _, quant_submats, codebks = quantize(submats)
-    bitwrite_submats(quant_submats, codebks)
-    return word2idx, allot_indices, codebks
-'''
 
 

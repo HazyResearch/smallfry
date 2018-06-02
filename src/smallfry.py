@@ -9,8 +9,12 @@ import logging
 #load thing into tmpfile in memory
 #Trie for words
 
-def query(word, word2idx, dim, sfry_path): 
+#These three methods can be used either as command lines utils or a programmatic API
+
+
+def query(word, word2idx, sfry_path): 
     
+    dim = np.load(sfry_path+"/dim.npy")
     codebk = np.load(sfry_path+"/codebks.npy")
     allot_indices = np.load(sfry_path+"/metadata.npy")
 
@@ -62,15 +66,16 @@ def query(word, word2idx, dim, sfry_path):
         inflated_row[i] = codebk[R_i][code]
      
     return inflated_row
-     
+    
+
     
     
-def compress(path, priorpath, dim, R, mem_budget=None):
+def compress(path, priorpath, mem_budget, write_inflated=False, word_rep="dict",  dim=None, R=None):
     logging.basicConfig(filename=path+'smallfry.log',level=logging.DEBUG)
 
     logging.info("Converting text to npy...")
-    emb_mat, p, words, word2idx = utils.text2npy(path,priorpath,dim)
-    if mem_budet != None:
+    emb_mat, p, words, word2idx, dim  = utils.text2npy(path,priorpath,,word_rep,dim)
+    if R == None:
         R = 7.99*mem_budget/(len(p)*dim)
      
     print("Computing optimal bit allocations...")
@@ -87,6 +92,7 @@ def compress(path, priorpath, dim, R, mem_budget=None):
     sfry_path = utils.bitwrite_submats(quant_submats, codebks, path)
     np.save(sfry_path+"/codebks",codebks)
     np.save(sfry_path+"/metadata",allot_indices)
+    np.save(sfry_path+"/dim",dim)
     print("Compression complete!")    
 
     return word2idx, sfry_path
