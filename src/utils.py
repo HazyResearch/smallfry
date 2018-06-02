@@ -262,7 +262,6 @@ def text2npy(path,priorpath, word_rep,dim):
     p2word = dict()
 	
     lines = list(open(path))
-    embed_matrix = np.zeros((len(lines), dim), dtype='float32')
     p = np.zeros(len(lines), dtype='float32')
     word2idx = dict()
     
@@ -284,6 +283,8 @@ def text2npy(path,priorpath, word_rep,dim):
             p2word[p[i]].append(word)
     
     p = sorted(p, reverse=True)
+    embed_matrix = np.zeros((len(lines), dim), dtype='float32')
+ 
     
     for i in range(0,len(p)):
         p_words = p2word[p[i]]
