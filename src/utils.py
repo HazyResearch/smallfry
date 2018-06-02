@@ -293,7 +293,7 @@ def text2npy(path,priorpath, word_rep,dim):
             embed_matrix[i] = vec	
             words.append(word)
             word2idx[word] = i
-            if word_rep == 'list'
+            if word_rep == 'list':
                 f_wordout.write(word + "\n")
   
     p = p/sum(p)
