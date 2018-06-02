@@ -298,7 +298,7 @@ def text2npy(path,priorpath, word_rep,dim):
   
     p = p/sum(p)
     #np.save(embed_path, embed_matrix) 
-    if word_rep == 'dict'
+    if word_rep == 'dict':
         np.save(word_dict_path, word2idx)
     if word_rep == 'trie':
         import marisa_trie
