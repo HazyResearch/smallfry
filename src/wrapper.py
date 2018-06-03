@@ -27,24 +27,9 @@ class Smallfry:
                 f_size = os.path.getsize(fullpath)
                 self.memmap_reps[int(i)] = np.memmap(fullpath, dtype='uint8', mode='readonly', shape=(f_size))
                 
-
-    def get_word_idx(self, word):
-        if type(self.word2idx) is dict:
-            return self.word2idx[word]
-        elif type(self.word2idx) is marisa_trie.RecordTrie:
-            return self.word2idx[word][0][0]
-        else:
-            #throw error
-            return None
-
-
     def query(self, word):
-        idx = self.get_word_idx(word)
-        R_i = utils.get_submat_idx(idx, self.allot_indices)
+        idx, R_i, OofV = utils.query_prep(word, self.word2idx, self.dim, self.codebks, self.allot_indices)
         if R_i == 0:
-            return np.repeat(self.codebks[0][0],self.dim)
+            return OofV
         offset, readend, offset_correction, readend_correction = utils.get_scan_params(idx,self.allot_indices,R_i,self.dim)
-        
-        rowbytes = self.memmap_reps[R_i][offset:readend]
-        bitstring = utils.parse_row(rowbytes, offset_correction, readend_correction)
-        return utils.decode_row(bitstring, R_i, self.codebks, self.dim) 
+        return utils.query_exec(self.memmap_reps[R_i][offset:readend], offset_correction, readend_correction, R_i, self.codebks, self.dim)

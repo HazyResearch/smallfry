@@ -395,9 +395,6 @@ def get_submat_idx(idx, allot_indices):
     R_i = 0
     prev_index = 0
     while R_i < len(allot_indices):
-        print(idx)
-        print(allot_indices)
-        print(R_i)
         if idx >= allot_indices[R_i]:
             break
         else:
@@ -427,11 +424,11 @@ def get_scan_params(idx, allot_indices, R_i, dim):
 
 
 
-def parse_row(row_hex, offset_correction, readend_correction):
+def parse_row(rowbytes, offset_correction, readend_correction):
     row_bitstring = ""
-    for i in range(0,len(row_hex)):
-        bitstring = bin(row_hex[i])[2:]   
-    #bitstring = bin(struct.unpack("B",row_hex[i])[0])[2:]
+    for i in range(0,len(rowbytes)):
+        bitstring = bin(rowbytes[i])[2:]   
+    #bitstring = bin(struct.unpack("B",rowbytes[i])[0])[2:]
         if len(bitstring) < 8:
             bitstring = '0' * (8-len(bitstring)) + bitstring
         row_bitstring += bitstring 
@@ -442,7 +439,6 @@ def parse_row(row_hex, offset_correction, readend_correction):
 
 def decode_row(row_bitstring, R_i, codebks, dim):
 
-    print(codebks)
     inflated_row = np.zeros(dim)
     for i in range(0,dim):
         code = int(row_bitstring[i*R_i:(i+1)*R_i],2)
@@ -451,6 +447,21 @@ def decode_row(row_bitstring, R_i, codebks, dim):
     return inflated_row
 
 
+def get_word_idx(word, word2idx):
+    if type(word2idx) is dict:
+        return word2idx[word]
+    elif type(word2idx) is marisa_trie.RecordTrie:
+        return word2idx[word][0][0]
+    else:
+        #throw error 
+        return None
 
-
-
+def query_prep(word, word2idx, dim, codebks, allot_indices):
+        idx = get_word_idx(word, word2idx)
+        R_i = get_submat_idx(idx, allot_indices)
+        OofV = np.repeat(codebks[0][0], dim)
+        return idx, R_i, OofV
+        
+def query_exec(rowbytes, offset_correction, readend_correction, R_i, codebks, dim):
+    bitstring = parse_row(rowbytes, offset_correction, readend_correction)
+    return decode_row(bitstring, R_i, codebks, dim)

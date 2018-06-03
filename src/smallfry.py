@@ -16,6 +16,22 @@ import logging
 def load(sfry_path, word2idx):
     return wrapper.Smallfry(sfry_path, word2idx) 
 
+def query2(word, word2idx, sfry_path):
+    
+    dim = np.load(sfry_path+"/dim.npy")
+    codebks = np.load(sfry_path+"/codebks.npy")
+    allot_indices = np.load(sfry_path+"/metadata.npy")
+    idx, R_i, OofV = query_prep(word, word2idx, dim, codebks, allot_indices)
+    if R_i == 0:    
+        return OofV
+    offset, readend, offset_correction, readend_correction = utils.get_scan_params(idx,self.allot_indices,R_i,self.dim)
+    f = open(sfry_path+"/"+"submat"+str(R_i),'rb')
+    f.seek(offset_in_bytes,0)
+    rowbytes = f.read(readend - offset)
+    return utils.query_exec(f.read(readend - offset), offset_correction, readend_correction, R_i, codebks, dim)
+    
+
+ 
 def query(word, word2idx, sfry_path): 
     
     dim = np.load(sfry_path+"/dim.npy")
