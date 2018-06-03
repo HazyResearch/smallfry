@@ -244,7 +244,6 @@ def downsample(bit_allot_vect,dim):
             bit_allot_vect[i] += 1
             budget -=1
 
-    print(bit_allot_vect)
     return bit_allot_vect
       
 
@@ -264,7 +263,7 @@ def text2npy(path,priorpath, word_rep, write_rep):
     lines = list(open(path))
     p = np.zeros(len(lines), dtype='float32')
     word2idx = dict()
-    
+
     for i, line in enumerate(lines):
         txtline = line.rstrip().split(' ')
         word = txtline[0]
@@ -280,11 +279,16 @@ def text2npy(path,priorpath, word_rep, write_rep):
         else:
             p2word[p[i]] = list()
             p2word[p[i]].append(word)
+        
+        if i % 10000 == 0: 
+            logging.debug("Parsing txt... on line # "+str(i)+" out of "+str(len(lines)))
+            
     
     p = sorted(p, reverse=True)
     embed_matrix = np.zeros((len(lines), dim), dtype='float32')
- 
     
+    logging.debug("Embeddings parse complete, preparing word representation...")
+   
     for i in range(0,len(p)):
         p_words = p2word[p[i]]
         for ii in range(0,len(p_words)):
@@ -300,6 +304,7 @@ def text2npy(path,priorpath, word_rep, write_rep):
     #np.save(embed_path, embed_matrix) 
     if word_rep == 'dict':
         np.save(word_dict_path, word2idx)
+        logging.debug("Word dictionary written to "+word_dict_path)
     if word_rep == 'trie':
         import marisa_trie
         keys = list(word2idx.keys())
@@ -311,6 +316,8 @@ def text2npy(path,priorpath, word_rep, write_rep):
         #    trie2idx[word_trie[key]] = word2idx[key]
         #np.save(word_trie_path, word_trie)
         word_trie.save(word_trie_path)
+        logging.debug("Word trie written to "+word_trie_path)
+
     return embed_matrix, p, words, word2idx, dim 
     
 
@@ -324,6 +331,8 @@ def mat_partition(embmat, bit_allocations):
         submats.append(embmat[cur_idx:prev_idx])
         prev_idx = cur_idx
 
+    logging.debug("Partitioning into "+len(submats)+" submatrices...")
+
     return submats,allot_indices 
         
 
@@ -333,6 +342,7 @@ def quantize(submats):
     quant_submats = list()
     codebks = list()  
     for i in range(0,len(submats)):
+        logging.debug("Quantizing submat # "+str(i)+"...")
         inf_emb, quant_emb, codebk = km_quantize(submats[i],i)
         inf_submats.append(inf_emb)
         quant_submats.append(quant_emb)
@@ -352,11 +362,12 @@ def km_quantize(X,R):
 
 
 def bitwrite_submats(quant_submats, codebks, path, endian = 'little'):
-    sfry_path = path.replace(".txt", ".sfry")
+    sfry_path = path+".sfry"
     os.mkdir(sfry_path)
 
     for i in range(1,len(quant_submats)):
         s = ""
+        logging.debug("Generating bitwise representation for submatrix # "+str(i)+"...") 
         cur_submat = quant_submats[i].reshape(-1,1)
         for ii in range(0,len(cur_submat)):
             delta_s = bin(cur_submat[ii][0])[2:]
@@ -365,8 +376,6 @@ def bitwrite_submats(quant_submats, codebks, path, endian = 'little'):
             s += delta_s
        
 
-        print(i)
-        print(len(s)) 
         if(i > 0):
             sio = StringIO(s)
             f = open(sfry_path+"/"+"submat"+str(i),'wb')
@@ -440,16 +449,4 @@ def decode_row(row_bitstring, R_i, codebks, dim):
 
 
 
-'''
-class Smallfry:
-    word2idx = dict()
-    path = ""
-    def __init__(self,path,word2idx):
-        self.path = path
-        self.word2idx = word2idx
 
-    def query(word):
-        
-
-    def getsize()
-'''

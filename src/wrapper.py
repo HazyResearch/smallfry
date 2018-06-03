@@ -40,6 +40,8 @@ class Smallfry:
     def query(self, word):
         idx = self.get_word_idx(word)
         R_i = utils.get_submat_idx(idx, self.allot_indices)
+        if R_i == 0:
+            return np.repeat(self.codebks[0][0],self.dim)
         offset, readend, offset_correction, readend_correction = get_scan_params(idx,self.allot_indices,R_i,self.dim)
         
         rowbytes = self.memmap_reps[R_i][offset_in_bytes:readend_in_bytes - offset_in_bytes]

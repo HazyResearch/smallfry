@@ -13,8 +13,8 @@ import logging
 #These three methods can be used either as command lines utils or a programmatic API
 
 
-#def load(sfry_path):
- 
+def load(sfry_path, word2idx):
+    return Smallfry(sfry_path, word2idx) 
 
 def query(word, word2idx, sfry_path): 
     
@@ -74,30 +74,36 @@ def query(word, word2idx, sfry_path):
 
     
     
-def compress(path, priorpath, mem_budget, write_inflated=False, word_rep="dict", write_word_rep=False, R=None):
-    logging.basicConfig(filename=path+'smallfry.log',level=logging.DEBUG)
+def compress(path, priorpath, mem_budget=None, R=1, write_inflated=False, word_rep="dict", write_word_rep=False):
+    logging.basicConfig(filename=path+'.small-fry.log',level=logging.DEBUG)  
+    logging.info("Initializing Small-Fry compression! Parameters: ")
 
-    logging.info("Converting text to npy...")
+   
+    logging.info("Parsing embeddings txt and converting to npy...")
     emb_mat, p, words, word2idx, dim = utils.text2npy(path, priorpath, word_rep, write_word_rep)
-    if R == None:
+    if mem_budget != None:
+        mem_budget = float(mem_budget)
         R = 7.99*mem_budget/(len(p)*dim)
      
-    print("Computing optimal bit allocations...")
+    logging.info("Computing optimal bit allocations...")
     bit_allocations = utils.allocation_round(utils.bit_allocator(p,R),sort=True)
-    print("Downsampling for dimension "+str(dim)+"...")
+
+    logging.info("Downsampling for dimension "+str(dim)+"...")
     bit_allocations = utils.downsample(bit_allocations, dim)
-    print("Computing submatrix partitions...") 
+
+    logging.info("Computing submatrix partitions...") 
     submats,allot_indices = utils.mat_partition(emb_mat, bit_allocations)
-    print("Quantizing submatrices...")
+
+    logging.info("Quantizing submatrices...")
     inflated_mat, quant_submats, codebks = utils.quantize(submats)
-    infmat_path = path.replace(".txt",".inflated.npy")
+    infmat_path = path+".inflated.npy"
     np.save(infmat_path, inflated_mat)
-    print("Saving representation to file...")
+    print("Saving Small-Fry representation to file...")
     sfry_path = utils.bitwrite_submats(quant_submats, codebks, path)
     np.save(sfry_path+"/codebks",codebks)
     np.save(sfry_path+"/metadata",allot_indices)
     np.save(sfry_path+"/dim",dim)
-    print("Compression complete!")    
+    print("Compression complete in ")    
 
     return word2idx, sfry_path
 
