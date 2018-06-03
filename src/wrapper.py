@@ -24,7 +24,7 @@ class Smallfry:
                 i = filename[-1]
                 fullpath = path+'/'+filename
                 f_size = os.path.getsize(fullpath)
-                self.memmap_reps[int(i)] = np.memmap(fullpath, dtype='uint8', mode='readonly', shape=(f_size,1))
+                self.memmap_reps[int(i)] = np.memmap(fullpath, dtype='uint8', mode='readonly', shape=(f_size))
                 
 
     def get_word_idx(self, word):
@@ -40,6 +40,8 @@ class Smallfry:
     def query(self, word):
         idx = self.get_word_idx(word)
         R_i = utils.get_submat_idx(idx, self.allot_indices)
-        offset_correction, readend_correction = get_edge_corrections(idx,allot_indices,R_i,
+        offset, readend, offset_correction, readend_correction = get_scan_params(idx,self.allot_indices,R_i,self.dim)
         
-    
+        rowbytes = self.memmap_reps[R_i][offset_in_bytes:readend_in_bytes - offset_in_bytes]
+        bitstring = parse_row(rowbytes, offset_correction, readend_correction)
+        return decode_row(bitstring, R_i, self.codebks, self.dim) 

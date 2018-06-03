@@ -24,7 +24,7 @@ quad_prefix_sums = np.array([])
 clusters = 0
 
 def centroid_factory(i,j):
-#TODO: this method is under active development -- not recommended for use
+#TODO: this method is under active development -- do not use
     global lin_prefix_sums
     global quad_prefix_sums
     linsum = lin_prefix_sums[j] - lin_prefix_sums[i-1]
@@ -33,7 +33,7 @@ def centroid_factory(i,j):
     return (j-i+1)*centroid**2 - 2*centroid * linsum + quadsum
     
 def DP_solver(memokey):
-#TODO: this method is under active development -- not recommended for use
+#TODO: this method is under active development -- do not use
     global DP_memo
     if memokey in DP_memo:
         return DP_memo[memokey]
@@ -56,7 +56,7 @@ def DP_solver(memokey):
         
 
 def monotone_matrix_query(m,j):
-#TODO: this method is under active development -- not recommended for use    
+#TODO: this method is under active development -- do not use    
     global clusters
     cost = 0
     memokey = (clusters-1,min(j-1,m))
@@ -65,7 +65,7 @@ def monotone_matrix_query(m,j):
     return -1*(DP_solver(memokey) + cost)
     
 def fast_KM(row,k):
-#TODO: this method is under active development -- not recommended for use
+#TODO: this method is under active development -- do not use
     vector = np.array(sorted(row))
     global clusters
     global lin_prefix_sums  
@@ -122,7 +122,7 @@ def fast_KM(row,k):
     return inflated_embs,quant_embs,codelist
 
 def monotone_mat_search(rows,cols,lookup):
-#TODO: this method is under active development -- not recommended for use
+#TODO: this method is under active development -- do not use
     xrange = range
     # base case of recursion
     if not rows: return {}
@@ -197,7 +197,7 @@ def allocation_round(bit_allot_vect, sort=False):
 
 
 def bit_allocator_2D(spectrum, weights, bits_per_entry):
-#TODO: this method is under active development -- not recommended for use
+#TODO: this method is under active development -- do not use
     num_cols = len(spectrum)
     num_rows = len(weights)
     total_budget = bits_per_entry*num_cols*num_rows
@@ -221,7 +221,7 @@ def bit_allocator_2D(spectrum, weights, bits_per_entry):
          
 
 def compute_bit_allot_grid(spectrum, weights, num_cols, num_rows, lamb):
-#TODO: this method is under active development -- not recommended for use
+#TODO: this method is under active development -- do not use
     bit_allot_grid = 0
     with np.errstate(divide='ignore'):
         bit_allot_grid = np.add.outer( np.floor(np.log2(spectrum)) , np.floor(0.5*np.log2(weights)) + lamb )
@@ -394,7 +394,7 @@ def get_submat_idx(idx, allot_indices):
     return R_i
   
 
-def get_edge_corrections(idx, allot_indices, R_i, dim):
+def get_scan_params(idx, allot_indices, R_i, dim):
     offset_in_bits = int((idx - allot_indices[R_i])*dim*R_i)
     readend_in_bits = dim*R_i + offset_in_bits
     
@@ -411,11 +411,24 @@ def get_edge_corrections(idx, allot_indices, R_i, dim):
     readend_in_bytes = int(readend_in_bytes)
     offset_correction = int(offset_correction)
     readend_correction = int(readend_correction)
-    return offset_correction, readend_correction
+    return offset_in_bytes, readend_in_bytes, offset_correction, readend_correction
 
 
-def decode_row(row_bitstring, offset_correction, readend_correction, R_i, codebks, dim):
+
+def parse_row(row_hex, offset_correction, readend_correction):
+    row_bitstring = ""
+    for i in range(0,len(row_hex)):
+        bitstring = bin(row_hex[i])[2:]   
+    #bitstring = bin(struct.unpack("B",row_hex[i])[0])[2:]
+        if len(bitstring) < 8:
+            bitstring = '0' * (8-len(bitstring)) + bitstring
+        row_bitstring += bitstring 
+    
     row_bitstring = row_bitstring[offset_correction:len(row_bitstring)-readend_correction]
+    return row_bitstring
+
+
+def decode_row(row_bitstring, R_i, codebks, dim):
 
     inflated_row = np.zeros(dim)
     for i in range(0,dim):
