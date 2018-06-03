@@ -331,7 +331,7 @@ def mat_partition(embmat, bit_allocations):
         submats.append(embmat[cur_idx:prev_idx])
         prev_idx = cur_idx
 
-    logging.debug("Partitioning into "+len(submats)+" submatrices...")
+    logging.debug("Partitioning into "+str(len(submats))+" submatrices...")
 
     return submats,allot_indices 
         
@@ -395,6 +395,9 @@ def get_submat_idx(idx, allot_indices):
     R_i = 0
     prev_index = 0
     while R_i < len(allot_indices):
+        print(idx)
+        print(allot_indices)
+        print(R_i)
         if idx >= allot_indices[R_i]:
             break
         else:
@@ -439,10 +442,11 @@ def parse_row(row_hex, offset_correction, readend_correction):
 
 def decode_row(row_bitstring, R_i, codebks, dim):
 
+    print(codebks)
     inflated_row = np.zeros(dim)
     for i in range(0,dim):
         code = int(row_bitstring[i*R_i:(i+1)*R_i],2)
-        inflated_row[i] = codebk[R_i][code]
+        inflated_row[i] = codebks[R_i][code]
      
     return inflated_row
 

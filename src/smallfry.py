@@ -14,7 +14,7 @@ import logging
 
 
 def load(sfry_path, word2idx):
-    return Smallfry(sfry_path, word2idx) 
+    return wrapper.Smallfry(sfry_path, word2idx) 
 
 def query(word, word2idx, sfry_path): 
     
@@ -103,7 +103,7 @@ def compress(path, priorpath, mem_budget=None, R=1, write_inflated=False, word_r
     np.save(sfry_path+"/codebks",codebks)
     np.save(sfry_path+"/metadata",allot_indices)
     np.save(sfry_path+"/dim",dim)
-    print("Compression complete in ")    
+    print("Compression complete!!!")    
 
     return word2idx, sfry_path
 
