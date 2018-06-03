@@ -17,7 +17,8 @@ def load(sfry_path, word2idx):
     return wrapper.Smallfry(sfry_path, word2idx) 
 
 def query(word, word2idx, sfry_path):
-    
+    if type(word2idx) is str:
+        word2idx = np.load(word2idx).item() 
     dim = np.load(sfry_path+"/dim.npy")
     codebks = np.load(sfry_path+"/codebks.npy")
     allot_indices = np.load(sfry_path+"/metadata.npy")
@@ -28,65 +29,6 @@ def query(word, word2idx, sfry_path):
     f = open(sfry_path+"/"+"submat"+str(R_i),'rb')
     f.seek(offset,0)
     return utils.query_exec(f.read(readend - offset), offset_correction, readend_correction, R_i, codebks, dim)
-    
-
- 
-def query(word, word2idx, sfry_path): 
-    
-    dim = np.load(sfry_path+"/dim.npy")
-    codebk = np.load(sfry_path+"/codebks.npy")
-    allot_indices = np.load(sfry_path+"/metadata.npy")
-
-    idx = word2idx[word]
-    R_i = 0
-    prev_index = 0
-    while R_i < len(allot_indices):
-        if idx >= allot_indices[R_i]:
-            break
-        else:
-            R_i += 1
-
-    if R_i == 0:
-        return np.zeros(dim)
-    
-    f = open(sfry_path+"/"+"submat"+str(R_i),'rb')
-    offset_in_bits = int((idx - allot_indices[R_i])*dim*R_i)
-    readend_in_bits = dim*R_i + offset_in_bits
-    
-
-    #correction is in bits from start of byte
-    offset_in_bytes = offset_in_bits/8
-    offset_correction = offset_in_bits%8
-   
-    #correction is in bits from end of byte
-    readend_in_bytes = readend_in_bits/8 + 1
-    readend_correction = 8-(readend_in_bits%8) - 0**(readend_in_bits%8)*8
-
-    offset_in_bytes = int(offset_in_bytes)
-    readend_in_bytes = int(readend_in_bytes)
-    offset_correction = int(offset_correction)
-    readend_correction = int(readend_correction)
-
-    f.seek(offset_in_bytes,0)
-    row_hex = f.read(readend_in_bytes - offset_in_bytes)
-    row_bitstring = ""
-    for i in range(0,len(row_hex)):
-        bitstring = bin(row_hex[i])[2:]   
-    #bitstring = bin(struct.unpack("B",row_hex[i])[0])[2:]
-        if len(bitstring) < 8:
-            bitstring = '0' * (8-len(bitstring)) + bitstring
-        row_bitstring += bitstring 
-    
-    row_bitstring = row_bitstring[offset_correction:len(row_bitstring)-readend_correction]
-
-    inflated_row = np.zeros(dim)
-    for i in range(0,dim):
-        code = int(row_bitstring[i*R_i:(i+1)*R_i],2)
-        inflated_row[i] = codebk[R_i][code]
-     
-    return inflated_row
-    
-
     
     
 def compress(path, priorpath, mem_budget=None, R=1, write_inflated=False, word_rep="dict", write_word_rep=False):
@@ -111,8 +53,10 @@ def compress(path, priorpath, mem_budget=None, R=1, write_inflated=False, word_r
 
     logging.info("Quantizing submatrices...")
     inflated_mat, quant_submats, codebks = utils.quantize(submats)
-    infmat_path = path+".inflated.npy"
-    np.save(infmat_path, inflated_mat)
+    if write_inflated:
+        logging.info("Writing inflated embeddings as npy...")
+        infmat_path = path+".inflated.npy"
+        np.save(infmat_path, inflated_mat)
     print("Saving Small-Fry representation to file...")
     sfry_path = utils.bitwrite_submats(quant_submats, codebks, path)
     np.save(sfry_path+"/codebks",codebks)

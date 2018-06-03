@@ -301,22 +301,17 @@ def text2npy(path,priorpath, word_rep, write_rep):
              #   f_wordout.write(word + "\n")
   
     p = p/sum(p)
-    #np.save(embed_path, embed_matrix) 
-    if word_rep == 'dict':
-        np.save(word_dict_path, word2idx)
-        logging.debug("Word dictionary written to "+word_dict_path)
-    if word_rep == 'trie':
-        import marisa_trie
-        keys = list(word2idx.keys())
-        #word_trie = marisa_trie.Trie(keys)
-        vals = list([[word2idx[k]] for k in keys])
-        word_trie = marisa_trie.RecordTrie('I',zip(keys,vals))
-        #trie2idx = np.zeros(len(keys))
-        #for key in keys:
-        #    trie2idx[word_trie[key]] = word2idx[key]
-        #np.save(word_trie_path, word_trie)
-        word_trie.save(word_trie_path)
-        logging.debug("Word trie written to "+word_trie_path)
+    if write_rep:
+        if word_rep == 'dict': 
+            np.save(word_dict_path, word2idx)
+            logging.debug("Word dictionary written to "+word_dict_path)
+        if word_rep == 'trie': 
+            import marisa_trie
+            keys = list(word2idx.keys())
+            vals = list([[word2idx[k]] for k in keys])
+            word_trie = marisa_trie.RecordTrie('I',zip(keys,vals))
+            word_trie.save(word_trie_path)
+            logging.debug("Word trie written to "+word_trie_path)
 
     return embed_matrix, p, words, word2idx, dim 
     
