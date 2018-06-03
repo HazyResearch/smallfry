@@ -14,7 +14,7 @@ inf = np.load(path+'.inflated.npy')
 
 good2go = True
 for k in w2d.keys():
-    if np.linalg.norm(inf[w2d[k]] - sfry.query(k,w2d,sfry_path)) > 0.01 and len(np.unique(inf[w2d[k]])) > 1:
+    if np.linalg.norm(inf[w2d[k]] - sfry.query2(k,w2d,sfry_path)) > 0.01 and len(np.unique(inf[w2d[k]])) > 1:
         print(k)
         good2go = False
         break
