@@ -1,4 +1,5 @@
 import utils
+import wrapper
 import struct
 import numpy as np
 import argh
@@ -33,7 +34,7 @@ def query(word, word2idx, sfry_path):
     if R_i == 0:
         return np.zeros(dim)
     
-    f = open(sfry_path+"/"+str(R_i),'rb')
+    f = open(sfry_path+"/"+"submat"+str(R_i),'rb')
     offset_in_bits = int((idx - allot_indices[R_i])*dim*R_i)
     readend_in_bits = dim*R_i + offset_in_bits
     
@@ -73,11 +74,11 @@ def query(word, word2idx, sfry_path):
 
     
     
-def compress(path, priorpath, mem_budget, write_inflated=False, word_rep="dict", write_word_rep=False ,  dim=None, R=None):
+def compress(path, priorpath, mem_budget, write_inflated=False, word_rep="dict", write_word_rep=False, R=None):
     logging.basicConfig(filename=path+'smallfry.log',level=logging.DEBUG)
 
     logging.info("Converting text to npy...")
-    emb_mat, p, words, word2idx, dim = utils.text2npy(path,priorpath,word_rep,dim)
+    emb_mat, p, words, word2idx, dim = utils.text2npy(path, priorpath, word_rep, write_word_rep)
     if R == None:
         R = 7.99*mem_budget/(len(p)*dim)
      

@@ -248,13 +248,13 @@ def downsample(bit_allot_vect,dim):
     return bit_allot_vect
       
 
-def text2npy(path,priorpath, word_rep,dim):
+def text2npy(path,priorpath, word_rep, write_rep):
 #preprocssing textfile embeddings input
     embed_path = path+".npy"
     word_path = path+".word"
     word_dict_path = path+".word.npy"
-    word_trie_path = path+".word.marisa-trie"
-    f_wordout = open(word_path, "w")
+    word_trie_path = path+".word.marisa"
+    #f_wordout = open(word_path, "w")
     
     words = list()
     prior = np.load(priorpath,encoding='latin1').item()
@@ -269,8 +269,7 @@ def text2npy(path,priorpath, word_rep,dim):
         txtline = line.rstrip().split(' ')
         word = txtline[0]
         row = np.array(txtline[1:], dtype='float32')
-        if dim == None:
-            dim = len(row)
+        dim = len(row)
         try:
             p[i] = prior[word]
         except KeyError: #if word not in prior... well... occurs at least ~1?
@@ -294,8 +293,8 @@ def text2npy(path,priorpath, word_rep,dim):
             embed_matrix[i] = vec	
             words.append(word)
             word2idx[word] = i
-            if word_rep == 'list':
-                f_wordout.write(word + "\n")
+            #if word_rep == 'list':
+             #   f_wordout.write(word + "\n")
   
     p = p/sum(p)
     #np.save(embed_path, embed_matrix) 
@@ -304,10 +303,14 @@ def text2npy(path,priorpath, word_rep,dim):
     if word_rep == 'trie':
         import marisa_trie
         keys = list(word2idx.keys())
-        vals = [word2idx[k] for k in keys]
-        word_trie = marisa_trie.RecordTrie('<H',zip(keys,vals))
-        np.save(word_trie_path, word_trie)
-    
+        #word_trie = marisa_trie.Trie(keys)
+        vals = list([[word2idx[k]] for k in keys])
+        word_trie = marisa_trie.RecordTrie('I',zip(keys,vals))
+        #trie2idx = np.zeros(len(keys))
+        #for key in keys:
+        #    trie2idx[word_trie[key]] = word2idx[key]
+        #np.save(word_trie_path, word_trie)
+        word_trie.save(word_trie_path)
     return embed_matrix, p, words, word2idx, dim 
     
 
@@ -360,10 +363,13 @@ def bitwrite_submats(quant_submats, codebks, path, endian = 'little'):
             if len(delta_s) < i:
                 delta_s = '0' * (i - len(delta_s)) + delta_s
             s += delta_s
-        
+       
+
+        print(i)
+        print(len(s)) 
         if(i > 0):
             sio = StringIO(s)
-            f = open(sfry_path+"/"+str(i),'wb')
+            f = open(sfry_path+"/"+"submat"+str(i),'wb')
             while True:
                 b = sio.read(8)
                 if not b:
@@ -376,4 +382,61 @@ def bitwrite_submats(quant_submats, codebks, path, endian = 'little'):
 
     return sfry_path
 
+def get_submat_idx(idx, allot_indices):
+    R_i = 0
+    prev_index = 0
+    while R_i < len(allot_indices):
+        if idx >= allot_indices[R_i]:
+            break
+        else:
+            R_i += 1
 
+    return R_i
+  
+
+def get_edge_corrections(idx, allot_indices, R_i, dim):
+    offset_in_bits = int((idx - allot_indices[R_i])*dim*R_i)
+    readend_in_bits = dim*R_i + offset_in_bits
+    
+
+    #correction is in bits from start of byte
+    offset_in_bytes = offset_in_bits/8
+    offset_correction = offset_in_bits%8
+   
+    #correction is in bits from end of byte
+    readend_in_bytes = readend_in_bits/8 + 1
+    readend_correction = 8-(readend_in_bits%8) - 0**(readend_in_bits%8)*8
+
+    offset_in_bytes = int(offset_in_bytes)
+    readend_in_bytes = int(readend_in_bytes)
+    offset_correction = int(offset_correction)
+    readend_correction = int(readend_correction)
+    return offset_correction, readend_correction
+
+
+def decode_row(row_bitstring, offset_correction, readend_correction, R_i, codebks, dim):
+    row_bitstring = row_bitstring[offset_correction:len(row_bitstring)-readend_correction]
+
+    inflated_row = np.zeros(dim)
+    for i in range(0,dim):
+        code = int(row_bitstring[i*R_i:(i+1)*R_i],2)
+        inflated_row[i] = codebk[R_i][code]
+     
+    return inflated_row
+
+
+
+
+'''
+class Smallfry:
+    word2idx = dict()
+    path = ""
+    def __init__(self,path,word2idx):
+        self.path = path
+        self.word2idx = word2idx
+
+    def query(word):
+        
+
+    def getsize()
+'''
