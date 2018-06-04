@@ -21,6 +21,7 @@ Numpy <br />
 Scipy <br />
 Scikit-learn <br />
 Marisa-Trie <br />
+Arghs <br />
 
 TODOs:<br />
 add word txt list functionality back in <br /> 
