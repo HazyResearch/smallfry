@@ -271,18 +271,25 @@ def decode_row(row_bitstring, R_i, codebks, dim):
 
 
 def get_word_idx(word, word2idx):
-    if type(word2idx) is dict:
-        return word2idx[word]
-    elif type(word2idx) is marisa_trie.RecordTrie:
-        return word2idx[word][0][0]
+    if word in word2idx: #TODO check this
+        if type(word2idx) is dict:
+            return word2idx[word]
+        elif type(word2idx) is marisa_trie.RecordTrie:
+            return word2idx[word][0][0]
+        else:
+            logging.debug("Requested word is out-of-vocabulary...")
+            return -1
     else:
-        #throw error 
-        return None
+        logging.warn("Improper word representation provided... using out-of-vocabulary code")
+        return -1
 
 
 def query_prep(word, word2idx, dim, codebks, allot_indices):
         idx = get_word_idx(word, word2idx)
-        R_i = get_submat_idx(idx, allot_indices)
+        if idx == -1:
+            R_i = 0
+        else:
+            R_i = get_submat_idx(idx, allot_indices)
         OofV = np.repeat(codebks[0][0], dim)
         return idx, R_i, OofV
 

@@ -8,5 +8,6 @@ setup(name='smallfry',
       author_email='tginart@stanford.edu',
       license='MIT',
       packages=['smallfry'],
+      scripts=['smallfry/smallfry.py'],
       install_requires=['scipy','marisa_trie', 'sklearn', 'argh','numpy'],
       zip_safe=False)

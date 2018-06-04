@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import utils
 import wrapper
 import struct
@@ -9,6 +10,18 @@ def load(sfry_path, word2idx):
     return wrapper.Smallfry(sfry_path, word2idx) 
 
 def query(word, word2idx, sfry_path, usr_idx=False):
+'''
+Queries the Small-Fry representation for a word/index. 
+This can be imported as an API call or used as a command line utility.
+    Params: 
+    <word> should be the word string to query
+    <word2idx> When used as API, should be a word representation that Small-Fry output, or
+        alternatively the numeric index of the Small-Fry wordlist that is user managed. When used
+        as command line utility, should be a path to the word representation or the numeric index
+    <sfry_path> path to directory holding sfry 
+    <usr_idx> Flag param, set True if word2idx is user-maintained word idx
+
+'''
     if usr_idx:
         word2idx = utils.usr_idx_prep(word,int(word2idx))
     if type(word2idx) is str:
@@ -26,6 +39,20 @@ def query(word, word2idx, sfry_path, usr_idx=False):
     
     
 def compress(path, priorpath, mem_budget=None, R=1, write_inflated=False, word_rep="dict", write_word_rep=False):
+'''
+Compresses the source embeddings. 
+This can be imported as an API call or used as a command line utility.
+    Params:
+        <path> path to source embeddings
+        <priorpath> path to prior in for as npy dict
+        <mem_budget> provides an approximate memory budget
+        <R> provide a bitrate constraint 
+        <write_inflated> Flag for writing inflated embeddings matrix in npy format  
+        <word_rep> Should be either "dict" or "trie" 
+        <write_word_rep> Flag -- if set low will output a text word list in index order. 
+            User is responsible for managing the word representation
+
+'''
     logging.basicConfig(filename=path+'.small-fry.log',level=logging.DEBUG)  
     logging.info("Initializing Small-Fry compression! Parameters: ")
 
