@@ -55,8 +55,7 @@ This can be imported as an API call or used as a command line utility.
 '''
     logging.basicConfig(filename=path+'.small-fry.log',level=logging.DEBUG)  
     logging.info("Initializing Small-Fry compression! Parameters: ")
-
-   
+ 
     logging.info("Parsing embeddings txt and converting to npy...")
     emb_mat, p, words, word2idx, dim = utils.text2npy(path, priorpath, word_rep, write_word_rep)
     if mem_budget != None:
