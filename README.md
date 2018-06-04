@@ -1,7 +1,6 @@
 # Small-Fry: Insanely compressed word embeddings 
 
-
-DISCLAIMER: This is a "research" implementation -- not robust. Contact tginart if bugs are found.
+This is a research prototype for Small-Fry, a word embeddings compression algorithm.
 
 Recommended to use as API -- add modules to path and ```import smallfry as sfry```.  <br />
 Also supports command line usage: <br />
@@ -23,14 +22,4 @@ Scikit-learn <br />
 Marisa-Trie <br />
 Arghs <br />
 
-TODOs:<br />
-add word txt list functionality back in <br /> 
-more robust debugging<br />
-incomplete logging <br />
-improve path I/O<br />
-parafor the quantization <br />
-fast k_means incomplete <br />
-cleaner comments<br />
-coded and indexing compression functionality<br />
-prior is cased<br />
-and many, many more....<br />
+
