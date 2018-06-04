@@ -3,10 +3,17 @@
 
 DISCLAIMER: This is a "research" implementation -- not robust. Contact tginart if bugs are found.
 
-Recommended use as API. Command line usage: <br />
-Usage for compression: ```python src/smallfry.py compress {path} {priorpath} {R} {memorybudget}```<br />
-Usage for querying: ```python src/smallfry.py query {word} {index_dict} {dim} {sfry_path}```<br />
+Recommended to use as API -- add modules to path and ```import smallfry as sfry```.  <br />
+Also supports command line usage: <br />
+Recommended cmd line usage for compression: <br />
+```python smallfry.py compress source-path prior-path -m {MEM_BUDGET} --word-rep trie --write-word-rep ```<br />
+Recommended cmd line usage for querying: <br />
+```python smallfry.py query word word-representation-path sfry-path```<br />
 
+DEPENDENCIES:<br />
+Numpy <br />
+Scipy <br />
+Scikit-learn <br />
 
 TODOs:<br />
 more robust debugging<br />
