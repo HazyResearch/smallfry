@@ -253,7 +253,8 @@ def text2npy(path,priorpath, word_rep, write_rep):
     word_path = path+".word"
     word_dict_path = path+".word.npy"
     word_trie_path = path+".word.marisa"
-    #f_wordout = open(word_path, "w")
+    if not write_rep:
+        f_wordout = open(word_path, "w")
     
     words = list()
     prior = np.load(priorpath,encoding='latin1').item()
@@ -297,8 +298,8 @@ def text2npy(path,priorpath, word_rep, write_rep):
             embed_matrix[i] = vec	
             words.append(word)
             word2idx[word] = i
-            #if word_rep == 'list':
-             #   f_wordout.write(word + "\n")
+            if not word_rep:
+                f_wordout.write(word + "\n")
   
     p = p/sum(p)
     if write_rep:
