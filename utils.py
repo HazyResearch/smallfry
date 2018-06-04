@@ -1,13 +1,6 @@
 import numpy as np
-import time
 import os
 import scipy
-from scipy import sparse, linalg
-from scipy.sparse import coo_matrix
-from scipy.stats import norm
-import math
-import multiprocessing
-from joblib import Parallel, delayed
 from sklearn.cluster import KMeans
 from io import StringIO
 import struct
@@ -461,3 +454,8 @@ def query_prep(word, word2idx, dim, codebks, allot_indices):
 def query_exec(rowbytes, offset_correction, readend_correction, R_i, codebks, dim):
     bitstring = parse_row(rowbytes, offset_correction, readend_correction)
     return decode_row(bitstring, R_i, codebks, dim)
+
+def usr_idx_prep(word, uid):
+    word2idx = dict()
+    word2idx[word] = uid
+    return word2idx

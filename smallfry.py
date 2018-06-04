@@ -4,19 +4,13 @@ import struct
 import numpy as np
 import argh
 import logging
-#TODO:
-#make dimensions in metadata
-#autodetect dimensions
-#load thing into tmpfile in memory
-#Trie for words
-
-#These three methods can be used either as command lines utils or a programmatic API
-
 
 def load(sfry_path, word2idx):
     return wrapper.Smallfry(sfry_path, word2idx) 
 
-def query(word, word2idx, sfry_path):
+def query(word, word2idx, sfry_path, usr_idx=False):
+    if usr_idx:
+        word2idx = utils.usr_idx_prep(word,int(word2idx))
     if type(word2idx) is str:
         word2idx = np.load(word2idx).item() 
     dim = np.load(sfry_path+"/dim.npy")

@@ -2,7 +2,7 @@ import numpy as np
 import os
 import utils
 import marisa_trie
-
+import logging
 
 class Smallfry:
     word2idx = dict()
