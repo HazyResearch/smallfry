@@ -5,6 +5,7 @@ from sklearn.cluster import KMeans
 from io import StringIO
 import struct
 import logging
+import sys
 
 #INTERNAL UTILS FOR SMALL-FRY API: Direct usage not recommended
 
@@ -210,7 +211,7 @@ def bitwrite_submats(quant_submats, codebks, path):
                 if len(b) < 8:
                     b = b + '0' * (8 - len(b))
                 j = int(b, 2)
-                f.write(int.to_bytes(j,1))
+                f.write(int.to_bytes(j,1,sys.byteorder))
             f.close()
 
     return sfry_path
