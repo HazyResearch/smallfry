@@ -1,6 +1,6 @@
 import numpy as np
 import os
-import smallfry_utils
+from .utils import *
 import marisa_trie
 import logging
 

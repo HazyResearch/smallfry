@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-from .utils import *
-from .wrapper import *
+import smallfry_utils
+import smallfry_wrapper
 import struct
 import numpy as np
 import argh
