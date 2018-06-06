@@ -63,7 +63,7 @@ def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inf
     else:
         if not os.path.isdir(outdir):
             os.mkdir(outdir)
-        outpath = outdir+"/"+(re.split("/",sourepath)[-1])
+        outpath = outdir+"/"+(re.split("/",sourcepath)[-1])
 
     emb_mat, p, words, word2idx, dim = text2npy(sourcepath, outpath, priorpath, word_rep, write_word_rep)
     if mem_budget != None:
