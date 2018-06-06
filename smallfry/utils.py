@@ -147,6 +147,14 @@ def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
     return embed_matrix, p, words, word2idx, dim 
     
 
+def npy2text(npy_mat,words,writepath):
+    f = open(writepath,'w')
+    for i,w in enumerate(words):
+        f.write(w)
+        for j in range(0,len(npy_mat[i])):
+            f.write(" "+str(npy_mat[i][j]))
+        f.write('\n')
+
 def mat_partition(embmat, bit_allocations):
 #partitions the matrix in submatrices based on the bit allocations
     allots, allot_indices = np.unique(bit_allocations,return_index=True)

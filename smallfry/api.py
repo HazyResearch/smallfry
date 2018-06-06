@@ -83,8 +83,7 @@ def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inf
     inflated_mat, quant_submats, codebks = quantize(submats)
     if write_inflated:
         logging.info("Writing inflated embeddings as npy...")
-        infmatpath = outpath+".inflated.npy"
-        np.save(infmatpath, inflated_mat)
+        npy2text(inflated_mat, words, outpath+".inflated")
     print("Saving Small-Fry representation to file...")
     sfry_path = bitwrite_submats(quant_submats, codebks, outpath)
     np.save(sfry_path+"/codebks",codebks)
