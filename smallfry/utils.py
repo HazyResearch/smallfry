@@ -76,12 +76,12 @@ def downsample(bit_allot_vect,dim):
     return bit_allot_vect
       
 
-def text2npy(path,priorpath, word_rep, write_rep):
-#preprocssing textfile embeddings input
-    embed_path = path+".npy"
-    word_path = path+".word"
-    word_dict_path = path+".word.npy"
-    word_trie_path = path+".word.marisa"
+def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
+#preprocessing textfile embeddings input
+    embed_path = outpath+".npy"
+    word_path = outpath+".word"
+    word_dict_path = outpath+".word.npy"
+    word_trie_path = outpath+".word.marisa"
     if not write_rep:
         f_wordout = open(word_path, "w")
     
@@ -90,7 +90,7 @@ def text2npy(path,priorpath, word_rep, write_rep):
     word2row = dict()
     p2word = dict()
 	
-    lines = list(open(path))
+    lines = list(open(inpath))
     p = np.zeros(len(lines), dtype='float32')
     word2idx = dict()
 
