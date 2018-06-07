@@ -28,7 +28,7 @@ def query(word, word2idx, sfrypath, usr_idx=False):
         word2idx = np.load(word2idx).item() 
     dim = np.load(sfrypath+"/metadata/dim.npy")
     allots = np.load(sfrypath+"/metadata/ballocs.npy")
-    allot_indices = np.load("/metadata/ballocs_idx.npy")
+    allot_indices = np.load(sfrypath+"/metadata/ballocs_idx.npy")
     codebks = np.load(sfrypath+"/codebks.npy")
     idx, R_i, OofV = query_prep(word, word2idx, dim, codebks, allot_indices)
     if R_i == 0:    
@@ -83,12 +83,12 @@ def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inf
     submats, allots, allot_indices = matpart_adjuster(submats, allots, allot_indices, len(words))
 
     logging.info("Quantizing submatrices...")
-    inflated_mat, quant_submats, codebks = quantize(submats)
+    inflated_mat, quant_submats, codebks = quantize(submats, allots)
     if write_inflated:
         logging.info("Writing inflated embeddings as npy...")
         npy2text(inflated_mat, words, outpath+".inflated")
     print("Saving Small-Fry representation to file...")
-    sfry_path = bitwrite_submats(quant_submats, codebks, outpath)
+    sfry_path = bitwrite_submats(quant_submats, codebks, allots, outpath)
     np.save(sfry_path+"/codebks",codebks)
     meta_path = sfry_path+"/metadata"
     os.mkdir(meta_path)

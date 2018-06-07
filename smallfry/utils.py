@@ -72,11 +72,17 @@ def downsample(bit_allot_vect, dim, topdwn_upsamp=True):
             bit_allot_vect[i] = maxrate 
     
     while(budget > 0):
+        prev_budget = budget
         for i in range(0,V):
             j = i if topdwn_upsamp else V-i-1
+            print(bit_allot_vect[j])
             if bit_allot_vect[j] < maxrate and budget > 0:
                 bit_allot_vect[i] += 1
-                budget -=1 
+                budget -=1
+        if prev_budget == budget:
+            break 
+
+    print(bit_allot_vect)
 
     return sorted(bit_allot_vect,reverse=True)
       
@@ -180,12 +186,13 @@ def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
     old_allot_indices = list(allot_indices)
     old_allot_indices = [V] + old_allot_indices
     max_part_size = int(V*0.05)    
-
+    
+   
     for i in range(0,len(old_allot_indices)-1):
-        a_idx_strt = old_allot_indices[i]
-        a_idx_end = old_allot_indices[i+1]-1
+        a_idx_end = old_allot_indices[i]-1
+        a_idx_strt = old_allot_indices[i+1]
         part_size = a_idx_end - a_idx_strt
-        num_subparts = int(part_size / max_partition)
+        num_subparts = int(part_size / max_part_size)
         if num_subparts <= 1:
             adjusted_submats.append(submats[i])
             adjusted_allots.append(allots[i])
@@ -196,19 +203,21 @@ def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
                 this_part_size = max_part_size if ii < num_subparts-1 else V
                 adjusted_submats.append(submats[i][offset:offset+this_part_size])
                 adjusted_allots.append(allots[i]) 
-                adjusted_allot_indices.append(a_idx_strt+offset)
-    
+                adjusted_allot_indices.append(a_idx_strt+offset
+)
+    adjusted_allot_indices = sorted(adjusted_allot_indices, reverse=True)
+    adjusted_allots = sorted(adjusted_allots)
     return adjusted_submats, adjusted_allots, adjusted_allot_indices
         
 
-def quantize(submats):
+def quantize(submats, allots):
 #quantizes each submatrix
     inf_submats = list()
     quant_submats = list()
     codebks = list()  
     for i in range(0,len(submats)):
         logging.debug("Quantizing submat # "+str(i)+"...")
-        inf_emb, quant_emb, codebk = km_quantize(submats[i],i)
+        inf_emb, quant_emb, codebk = km_quantize(submats[i], allots[i])
         inf_submats.append(inf_emb)
         quant_submats.append(quant_emb)
         codebks.append(codebk)
@@ -226,7 +235,7 @@ def km_quantize(X,R):
     return inflated_embs.reshape(orig_shape), quant_embs.reshape(orig_shape), codebk
 
 
-def bitwrite_submats(quant_submats, codebks, path):
+def bitwrite_submats(quant_submats, codebks, allots, path):
     sfry_path = path+".sfry"
     os.mkdir(sfry_path)
 
@@ -236,11 +245,11 @@ def bitwrite_submats(quant_submats, codebks, path):
         cur_submat = quant_submats[i].reshape(-1,1)
         for ii in range(0,len(cur_submat)):
             delta_s = bin(cur_submat[ii][0])[2:]
-            if len(delta_s) < i:
-                delta_s = '0' * (i - len(delta_s)) + delta_s
+            if len(delta_s) < allots[i]:
+                delta_s = '0' * (allots[i]- len(delta_s)) + delta_s
             s += delta_s
        
-        if(i > 0):
+        if(allots[i] > 0):
             sio = StringIO(s)
             f = open(sfry_path+"/"+"submat"+str(i),'wb')
             while True:
