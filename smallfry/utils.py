@@ -61,7 +61,7 @@ def allocation_round(bit_allot_vect, sort=False):
     return np.array(sorted(bit_allot_vect,reverse=True)) if sort else bit_allot_vect
 
 
-def downsample(bit_allot_vect,dim):
+def downsample(bit_allot_vect, dim, topdwn_upsamp=True):
 #This method downsamples such that the k-means is always assigns less cluster than points
     budget = 0
     V = len(bit_allot_vect)
@@ -69,12 +69,16 @@ def downsample(bit_allot_vect,dim):
     for i in range(0,V):
         if bit_allot_vect[i] > maxrate:
             budget += bit_allot_vect[i] - maxrate
-            bit_allot_vect[i] = maxrate
-        elif bit_allot_vect[i] < maxrate and budget > 0:
-            bit_allot_vect[i] += 1
-            budget -=1
+            bit_allot_vect[i] = maxrate 
+    
+    while(budget > 0):
+        for i in range(0,V):
+            j = i if topdwn_upsamp else V-i-1
+            if bit_allot_vect[j] < maxrate and budget > 0:
+                bit_allot_vect[i] += 1
+                budget -=1 
 
-    return bit_allot_vect
+    return sorted(bit_allot_vect,reverse=True)
       
 
 def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
@@ -167,7 +171,34 @@ def mat_partition(embmat, bit_allocations):
 
     logging.debug("Partitioning into "+str(len(submats))+" submatrices...")
 
-    return submats,allot_indices 
+    return submats, allots, allot_indices 
+        
+def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
+    adjusted_submats = list() 
+    adjusted_allots = list()
+    adjusted_allot_indices = list()
+    old_allot_indices = list(allot_indices)
+    old_allot_indices = [V] + old_allot_indices
+    max_part_size = int(V*0.05)    
+
+    for i in range(0,len(old_allot_indices)-1):
+        a_idx_strt = old_allot_indices[i]
+        a_idx_end = old_allot_indices[i+1]-1
+        part_size = a_idx_end - a_idx_strt
+        num_subparts = int(part_size / max_partition)
+        if num_subparts <= 1:
+            adjusted_submats.append(submats[i])
+            adjusted_allots.append(allots[i])
+            adjusted_allot_indices.append(allot_indices[i])
+        else:
+            for ii in range(0,num_subparts):
+                offset = ii*max_part_size
+                this_part_size = max_part_size if ii < num_subparts-1 else V
+                adjusted_submats.append(submats[i][offset:offset+this_part_size])
+                adjusted_allots.append(allots[i]) 
+                adjusted_allot_indices.append(a_idx_strt+offset)
+    
+    return adjusted_submats, adjusted_allots, adjusted_allot_indices
         
 
 def quantize(submats):

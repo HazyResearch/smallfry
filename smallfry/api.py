@@ -26,9 +26,10 @@ def query(word, word2idx, sfrypath, usr_idx=False):
         word2idx = usr_idx_prep(word,int(word2idx))
     if type(word2idx) is str:
         word2idx = np.load(word2idx).item() 
-    dim = np.load(sfrypath+"/dim.npy")
+    dim = np.load(sfrypath+"/metadata/dim.npy")
+    allots = np.load(sfrypath+"/metadata/ballocs.npy")
+    allot_indices = np.load("/metadata/ballocs_idx.npy")
     codebks = np.load(sfrypath+"/codebks.npy")
-    allot_indices = np.load(sfrypath+"/metadata.npy")
     idx, R_i, OofV = query_prep(word, word2idx, dim, codebks, allot_indices)
     if R_i == 0:    
         return OofV
@@ -77,7 +78,9 @@ def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inf
     bit_allocations = downsample(bit_allocations, dim)
 
     logging.info("Computing submatrix partitions...") 
-    submats,allot_indices = mat_partition(emb_mat, bit_allocations)
+    submats, allots, allot_indices = mat_partition(emb_mat, bit_allocations)
+    
+    submats, allots, allot_indices = matpart_adjuster(submats, allots, allot_indices, len(words))
 
     logging.info("Quantizing submatrices...")
     inflated_mat, quant_submats, codebks = quantize(submats)
@@ -87,8 +90,11 @@ def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inf
     print("Saving Small-Fry representation to file...")
     sfry_path = bitwrite_submats(quant_submats, codebks, outpath)
     np.save(sfry_path+"/codebks",codebks)
-    np.save(sfry_path+"/metadata",allot_indices)
-    np.save(sfry_path+"/dim",dim)
+    meta_path = sfry_path+"/metadata"
+    os.mkdir(meta_path)
+    np.save(meta_path+"/ballocs",allots)
+    np.save(meta_path+"/dim",dim)
+    np.save(meta_path+"/ballocs_idx",allot_indices)
     print("Compression complete!!!")    
 
     return word2idx, sfry_path
