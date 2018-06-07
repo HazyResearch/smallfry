@@ -18,9 +18,9 @@ quad_prefix_sums = np.array([])
 clusters = 0
 
 
-def rowwise_KM(row,k,max_iters=200,num_inits=10,init_dist='default'):
+def rowwise_KM(row,k,max_iters=120,num_inits=5,init_dist='default'):
 #uses sklearn scalar KMeans which implements Lloyd's iterative algo
-    kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=1).fit(row)
+    kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=5).fit(row)
     return np.concatenate(kmeans.cluster_centers_[kmeans.labels_]), kmeans.labels_, kmeans.cluster_centers_
     
 
