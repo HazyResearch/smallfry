@@ -75,14 +75,12 @@ def downsample(bit_allot_vect, dim, topdwn_upsamp=True):
         prev_budget = budget
         for i in range(0,V):
             j = i if topdwn_upsamp else V-i-1
-            print(bit_allot_vect[j])
             if bit_allot_vect[j] < maxrate and budget > 0:
                 bit_allot_vect[i] += 1
                 budget -=1
         if prev_budget == budget:
             break 
 
-    print(bit_allot_vect)
 
     return sorted(bit_allot_vect,reverse=True)
       
@@ -135,13 +133,15 @@ def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
         for ii in range(0,len(p_words)):
             word = p_words[ii]
             vec = word2row[word]
-            embed_matrix[i] = vec	
-            words.append(word)
+            embed_matrix[i] = vec
+            if not word in words:
+                words.append(word)	
             word2idx[word] = i
-            if not word_rep:
+            if not write_rep:
                 f_wordout.write(word + "\n")
   
     p = p/sum(p)
+    print(len(p))
     if write_rep:
         if word_rep == 'dict': 
             np.save(word_dict_path, word2idx)
@@ -159,9 +159,11 @@ def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
 
 def npy2text(npy_mat,words,writepath):
     f = open(writepath,'w')
+    rows,cols = npy_mat.shape
+    print(len(words))
     for i,w in enumerate(words):
         f.write(w)
-        for j in range(0,len(npy_mat[i])):
+        for j in range(0,cols):
             f.write(" "+str(npy_mat[i][j]))
         f.write('\n')
 
@@ -176,7 +178,6 @@ def mat_partition(embmat, bit_allocations):
         prev_idx = cur_idx
 
     logging.debug("Partitioning into "+str(len(submats))+" submatrices...")
-
     return submats, allots, allot_indices 
         
 def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
@@ -185,9 +186,8 @@ def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
     adjusted_allot_indices = list()
     old_allot_indices = list(allot_indices)
     old_allot_indices = [V] + old_allot_indices
-    max_part_size = int(V*0.05)    
+    max_part_size = int(V*max_partition)    
     
-   
     for i in range(0,len(old_allot_indices)-1):
         a_idx_end = old_allot_indices[i]-1
         a_idx_strt = old_allot_indices[i+1]
@@ -214,7 +214,7 @@ def quantize(submats, allots):
 #quantizes each submatrix
     inf_submats = list()
     quant_submats = list()
-    codebks = list()  
+    codebks = list() 
     for i in range(0,len(submats)):
         logging.debug("Quantizing submat # "+str(i)+"...")
         inf_emb, quant_emb, codebk = km_quantize(submats[i], allots[i])

@@ -80,7 +80,7 @@ def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inf
     logging.info("Computing submatrix partitions...") 
     submats, allots, allot_indices = mat_partition(emb_mat, bit_allocations)
     
-    submats, allots, allot_indices = matpart_adjuster(submats, allots, allot_indices, len(words))
+    submats, allots, allot_indices = matpart_adjuster(submats, allots, allot_indices, len(p))
 
     logging.info("Quantizing submatrices...")
     inflated_mat, quant_submats, codebks = quantize(submats, allots)
