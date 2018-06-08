@@ -20,6 +20,7 @@ clusters = 0
 
 def rowwise_KM(row,k,max_iters=120,num_inits=5,init_dist='default'):
 #uses sklearn scalar KMeans which implements Lloyd's iterative algo
+    print(row)
     kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=5).fit(row)
     return np.concatenate(kmeans.cluster_centers_[kmeans.labels_]), kmeans.labels_, kmeans.cluster_centers_
     
@@ -82,7 +83,6 @@ def downsample(bit_allot_vect, dim, topdwn_upsamp=True):
         if prev_budget == budget:
             break 
 
-    print(bit_allot_vect)
 
     return sorted(bit_allot_vect,reverse=True)
       
@@ -214,7 +214,9 @@ def quantize(submats, allots):
 #quantizes each submatrix
     inf_submats = list()
     quant_submats = list()
-    codebks = list()  
+    codebks = list()
+    print(submats)
+    print(allots)  
     for i in range(0,len(submats)):
         logging.debug("Quantizing submat # "+str(i)+"...")
         inf_emb, quant_emb, codebk = km_quantize(submats[i], allots[i])
