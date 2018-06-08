@@ -20,7 +20,6 @@ clusters = 0
 
 def rowwise_KM(row,k,max_iters=120,num_inits=5,init_dist='default'):
 #uses sklearn scalar KMeans which implements Lloyd's iterative algo
-    print(row)
     kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=5).fit(row)
     return np.concatenate(kmeans.cluster_centers_[kmeans.labels_]), kmeans.labels_, kmeans.cluster_centers_
     
@@ -84,7 +83,6 @@ def downsample(bit_allot_vect, dim, topdwn_upsamp=True):
 
 
     return sorted(bit_allot_vect,reverse=True)
-      
 
 def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
 #preprocessing textfile embeddings input
@@ -128,21 +126,25 @@ def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
     embed_matrix = np.zeros((len(lines), dim), dtype='float32')
     
     logging.debug("Embeddings parse complete, preparing word representation...")
-   
-    for i in range(0,len(p)):
-        p_words = p2word[p[i]]
+  
+    for i,priors in enumerate(p):
+        p_words = p2word[priors]
         for ii in range(0,len(p_words)):
             word = p_words[ii]
             vec = word2row[word]
-            embed_matrix[i] = vec
+            embed_matrix[i+ii] = vec
+            origin = word in words
+            #if origin:
+            #    print(word2idx[word])
             if not word in words:
                 words.append(word)	
-            word2idx[word] = i
+            word2idx[word] = i+ii
+            #if origin:
+             #   print(word2idx[word])
             if not write_rep:
                 f_wordout.write(word + "\n")
   
     p = p/sum(p)
-    print(len(p))
     if write_rep:
         if word_rep == 'dict': 
             np.save(word_dict_path, word2idx)
@@ -161,7 +163,6 @@ def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
 def npy2text(npy_mat,words,writepath):
     f = open(writepath,'w')
     rows,cols = npy_mat.shape
-    print(len(words))
     for i,w in enumerate(words):
         f.write(w)
         for j in range(0,cols):
