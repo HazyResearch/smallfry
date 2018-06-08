@@ -129,28 +129,19 @@ def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
     logging.debug("Embeddings parse complete, preparing word representation...")
 
     iii = -1
+    wordout = []
     for i,priors in enumerate(p_unique):
         p_words = p2word[priors]
-        print(i)
-        print(priors)
-        print(p_words)
         for ii in range(0,len(p_words)):
             iii += 1
-            print(iii)
             word = p_words[ii]
-            print(word)
             vec = word2row[word]
             embed_matrix[iii] = vec
-            origin = word in words
-            #if origin:
-            #    print(word2idx[word])
-            if not word in words:
-                words.append(word)	
+            words.append(word)	
             word2idx[word] = iii
-            #if origin:
-             #   print(word2idx[word])
-            if not write_rep:
-                f_wordout.write(word + "\n")
+    
+    #TODO if not write_rep:
+        #f_wordout.write("".join[words])
   
     p = p/sum(p)
     if write_rep:
