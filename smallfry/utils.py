@@ -160,13 +160,10 @@ def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
     
 
 def npy2text(npy_mat,words,writepath):
-    f = open(writepath,'w')
-    rows,cols = npy_mat.shape
-    for i,w in enumerate(words):
-        f.write(w)
-        for j in range(0,cols):
-            f.write(" "+str(npy_mat[i][j]))
-        f.write('\n')
+    f = open(writepath+str(".words"),'w')
+    f.write("\n".join(words))
+    np.savetxt(writepath+".mat",npy_mat,fmt='%.12f')
+    os.system("paste "+writepath+str(".words")+" "+writepath+str(".mat")+" > "+writepath)
 
 def mat_partition(embmat, bit_allocations):
 #partitions the matrix in submatrices based on the bit allocations
