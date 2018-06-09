@@ -39,7 +39,7 @@ def query(word, word2idx, sfrypath, usr_idx=False):
     return query_exec(f.read(readend - offset), offset_correction, readend_correction, R_i, codebks, dim)
     
     
-def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inflated=False, word_rep="dict", write_word_rep=False):
+def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inflated=False, word_rep="dict", write_word_rep=False, randseed=None):
     '''
     Compresses the source embeddings. 
     This can be imported as an API call or used as a command line utility.
@@ -66,6 +66,8 @@ def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inf
             os.mkdir(outdir)
         outpath = outdir+"/"+(re.split("/",sourcepath)[-1])
 
+    if not randseed == None:
+        np.random.seed(int(randseed))
     emb_mat, p, words, word2idx, dim = text2npy(sourcepath, outpath, priorpath, word_rep, write_word_rep)
     if mem_budget != None:
         mem_budget = float(mem_budget)
