@@ -144,7 +144,7 @@ def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
     #TODO if not write_rep:
         #f_wordout.write("".join[words])
   
-    p = p/sum(p)
+    p = np.array(p)/sum(p)
     if write_rep:
         if word_rep == 'dict': 
             np.save(word_dict_path, word2idx)
