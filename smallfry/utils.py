@@ -204,8 +204,8 @@ def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
                 this_part_size = max_part_size if ii < num_subparts-1 else V
                 adjusted_submats.append(submats[i][offset:offset+this_part_size])
                 adjusted_allots.append(allots[i]) 
-                adjusted_allot_indices.append(a_idx_strt+offset
-)
+                adjusted_allot_indices.append(a_idx_strt+offset)
+
     adjusted_allot_indices = sorted(adjusted_allot_indices, reverse=True)
     adjusted_allots = sorted(adjusted_allots)
     return adjusted_submats, adjusted_allots, adjusted_allot_indices
