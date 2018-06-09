@@ -101,7 +101,8 @@ def text2npy(inpath, outpath, priorpath, word_rep, write_rep):
     lines = list(open(inpath))
     p = np.zeros(len(lines), dtype='float32')
     word2idx = dict()
-
+    
+    dim = 0
     for i, line in enumerate(lines):
         txtline = line.rstrip().split(' ')
         word = txtline[0]
