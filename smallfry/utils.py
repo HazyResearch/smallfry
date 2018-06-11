@@ -273,19 +273,22 @@ def bitwrite_submats(quant_submats, codebks, allots, path):
 
 
 def get_submat_idx(idx, allot_indices):
-    R_i = 0
-    prev_index = 0
-    while R_i < len(allot_indices):
-        if idx >= allot_indices[R_i]:
+    a_i = 0
+    while a_i < len(allot_indices):
+        print(idx)
+        print(allot_indices[a_i])
+        print(a_i)
+        if idx >= allot_indices[a_i]:
+            print(a_i)
             break
         else:
-            R_i += 1
+            a_i += 1
 
-    return R_i
+    return a_i
   
 
-def get_scan_params(idx, allot_indices, R_i, dim):
-    offset_in_bits = int((idx - allot_indices[R_i])*dim*R_i)
+def get_scan_params(idx, allot_indices,R_i, submat_idx, dim):
+    offset_in_bits = int((idx - allot_indices[submat_idx])*dim*R_i)
     readend_in_bits = dim*R_i + offset_in_bits
     
     #correction is in bits from start of byte
@@ -316,12 +319,12 @@ def parse_row(rowbytes, offset_correction, readend_correction):
     return row_bitstring
 
 
-def decode_row(row_bitstring, R_i, codebks, dim):
+def decode_row(row_bitstring, R_i, submat_idx, codebks, dim):
 
     inflated_row = np.zeros(dim)
     for i in range(0,dim):
         code = int(row_bitstring[i*R_i:(i+1)*R_i],2)
-        inflated_row[i] = codebks[R_i][code]
+        inflated_row[i] = codebks[submat_idx][code]
      
     return inflated_row
 
@@ -340,19 +343,18 @@ def get_word_idx(word, word2idx):
         return -1
 
 
-def query_prep(word, word2idx, dim, codebks, allot_indices):
+def query_prep(word, word2idx, dim, codebks,allot_indices):
         idx = get_word_idx(word, word2idx)
-        if idx == -1:
-            R_i = 0
-        else:
-            R_i = get_submat_idx(idx, allot_indices)
+        submat_idx = -1
+        if not idx == -1:
+            submat_idx = get_submat_idx(idx, allot_indices)
         OofV = np.repeat(codebks[0][0], dim)
-        return idx, R_i, OofV
+        return idx, submat_idx, OofV
 
         
-def query_exec(rowbytes, offset_correction, readend_correction, R_i, codebks, dim):
+def query_exec(rowbytes, offset_correction, readend_correction, R_i, submat_idx, codebks, dim):
     bitstring = parse_row(rowbytes, offset_correction, readend_correction)
-    return decode_row(bitstring, R_i, codebks, dim)
+    return decode_row(bitstring, R_i, submat_idx, codebks, dim)
 
 
 def usr_idx_prep(word, uid):

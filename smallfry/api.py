@@ -30,13 +30,16 @@ def query(word, word2idx, sfrypath, usr_idx=False):
     allots = np.load(sfrypath+"/metadata/ballocs.npy")
     allot_indices = np.load(sfrypath+"/metadata/ballocs_idx.npy")
     codebks = np.load(sfrypath+"/codebks.npy")
-    idx, R_i, OofV = query_prep(word, word2idx, dim, codebks, allot_indices)
+    idx, submat_idx, OofV = query_prep(word, word2idx, dim, codebks, allot_indices)
+    print(idx)
+    R_i = allots[submat_idx] if idx >= 0 else 0
     if R_i == 0:    
         return OofV
-    offset, readend, offset_correction, readend_correction = get_scan_params(idx,allot_indices,R_i,dim)
-    f = open(sfrypath+"/"+"submat"+str(R_i),'rb')
+    offset, readend, offset_correction, readend_correction = get_scan_params(idx,allot_indices,R_i,submat_idx,dim)
+    f = open(sfrypath+"/"+"submat"+str(submat_idx),'rb')
+    print(offset)
     f.seek(offset,0)
-    return query_exec(f.read(readend - offset), offset_correction, readend_correction, R_i, codebks, dim)
+    return query_exec(f.read(readend - offset), offset_correction, readend_correction, R_i, submat_idx, codebks, dim)
     
     
 def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inflated=False, word_rep="dict", write_word_rep=False, randseed=None, \
