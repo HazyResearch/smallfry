@@ -2,6 +2,7 @@ import numpy as np
 import os
 import scipy
 from sklearn.cluster import KMeans
+from sklearn.cluster import MiniBatchKMeans
 from io import StringIO
 import struct
 import logging
@@ -17,8 +18,12 @@ lin_prefix_sums = np.array([])
 quad_prefix_sums = np.array([])
 clusters = 0
 
+def rowwise_KM_minibatch(row, k, max_iters=90, num_inits=5):#TODO hardcoding
+    kmeans = MiniBatchKMeans(n_cluster=k,max_iter=max_iters,n_init=num_inits,n_jobs=5).fit(row)
+    return np.concatenate(kmeans.cluster_centers_[kmeas.labels_]), kmeans.labels_, kmeans.cluster_centers_
+    
 
-def rowwise_KM(row,k,max_iters=120,num_inits=5,init_dist='default'):
+def rowwise_KM(row,k,max_iters=120,num_inits=5,init_dist='default'): #TODO hardcoding
 #uses sklearn scalar KMeans which implements Lloyd's iterative algo
     kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=5).fit(row)
     return np.concatenate(kmeans.cluster_centers_[kmeans.labels_]), kmeans.labels_, kmeans.cluster_centers_
@@ -61,11 +66,11 @@ def allocation_round(bit_allot_vect, sort=False):
     return np.array(sorted(bit_allot_vect,reverse=True)) if sort else bit_allot_vect
 
 
-def downsample(bit_allot_vect, dim, topdwn_upsamp=True):
+def downsample(bit_allot_vect, dim, max_bitrate, topdwn_upsamp=True):
 #This method downsamples such that the k-means is always assigns less cluster than points
     budget = 0
     V = len(bit_allot_vect)
-    maxrate = np.floor(np.log2(dim))
+    maxrate = np.floor(np.log2(dim)) if max_bitrate == None else int(max_bitrate)
     for i in range(0,V):
         if bit_allot_vect[i] > maxrate:
             budget += bit_allot_vect[i] - maxrate
@@ -164,7 +169,7 @@ def npy2text(npy_mat,words,writepath):
     f = open(writepath+str(".words"),'w')
     f.write("\n".join(words))
     np.savetxt(writepath+".mat",npy_mat,fmt='%.12f')
-    os.system("paste "+writepath+str(".words")+" "+writepath+str(".mat")+" > "+writepath)
+    os.system("paste -d ' ' "+writepath+str(".words")+" "+writepath+str(".mat")+" > "+writepath)
 
 def mat_partition(embmat, bit_allocations):
 #partitions the matrix in submatrices based on the bit allocations
@@ -209,14 +214,14 @@ def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
     return adjusted_submats, adjusted_allots, adjusted_allot_indices
         
 
-def quantize(submats, allots):
+def quantize(submats, allots, batch='full'):
 #quantizes each submatrix
     inf_submats = list()
     quant_submats = list()
     codebks = list() 
     for i in range(0,len(submats)):
         logging.debug("Quantizing submat # "+str(i)+"...")
-        inf_emb, quant_emb, codebk = km_quantize(submats[i], allots[i])
+        inf_emb, quant_emb, codebk = km_quantize(submats[i], allots[i], batch)
         inf_submats.append(inf_emb)
         quant_submats.append(quant_emb)
         codebks.append(codebk)
@@ -225,12 +230,15 @@ def quantize(submats, allots):
     inflated_mat = np.vstack(inf_submats) 
     return inflated_mat, quant_submats, codebks 
 
-def km_quantize(X,R):
+def km_quantize(X, R, batch):
 #k-means for submatrix
     orig_shape = X.shape
     X = X.reshape(-1,1)
     k = 2**R
-    inflated_embs, quant_embs, codebk = rowwise_KM(X,k)    
+    if batch == 'full':
+        inflated_embs, quant_embs, codebk = rowwise_KM(X,k)  
+    elif batch == 'mini':
+        return   
     return inflated_embs.reshape(orig_shape), quant_embs.reshape(orig_shape), codebk
 
 
