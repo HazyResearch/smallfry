@@ -40,7 +40,7 @@ def query(word, word2idx, sfrypath, usr_idx=False):
     
     
 def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inflated=False, word_rep="dict", write_word_rep=False, randseed=None, \
-batch='full',max_bitrate=None):
+batch='full',max_bitrate=None, sampling_topdwn=True):
     '''
     Compresses the source embeddings. 
     This can be imported as an API call or used as a command line utility.
@@ -78,7 +78,7 @@ batch='full',max_bitrate=None):
     bit_allocations = allocation_round(bit_allocator(p,R),sort=True)
 
     logging.info("Downsampling for dimension "+str(dim)+"...")
-    bit_allocations = downsample(bit_allocations, dim, max_bitrate)
+    bit_allocations = downsample(bit_allocations, dim, max_bitrate, sampling_topdwn)
 
     logging.info("Computing submatrix partitions...") 
     submats, allots, allot_indices = mat_partition(emb_mat, bit_allocations)
