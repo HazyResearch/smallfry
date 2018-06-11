@@ -238,7 +238,7 @@ def km_quantize(X, R, batch):
     if batch == 'full':
         inflated_embs, quant_embs, codebk = rowwise_KM(X,k)  
     elif batch == 'mini':
-        return   
+        inflated_embs, quant_embs, codebk = rowwise_KM_minibatch(X, k)
     return inflated_embs.reshape(orig_shape), quant_embs.reshape(orig_shape), codebk
 
 

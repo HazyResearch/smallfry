@@ -86,7 +86,7 @@ batch='full',max_bitrate=None):
     submats, allots, allot_indices = matpart_adjuster(submats, allots, allot_indices, len(p))
 
     logging.info("Quantizing submatrices...")
-    inflated_mat, quant_submats, codebks = quantize(submats, allots)
+    inflated_mat, quant_submats, codebks = quantize(submats, allots, batch)
     if write_inflated:
         logging.info("Writing inflated embeddings as npy...")
         npy2text(inflated_mat, words, outpath+".inflated_"+str(randseed))
