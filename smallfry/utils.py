@@ -277,11 +277,7 @@ def bitwrite_submats(quant_submats, codebks, allots, path):
 def get_submat_idx(idx, allot_indices):
     a_i = 0
     while a_i < len(allot_indices):
-        print(idx)
-        print(allot_indices[a_i])
-        print(a_i)
         if idx >= allot_indices[a_i]:
-            print(a_i)
             break
         else:
             a_i += 1

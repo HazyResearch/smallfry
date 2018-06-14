@@ -68,7 +68,7 @@ def compute_square_w_fronorm(source, compressed, priorpath):
 ################
 ################
 def check_inflation(inflated_path, sfry_path, word2idx_path, mmap=True):#TODO support disk query
-    inflated_embs = read_emb(str(inflated_path), fmt='inflated'))
+    inflated_embs = read_emb(str(inflated_path), fmt='inflated')
     word2idx = np.load(word2idx_path).item()
     query = None
     if mmap:
@@ -86,7 +86,7 @@ def test_weighted_fronorm(src_path, compressed_path, priorpath, comp_fmt='inflat
     return compute_square_w_fronorm(src_embs, comp_embs, priorpath)
     
 parser = argh.ArghParser()
-parser.add_commands([test_weighted_fronorm])
+parser.add_commands([test_weighted_fronorm, check_inflation])
 
 if __name__ == '__main__':
     parser.dispatch() 
