@@ -26,10 +26,10 @@ def read_emb(path, fmt):
         return embs.load(str(path))
 
     elif fmt == 'dict':
-        return np.load(str(compressed)).item()
+        return np.load(str(path)).item()
 
     elif fmt == 'inflated':
-        return parse_txtemb(str(compressed))
+        return parse_txtemb(str(path))
 
     return None
 
@@ -71,12 +71,28 @@ def check_inflation(inflated_path, sfry_path, word2idx_path, mmap=True):#TODO su
     inflated_embs = read_emb(str(inflated_path), fmt='inflated')
     word2idx = np.load(word2idx_path).item()
     query = None
+    c = 0
     if mmap:
         my_sfry = sfry.load(str(sfry_path), word2idx)
         for w in word2idx:
+            c += 1
+            if c % 10000 == 0: 
+                print(c)
             if np.linalg.norm(my_sfry.query(w) - inflated_embs[w]) > 0.01:
+                print(my_sfry.query(w))
+                print(inflated_embs[w])
                 print("Error on word "+w)
-                break
+                break   
+    else:
+        for w in word2idx:
+            c += 1
+            if c % 10000 == 0: 
+                print(c)
+            if np.linalg.norm(sfry.query(w, word2idx, sfry_path) - inflated_embs[w]) > 0.01:
+                print(my_sfry.query(w))
+                print(inflated_embs[w])
+                print("Error on word "+w)
+                break   
 
     return 
 

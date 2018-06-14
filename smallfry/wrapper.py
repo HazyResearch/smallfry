@@ -35,5 +35,8 @@ class Smallfry:
         R_i = self.allots[submat_idx]
         if R_i == 0:
             return OofV
+        print(submat_idx)
+        print(R_i)
         offset, readend, offset_correction, readend_correction = get_scan_params(idx,self.allot_indices,R_i, submat_idx, self.dim)
+        print(offset)
         return query_exec(self.memmap_reps[R_i][offset:readend], offset_correction, readend_correction, R_i, submat_idx, self.codebks, self.dim)
