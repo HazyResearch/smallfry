@@ -25,18 +25,15 @@ class Smallfry:
         for file in os.listdir(directory):
             filename = os.fsdecode(file)
             if filename.startswith("submat"): 
-                i = filename[-1]
+                i = filename.replace("submat","")
                 fullpath = path+'/'+filename
                 f_size = os.path.getsize(fullpath)
                 self.memmap_reps[int(i)] = np.memmap(fullpath, dtype='uint8', mode='readonly', shape=(f_size))
                 
     def query(self, word):
-        idx, submat_idx, OofV = query_prep(word, self.word2idx, self.dim, self.codebks, self.allot_indices)
-        R_i = self.allots[submat_idx]
+        idx, submat_idx = query_prep(word, self.word2idx, self.dim, self.codebks, self.allot_indices)
+        R_i = self.allots[submat_idx] if idx >= 0 else 0
         if R_i == 0:
-            return OofV
-        print(submat_idx)
-        print(R_i)
+            return np.repeat(self.codebks[submat_idx][0],self.dim)
         offset, readend, offset_correction, readend_correction = get_scan_params(idx,self.allot_indices,R_i, submat_idx, self.dim)
-        print(offset)
-        return query_exec(self.memmap_reps[R_i][offset:readend], offset_correction, readend_correction, R_i, submat_idx, self.codebks, self.dim)
+        return query_exec(self.memmap_reps[submat_idx][offset:readend], offset_correction, readend_correction, R_i, submat_idx, self.codebks, self.dim)

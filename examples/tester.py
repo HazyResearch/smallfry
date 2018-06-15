@@ -12,11 +12,6 @@ def parse_txtemb(path):
     
     i = 0
     for w in npy_wordlist:
-        if w == '':
-            print('revolt')
-        if w == 'republican':
-            print(w)
-            print(npy_mat[i])
         embs[w] = npy_mat[i]
         i += 1
     return embs
