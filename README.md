@@ -52,7 +52,7 @@ The syntax for all queries run in [EmptyHeaded: A Relational Engine for Graph Pr
 Contact
 -----------------
 
-[Christopher Aberger](http://web.stanford.edu/~caberger/)
+[Tony Ginart](http://web.stanford.edu/~tginart/)
 
 
 
