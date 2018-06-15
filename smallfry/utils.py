@@ -213,10 +213,6 @@ def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
                 adjusted_allots.append(allots[j]) 
                 adjusted_allot_indices.append(a_idx_strt+offset)
 
-    for i in range(0,len(adjusted_submats)):
-        print(len(adjusted_submats[i]))
-    print(adjusted_allot_indices)
-    print(adjusted_allots)
     return adjusted_submats, adjusted_allots, adjusted_allot_indices
         
 
@@ -231,9 +227,6 @@ def quantize(submats, allots, batch='full'):
         inf_submats.append(inf_emb)
         quant_submats.append(quant_emb)
         codebks.append(codebk)
-        if len(codebk) == 1:
-            print(inf_emb)
-    
      
     inflated_mat = np.vstack(inf_submats) 
     return inflated_mat, quant_submats, codebks 
@@ -282,7 +275,6 @@ def bitwrite_submats(quant_submats, codebks, allots, path):
 
 def get_submat_idx(idx, allot_indices):
     a_i = 0
-    print(idx)
     while a_i < len(allot_indices)-1:
         if idx <  allot_indices[a_i+1]:
             break
