@@ -11,9 +11,6 @@ def parse_txtemb(path):
     embs = dict()
     
     i = 0
-    print(len(npy_wordlist))
-    print(npy_wordlist)
-    
     for w in npy_wordlist:
         if w == '':
             print('revolt')
@@ -90,7 +87,6 @@ def check_inflation(inflated_path, sfry_path, word2idx_path, mmap=True):#TODO su
                 break   
     else:
         for w in word2idx:
-            print(word2idx[w])
             c += 1
             if c % 10000 == 0: 
                 print(c)
