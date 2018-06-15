@@ -7,16 +7,21 @@ import os
 
 def parse_txtemb(path):
     npy_mat = np.loadtxt(os.popen("cat "+str(path)+" | cut -d ' '  -f2- "))
-    npy_wordlist = os.popen("awk '{print $1}' "+str(path)).read().split('\n')
+    npy_wordlist = list(filter(None, os.popen("awk '{print $1}' "+str(path)).read().split('\n')))
     embs = dict()
     
     i = 0
+    print(len(npy_wordlist))
+    print(npy_wordlist)
+    
     for w in npy_wordlist:
         if w == '':
-            continue
+            print('revolt')
+        if w == 'republican':
+            print(w)
+            print(npy_mat[i])
         embs[w] = npy_mat[i]
         i += 1
-    
     return embs
 
 
@@ -85,15 +90,18 @@ def check_inflation(inflated_path, sfry_path, word2idx_path, mmap=True):#TODO su
                 break   
     else:
         for w in word2idx:
+            print(word2idx[w])
             c += 1
             if c % 10000 == 0: 
                 print(c)
             if np.linalg.norm(sfry.query(w, word2idx, sfry_path) - inflated_embs[w]) > 0.01:
-                print(my_sfry.query(w))
+                print(sfry.query(w, word2idx, sfry_path))
                 print(inflated_embs[w])
+                
                 print("Error on word "+w)
                 break   
 
+    print("done")
     return 
 
 

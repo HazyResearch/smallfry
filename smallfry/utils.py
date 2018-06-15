@@ -185,34 +185,38 @@ def mat_partition(embmat, bit_allocations):
 
     logging.debug("Partitioning into "+str(len(submats))+" submatrices...")
     return submats, allots, allot_indices 
-        
+
 def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
     adjusted_submats = list() 
     adjusted_allots = list()
     adjusted_allot_indices = list()
     old_allot_indices = list(allot_indices)
     old_allot_indices = [V] + old_allot_indices
-    max_part_size = int(V*max_partition)    
-    
+    max_part_size = int(V*max_partition)  
+    old_allot_indices = list(reversed(old_allot_indices))
+     
     for i in range(0,len(old_allot_indices)-1):
-        a_idx_end = old_allot_indices[i]-1
-        a_idx_strt = old_allot_indices[i+1]
+        j = len(submats)-i-1 
+        a_idx_end = old_allot_indices[i+1]
+        a_idx_strt = old_allot_indices[i]
         part_size = a_idx_end - a_idx_strt
         num_subparts = int(part_size / max_part_size)
         if num_subparts <= 1:
-            adjusted_submats.append(submats[i])
-            adjusted_allots.append(allots[i])
-            adjusted_allot_indices.append(allot_indices[i])
+            adjusted_submats.append(submats[j])
+            adjusted_allots.append(allots[j])
+            adjusted_allot_indices.append(allot_indices[j])
         else:
             for ii in range(0,num_subparts):
                 offset = ii*max_part_size
                 this_part_size = max_part_size if ii < num_subparts-1 else V
-                adjusted_submats.append(submats[i][offset:offset+this_part_size])
-                adjusted_allots.append(allots[i]) 
+                adjusted_submats.append(submats[j][offset:offset+this_part_size])
+                adjusted_allots.append(allots[j]) 
                 adjusted_allot_indices.append(a_idx_strt+offset)
 
-    adjusted_allot_indices = sorted(adjusted_allot_indices, reverse=True)
-    adjusted_allots = sorted(adjusted_allots)
+    for i in range(0,len(adjusted_submats)):
+        print(len(adjusted_submats[i]))
+    print(adjusted_allot_indices)
+    print(adjusted_allots)
     return adjusted_submats, adjusted_allots, adjusted_allot_indices
         
 
@@ -227,8 +231,10 @@ def quantize(submats, allots, batch='full'):
         inf_submats.append(inf_emb)
         quant_submats.append(quant_emb)
         codebks.append(codebk)
+        if len(codebk) == 1:
+            print(inf_emb)
+    
      
-    inf_submats.reverse() 
     inflated_mat = np.vstack(inf_submats) 
     return inflated_mat, quant_submats, codebks 
 
@@ -248,7 +254,7 @@ def bitwrite_submats(quant_submats, codebks, allots, path):
     sfry_path = path+".sfry"
     os.mkdir(sfry_path)
 
-    for i in range(1,len(quant_submats)):
+    for i in range(0,len(quant_submats)):
         s = ""
         logging.debug("Generating bitwise representation for submatrix # "+str(i)+"...") 
         cur_submat = quant_submats[i].reshape(-1,1)
@@ -276,12 +282,12 @@ def bitwrite_submats(quant_submats, codebks, allots, path):
 
 def get_submat_idx(idx, allot_indices):
     a_i = 0
-    while a_i < len(allot_indices):
-        if idx >= allot_indices[a_i]:
+    print(idx)
+    while a_i < len(allot_indices)-1:
+        if idx <  allot_indices[a_i+1]:
             break
         else:
             a_i += 1
-
     return a_i
   
 
@@ -318,7 +324,8 @@ def parse_row(rowbytes, offset_correction, readend_correction):
 
 
 def decode_row(row_bitstring, R_i, submat_idx, codebks, dim):
-
+    #print(codebks[submat_idx])
+    #print(len(codebks[submat_idx]))
     inflated_row = np.zeros(dim)
     for i in range(0,dim):
         code = int(row_bitstring[i*R_i:(i+1)*R_i],2)
@@ -346,8 +353,7 @@ def query_prep(word, word2idx, dim, codebks,allot_indices):
         submat_idx = -1
         if not idx == -1:
             submat_idx = get_submat_idx(idx, allot_indices)
-        OofV = np.repeat(codebks[0][0], dim)
-        return idx, submat_idx, OofV
+        return idx, submat_idx
 
         
 def query_exec(rowbytes, offset_correction, readend_correction, R_i, submat_idx, codebks, dim):

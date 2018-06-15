@@ -30,10 +30,13 @@ def query(word, word2idx, sfrypath, usr_idx=False):
     allots = np.load(sfrypath+"/metadata/ballocs.npy")
     allot_indices = np.load(sfrypath+"/metadata/ballocs_idx.npy")
     codebks = np.load(sfrypath+"/codebks.npy")
-    idx, submat_idx, OofV = query_prep(word, word2idx, dim, codebks, allot_indices)
+    idx, submat_idx = query_prep(word, word2idx, dim, codebks, allot_indices)
+    print("submat idx")
+    print(submat_idx)
     R_i = allots[submat_idx] if idx >= 0 else 0
+    print(R_i)
     if R_i == 0:    
-        return OofV
+        return np.repeat(codebks[submat_idx][0],dim)
     offset, readend, offset_correction, readend_correction = get_scan_params(idx,allot_indices,R_i,submat_idx,dim)
     f = open(sfrypath+"/"+"submat"+str(submat_idx),'rb')
     f.seek(offset,0)
