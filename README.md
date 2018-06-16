@@ -27,22 +27,22 @@ Installing Small-Fry
 -----------------
 First, make sure your environment meets all of Small-Fry's [dependencies](#dependencies).
 
-From source: TODO
-
-From pip: TODO
-
-From Anaconda: TODO
+`pip install .`
 
 
 Dependencies
 -----------------
-TODO
+All dependencies can be found in `requirements.txt`.
+
+They can be installed via:
+
+`pip install -r requirements.txt`
 
 
 Usage
 -----------------
 
-Small-Fry is extremely easy to use. We recommend using Small-Fry as an API, however command line interfaces are provided.
+We recommend using Small-Fry as an API, however command line interfaces are provided.
 
 For API documentations see `docs`. For a simple demo using the Small-Fry API, see `examples`. 
 
@@ -53,10 +53,6 @@ Contact
 -----------------
 
 [Tony Ginart](http://web.stanford.edu/~tginart/)
-
-
-
-
 
 This is a research prototype for Small-Fry, a word embeddings compression algorithm.
 
