@@ -8,7 +8,7 @@ def test_bad():
 
 def test_good():
     a = 1
-    b = 1
+    b = 2
     assert(a == b)
 
 
