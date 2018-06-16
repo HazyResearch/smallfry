@@ -18,20 +18,17 @@ Small-Fry is a general-purpose lossy compression algorithm for word embedding ma
 
 For many extrinsic inference tasks, Small-Fry can compress pre-existing source embeddings by 10-1000X, while preserving downstream performance to within <1% of the source embeddings.
 
+Dependencies
+-----------------
+SmallFry runs on Python 3.6. All dependencies can be found in `requirements.txt`. They can be installed via:
+
+`pip install -r requirements.txt`
 
 Installing Small-Fry
 -----------------
 First, make sure your environment meets all of Small-Fry's [dependencies](#dependencies).
 
 `pip install .`
-
-
-Dependencies
------------------
-All dependencies can be found in `requirements.txt`. They can be installed via:
-
-`pip install -r requirements.txt`
-
 
 Usage
 -----------------
