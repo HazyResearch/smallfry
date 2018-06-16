@@ -10,44 +10,44 @@ Table of Contents
 -----------------
 
   * [Overview](#overview)  
-  * [Installing from Source](#installing-from-source)
+  * [Installing Small-Fry](#installing small-fry)
    * [Dependencies](#dependencies)
-  * [Usage](#running-queries)
+  * [Usage](#usage)
   * [Contact](#contact)
 
 Overview
 -----------------
 
-Small-Fry is a general-purpose lossy compression algorithm for word embedding matrices. This is a research-prototype implementation of the algorithm. For many extrinsic inference tasks, Small-Fry can compress pre-existing source embeddings by 10-1000X, while preserving downstream performance to within <1% of the source embeddings. Please see TODO:paperlink for more details. 
+Small-Fry is a general-purpose lossy compression algorithm for word embedding matrices. This is a research-prototype implementation of the algorithm. The algorithm is simple two-stage scheme, combining a Lloyd-Max quantizer with an arithemtic source code. It's compressed embeddings achieve state-of-the-art rate-performance across extrinisic NLP tasks. Small-Fry uses variable-precision, quantizing more frequent word vectors with higher fidelity.
+
+For many extrinsic inference tasks, Small-Fry can compress pre-existing source embeddings by 10-1000X, while preserving downstream performance to within <1% of the source embeddings. Please see TODO:paperlink for more details. 
 
 
 Installing Small-Fry
 -----------------
 First, make sure your environment meets all of Small-Fry's [dependencies](#dependencies).
 
-From source:
+From source: TODO
 
+From pip: TODO
 
+From Anaconda: TODO
 
-To install EmptyHeaded from source ensure that your system:
-
-1. Meets all [dependencies](#dependencies) detailed below (or you are in our [Docker](#docker) contatiner)
-2. Has [setup the EmptyHeaded environment](#setting-up-environment)
-3. Has [compiled the QueryCompiler and Cython bindings](#compilation).
 
 Dependencies
 -----------------
+TODO
 
 
 Usage
 -----------------
-We provide demos of EmptyHeaded in iPython notebooks. 
 
-We provide a tutorial of how to get started running your first EmptyHeaded query in the `docs/notebooks` folder. In this folder is a `Getting Started Tutorial` iPython notebook (amongst others) which can be loaded after executing `ipython notebook`.
+Small-Fry is extremely easy to use. We recommend using Small-Fry as an API, however command line interfaces are provided.
 
-The syntax for all queries run in [EmptyHeaded: A Relational Engine for Graph Processing](http://arxiv.org/abs/1503.02368) can be found in `docs/notebooks/graph` and the syntax for all queries run in [Old Techniques for New Join Algorithms: A Case Study in RDF Processing](http://arxiv.org/abs/1602.03557) can be found in `docs/notebooks/rdf` (pipelining for LUBM 8 is still a WIP being merged to master).
+For API documentations see `docs`. For a simple demo using the Small-Fry API, see `examples`. 
 
-*A note on benchmarking:* the execution time for each query can be found with our timer that outputs to the shell with `Time[Query]`. Our timers seperate pure query execution time and from the time spent loading from disk for the user.
+For direct command line use TODO
+
 
 Contact
 -----------------
