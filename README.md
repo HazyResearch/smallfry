@@ -1,13 +1,12 @@
 # Small-Fry: Insanely compressed word embeddings
 
 <img src="/docs/mascot.png" height="200" >
-[![Build Status](https://travis-ci.org/HazyResearch/EmptyHeaded.svg?branch=master)](https://travis-ci.org/HazyResearch/EmptyHeaded)
 
 Table of Contents
 -----------------
 
   * [Overview](#overview)  
-  * [Installing Small-Fry](#installing small-fry)
+  * [Installing Small-Fry](#installing-small-fry)
    * [Dependencies](#dependencies)
   * [Usage](#usage)
   * [Contact](#contact)
@@ -17,7 +16,7 @@ Overview
 
 Small-Fry is a general-purpose lossy compression algorithm for word embedding matrices. This is a research-prototype implementation of the algorithm. The algorithm is simple two-stage scheme, combining a Lloyd-Max quantizer with an arithemtic source code. It's compressed embeddings achieve state-of-the-art rate-performance across extrinisic NLP tasks. Small-Fry uses variable-precision, quantizing more frequent word vectors with higher fidelity.
 
-For many extrinsic inference tasks, Small-Fry can compress pre-existing source embeddings by 10-1000X, while preserving downstream performance to within <1% of the source embeddings. Please see TODO:paperlink for more details. 
+For many extrinsic inference tasks, Small-Fry can compress pre-existing source embeddings by 10-1000X, while preserving downstream performance to within <1% of the source embeddings.
 
 
 Installing Small-Fry
