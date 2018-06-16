@@ -32,9 +32,7 @@ First, make sure your environment meets all of Small-Fry's [dependencies](#depen
 
 Dependencies
 -----------------
-All dependencies can be found in `requirements.txt`.
-
-They can be installed via:
+All dependencies can be found in `requirements.txt`. They can be installed via:
 
 `pip install -r requirements.txt`
 
