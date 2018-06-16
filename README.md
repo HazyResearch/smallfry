@@ -26,7 +26,7 @@ SmallFry runs on Python 3.6. All dependencies can be found in `requirements.txt`
 
 Installing Small-Fry
 -----------------
-First, make sure your environment meets all of Small-Fry's [dependencies](#dependencies).
+The easiest way to install Small-Fry is via pip install:
 
 `pip install .`
 
