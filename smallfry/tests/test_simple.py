@@ -2,9 +2,13 @@ import smallfry
 import pytest
 
 def test_bad():
-	assert(False, "I told you I would fail.")
+    a = 1
+    b = 1
+    assert(a == b)
 
 def test_good():
-	assert(True, "I told you I would pass.")
+    a = 1
+    b = 1
+    assert(a == b)
 
 
