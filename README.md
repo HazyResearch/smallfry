@@ -6,8 +6,8 @@ Table of Contents
 -----------------
 
   * [Overview](#overview)  
+  * [Dependencies](#dependencies)
   * [Installing Small-Fry](#installing-small-fry)
-   * [Dependencies](#dependencies)
   * [Usage](#usage)
   * [Contact](#contact)
 
