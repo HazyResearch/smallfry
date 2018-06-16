@@ -1,0 +1,6 @@
+scipy
+marisa_trie
+sklearn
+argh
+numpy
+pytest
