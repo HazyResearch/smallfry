@@ -40,8 +40,18 @@ def query(word, word2idx, sfrypath, usr_idx=False):
     return query_exec(f.read(readend - offset), offset_correction, readend_correction, R_i, submat_idx, codebks, dim)
     
     
-def compress(sourcepath, priorpath, outdir=None, mem_budget=None, R=1, write_inflated=False, word_rep="dict", write_word_rep=False, randseed=None, \
-batch='full',max_bitrate=None, sampling_topdwn=True):
+def compress(sourcepath, 
+             priorpath, 
+             outdir=None, 
+             mem_budget=None, 
+             R=1, 
+             write_inflated=False, 
+             word_rep="trie", 
+             write_word_rep=False, 
+             randseed=None,
+             batch='full',
+             max_bitrate=None, 
+             sampling_topdwn=True):
     '''
     Compresses the source embeddings. 
     This can be imported as an API call or used as a command line utility.
@@ -91,8 +101,8 @@ batch='full',max_bitrate=None, sampling_topdwn=True):
     if write_inflated:
         logging.info("Writing inflated embeddings as npy...")
         npy2text(inflated_mat, words, outpath+".inflated_"+str(randseed))
-    print("Saving Small-Fry representation to file...")
     sfry_path = bitwrite_submats(quant_submats, codebks, allots, outpath)
+    print("Saving Small-Fry representation to file: " + str(sfry_path))
     np.save(sfry_path+"/codebks",codebks)
     meta_path = sfry_path+"/metadata"
     os.mkdir(meta_path)
@@ -105,10 +115,11 @@ batch='full',max_bitrate=None, sampling_topdwn=True):
 
     return word2idx, sfry_path
 
-#parser = argh.ArghParser()
-#parser.add_commands([compress,query])
-
-#if __name__ == '__main__':
-#    parser.dispatch()
-
-
+def calc_folder_size(path):
+    total_size = 0
+    start_path = path  # To get size of current directory
+    for path, dirs, files in os.walk(start_path):
+        for f in files:
+            fp = os.path.join(path, f)
+            total_size += os.path.getsize(fp)
+    return total_size

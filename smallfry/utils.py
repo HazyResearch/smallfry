@@ -7,6 +7,7 @@ from io import StringIO
 import struct
 import logging
 import sys
+import shutil
 
 #INTERNAL UTILS FOR SMALL-FRY API: Direct usage not recommended
 
@@ -245,6 +246,8 @@ def km_quantize(X, R, batch):
 
 def bitwrite_submats(quant_submats, codebks, allots, path):
     sfry_path = path+".sfry"
+    if os.path.isdir(sfry_path):
+        shutil.rmtree(sfry_path)
     os.mkdir(sfry_path)
 
     for i in range(0,len(quant_submats)):
