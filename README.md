@@ -3,7 +3,7 @@
 Small-Fry v. 0.1
 ----------------------
 
-<img src="docs/mascot.png" height="200" >
+<img src="/docs/mascot.png" height="200" >
 
 
 Table of Contents
