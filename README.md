@@ -1,10 +1,7 @@
 # Small-Fry: Insanely compressed word embeddings
 
-Small-Fry v. 0.1
-----------------------
-
 <img src="/docs/mascot.png" height="200" >
-
+[![Build Status](https://travis-ci.org/HazyResearch/EmptyHeaded.svg?branch=master)](https://travis-ci.org/HazyResearch/EmptyHeaded)
 
 Table of Contents
 -----------------
