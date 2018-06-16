@@ -13,14 +13,15 @@ def gen_uniform_embs():
     np.save("uni_test_prior",uni_test_prior)
     unimat = 2*np.random.random([1000,50])-1
     np.savetxt("uni.mat",unimat,fmt='%.12f')
-    os.system("paste -d ' ' uni.mat wordnums > uniembs.txt")
+    os.system("paste -d ' '  wordnums uni.mat > uniembs.txt")
     word2idx, sfry_path = sfry.compress("uniembs.txt", "uni_test_prior.npy", write_inflated=True, word_rep="dict")
     return word2idx, sfry_path
 
 
 def test_inflation_fidelity():
-    word2dix, sfry_path = gen_uniform_embs()
-    
+    word2idx, sfry_path = gen_uniform_embs()
+    #TODO fix inflated naming!!!
+    tests.check_inflation("uniembs.txt.inflated_None", sfry_path, word2idx, mmap=True)
     
      
     assert(a == b)
