@@ -1,10 +1,7 @@
 # Small-Fry: Insanely compressed word embeddings
 
-Small-Fry v. 0.1
-----------------------
-
-<img src="mascot.png" height="200" >
-
+<img src="/docs/mascot.png" height="200" >
+[![Build Status](https://travis-ci.org/HazyResearch/EmptyHeaded.svg?branch=master)](https://travis-ci.org/HazyResearch/EmptyHeaded)
 
 Table of Contents
 -----------------
@@ -27,57 +24,29 @@ Installing Small-Fry
 -----------------
 First, make sure your environment meets all of Small-Fry's [dependencies](#dependencies).
 
-From source: TODO
-
-From pip: TODO
-
-From Anaconda: TODO
+`pip install .`
 
 
 Dependencies
 -----------------
-TODO
+All dependencies can be found in `requirements.txt`. They can be installed via:
+
+`pip install -r requirements.txt`
 
 
 Usage
 -----------------
 
-Small-Fry is extremely easy to use. We recommend using Small-Fry as an API, however command line interfaces are provided.
+Small-Fry is provided as an API, for a simple demo using the Small-Fry API, see `examples`. 
 
-For API documentations see `docs`. For a simple demo using the Small-Fry API, see `examples`. 
-
-For direct command line use TODO
+Some notes:
+* Small-Fry produces ```.sfry``` directories, which are the compressed representations of the word embeddings. <br />
+* If no specific memory budget is required, a bitrate of 1 is used by default, which generally works well. <br />
+* Small-Fry produced word representations are either Python dicts or marisa-tries. Alternatively, the user can be responsible for using the word list and handling the word -> index mapping separately (TODO). <br />
+* It is recommended to use Small-Fry programmatically. To query, use the ```sfry.load``` function, which returns a wrapper object for a memory mapped version of the compressed Small-Fry representations. The use the member function ```.query()``` on the wrapper object.
 
 
 Contact
 -----------------
 
 [Tony Ginart](http://web.stanford.edu/~tginart/)
-
-
-
-
-
-This is a research prototype for Small-Fry, a word embeddings compression algorithm.
-
-Recommended to use as API -- add modules to path and ```import smallfry as sfry```.  <br />
-Also supports command line usage: <br />
-Recommended cmd line usage for compression: <br />
-```python smallfry.py compress source-path prior-path -m {MEM_BUDGET} --word-rep trie --write-word-rep ```<br />
-Recommended cmd line usage for querying: <br />
-```python smallfry.py query word word-representation-path sfry-path```<br />
-
-Usage Notes: <br />
--- Small-Fry produces ```.sfry``` directories, which are the compressed representations of the word embeddings. <br />
--- If no specific memory budget is required, a bitrate of 1 is used by default, which generally works well. <br />
--- Small-Fry produced word representations are either Python dicts or marisa-tries. Alternatively, the user can be responsible for using the word list and handling the word -> index mapping separately (TODO). <br />
--- It is recommended to use Small-Fry programmatically. To query, use the ```sfry.load``` function, which returns a wrapper object for a memory mapped version of the compressed Small-Fry representations. The use the member function ```.query()``` on the wrapper object.
-
-DEPENDENCIES:<br />
-Numpy <br />
-Scipy <br />
-Scikit-learn <br />
-Marisa-Trie <br />
-Arghs <br />
-
-
