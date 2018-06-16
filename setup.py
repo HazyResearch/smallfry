@@ -1,6 +1,6 @@
-from setuptools import setup
+import setuptools
 
-setup(name='smallfry',
+setuptools.setup(name='smallfry',
       version='0.1',
       description='Insanely compressed word embeddings',
       url='https://github.com/HazyResearch/small-fry',
