@@ -51,7 +51,8 @@ def compress(sourcepath,
              randseed=None,
              batch='full',
              max_bitrate=None, 
-             sampling_topdwn=True):
+             sampling_topdwn=True,
+             ):
     '''
     Compresses the source embeddings. 
     This can be imported as an API call or used as a command line utility.
@@ -100,7 +101,9 @@ def compress(sourcepath,
     inflated_mat, quant_submats, codebks = quantize(submats, allots, batch)
     if write_inflated:
         logging.info("Writing inflated embeddings as npy...")
-        npy2text(inflated_mat, words, outpath+".inflated_"+str(randseed))
+        npy2text(inflated_mat, words, outpath+".sfry.inflated_R_"  \
+            +str(R)+"_seed_"+str(randseed)+"_max_bitrate_"+str(max_bitrate)  \
+            +"_batch_"+str(batch)+"_sampling_"+str(sampling_topdwn)) 
     sfry_path = bitwrite_submats(quant_submats, codebks, allots, outpath)
     print("Saving Small-Fry representation to file: " + str(sfry_path))
     np.save(sfry_path+"/codebks",codebks)
