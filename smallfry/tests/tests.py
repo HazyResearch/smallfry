@@ -62,13 +62,15 @@ def compute_square_w_fronorm(source, compressed, priorpath):
     prior = prior_vocab_union(prior, source.keys())    
     
     return sum([prior[w]*np.linalg.norm(source[w] - compressed[w]) for w in source])/len(source)
+
+
+
 ################
 ################
-def check_inflation(inflated_path, sfry_path, word2idx_path, mmap=True):#TODO support disk query
+def check_inflation(inflated_path, sfry_path, word2idx, mmap=True):#TODO support disk query
     inflated_embs = read_emb(str(inflated_path), fmt='inflated')
-    word2idx = np.load(word2idx_path).item()
-    query = None
     c = 0
+    check_passed = True 
     if mmap:
         my_sfry = sfry.load(str(sfry_path), word2idx)
         for w in word2idx:
@@ -79,6 +81,7 @@ def check_inflation(inflated_path, sfry_path, word2idx_path, mmap=True):#TODO su
                 print(my_sfry.query(w))
                 print(inflated_embs[w])
                 print("Error on word "+w)
+                check_passed = False
                 break   
     else:
         for w in word2idx:
@@ -90,10 +93,11 @@ def check_inflation(inflated_path, sfry_path, word2idx_path, mmap=True):#TODO su
                 print(inflated_embs[w])
                 
                 print("Error on word "+w)
+                check_passed = False
                 break   
 
     print("done")
-    return 
+    return check_passed 
 
 
 def test_weighted_fronorm(src_path, compressed_path, priorpath, comp_fmt='inflated'):
