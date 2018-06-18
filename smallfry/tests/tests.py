@@ -59,15 +59,16 @@ def prior_vocab_union(prior,vocab):
 def compute_square_w_fronorm(source, compressed, priorpath):
     prior = np.load(str(priorpath), encoding='latin1').item()
    
-    prior = prior_vocab_union(prior, source.keys())    
-    
-    return sum([prior[w]*np.linalg.norm(source[w] - compressed[w]) for w in source])/len(source)
+    prior = prior_vocab_union(prior, source.keys())
+    #TODO: this prior only works for 1s 
+ 
+    return sum([prior[w]*np.linalg.norm(source[w] - compressed[w])**2 for w in source])
 
 
 
 ################
 ################
-def check_inflation(inflated_path, sfry_path, word2idx, mmap=True):#TODO support disk query
+def check_inflation(inflated_path, sfry_path, word2idx, mmap=True):
     inflated_embs = read_emb(str(inflated_path), fmt='inflated')
     c = 0
     check_passed = True 
