@@ -19,14 +19,14 @@ lin_prefix_sums = np.array([])
 quad_prefix_sums = np.array([])
 clusters = 0
 
-def rowwise_KM_minibatch(row, k, max_iters=90, num_inits=5):#TODO hardcoding + method call
+def rowwise_KM_minibatch(row, k, max_iters=90, num_inits=3):#TODO hardcoding + method call
     kmeans = MiniBatchKMeans(n_clusters=k,max_iter=max_iters).fit(row)
     return np.concatenate(kmeans.cluster_centers_[kmeans.labels_]), kmeans.labels_, kmeans.cluster_centers_
     
 
-def rowwise_KM(row,k,max_iters=120,num_inits=5,init_dist='default'): #TODO hardcoding
+def rowwise_KM(row,k,max_iters=120,num_inits=3,init_dist='default'): #TODO hardcoding
 #uses sklearn scalar KMeans which implements Lloyd's iterative algo
-    kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=5).fit(row)
+    kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=3).fit(row)
     return np.concatenate(kmeans.cluster_centers_[kmeans.labels_]), kmeans.labels_, kmeans.cluster_centers_
     
 
