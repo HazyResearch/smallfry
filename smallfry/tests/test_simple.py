@@ -1,5 +1,5 @@
 import smallfry as sfry
-import tests
+import .tests
 import numpy as np
 import os
 import pytest
