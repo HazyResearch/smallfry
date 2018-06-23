@@ -12,11 +12,12 @@ import bitarray as ba
 import marisa_trie
 #SMALL-FRY CORE: Direct usage not recommended
 
+#TODO: bad method
 def rowwise_KM_minibatch(row, k, max_iters=90, num_inits=3):#TODO hardcoding + method call
     kmeans = MiniBatchKMeans(n_clusters=k,max_iter=max_iters).fit(row)
     return np.concatenate(kmeans.cluster_centers_[kmeans.labels_]), kmeans.labels_, kmeans.cluster_centers_
     
-
+#TODO bad method
 def rowwise_KM(row,k,max_iters=120,num_inits=3,init_dist='default'): #TODO hardcoding
 #uses sklearn scalar KMeans which implements Lloyd's iterative algo
     kmeans = KMeans(n_clusters=k,max_iter=max_iters,n_init=num_inits,n_jobs=3).fit(row)
@@ -27,7 +28,7 @@ def bit_allocator(weight_vect, bitrate, err_tol=0.1):
 #computes bit allotment, needs weights as input 
     total_budget = len(weight_vect)*bitrate          
     lamb_max = max(weight_vect)
-    lamb_min = 1e-100
+    lamb_min = 1e-100 #magic number but is probably ok?
     lamb = 0
     rate = 0
     while(np.abs(rate - total_budget) > err_tol):
@@ -40,7 +41,7 @@ def bit_allocator(weight_vect, bitrate, err_tol=0.1):
 
     return 0.5*np.log2(weight_vect/np.minimum(weight_vect,lamb))
 
-
+#I think this method is fine?
 def allocation_round(bit_allot_vect, sort=True):
 #rounds the bit allot vect such that <1 bit goes unused in aggregate
     bit_bank = 0
@@ -59,7 +60,7 @@ def allocation_round(bit_allot_vect, sort=True):
     bit_allot_vect = np.array(bit_allot_vect).astype(int)
     return np.array(sorted(bit_allot_vect,reverse=True)) if sort else bit_allot_vect
 
-
+#this really should be in the dev branch
 def downsample(bit_allot_vect, dim, max_bitrate, topdwn_upsamp=True):
 #This method downsamples such that the k-means is always assigns less cluster than points
     budget = 0
@@ -82,6 +83,7 @@ def downsample(bit_allot_vect, dim, max_bitrate, topdwn_upsamp=True):
 
     return sorted(bit_allot_vect,reverse=True)
 
+#bad method I cant recall why I have the dtypes, or why I have some magic number scales
 def text2npy(inpath, outpath, priorpath, word_rep):
 #preprocessing textfile embeddings input
     words = list()
@@ -151,7 +153,7 @@ def text2npy(inpath, outpath, priorpath, word_rep):
     
     return embed_matrix, p, words, word2idx, dim 
     
-
+#probably the worst one in here... yeah needs work
 def npy2text(npy_mat,words,writepath):
     f = open(writepath+str(".words"),'w')
     f.write("\n".join(words))
@@ -159,6 +161,7 @@ def npy2text(npy_mat,words,writepath):
     np.savetxt(writepath+".mat",npy_mat,fmt='%.12f')
     os.system("paste -d ' ' "+writepath+str(".words")+" "+writepath+str(".mat")+" > "+writepath)
 
+#this one seems ok
 def mat_partition(embmat, bit_allocations):
 #partitions the matrix in submatrices based on the bit allocations
     allots, allot_indices = np.unique(bit_allocations,return_index=True)
@@ -172,6 +175,7 @@ def mat_partition(embmat, bit_allocations):
     logging.debug("Partitioning into "+str(len(submats))+" submatrices...")
     return submats, allots, allot_indices 
 
+#the 0.05 should be only in dev branch... but otherwise, is ok?
 def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
     adjusted_submats = list() 
     adjusted_allots = list()
@@ -201,7 +205,7 @@ def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
 
     return adjusted_submats, adjusted_allots, adjusted_allot_indices
         
-
+#seems ok?
 def quantize(submats, allots, minibatch):
 #quantizes each submatrix
     inf_submats = list()
@@ -215,8 +219,9 @@ def quantize(submats, allots, minibatch):
         codebks.append(codebk)
      
     inflated_mat = np.vstack(inf_submats) 
-    return inflated_mat, quant_submats, codebks 
-
+    return inflated_mat, quant_submats, codebks
+ 
+#seems ok?
 def km_quantize(X, R, minibatch):
 #k-means for submatrix
     orig_shape = X.shape
@@ -226,10 +231,10 @@ def km_quantize(X, R, minibatch):
     inflated_embs, quant_embs, codebk = KM(X,k)  
     return inflated_embs.reshape(orig_shape), quant_embs.reshape(orig_shape), codebk
 
-
+#seems oK   ?
 def prepare_encode_dict(bitrate):
     nVals = 1 << bitrate
-    assert bitrate <= 9, "TODO"
+    assert bitrate <= 9, "TODO" #other than this 
     codelst = [ba.bitarray(bin(i)[2:].zfill(bitrate)) for i in range(0,nVals)]
     return dict(enumerate(codelst))
         
@@ -244,7 +249,7 @@ def prepare_decode_dict(nbits, codebook):
         decode_d[codebook[i][0]] = bi
     return decode_d      
 
-
+#seems ok?
 def bitwrite_submats(quant_submats, codebks, allots, path):
     for i in range(0,len(quant_submats)):
         logging.debug("Generating bitwise representation for submatrix # "+str(i)+"...") 
@@ -253,7 +258,7 @@ def bitwrite_submats(quant_submats, codebks, allots, path):
         submat_ba.encode(prepare_encode_dict(allots[i]),cur_submat)
         submat_ba.tofile(open(path+"/submat"+str(i),'wb'))
 
-
+#ok?
 def get_submat_idx(idx, allot_indices):
     a_i = 0
     while a_i < len(allot_indices)-1:
@@ -261,7 +266,7 @@ def get_submat_idx(idx, allot_indices):
         else: a_i += 1
     return a_i
   
-
+#TODO LIST
 def get_word_idx(word2idx, word):
     word_rep_type = type(word2idx)
     supported_types = [dict, marisa_trie.RecordTrie, list]
@@ -272,9 +277,11 @@ def get_word_idx(word2idx, word):
             return word2idx[word]
         if type(word2idx) is marisa_trie.RecordTrie:
             return word2idx[word][0][0]
+        if type(word2idx) is list:#TODO
+            return exit()
     else: return -1
 
-
+#seems ok
 def query_prep(word, word2idx, dim, codebks,allot_indices):
         idx = get_word_idx(word2idx, word)
         submat_idx = -1
