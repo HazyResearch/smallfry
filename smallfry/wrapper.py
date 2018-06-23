@@ -7,15 +7,6 @@ import bitarray as ba
 import json
 
 class Smallfry:
-    #TODO_CMR: On the RARE occasion that I make a python class, I like putting member vars this way above the init such that I know what "type" they are suppose to be... happy to ax this if it is poor form... I  made this up myself years ago. LMK
-    word2idx = dict()
-    path = ""
-    bin_submats = dict()
-    codebks = np.zeros(1)
-    allots = np.zeros(1)
-    allot_indices = np.zeros(1)
-    dim = 0
-    sfry_size = 0
 
     def __init__(self,path,word2idx):
         self.path = path
@@ -26,7 +17,8 @@ class Smallfry:
         self.allots = metadata['allots']
         self.allot_indices = metadata['allot_indices']
         self.dim = metadata['dim']
-         
+        self.bin_submats = dict()     
+    
         directory = os.fsencode(path)
         for file in os.listdir(directory):
             filename = os.fsdecode(file)
@@ -47,7 +39,7 @@ class Smallfry:
             return np.repeat(self.codebks[submat_idx][0],self.dim)
         offset_idx = idx - self.allot_indices[submat_idx]
         decode_d = prepare_decode_dict(self.allots[submat_idx], self.codebks[submat_idx])
-        return self.bin_submats[submat_idx][offset_idx].decode(decode_d)
+        return np.array(self.bin_submats[submat_idx][offset_idx].decode(decode_d))
 
     def query(self, word):
         idx, submat_idx = query_prep(word, self.word2idx, self.dim, self.codebks, self.allot_indices)
