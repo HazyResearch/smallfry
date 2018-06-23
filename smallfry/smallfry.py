@@ -21,7 +21,7 @@ def compress(source_file,
              outdir, 
              mem_budget=None, 
              R=1, 
-             write_inflated=None, 
+             write_inflated=False, 
              word_rep="trie", 
              minibatch=False,
              max_bitrate=None, 
@@ -41,7 +41,7 @@ def compress(source_file,
                 User is responsible for managing the word representation
 
     '''
-    assert not os.path.isdir(outdir), "User specified output directory already exists"
+    assert not os.path.isdir(outdir), f"User specified output directory already exists ({outdir})"
     os.mkdir(outdir)
 
     logging.basicConfig(format="%(asctime)s %(message)s",
@@ -70,7 +70,7 @@ def compress(source_file,
     inflated_mat, quant_submats, codebks = quantize(submats, allots, minibatch)
 
     if write_inflated:
-        path_out = os.path.join(outdir, "/sfry.inflated.glove")
+        path_out = os.path.join(outdir, "sfry.inflated.glove")
         logging.info(f"Writing inflated embeddings into {path_out} as npy...")
         npy2text(inflated_mat, words, path_out)
   
@@ -84,7 +84,7 @@ def compress(source_file,
     json.dump(metadata, open(os.path.join(outdir, "metadata"),'w'))
 
     print("Compression complete!!!")   
-    return word2idx, outdir
+    #return word2idx, outdir
 
 parser = argh.ArghParser()
 parser.add_commands([compress])
