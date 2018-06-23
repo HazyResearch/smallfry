@@ -157,7 +157,7 @@ def test_approx_codebk_correctness():
 '''
 def test_weighted_fronorm():
     word2idx, sfry_path = gen_uniform_embs(uniprior=True)
-    infpath = sfry_path+"/sfry.inflated" 
+    infpath = sfry_path+"/sfry.inflated.txt" 
     #we can solve this problem explicitly to get ~0.041 as the per entry distortion
     net_dist = 0.0833*100*1000
     dist = weighted_fronorm("uniembs.txt",infpath,"uni_test_prior.npy")
