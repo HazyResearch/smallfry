@@ -124,7 +124,7 @@ def test_inflation_fidelity():
     check_mmap = check_inflation(infpath, sfry_path, word2idx, mmap=True)
     #check_file = check_inflation(infpath, sfry_path, word2idx, mmap=False)
    
-    assert(check_mmap and check_file)
+    assert check_mmap
 
 def test_approx_codebk_correctness():
     os.system("rm -rf out")
