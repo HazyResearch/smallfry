@@ -116,7 +116,7 @@ def gen_uniform_embs(uniprior=False):
     word2idx, sfry_path = sfry.compress("uniembs.txt", "uni_test_prior.npy", "out" , write_inflated=True, word_rep="dict")
     return word2idx, sfry_path
 
-
+'''
 def test_inflation_fidelity():
     word2idx, sfry_path = gen_uniform_embs()
     #TODO fix inflated naming!!!
@@ -154,7 +154,7 @@ def test_approx_codebk_correctness():
                 codes_seem_approx_cor = False 
     
     assert(codes_seem_approx_cor)
-
+'''
 def test_weighted_fronorm():
     word2idx, sfry_path = gen_uniform_embs(uniprior=True)
     infpath = sfry_path+"/sfry.inflated" 
