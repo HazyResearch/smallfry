@@ -9,7 +9,15 @@ import json
 
 def load(sfrypath, word2idx):
     return Smallfry(sfrypath, word2idx) 
-    
+   
+'''
+@argh.arg("source_file", help="The source embedding file")
+@argh.arg("prior_file", help="The priors in Numpy Format")
+@argh.arg("outdir", help="Output directory")
+@argh.arg("-r", "--rate", help="compression rate")
+@argh.arg("--write-inflated", help="Write a numpy version")
+'''
+ 
 def compress(sourcepath, 
              priorpath, 
              outdir, 
@@ -49,7 +57,7 @@ def compress(sourcepath,
         R = 7.99*mem_budget/(len(p)*dim)
      
     logging.info("Computing optimal bit allocations...")
-    bit_allocations = allocation_round(bit_allocator(p,R),sort=True)
+    bit_allocations = allocation_round(bit_allocator(p,R))
 
     logging.info("Downsampling for dimension "+str(dim)+"...")
     bit_allocations = downsample(bit_allocations, dim, max_bitrate, sampling_topdwn)
@@ -79,3 +87,11 @@ def compress(sourcepath,
 
     return word2idx, outdir
 
+
+'''
+parser = argh.ArghParser()
+parser.add_commands([comp])
+
+if __name__ == '__main__':
+    parser.dispatch()
+'''
