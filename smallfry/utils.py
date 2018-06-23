@@ -41,7 +41,7 @@ def bit_allocator(weight_vect, bitrate, err_tol=0.1):
     return 0.5*np.log2(weight_vect/np.minimum(weight_vect,lamb))
 
 
-def allocation_round(bit_allot_vect, sort=False):
+def allocation_round(bit_allot_vect, sort=True):
 #rounds the bit allot vect such that <1 bit goes unused in aggregate
     bit_bank = 0
     for i,a in enumerate(bit_allot_vect):
@@ -267,10 +267,10 @@ def get_word_idx(word2idx, word):
     supported_types = [dict, marisa_trie.RecordTrie, list]
     assert word_rep_type in supported_types, "Word representation object is not of a supported type"
 
-    if word in word2idx: #TODO check this
+    if word in word2idx:
         if type(word2idx) is dict:
             return word2idx[word]
-        elif type(word2idx) is marisa_trie.RecordTrie:
+        if type(word2idx) is marisa_trie.RecordTrie:
             return word2idx[word][0][0]
     else: return -1
 

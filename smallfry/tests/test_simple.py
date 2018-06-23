@@ -122,7 +122,7 @@ def test_inflation_fidelity():
     #TODO fix inflated naming!!!
     infpath = "uniembs.txt.sfry.inflated_R_1_seed_None_max_bitrate_None_batch_full_sampling_True"
     check_mmap = check_inflation(infpath, sfry_path, word2idx, mmap=True)
-    check_file = check_inflation(infpath, sfry_path, word2idx, mmap=False)
+    #check_file = check_inflation(infpath, sfry_path, word2idx, mmap=False)
    
     assert(check_mmap and check_file)
 
