@@ -5,6 +5,7 @@ import numpy as np
 import argh
 import logging
 import re
+import json
 
 def load(sfrypath, word2idx):
     return Smallfry(sfrypath, word2idx) 
@@ -42,14 +43,12 @@ def query(word, word2idx, sfrypath, usr_idx=False):
     
 def compress(sourcepath, 
              priorpath, 
-             outdir=None, 
+             outdir, 
              mem_budget=None, 
              R=1, 
              write_inflated=False, 
              word_rep="trie", 
-             write_word_rep=False, 
-             randseed=None,
-             batch='full',
+             minibatch=False,
              max_bitrate=None, 
              sampling_topdwn=True,
              ):
@@ -71,17 +70,11 @@ def compress(sourcepath,
     logging.info("Initializing Small-Fry compression! Parameters: ")
  
     logging.info("Parsing embeddings txt and converting to npy...")
-    outpath = ""
-    if outdir == None:
-        outpath= sourcepath
-    else:
-        if not os.path.isdir(outdir):
-            os.mkdir(outdir)
-        outpath = outdir+"/"+(re.split("/",sourcepath)[-1])
+    
+    assert not os.path.isdir(outdir), "User specified output directory already exists"
+    os.mkdir(outdir)
 
-    if not randseed == None:
-        np.random.seed(int(randseed))
-    emb_mat, p, words, word2idx, dim = text2npy(sourcepath, outpath, priorpath, word_rep, write_word_rep)
+    emb_mat, p, words, word2idx, dim = text2npy(sourcepath, outdir, priorpath, word_rep)
     if mem_budget != None:
         mem_budget = float(mem_budget)
         R = 7.99*mem_budget/(len(p)*dim)
@@ -98,25 +91,24 @@ def compress(sourcepath,
     submats, allots, allot_indices = matpart_adjuster(submats, allots, allot_indices, len(p))
 
     logging.info("Quantizing submatrices...")
-    inflated_mat, quant_submats, codebks = quantize(submats, allots, batch)
+    inflated_mat, quant_submats, codebks = quantize(submats, allots, minibatch)
+
     if write_inflated:
         logging.info("Writing inflated embeddings as npy...")
-        npy2text(inflated_mat, words, outpath+".sfry.inflated_R_"  \
-            +str(R)+"_seed_"+str(randseed)+"_max_bitrate_"+str(max_bitrate)  \
-            +"_batch_"+str(batch)+"_sampling_"+str(sampling_topdwn)) 
-    sfry_path = bitwrite_submats(quant_submats, codebks, allots, outpath)
-    print("Saving Small-Fry representation to file: " + str(sfry_path))
-    np.save(sfry_path+"/codebks",codebks)
-    meta_path = sfry_path+"/metadata"
-    os.mkdir(meta_path)
-    np.save(meta_path+"/ballocs",allots)
-    np.save(meta_path+"/dim",dim)
-    np.save(meta_path+"/ballocs_idx",allot_indices)
-    if not randseed == None:
-        np.save(meta_path+"/randseed",randseed)
+        npy2text(inflated_mat, words, outdir+"/sfry.inflated.txt")
+  
+    bitwrite_submats(quant_submats, codebks, allots, outdir)
+    print("Saving Small-Fry representation to file: " + str(outdir))
+    np.save(outdir+"/codebks",codebks)
+    metadata = dict()
+    metadata['allots'] = [int(a) for a in allots]
+    metadata['dim'] = dim
+    metadata['allot_indices'] = [int(a_i) for a_i in allot_indices]
+    json.dump(metadata, open(outdir+"/metadata",'w'))
+
     print("Compression complete!!!")    
 
-    return word2idx, sfry_path
+    return word2idx, outdir
 
 def calc_folder_size(path):
     total_size = 0

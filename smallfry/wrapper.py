@@ -4,6 +4,7 @@ from .utils import *
 import marisa_trie
 import logging
 import bitarray as ba
+import json
 
 class Smallfry:
     #TODO_CMR: On the RARE occasion that I make a python class, I like putting member vars this way above the init such that I know what "type" they are suppose to be... happy to ax this if it is poor form... I  made this up myself years ago. LMK
@@ -14,15 +15,18 @@ class Smallfry:
     allots = np.zeros(1)
     allot_indices = np.zeros(1)
     dim = 0
+    sfry_size = 0
 
     def __init__(self,path,word2idx):
         self.path = path
         self.word2idx = word2idx
-        self.codebks = np.load(path+"/codebks.npy")
-        self.allots = np.load(path+"/metadata/ballocs.npy")
-        self.allot_indices = np.load(path+"/metadata/ballocs_idx.npy")
-        self.dim = np.load(path+"/metadata/dim.npy")  
-        
+        self.codebks = np.load(path+"/codebks.npy") 
+        self.sfry_size = os.path.getsize(path+"/codebks.npy")
+        metadata = json.loads(open(path+"/metadata",'r').read())  
+        self.allots = metadata['allots']
+        self.allot_indices = metadata['allot_indices']
+        self.dim = metadata['dim']
+         
         directory = os.fsencode(path)
         for file in os.listdir(directory):
             filename = os.fsdecode(file)
@@ -33,6 +37,7 @@ class Smallfry:
                 f_size = os.path.getsize(fullpath)
                 submat_ba = ba.bitarray()
                 submat_ba.fromfile(open(fullpath,'rb'))
+                self.sfry_size += len(submat_ba)/8.0
                 codelen = self.dim * self.allots[i]
                 self.bin_submats[i] = [submat_ba[i:i+codelen] for i in range(0, len(submat_ba), codelen)]
                 
@@ -50,3 +55,6 @@ class Smallfry:
 
     def query_idx(self, idx):
         return self._query(idx,get_submat_idx(idx, self.allot_indices))
+    
+    def get_size(self):
+        return self.sfry_size 
