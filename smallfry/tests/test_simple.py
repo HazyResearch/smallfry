@@ -116,17 +116,19 @@ def gen_uniform_embs(uniprior=False):
     word2idx, sfry_path = sfry.compress("uniembs.txt", "uni_test_prior.npy", "out" , write_inflated=True, word_rep="dict")
     return word2idx, sfry_path
 
-'''
 def test_inflation_fidelity():
+    os.system("rm -rf out")
     word2idx, sfry_path = gen_uniform_embs()
     #TODO fix inflated naming!!!
-    infpath = sfry_path+"/sfry.inflated"
+    infpath = sfry_path+"/sfry.inflated.txt"
     check_mmap = check_inflation(infpath, sfry_path, word2idx, mmap=True)
     #check_file = check_inflation(infpath, sfry_path, word2idx, mmap=False)
    
     assert(check_mmap and check_file)
 
 def test_approx_codebk_correctness():
+    os.system("rm -rf out")
+
     word2idx, sfry_path = gen_uniform_embs()
     codebks = np.load(sfry_path+"/codebks.npy")
     codes_seem_approx_cor = True
@@ -154,8 +156,10 @@ def test_approx_codebk_correctness():
                 codes_seem_approx_cor = False 
     
     assert(codes_seem_approx_cor)
-'''
+
 def test_weighted_fronorm():
+    os.system("rm -rf out")
+
     word2idx, sfry_path = gen_uniform_embs(uniprior=True)
     infpath = sfry_path+"/sfry.inflated.txt" 
     #we can solve this problem explicitly to get ~0.041 as the per entry distortion
