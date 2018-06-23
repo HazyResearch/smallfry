@@ -155,9 +155,8 @@ def text2npy(inpath, outpath, priorpath, word_rep):
     
 #probably the worst one in here... yeah needs work
 def npy2text(npy_mat,words,writepath):
-    f = open(writepath+str(".words"),'w')
-    f.write("\n".join(words))
-    f.close()
+    with open(writepath+str(".words"),'w') as f:
+        f.write("\n".join(words))
     np.savetxt(writepath+".mat",npy_mat,fmt='%.12f')
     os.system("paste -d ' ' "+writepath+str(".words")+" "+writepath+str(".mat")+" > "+writepath)
 
