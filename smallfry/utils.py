@@ -8,6 +8,8 @@ import struct
 import logging
 import sys
 import shutil
+import bitarray as ba
+import pickle
 
 #INTERNAL UTILS FOR SMALL-FRY API: Direct usage not recommended
 
@@ -244,6 +246,24 @@ def km_quantize(X, R, batch):
     return inflated_embs.reshape(orig_shape), quant_embs.reshape(orig_shape), codebk
 
 
+def prepare_encode_dict(bitrate):
+    nVals = 1 << bitrate
+    assert bitrate <= 9, "TODO"
+    codelst = [ba.bitarray(bin(i)[2:].zfill(bitrate)) for i in range(0,nVals)]
+    return dict(enumerate(codelst))
+        
+
+def prepare_decode_dict(nbits, codebook):
+    decode_d = dict()
+    nVals    = 1 << nbits #is this to ensure interger?
+    assert nbits <= 9, "Maximum bit size of 8 bits?" #depends
+    the_bits = np.unpackbits(np.array([[i] for i in range(nVals)], dtype=np.uint8), axis=1)[:,8-nbits:8] 
+    for i in range(nVals):
+        bi = ba.bitarray(list(the_bits[i,:]))
+        decode_d[codebook[i][0]] = bi
+    return decode_d      
+
+
 def bitwrite_submats(quant_submats, codebks, allots, path):
     sfry_path = path+".sfry"
     if os.path.isdir(sfry_path):
@@ -251,27 +271,11 @@ def bitwrite_submats(quant_submats, codebks, allots, path):
     os.mkdir(sfry_path)
 
     for i in range(0,len(quant_submats)):
-        s = ""
         logging.debug("Generating bitwise representation for submatrix # "+str(i)+"...") 
-        cur_submat = quant_submats[i].reshape(-1,1)
-        for ii in range(0,len(cur_submat)):
-            delta_s = bin(cur_submat[ii][0])[2:]
-            if len(delta_s) < allots[i]:
-                delta_s = '0' * (allots[i]- len(delta_s)) + delta_s
-            s += delta_s
-       
-        if(allots[i] > 0):
-            sio = StringIO(s)
-            f = open(sfry_path+"/"+"submat"+str(i),'wb')
-            while True:
-                b = sio.read(8)
-                if not b:
-                    break
-                if len(b) < 8:
-                    b = b + '0' * (8 - len(b))
-                j = int(b, 2)
-                f.write(int.to_bytes(j,1,sys.byteorder))
-            f.close()
+        cur_submat = [i[0] for i in quant_submats[i].reshape(-1,1)]
+        submat_ba = ba.bitarray()
+        submat_ba.encode(prepare_encode_dict(allots[i]),cur_submat)
+        submat_ba.tofile(open(sfry_path+"/submat"+str(i),'wb'))
 
     return sfry_path
 
@@ -285,6 +289,8 @@ def get_submat_idx(idx, allot_indices):
             a_i += 1
     return a_i
   
+
+
 
 def get_scan_params(idx, allot_indices,R_i, submat_idx, dim):
     offset_in_bits = int((idx - allot_indices[submat_idx])*dim*R_i)
