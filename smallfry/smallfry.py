@@ -63,8 +63,7 @@ def compress(source_file,
     logging.info("Computing submatrix partitions...")
     # This is very strange code
     # Maybe it should be wrapped in a single method?
-    submats, allots, allot_indices = mat_partition(emb_mat, bit_allocations)    
-    submats, allots, allot_indices = matpart_adjuster(submats, allots, allot_indices, len(p))
+    submats, allots, allot_indices = mat_partition(emb_mat, bit_allocations, len(p))    
 
     logging.info("Quantizing submatrices...")
     inflated_mat, quant_submats, codebks = quantize(submats, allots, minibatch)

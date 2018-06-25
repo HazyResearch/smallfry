@@ -155,13 +155,18 @@ def text2npy(inpath, outpath, priorpath, word_rep):
     
 #probably the worst one in here... yeah needs work
 def npy2text(npy_mat,words,writepath):
-    with open(writepath+str(".words"),'w') as f:
-        f.write("\n".join(words))
-    np.savetxt(writepath+".mat",npy_mat,fmt='%.12f')
-    os.system("paste -d ' ' "+writepath+str(".words")+" "+writepath+str(".mat")+" > "+writepath)
+    matstr = StringIO()
+    np.savetxt(matstr, npy_mat,fmt='%.12f')
+    matslist = matstr.getvalue().split('\n')
+    embslist = list(zip(words,matslist))
+    txtembs_list = [' '.join(i[0], i[1]) for i in embslist]
+    f = open(writepath, 'w')
+    f.write('\n'.join(txtembs_list))
+    f.close()
+    
 
 #this one seems ok
-def mat_partition(embmat, bit_allocations):
+def mat_partition(embmat, bit_allocations, V):
 #partitions the matrix in submatrices based on the bit allocations
     allots, allot_indices = np.unique(bit_allocations,return_index=True)
     submats = list()
@@ -170,10 +175,10 @@ def mat_partition(embmat, bit_allocations):
         cur_idx = allot_indices[i]
         submats.append(embmat[cur_idx:prev_idx])
         prev_idx = cur_idx
-
-    logging.debug("Partitioning into "+str(len(submats))+" submatrices...")
-    return submats, allots, allot_indices 
-
+    
+    return matpart_adjuster(submats, allots, allot_indices, V)
+    
+    
 #the 0.05 should be only in dev branch... but otherwise, is ok?
 def matpart_adjuster(submats, allots, allot_indices, V, max_partition=0.05):
     adjusted_submats = list() 

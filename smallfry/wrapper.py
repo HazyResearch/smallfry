@@ -1,6 +1,6 @@
 import numpy as np
 import os
-from .utils import *
+from .core import *
 import marisa_trie
 import logging
 import bitarray as ba
