@@ -2,7 +2,7 @@ import numpy as np
 import json
 import bitarray as ba
 
-def serialize(bit_arr, metadata, out_path)
+def serialize(bit_arr, metadata, out_path):
     '''
     Writes a lloyd-max quantized binary and metadata to a directory
     '''
