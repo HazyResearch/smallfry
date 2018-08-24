@@ -32,6 +32,6 @@ def decode(embed_id, bit_arr, meta):
     dim = meta['embed_dim']
     codes = meta['codebook']
     offset = embed_id*b*dim
-    #TODO: WARNING VERY BAD NEXT LINE BREAKS EVERYTHING FOR VECTOR QUANT
+    #TODO: WARNING VERY BAD NEXT LINE BREAKS EVERYTHING FOR VECTOR QUANT -- HOWTO FIX??????????
     d = [(codes[i][0], ba.bitarray(bin(i)[2:].zfill(b))) for i in range(0,2**b)]
     return bit_arr[offset:offset+b*dim].decode(dict(d))

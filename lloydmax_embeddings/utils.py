@@ -1,6 +1,8 @@
 import numpy as np
 import json
 import bitarray as ba
+import marisa_trie as mtrie
+from .core import quantize
 
 def serialize(bit_arr, metadata, out_path):
     '''
@@ -27,5 +29,38 @@ def deserialize(lmqbin_filepath, metadata_filepath):
     bit_arr.fromfile(lmqbin_file)
 
     return bit_arr, json.loads(metadata_file.read())
+
+def compress(embeddings, wordlist):
+    '''
+    Compresses a numpy embeddins matrix with word list
+    '''
+    wordtrie = mtrie.Trie(wordlist)
+    sorted_embeds = np.zeros(np.shape)
+    for i in range(0,len(wordlist)):
+        i_prime = wordtrie[wordlist[i]]
+        sorted_embeds[i_prime,:] = embeddings[i,:]
+    lmq_bin, metadata = quantize(sorted_embeds)
+    return lmq_bin, metadata, wordtrie
+
+
+def load_embeddings(embeds_txt_filepath):
+    """
+    Loads a GloVe embedding at 'filename'. Returns a vector of strings that 
+    represents the vocabulary and a 2-D numpy matrix that is the embeddings. 
+    """
+    f = open(embeds_txt_filepath, "r") 
+    lines = f.readlines()
+    vocab = []
+    embeddings = []
+    for line in lines:
+        values = line.strip("\n").split(" ")
+        vocab.append(values.pop(0))
+        embeddings.append([float(v) for v in values])
+    embeddings = np.array(embeddings)
+    vocab = np.array(vocab)
+    f.close()
+
+    print("Embedding shape: " + str(embedding.shape))
+    return vocab, embedding
 
 
