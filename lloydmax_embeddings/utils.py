@@ -4,7 +4,7 @@ import bitarray as ba
 import marisa_trie as mtrie
 from .core import quantize
 
-def serialize(bit_arr, metadata, out_path):
+def serialize(bit_arr, metadata, out_path, wordtrie=None):
     '''
     Writes a lloyd-max quantized binary and metadata to a directory
     '''
@@ -60,7 +60,7 @@ def load_embeddings(embeds_txt_filepath):
     vocab = np.array(vocab)
     f.close()
 
-    print("Embedding shape: " + str(embedding.shape))
-    return vocab, embedding
+    print("Embedding shape: " + str(embeddings.shape))
+    return vocab, embeddings
 
 

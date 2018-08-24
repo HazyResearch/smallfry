@@ -21,7 +21,3 @@ class Embedding(nn.Module):
         embeds = [decode(i, self.bit_arr, self.meta) for i in in_vect]
         return torch.Tensor(np.vstack(embeds)).view(tensor_shape)
 
-
-
-
-
