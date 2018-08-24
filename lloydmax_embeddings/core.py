@@ -20,7 +20,8 @@ def quantize(embeddings,
     bit_arr = ba.bitarray()
     d = [(i, ba.bitarray(bin(i)[2:].zfill(b))) for i in range(0,2**b)]
     bit_arr.encode(dict(d), kmeans.labels_)
-    meta = {'codebook':kmeans.cluster_centers_, 'vocab_size':v, 'embed_dim':dim}
+    codebook = [tuple(centroid) for centroid in kmeans.cluster_centers_]
+    meta = {'codebook':codebook, 'vocab_size':v, 'embed_dim':dim}
     return bit_arr, meta
 
 
@@ -32,6 +33,5 @@ def decode(embed_id, bit_arr, meta):
     dim = meta['embed_dim']
     codes = meta['codebook']
     offset = embed_id*b*dim
-    #TODO: WARNING VERY BAD NEXT LINE BREAKS EVERYTHING FOR VECTOR QUANT -- HOWTO FIX??????????
-    d = [(codes[i][0], ba.bitarray(bin(i)[2:].zfill(b))) for i in range(0,2**b)]
+    d = [(codes[i], ba.bitarray(bin(i)[2:].zfill(b))) for i in range(0,2**b)]
     return bit_arr[offset:offset+b*dim].decode(dict(d))

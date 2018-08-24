@@ -10,8 +10,10 @@ def serialize(bit_arr, metadata, out_path, wordtrie=None):
     '''
     lmqbin_filepath = out_path + '.lmqbin'
     metadata_filepath = out_path + '.meta'
+    #if wordtrie != None: 
 
     lmqbin_file = open(lmqbin_filepath,'wb')
+    print(metadata)
     metadata_file = open(metadata_filepath,'w')
 
     bit_arr.tofile(lmqbin_file)
@@ -34,8 +36,9 @@ def compress(embeddings, wordlist):
     '''
     Compresses a numpy embeddins matrix with word list
     '''
+    print(type(wordlist))
     wordtrie = mtrie.Trie(wordlist)
-    sorted_embeds = np.zeros(np.shape)
+    sorted_embeds = np.zeros(embeddings.shape)
     for i in range(0,len(wordlist)):
         i_prime = wordtrie[wordlist[i]]
         sorted_embeds[i_prime,:] = embeddings[i,:]
@@ -57,7 +60,6 @@ def load_embeddings(embeds_txt_filepath):
         vocab.append(values.pop(0))
         embeddings.append([float(v) for v in values])
     embeddings = np.array(embeddings)
-    vocab = np.array(vocab)
     f.close()
 
     print("Embedding shape: " + str(embeddings.shape))
