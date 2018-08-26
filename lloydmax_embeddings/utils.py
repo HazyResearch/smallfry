@@ -3,6 +3,7 @@ import json
 import bitarray as ba
 import marisa_trie as mtrie
 from .core import quantize
+from .smallfry import Smallfry
 
 def serialize(bit_arr, metadata, out_path, wordtrie=None):
     '''
