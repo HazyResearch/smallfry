@@ -14,7 +14,6 @@ def torch_embed():
     e = lmqe.embedding.SmallfryEmbedding(sfry)
     idx = torch.IntTensor([[4,1,2],[1,3,2]])
     print(e(idx))
-
     assert True
 
 
@@ -22,16 +21,12 @@ def io():
     vocab, embeddings = lmqe.utils.load_embeddings(demo_embed_path)
     lmq_bin, metadata, wordtrie = lmqe.utils.compress(embeddings, vocab)
     lmqe.utils.serialize(lmq_bin, metadata, 'meep')
-
     assert True
 
 def compression():
     vocab, embeddings = lmqe.utils.load_embeddings(demo_embed_path)
     lmqe.utils.compress(embeddings, vocab)
     assert True
-
-
-#def kmeans():
 
 
 parser = argh.ArghParser()
