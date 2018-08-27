@@ -18,7 +18,7 @@ def test_torch_embed():
 
 
 parser = argh.ArghParser()
-parser.add_commands([test_torch_embed, test_io])
+parser.add_commands([test_torch_embed])
 
 if __name__ == '__main__':
     parser.dispatch()
