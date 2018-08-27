@@ -8,7 +8,7 @@ import torch
 
 demo_embed_path = '../../examples/data/glove.head.txt'
 
-def torch_embed():
+def test_torch_embed():
     X = np.random.random([100,10])
     sfry = lmqe.core.quantize(X)
     e = lmqe.embedding.SmallfryEmbedding(sfry)
@@ -30,7 +30,7 @@ def compression():
 
 
 parser = argh.ArghParser()
-parser.add_commands([torch_embed, io, compression])
+parser.add_commands([test_torch_embed, io, compression])
 
 if __name__ == '__main__':
     parser.dispatch()

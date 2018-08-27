@@ -5,21 +5,6 @@ import marisa_trie as mtrie
 from .core import quantize
 from .smallfry import Smallfry
 
-def serialize(bit_arr, metadata, out_path, wordtrie=None):
-    '''
-    Writes a lloyd-max quantized binary and metadata to a directory
-    '''
-    lmqbin_filepath = out_path + '.lmqbin'
-    metadata_filepath = out_path + '.meta'
-    #if wordtrie != None: 
-
-    lmqbin_file = open(lmqbin_filepath,'wb')
-    print(metadata)
-    metadata_file = open(metadata_filepath,'w')
-
-    bit_arr.tofile(lmqbin_file)
-    metadata_file.write(json.dumps(metadata))
-
 def deserialize(lmqbin_filepath, metadata_filepath):
     '''
     Loads a lloyd-max quantized binary and the metadata from file
