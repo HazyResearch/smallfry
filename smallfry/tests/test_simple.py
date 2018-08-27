@@ -6,7 +6,7 @@ import smallfry as lmqe
 import torch
 
 
-demo_embed_path = '../../examples/data/glove.head.txt'
+demo_embed_path = '../examples/data/glove.head.txt'
 
 def test_torch_embed():
     X = np.random.random([100,10])
@@ -17,20 +17,8 @@ def test_torch_embed():
     assert True
 
 
-def io():
-    vocab, embeddings = lmqe.utils.load_embeddings(demo_embed_path)
-    lmq_bin, metadata, wordtrie = lmqe.utils.compress(embeddings, vocab)
-    lmqe.utils.serialize(lmq_bin, metadata, 'meep')
-    assert True
-
-def compression():
-    vocab, embeddings = lmqe.utils.load_embeddings(demo_embed_path)
-    lmqe.utils.compress(embeddings, vocab)
-    assert True
-
-
 parser = argh.ArghParser()
-parser.add_commands([test_torch_embed, io, compression])
+parser.add_commands([test_torch_embed, test_io])
 
 if __name__ == '__main__':
     parser.dispatch()

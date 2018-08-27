@@ -24,7 +24,6 @@ def deserialize(filepath):
     '''
     Loads a lloyd-max quantized binary and the metadata from file
     '''
-
     bin_file = open(filepath,'rb')
     meta_file = open(filepath+'.meta','r')
 
@@ -32,6 +31,8 @@ def deserialize(filepath):
     bit_arr.fromfile(bin_file)
 
     metadata = json.loads(meta_file.read())
+    bin_file.close()
+    meta_file.close()
 
     return Smallfry(bit_arr, metadata[0], metadata[1])
 
@@ -46,7 +47,6 @@ def compress(embeddings, wordlist):
         sorted_embeds[i_prime,:] = embeddings[i,:]
     sfry = quantize(sorted_embeds)
     return sfry, wordtrie
-
 
 def load_embeddings(embeds_txt_filepath):
     """
@@ -63,8 +63,6 @@ def load_embeddings(embeds_txt_filepath):
         embeddings.append([float(v) for v in values])
     embeddings = np.array(embeddings)
     f.close()
-
-    print("Embedding shape: " + str(embeddings.shape))
     return vocab, embeddings
 
 
