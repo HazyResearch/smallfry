@@ -1,6 +1,6 @@
 import setuptools
 
-setuptools.setup(name='lloydmax_embeddings',
+setuptools.setup(name='smallfry',
       version='0.1',
       description='Lloyd-Max quantizer for embeddings',
       url='https://github.com/HazyResearch/small-fry',

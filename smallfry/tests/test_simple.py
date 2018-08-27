@@ -2,7 +2,7 @@ import numpy as np
 import argh
 import marisa_trie
 import os
-import lloydmax_embeddings as lmqe
+import smallfry as lmqe
 import torch
 
 
