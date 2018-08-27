@@ -5,3 +5,4 @@ argh
 numpy
 pytest
 bitarray
+torch
