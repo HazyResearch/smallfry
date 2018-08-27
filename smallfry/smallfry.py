@@ -27,15 +27,6 @@ class Smallfry():
         decode_embs = np.array([self._decode(i) for i in idx_tensor.flatten()])
         return decode_embs.reshape(idx_tensor.shape + (self.dim,))
 
-    def query(self, w):
-        '''
-        Queries for word w from the binary representation. 
-        Requires initialization with word trie. 
-        '''
-        assert self.words != None, 'Words must be provided to use query'
-        OOV = not w in self.wordtrie
-        return np.ones(self.dim)/self.dim if OOV else _decode(self.wordtrie[w])
-
     def serialize(self, filepath):
         '''
         Serializes binary representation to file
