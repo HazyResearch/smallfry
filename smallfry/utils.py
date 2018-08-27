@@ -15,7 +15,7 @@ def serialize(sfry, filepath):
     meta_file = open(filepath+'.meta', 'w')
 
     sfry.bin_rep.tofile(bin_file)
-    meta_file.write(json.dumps([sfry.dim, sfry.codebk]))
+    meta_file.write(json.dumps([sfry.codebk, sfry.dim]))
 
     bin_file.close()
     meta_file.close()

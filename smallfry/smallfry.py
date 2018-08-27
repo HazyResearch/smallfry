@@ -4,7 +4,7 @@ import marisa_trie as marisa
 
 class Smallfry():
 
-    def __init__(self, bit_arr, dim, codebook, words):
+    def __init__(self, bit_arr, codebook, dim, words):
         self.bin_rep = bit_arr
         self.codebk = codebook
         self.dim = dim
