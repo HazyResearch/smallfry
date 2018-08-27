@@ -4,7 +4,7 @@ import marisa_trie as marisa
 
 class Smallfry():
 
-    def __init__(self, bit_arr, codebook, dim, words):
+    def __init__(self, bit_arr, dim, codebook, words):
         self.bin_rep = bit_arr
         self.codebk = codebook
         self.dim = dim
@@ -52,6 +52,13 @@ class Smallfry():
 
     def deserialize(self, filepath):
         '''
-        Reads a Smallfry object an
+        Reads a Smallfry object
         '''
-        pass
+        bin_file = open(filepath,'rb')
+        metadata_file = open(filepath+'.meta','r')
+
+        bit_arr = ba.bitarray()
+        bit_arr.fromfile(bin_file)
+
+        return Smallfry
+

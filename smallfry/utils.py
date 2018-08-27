@@ -5,31 +5,47 @@ import marisa_trie as mtrie
 from .core import quantize
 from .smallfry import Smallfry
 
-def deserialize(lmqbin_filepath, metadata_filepath):
+
+def serialize(sfry, filepath):
+    '''
+    Serializes binary representation to file
+    Includes metadata as {filepath}.meta
+    '''
+    bin_file = open(filepath, 'wb')
+    meta_file = open(filepath+'.meta', 'w')
+
+    sfry.bin_rep.tofile(bin_file)
+    meta_file.write(json.dumps([sfry.dim, sfry.codebk]))
+
+    bin_file.close()
+    meta_file.close()
+
+def deserialize(filepath):
     '''
     Loads a lloyd-max quantized binary and the metadata from file
     '''
 
-    lmqbin_file = open(lmqbin_filepath,'rb')
-    metadata_file = open(metadata_filepath,'r')
+    bin_file = open(filepath,'rb')
+    meta_file = open(filepath+'.meta','r')
 
     bit_arr = ba.bitarray()
-    bit_arr.fromfile(lmqbin_file)
+    bit_arr.fromfile(bin_file)
 
-    return bit_arr, json.loads(metadata_file.read())
+    metadata = json.loads(meta_file.read())
+
+    return Smallfry(bit_arr, metadata[0], metadata[1])
 
 def compress(embeddings, wordlist):
     '''
     Compresses a numpy embeddins matrix with word list
     '''
-    print(type(wordlist))
     wordtrie = mtrie.Trie(wordlist)
     sorted_embeds = np.zeros(embeddings.shape)
     for i in range(0,len(wordlist)):
         i_prime = wordtrie[wordlist[i]]
         sorted_embeds[i_prime,:] = embeddings[i,:]
-    lmq_bin, metadata = quantize(sorted_embeds)
-    return lmq_bin, metadata, wordtrie
+    sfry = quantize(sorted_embeds)
+    return sfry, wordtrie
 
 
 def load_embeddings(embeds_txt_filepath):
