@@ -12,8 +12,5 @@ class SmallfryEmbedding(nn.Module):
         self.sfry = sfry
 
     def forward(self, input):
-        print(input[0])
-        print(type(input))
-        a = input
-        return torch.from_numpy(
-            self.sfry.decode(input.to(device='cpu').numpy())).to(device=input.device)
+        return torch.from_numpy(self.sfry.decode(
+                input.to(device='cpu').numpy())).to(device=input.device)
