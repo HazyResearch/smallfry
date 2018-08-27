@@ -10,9 +10,9 @@ demo_embed_path = '../../examples/data/glove.head.txt'
 
 def torch_embed():
     X = np.random.random([100,10])
-    lmq_bin, meta = lmqe.core.quantize(X)
-    e = lmqe.Embedding.LloydMaxEmbedding(lmq_bin, meta)
-    idx = torch.IntTensor([[4,1,2],[3,4,5]])
+    sfry = lmqe.core.quantize(X)
+    e = lmqe.embedding.SmallfryEmbedding(sfry)
+    idx = torch.IntTensor([[4,1,2]])
     print(e(idx))
 
     assert True
