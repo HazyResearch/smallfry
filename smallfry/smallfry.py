@@ -1,6 +1,6 @@
 import bitarray as ba
 import numpy as np
-import marisa_trie as marisa
+from sklearn.cluster import KMeans
 
 class Smallfry():
 
@@ -33,7 +33,6 @@ class Smallfry():
                 optimizer='iterative',
                 max_iter=120,
                 tol=0.01,
-                words=None
                 ):
         '''
         This method applies the Lloyd-Max quantizer with specified block dimension.

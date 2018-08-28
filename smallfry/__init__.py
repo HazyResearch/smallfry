@@ -1,2 +1,2 @@
-from . import core, smallfry, embedding, utils
+from . import smallfry, embedding
 
