@@ -49,7 +49,7 @@ class Smallfry():
         return Smallfry(bit_arr, codebook, dim)
 
     @staticmethod
-    def serialize(self, filepath):
+    def serialize(sfry, filepath):
         '''
         Serializes binary representation to file
         Includes metadata as {filepath}.meta
@@ -58,13 +58,13 @@ class Smallfry():
         meta_file = open(filepath+'.meta', 'w')
 
         self.bin_rep.tofile(bin_file)
-        meta_file.write(json.dumps([self.codebk, self.dim]))
+        meta_file.write(json.dumps([sfry.codebk, sfry.dim]))
 
         bin_file.close()
         meta_file.close()
 
     @staticmethod
-    def deserialize(self, filepath):
+    def deserialize(filepath):
         '''
         Reads a Smallfry object
         '''
