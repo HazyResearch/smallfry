@@ -1,10 +1,13 @@
 import bitarray as ba
 import numpy as np
+import torch
+import torch.nn as nn
 from sklearn.cluster import KMeans
 
-class Smallfry():
+class Smallfry(nn.Module):
 
     def __init__(self, bit_arr, codebook, dim):
+        super(Smallfry, self).__init__()
         self.bin_rep = bit_arr
         self.codebk = codebook
         self.dim = dim
@@ -25,6 +28,11 @@ class Smallfry():
         '''
         decode_embs = np.array([self._decode(i) for i in idx_tensor.flatten()])
         return decode_embs.reshape(idx_tensor.shape + (self.dim,))
+
+    @torch.no_grad()
+    def forward(self, input):
+        return torch.from_numpy(self.decode(
+            input.to(device='cpu').numpy())).to(device=input.device)
 
     @staticmethod
     def quantize(embeddings,
