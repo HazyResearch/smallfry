@@ -76,7 +76,7 @@ class Smallfry(nn.Module):
     @staticmethod
     def deserialize(filepath):
         '''
-        Reads a Smallfry object
+        Reads in a Smallfry object
         '''
         bin_file = open(filepath,'rb')
         metadata_file = open(filepath+'.meta','r')
