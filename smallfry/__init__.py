@@ -1,2 +1,2 @@
-from . import smallfry, embedding
+from . import smallfry
 
