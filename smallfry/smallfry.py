@@ -1,5 +1,6 @@
 import bitarray as ba
 import numpy as np
+import json
 import torch
 import torch.nn as nn
 from sklearn.cluster import KMeans
@@ -65,7 +66,8 @@ class Smallfry(nn.Module):
         bin_file = open(filepath, 'wb')
         meta_file = open(filepath+'.meta', 'w')
 
-        self.bin_rep.tofile(bin_file)
+        sfry.bin_rep.tofile(bin_file)
+        print(sfry.codebk)
         meta_file.write(json.dumps([sfry.codebk, sfry.dim]))
 
         bin_file.close()
@@ -81,10 +83,11 @@ class Smallfry(nn.Module):
 
         bit_arr = ba.bitarray()
         bit_arr.fromfile(bin_file)
-        metadata = json.loads(metedata_file.read())
+        metadata = json.loads(metadata_file.read())
 
         bin_file.close()
         metadata_file.close()
-
-        return Smallfry(bit_arr, metadata[0], metadata[1])
+        #json converts tuples to lists, so need to undo this
+        codebk = [tuple(code) for code in metadata[0]]
+        return Smallfry(bit_arr, codebk, metadata[1])
 

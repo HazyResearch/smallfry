@@ -2,7 +2,7 @@ import numpy as np
 import argh
 import marisa_trie
 import os
-import smallfry.smallfry
+import smallfry
 import torch
 
 
@@ -13,14 +13,26 @@ def test_query():
     sfry = smallfry.smallfry.Smallfry.quantize(X)
     idx = [(np.random.random(3)*100).astype(int)]
     res = sfry(torch.IntTensor([idx,idx]))
-    print(res)
     assert torch.all(torch.eq(res[0], res[1]))
 
 def test_io():
-    pass
+    X = np.random.random([100,10])
+    sfry = smallfry.smallfry.Smallfry.quantize(X)
+    idx = [(np.random.random(3)*100).astype(int)]
+    smallfry.smallfry.Smallfry.serialize(sfry, 'test_io.sfry')
+    sfry_deserial = smallfry.smallfry.Smallfry.deserialize('test_io.sfry')
+    assert sfry.decode(np.array(idx)).all() ==  sfry_deserial.decode(np.array(idx)).all()
 
 def test_kmeans():
-    pass
+    X = np.random.random([1000,10])
+    sfry = smallfry.smallfry.Smallfry.quantize(X)
+    passing = True
+    for i in range(1000):
+        X_hat = sfry.decode(np.array(i))
+        for j in range(10):
+            if abs(X[i,j] - X_hat[j]) > 0.26: 
+                passing = False
+    assert passing
 
 parser = argh.ArghParser()
 parser.add_commands([test_query, test_io, test_kmeans])
