@@ -7,21 +7,21 @@ from sklearn.cluster import KMeans
 
 class Smallfry(nn.Module):
 
-    def __init__(self, bit_arr, codebook, dim):
+    def __init__(self, bin_rep, codebook, dim):
         super(Smallfry, self).__init__()
-        self.bin_rep = bit_arr
-        self.codebk = codebook
+        self.bin_rep = bin_rep
+        #check that codebook length is a power of 2
+        assert not (len(codebook) & (len(codebook)-1)),'Codes not a power of 2'
+        self.codebook = codebook
         self.dim = dim
-            
-    def _decode(self, embed_id):
-        '''
-        Internal helper script
-        '''
-        b = int(np.log2(len(self.codebk)))
-        offset = embed_id*b*self.dim
-        to_bit_arr = lambda i,b : ba.bitarray(bin(i)[2:].zfill(b))
-        d = { self.codebk[i] : to_bit_arr(i,b) for i in range(2**b) }
-        return self.bin_rep[offset:offset+b*self.dim].decode(d)
+
+
+    def forward(self, input):
+        orig_device = input.device
+        embed_query = torch.from_numpy(self.decode(
+            input.to(device='cpu').numpy())).to(device=orig_device)
+        embed_query.requires_grad = False
+        return embed_query
 
     def decode(self, idx_tensor):
         '''
@@ -30,10 +30,21 @@ class Smallfry(nn.Module):
         decode_embs = np.array([self._decode(i) for i in idx_tensor.flatten()])
         return decode_embs.reshape(idx_tensor.shape + (self.dim,))
 
-    @torch.no_grad()
-    def forward(self, input):
-        return torch.from_numpy(self.decode(
-            input.to(device='cpu').numpy())).to(device=input.device)
+    def _decode(self, embed_id):
+        '''
+        Internal helper script
+        '''
+        b = int(np.log2(len(self.codebook)))
+        offset = embed_id*b*self.dim
+        d = {self.codebook[i] : self._generate_bin(i,b) for i in range(2**b)}
+        return self.bin_rep[offset:offset+b*self.dim].decode(d)
+
+    @staticmethod
+    def _generate_bin(i,b):
+        '''
+        helper
+        '''
+        return ba.bitarray(bin(i)[2:].zfill(b))
 
     @staticmethod
     def quantize(embeddings,
@@ -51,11 +62,11 @@ class Smallfry(nn.Module):
         assert dim % block_len == 0, 'Block len must divide the embedding dim'
         kmeans = KMeans(n_clusters=2**b, max_iter=max_iter, tol=tol)
         kmeans = kmeans.fit(embeddings.reshape(int(v*dim/block_len), block_len))
-        bit_arr = ba.bitarray()
-        d = [(i, ba.bitarray(bin(i)[2:].zfill(b))) for i in range(2**b)]
-        bit_arr.encode(dict(d), kmeans.labels_)
+        bin_rep = ba.bitarray()
+        d = {i : Smallfry._generate_bin(i,b) for i in range(2**b)}
+        bin_rep.encode(d, kmeans.labels_)
         codebook = [tuple(centroid) for centroid in kmeans.cluster_centers_]
-        return Smallfry(bit_arr, codebook, dim)
+        return Smallfry(bin_rep, codebook, dim)
 
     @staticmethod
     def serialize(sfry, filepath):
@@ -63,31 +74,23 @@ class Smallfry(nn.Module):
         Serializes binary representation to file
         Includes metadata as {filepath}.meta
         '''
-        bin_file = open(filepath, 'wb')
-        meta_file = open(filepath+'.meta', 'w')
-
-        sfry.bin_rep.tofile(bin_file)
-        print(sfry.codebk)
-        meta_file.write(json.dumps([sfry.codebk, sfry.dim]))
-
-        bin_file.close()
-        meta_file.close()
+        with open(filepath, 'wb') as bin_file:
+            sfry.bin_rep.tofile(bin_file)
+        with open(filepath+'.meta','w') as meta_file:
+            meta_file.write(json.dumps([sfry.codebook, sfry.dim]))
 
     @staticmethod
     def deserialize(filepath):
         '''
         Reads in a Smallfry object
         '''
-        bin_file = open(filepath,'rb')
-        metadata_file = open(filepath+'.meta','r')
-
-        bit_arr = ba.bitarray()
-        bit_arr.fromfile(bin_file)
-        metadata = json.loads(metadata_file.read())
-
-        bin_file.close()
-        metadata_file.close()
+        bin_rep = ba.bitarray()
+        metadata = None
+        with open(filepath, 'rb') as bin_file:
+            bin_rep.fromfile(bin_file)
+        with open(filepath+'.meta','r') as meta_file:
+            metadata = json.loads(meta_file.read())
         #json converts tuples to lists, so need to undo this
-        codebk = [tuple(code) for code in metadata[0]]
-        return Smallfry(bit_arr, codebk, metadata[1])
+        codebook = [tuple(code) for code in metadata[0]]
+        return Smallfry(bin_rep, codebook, metadata[1])
 
