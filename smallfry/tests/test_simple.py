@@ -1,6 +1,5 @@
 import numpy as np
 import argh
-import marisa_trie
 import os
 import smallfry
 import torch
