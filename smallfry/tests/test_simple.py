@@ -29,7 +29,7 @@ def test_kmeans():
     for i in range(1000):
         X_hat = sfry.decode(np.array(i))
         for j in range(10):
-            if abs(X[i,j] - X_hat[j]) > 0.26: 
+            if abs(X[i,j] - X_hat[j]) > 0.27: 
                 passing = False
     assert passing
 
