@@ -5,3 +5,4 @@ numpy
 pytest
 bitarray
 torch
+marisa_trie

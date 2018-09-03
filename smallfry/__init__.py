@@ -1,2 +1,2 @@
-from . import smallfry
+from . import smallfry, utils
 
