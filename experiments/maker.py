@@ -35,7 +35,7 @@ def main():
     embed_dir, embed_name = get_embeddings_dir_and_name(config)
     core_filename = str(pathlib.PurePath(embed_dir, embed_name))
     os.makedirs(embed_dir)
-    init_logging((core_filename + '_maker.log'))
+    init_logging(core_filename + '_maker.log')
     logging.info('Begining to make embeddings')
     start = time.time()
     embeds = make_embeddings(base_embeds, wordlist, config)
@@ -93,7 +93,7 @@ def make_embeddings(base_embeds, embed_dir, config):
         embeds = sfry.decode(np.array(list(range(config['vocab']))))
     elif config['method'] == 'dca':
         m,k,v,d = config['m'], config['k'], config['vocab'], config['dim']
-        work_dir = pathlib.PurePath(embed_dir,'dca_tmp')
+        work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
         compressor = EmbeddingCompressor(m, k, work_dir)
         compressor.train(base_embeds)
         codes, codebook = compressor.export(base_embeds, work_dir)
@@ -112,11 +112,11 @@ def get_embeddings_dir_and_name(config):
 
     embed_name_parts = ['{}={}'.format(param, config[param]) for param in params]
     embed_name = ','.join(embed_name_parts)
-    embed_dir = pathlib.PurePath(
+    embed_dir = str(pathlib.PurePath(
             config['outputdir'],
             config['date-rungroup'],
             embed_name
-        )
+        ))
     return embed_dir, embed_name
 
 def get_memory(config):
