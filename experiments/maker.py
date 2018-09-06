@@ -4,6 +4,7 @@ import numpy as np
 import os
 import argparse
 import datetime
+from neuralcompressor.nncompress import EmbeddingCompressor
 
 def init_parser():
     """Initialize Cmd-line parser."""
@@ -22,6 +23,26 @@ def init_parser():
         help='Block length for quantization/k-means')
 
     return parser
+
+
+def make_dca(base, base_path, M, K, r_seed, output_dir):
+    embeds, wordlist = smallfry.utils.load_embeddings(base_path)
+    compressor = EmbeddingCompressor(M, K, work_dir)
+    compressor.train(embeds)
+    compressor.export
+
+    sfry = smallfry.smallfry.Smallfry.quantize(embeds,b=bitrate,block_len=block_len,r_seed=r_seed)
+    sfry_embeds = sfry.decode(np.array(list(range(len(wordlist)))))
+    v = sfry_embeds.shape[0]
+    d = sfry_embeds.shape[1]
+    mem = v*d*bitrate + 2**bitrate*32*block_len
+    embed_name, embed_dir = create_filename_kmeans(output_dir, base, bitrate, block_len, r_seed, v, d, mem)
+    os.makedirs(embed_dir)
+    to_file_txt(pathlib.PurePath(embed_dir, embed_name + '.txt'), wordlist, sfry_embeds)
+    to_file_np(pathlib.PurePath(embed_dir, embed_name), sfry_embeds)
+
+
+
 
 
 def make_kmeans(base, base_path, bitrate, block_len, r_seed, output_dir):
