@@ -226,8 +226,10 @@ class EmbeddingCompressor(object):
 
             # Dump codebook
             codebook_tensor = sess.graph.get_tensor_by_name('Graph/codebook:0')
-            np.save(prefix + ".codebook", sess.run(codebook_tensor))
+            codebook_tensor = sess.run(codebook_tensor) #tony lines
+            np.save(prefix + ".codebook", codebook_tensor)# tony modded
 
+            codes = None #tony lines
             # Dump codes
             with open(prefix + ".codes", "w") as fout:
                 vocab_list = list(range(embed_matrix.shape[0]))
@@ -236,6 +238,7 @@ class EmbeddingCompressor(object):
                     codes = sess.run(codes_op, {word_ids_var: word_ids}).tolist()
                     for code in codes:
                         fout.write(" ".join(map(str, code)) + "\n")
+            return codes, codebook_tensor #tony lines
 
     def evaluate(self, embed_matrix):
         assert os.path.exists(self._model_path + ".meta")
