@@ -51,7 +51,8 @@ class Smallfry(nn.Module):
                 b=1,
                 block_len=1,
                 optimizer='iterative',
-                max_iter=120,
+                max_iter=70,
+                n_init=1,
                 tol=0.01,
                 r_seed=1234
                 ):
@@ -61,7 +62,7 @@ class Smallfry(nn.Module):
         '''
         v,dim = embeddings.shape
         assert dim % block_len == 0, 'Block len must divide the embedding dim'
-        kmeans = KMeans(n_clusters=2**b, max_iter=max_iter, tol=tol, random_state=r_seed)
+        kmeans = KMeans(n_clusters=2**b, max_iter=max_iter, n_init=n_init, tol=tol, random_state=r_seed)
         kmeans = kmeans.fit(embeddings.reshape(int(v*dim/block_len), block_len))
         bin_rep = ba.bitarray()
         d = {i : Smallfry._generate_bin(i,b) for i in range(2**b)}
