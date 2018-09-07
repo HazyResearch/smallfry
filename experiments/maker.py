@@ -27,7 +27,7 @@ def main():
     config['githash'] = get_git_hash()
     config['date'] = get_date_str()
     config['date-rungroup'] = '{}-{}'.format(config['date'],config['rungroup'])
-    config['memory-bits'] = get_memory(config)
+    config['memory'] = get_memory(config)
     config['bitrate'] = config['memory'] / v * d
     config['compression-ratio'] = 32 * v * d / config['memory']
 
@@ -38,7 +38,7 @@ def main():
     init_logging(core_filename + '_maker.log')
     logging.info('Begining to make embeddings')
     start = time.time()
-    embeds = make_embeddings(base_embeds, wordlist, config)
+    embeds = make_embeddings(base_embeds, embed_dir, config)
     end = time.time()
     maketime = end - start
     logging.info('Finished making embeddings.'
@@ -65,7 +65,7 @@ def init_parser():
         help='Random seed to use for experiment.')
     parser.add_argument('--outputdir', type=str, required=True,
         help='Head output directory')
-    parser.add_argument('--rungroup`', type=str, required=True,
+    parser.add_argument('--rungroup', type=str, required=True,
         help='Rungroup for organization')
     parser.add_argument('--bitsperblock', type=int,
         help='Bits per block')
@@ -94,8 +94,11 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'dca':
         m,k,v,d = config['m'], config['k'], config['vocab'], config['dim']
         work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
+        m = np.int64(m)
+        k = np.int64(k)
         compressor = EmbeddingCompressor(m, k, work_dir)
-        compressor.train(base_embeds)
+        base_embeds = base_embeds.astype(np.float64)
+        compressor.train(base_embeds.astype(np.float64))
         codes, codebook = compressor.export(base_embeds, work_dir)
         embeds = codes_2_vec(codes, codebook, m, k, v, d)
     else:
@@ -104,9 +107,9 @@ def make_embeddings(base_embeds, embed_dir, config):
 
 def get_embeddings_dir_and_name(config):
     if config['method'] == 'kmeans':
-        params = ['base','vocab','dim','bitsperblock','blocklen','seed','date']
+        params = ['base','vocab','dim','bitsperblock','blocklen','seed','date', 'rungroup']
     elif config['method'] == 'dca':
-        params = ['base','vocab','dim','m','k','seed','date']
+        params = ['base','vocab','dim','m','k','seed','date', 'rungroup']
     else:
         raise ValueError('Method name invalid')
 
@@ -128,7 +131,7 @@ def get_memory(config):
         num_blocks = d / blocklen
         num_centroids = 2**bitsperblock
         mem = v * num_blocks * bitsperblock + num_centroids * blocklen * 32
-    elif config['method'] == 'kmeans':
+    elif config['method'] == 'dca':
         m = config['m']
         k = config['k']
         mem = v * m * np.log2(k) + 32 * d * m * k
@@ -166,7 +169,7 @@ def get_git_hash():
        logging.info('Git hash {}'.format(git_hash))
    except FileNotFoundError:
        logging.info('Unable to get git hash.')
-   return git_hash
+   return str(git_hash)
 
 
 def save_dict_as_json(dict_to_write, path):

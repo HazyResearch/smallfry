@@ -13,7 +13,6 @@ def load_embeddings_trie(embeds_txt_filepath):
         wordlist = []
         embeddings = []
         for line in lines:
-            print(line)
             row = line.strip("\n").split(" ")
             wordlist.append(row.pop(0))
             embeddings.append([float(i) for i in row])
@@ -35,7 +34,6 @@ def load_embeddings(embeds_txt_filepath):
         wordlist = []
         embeddings = []
         for line in lines:
-            print(line)
             row = line.strip("\n").split(" ")
             wordlist.append(row.pop(0))
             embeddings.append([float(i) for i in row])
