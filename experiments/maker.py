@@ -98,8 +98,6 @@ def make_embeddings(base_embeds, embed_dir, config):
         k = np.int64(k)
         compressor = EmbeddingCompressor(m, k, work_dir)
         base_embeds = base_embeds.astype(np.float64)
-        print('meep')
-        print(base_embeds.dtype)
         compressor.train(base_embeds.astype(np.float64))
         codes, codebook = compressor.export(base_embeds, work_dir)
         embeds = codes_2_vec(codes, codebook, m, k, v, d)
