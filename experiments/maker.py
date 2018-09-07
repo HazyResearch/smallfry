@@ -27,7 +27,7 @@ def main():
     config['githash'] = get_git_hash()
     config['date'] = get_date_str()
     config['date-rungroup'] = '{}-{}'.format(config['date'],config['rungroup'])
-    config['memory-bits'] = get_memory(config)
+    config['memory'] = get_memory(config)
     config['bitrate'] = config['memory'] / v * d
     config['compression-ratio'] = 32 * v * d / config['memory']
 
@@ -65,7 +65,7 @@ def init_parser():
         help='Random seed to use for experiment.')
     parser.add_argument('--outputdir', type=str, required=True,
         help='Head output directory')
-    parser.add_argument('--rungroup`', type=str, required=True,
+    parser.add_argument('--rungroup', type=str, required=True,
         help='Rungroup for organization')
     parser.add_argument('--bitsperblock', type=int,
         help='Bits per block')
@@ -104,9 +104,9 @@ def make_embeddings(base_embeds, embed_dir, config):
 
 def get_embeddings_dir_and_name(config):
     if config['method'] == 'kmeans':
-        params = ['base','vocab','dim','bitsperblock','blocklen','seed','date']
+        params = ['base','vocab','dim','bitsperblock','blocklen','seed','date', 'rungroup']
     elif config['method'] == 'dca':
-        params = ['base','vocab','dim','m','k','seed','date']
+        params = ['base','vocab','dim','m','k','seed','date', 'rungroup']
     else:
         raise ValueError('Method name invalid')
 
@@ -166,7 +166,7 @@ def get_git_hash():
        logging.info('Git hash {}'.format(git_hash))
    except FileNotFoundError:
        logging.info('Unable to get git hash.')
-   return git_hash
+   return int(git_hash)
 
 
 def save_dict_as_json(dict_to_write, path):
