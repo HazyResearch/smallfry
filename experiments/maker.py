@@ -94,12 +94,12 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'dca':
         m,k,v,d = config['m'], config['k'], config['vocab'], config['dim']
         work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
-        m = np.int64(m)
-        k = np.int64(k)
         compressor = EmbeddingCompressor(m, k, work_dir)
-        base_embeds = base_embeds.astype(np.float64)
-        compressor.train(base_embeds.astype(np.float64))
+        base_embeds = base_embeds.astype(np.float32)
+        compressor.train(base_embeds)
         codes, codebook = compressor.export(base_embeds, work_dir)
+        codes = np.array(codes).flatten()
+        codebook = np.array(codebook)
         embeds = codes_2_vec(codes, codebook, m, k, v, d)
     else:
         raise ValueError('Method name invalid')
