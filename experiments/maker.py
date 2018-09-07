@@ -38,7 +38,7 @@ def main():
     init_logging(core_filename + '_maker.log')
     logging.info('Begining to make embeddings')
     start = time.time()
-    embeds = make_embeddings(base_embeds, wordlist, config)
+    embeds = make_embeddings(base_embeds, embed_dir, config)
     end = time.time()
     maketime = end - start
     logging.info('Finished making embeddings.'
@@ -94,8 +94,13 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'dca':
         m,k,v,d = config['m'], config['k'], config['vocab'], config['dim']
         work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
+        m = np.int64(m)
+        k = np.int64(k)
         compressor = EmbeddingCompressor(m, k, work_dir)
-        compressor.train(base_embeds)
+        base_embeds = base_embeds.astype(np.float64)
+        print('meep')
+        print(base_embeds.dtype)
+        compressor.train(base_embeds.astype(np.float64))
         codes, codebook = compressor.export(base_embeds, work_dir)
         embeds = codes_2_vec(codes, codebook, m, k, v, d)
     else:
@@ -128,7 +133,7 @@ def get_memory(config):
         num_blocks = d / blocklen
         num_centroids = 2**bitsperblock
         mem = v * num_blocks * bitsperblock + num_centroids * blocklen * 32
-    elif config['method'] == 'kmeans':
+    elif config['method'] == 'dca':
         m = config['m']
         k = config['k']
         mem = v * m * np.log2(k) + 32 * d * m * k
