@@ -166,7 +166,7 @@ def get_git_hash():
        logging.info('Git hash {}'.format(git_hash))
    except FileNotFoundError:
        logging.info('Unable to get git hash.')
-   return int(git_hash)
+   return str(git_hash)
 
 
 def save_dict_as_json(dict_to_write, path):
