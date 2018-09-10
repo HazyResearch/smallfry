@@ -52,7 +52,6 @@ class Smallfry(nn.Module):
         Decodes the binary representation, supporting tensorized indexing
         '''
         decode_embs = np.array([self._decode(i) for i in idx_tensor.flatten()])
-        print(decode_embs)
         return decode_embs.reshape(idx_tensor.shape + (self.dim,))
 
     def _decode(self, embed_id):
@@ -80,7 +79,7 @@ class Smallfry(nn.Module):
                 max_iter=70,
                 n_init=1,
                 tol=0.01,
-                r_seed=1234
+                r_seed=None
                 ):
         '''
         This method applies the Lloyd-Max quantizer with specified block dimension.
@@ -90,10 +89,15 @@ class Smallfry(nn.Module):
         assert dim % block_len == 0, 'Block len must divide the embedding dim'
         kmeans = KMeans(n_clusters=2**b, max_iter=max_iter, n_init=n_init, tol=tol, random_state=r_seed)
         kmeans = kmeans.fit(embeddings.reshape(int(v*dim/block_len), block_len))
+        print(kmeans.inertia_)
         bin_rep = ba.bitarray()
         d = {i : Smallfry._generate_bin(i,b) for i in range(2**b)}
         bin_rep.encode(d, kmeans.labels_)
         codebook = [tuple(centroid) for centroid in kmeans.cluster_centers_]
+        #handle edge case below: remove non-unique centroids
+        if len(set(codebook))  < len(codebook):
+            codebook = list(set(codebook))
+            codebook += [None] * (2**b - len(codebook))
         return Smallfry(bin_rep, codebook, dim)
 
     @staticmethod

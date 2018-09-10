@@ -1,6 +1,7 @@
 
 import glob
 import pathlib
+import json
 
 def merger(basedir,query):
     qry = pathlib.PurePath(basedir,query)
@@ -33,7 +34,7 @@ def get_data(d_list, base, vocab, method, seeds, x, y):
     for i in range(len(seeds)):
         res.append([])
         for d in d_list:
-            if d['base'] == base and d['vocab'] == vocab and d['method'] == method and d['seed'] == seed:
+            if d['base'] == base and d['vocab'] == vocab and d['method'] == method and d['seed'] == seed[i]:
                 res[i].append((d[x],d[y]))
             res[i].sort()
         return res
