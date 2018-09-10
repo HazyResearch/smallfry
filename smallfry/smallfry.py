@@ -28,6 +28,7 @@ class Smallfry(nn.Module):
         Decodes the binary representation, supporting tensorized indexing
         '''
         decode_embs = np.array([self._decode(i) for i in idx_tensor.flatten()])
+        print(decode_embs)
         return decode_embs.reshape(idx_tensor.shape + (self.dim,))
 
     def _decode(self, embed_id):
@@ -35,9 +36,11 @@ class Smallfry(nn.Module):
         Internal helper script
         '''
         b = int(np.log2(len(self.codebook)))
+        l = len(self.codebook[0])
         offset = embed_id*b*self.dim
         d = {self.codebook[i] : self._generate_bin(i,b) for i in range(2**b)}
-        return self.bin_rep[offset:offset+b*self.dim].decode(d)
+        print(int(b*self.dim/l))
+        return self.bin_rep[offset:offset+int(b*self.dim/l)].decode(d)
 
     @staticmethod
     def _generate_bin(i,b):

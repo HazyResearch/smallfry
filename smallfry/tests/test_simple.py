@@ -33,6 +33,14 @@ def test_kmeans():
                 passing = False
     assert passing
 
+def test_blocklen():
+    X = np.random.random([100,10])
+    sfry = smallfry.smallfry.Smallfry.quantize(X,b=1,block_len=2)
+    idx = [(np.random.random(3)*100).astype(int)]
+    res = sfry(torch.IntTensor([idx,idx]))
+    assert torch.all(torch.eq(res[0], res[1]))
+
+
 parser = argh.ArghParser()
 parser.add_commands([test_query, test_io, test_kmeans])
 
