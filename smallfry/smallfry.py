@@ -59,20 +59,11 @@ class Smallfry(nn.Module):
         '''
             Decode a single embedding.
         '''
-<<<<<<< HEAD
-        b = int(np.log2(len(self.codebook)))
-        l = len(self.codebook[0])
-        offset = embed_id*b*self.dim
-        d = {self.codebook[i] : self._generate_bin(i,b) for i in range(2**b)}
-        print(int(b*self.dim/l))
-        return self.bin_rep[offset:offset+int(b*self.dim/l)].decode(d)
-=======
         embed_length = self.bits_per_block * self.num_blocks
         offset = embed_id * embed_length
         tuples = self.bin_rep[offset:offset + embed_length].decode(self.decode_dict)
         concatenated_tuples = reduce((lambda x, y: x + y), tuples)
         return np.array(concatenated_tuples)
->>>>>>> 2d314564be7eeed48beb098318906bd2041e6f76
 
     @staticmethod
     def _generate_bin(i,b):
