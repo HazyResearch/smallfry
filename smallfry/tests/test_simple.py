@@ -41,6 +41,16 @@ def test_blocklen():
     assert torch.all(torch.eq(res[0], res[1]))
 
 
+def test_vector():
+    Y1 = [1,2,3,4,5,6,7,8]
+    Y2 = [9,10,11,12,13,14,15,16]
+    X = np.array([Y1,Y2])
+    sfry = smallfry.smallfry.Smallfry.quantize(X,b=3,block_len=2)
+    index_tensor = np.array([0,1])
+    rows = sfry.decode(index_tensor)
+    assert Y1.all(rows[0]) and Y2.all(rows[1])
+
+
 parser = argh.ArghParser()
 parser.add_commands([test_query, test_io, test_kmeans])
 
