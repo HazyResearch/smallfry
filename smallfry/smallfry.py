@@ -4,17 +4,24 @@ import json
 import torch
 import torch.nn as nn
 from sklearn.cluster import KMeans
+from functools import reduce
 
 class Smallfry(nn.Module):
 
     def __init__(self, bin_rep, codebook, dim):
         super(Smallfry, self).__init__()
         self.bin_rep = bin_rep
-        #check that codebook length is a power of 2
-        assert not (len(codebook) & (len(codebook)-1)),'Codes not a power of 2'
+        assert int(np.log2(len(codebook))) == np.log2(len(codebook)),\
+            'Number of centroids (entries of codebook) must be a power of 2'
         self.codebook = codebook
         self.dim = dim
-
+        self.bits_per_block = int(np.log2(len(self.codebook)))
+        self.block_len = len(codebook[0])
+        assert self.dim % self.block_len == 0, 'Block len must divide dim'
+        self.num_blocks =  int(self.dim / self.block_len)
+        self.decode_dict = \
+            {self.codebook[i] : self._generate_bin(i, self.bits_per_block) 
+                for i in range(2**self.bits_per_block)}
 
     def forward(self, input):
         orig_device = input.device
@@ -22,6 +29,23 @@ class Smallfry(nn.Module):
             input.to(device='cpu').numpy())).to(device=orig_device)
         embed_query.requires_grad = False
         return embed_query
+
+    def decode_all_in_one(self, index_tensor):
+        '''
+        Decodes the binary representation, supporting tensorized indexing
+        '''
+        flat_index = index_tensor.flatten()
+        decoded_embs = np.zeros(flat_index.shape + (self.dim,))
+        embed_length = self.bits_per_block * self.num_blocks
+        for (i,embed_index) in enumerate(index_tensor.flatten()):
+            for j in range(self.num_blocks):
+                offset = embed_index * embed_length + j * self.bits_per_block
+                inflated_block = self.bin_rep[offset:offset + self.bits_per_block].decode(
+                        self.decode_dict
+                    )
+                decoded_embs[i,j*self.block_len:(j+1)*self.block_len] = \
+                    inflated_block[0]                   
+        return decoded_embs.reshape(index_tensor.shape + (self.dim,))
 
     def decode(self, idx_tensor):
         '''
@@ -33,19 +57,27 @@ class Smallfry(nn.Module):
 
     def _decode(self, embed_id):
         '''
-        Internal helper script
+            Decode a single embedding.
         '''
+<<<<<<< HEAD
         b = int(np.log2(len(self.codebook)))
         l = len(self.codebook[0])
         offset = embed_id*b*self.dim
         d = {self.codebook[i] : self._generate_bin(i,b) for i in range(2**b)}
         print(int(b*self.dim/l))
         return self.bin_rep[offset:offset+int(b*self.dim/l)].decode(d)
+=======
+        embed_length = self.bits_per_block * self.num_blocks
+        offset = embed_id * embed_length
+        tuples = self.bin_rep[offset:offset + embed_length].decode(self.decode_dict)
+        concatenated_tuples = reduce((lambda x, y: x + y), tuples)
+        return np.array(concatenated_tuples)
+>>>>>>> 2d314564be7eeed48beb098318906bd2041e6f76
 
     @staticmethod
     def _generate_bin(i,b):
         '''
-        helper
+        Represents the integer i in b bits
         '''
         return ba.bitarray(bin(i)[2:].zfill(b))
 
@@ -98,4 +130,3 @@ class Smallfry(nn.Module):
         #json converts tuples to lists, so need to undo this
         codebook = [tuple(code) for code in metadata[0]]
         return Smallfry(bin_rep, codebook, metadata[1])
-

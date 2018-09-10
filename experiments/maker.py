@@ -38,7 +38,7 @@ def main():
     init_logging(core_filename + '_maker.log')
     logging.info('Begining to make embeddings')
     start = time.time()
-    embeds = make_embeddings(base_embeds, wordlist, config)
+    embeds = make_embeddings(base_embeds, embed_dir, config)
     end = time.time()
     maketime = end - start
     logging.info('Finished making embeddings.'
@@ -95,8 +95,11 @@ def make_embeddings(base_embeds, embed_dir, config):
         m,k,v,d = config['m'], config['k'], config['vocab'], config['dim']
         work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
         compressor = EmbeddingCompressor(m, k, work_dir)
+        base_embeds = base_embeds.astype(np.float32)
         compressor.train(base_embeds)
         codes, codebook = compressor.export(base_embeds, work_dir)
+        codes = np.array(codes).flatten()
+        codebook = np.array(codebook)
         embeds = codes_2_vec(codes, codebook, m, k, v, d)
     else:
         raise ValueError('Method name invalid')
@@ -128,7 +131,7 @@ def get_memory(config):
         num_blocks = d / blocklen
         num_centroids = 2**bitsperblock
         mem = v * num_blocks * bitsperblock + num_centroids * blocklen * 32
-    elif config['method'] == 'kmeans':
+    elif config['method'] == 'dca':
         m = config['m']
         k = config['k']
         mem = v * m * np.log2(k) + 32 * d * m * k
