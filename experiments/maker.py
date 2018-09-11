@@ -28,7 +28,7 @@ def main():
     config['date'] = get_date_str()
     config['date-rungroup'] = '{}-{}'.format(config['date'],config['rungroup'])
     config['memory'] = get_memory(config)
-    config['bitrate'] = config['memory'] / v * d
+    config['bitrate'] = config['memory'] / (v * d)
     config['compression-ratio'] = 32 * v * d / config['memory']
 
     # Make embeddings
