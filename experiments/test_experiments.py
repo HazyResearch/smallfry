@@ -3,7 +3,7 @@ import argh
 import os
 import smallfry
 import torch
-from maker import codes_2_vec
+from maker import *
 
 demo_work_dir = ''
 
