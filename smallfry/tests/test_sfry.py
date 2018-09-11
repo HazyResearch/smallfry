@@ -11,7 +11,9 @@ def test_query():
     sfry = smallfry.smallfry.Smallfry.quantize(X)
     idx = [(np.random.random(3)*100).astype(int)]
     res = sfry(torch.IntTensor([idx,idx]))
-    assert torch.all(torch.eq(res[0], res[1]))
+    x = res[0].data.numpy()
+    y = res[1].data.numpy()
+    assert np.array_equal(x,y)
 
 def test_io():
     X = np.random.random([100,10])
@@ -37,21 +39,27 @@ def test_blocklen12():
     sfry = smallfry.smallfry.Smallfry.quantize(X,b=1,block_len=2)
     idx = [(np.random.random(3)*100).astype(int)]
     res = sfry(torch.IntTensor([idx,idx]))
-    assert torch.all(torch.eq(res[0], res[1]))
+    x = res[0].data.numpy()
+    y = res[1].data.numpy()
+    assert np.array_equal(x,y)
 
 def test_blocklen22():
     X = np.random.random([100,10])
     sfry = smallfry.smallfry.Smallfry.quantize(X,b=2,block_len=2)
     idx = [(np.random.random(3)*100).astype(int)]
     res = sfry(torch.IntTensor([idx,idx]))
-    assert torch.all(torch.eq(res[0], res[1]))
+    x = res[0].data.numpy()
+    y = res[1].data.numpy()
+    assert np.array_equal(x,y)
 
 def test_blocklen25():
     X = np.random.random([100,10])
     sfry = smallfry.smallfry.Smallfry.quantize(X,b=2,block_len=5)
     idx = [(np.random.random(3)*100).astype(int)]
     res = sfry(torch.IntTensor([idx,idx]))
-    assert torch.all(torch.eq(res[0], res[1]))
+    x = res[0].data.numpy()
+    y = res[1].data.numpy()
+    assert np.array_equal(x,y)
 
 def test_vector():
     Y1 = [1,2,3,4,5,6,7,8]
@@ -79,7 +87,9 @@ def test_blocklen_many():
             sfry = smallfry.smallfry.Smallfry.quantize(X,b=br,block_len=bl)
             idx = [(np.random.random(3)*100).astype(int)]
             res = sfry(torch.IntTensor([idx,idx]))
-            assert torch.all(torch.eq(res[0], res[1]))
+            x = res[0].data.numpy()
+            y = res[1].data.numpy()
+            assert np.array_equal(x,y)
 
 def test_determinstic_easy():
     Y1 = [0,1,2]
