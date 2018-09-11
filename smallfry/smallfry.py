@@ -89,7 +89,6 @@ class Smallfry(nn.Module):
         assert dim % block_len == 0, 'Block len must divide the embedding dim'
         kmeans = KMeans(n_clusters=2**b, max_iter=max_iter, n_init=n_init, tol=tol, random_state=r_seed)
         kmeans = kmeans.fit(embeddings.reshape(int(v*dim/block_len), block_len))
-        print(kmeans.inertia_)
         bin_rep = ba.bitarray()
         d = {i : Smallfry._generate_bin(i,b) for i in range(2**b)}
         bin_rep.encode(d, kmeans.labels_)
