@@ -3,7 +3,7 @@ import argh
 import os
 import smallfry
 import torch
-from codes_2_vec import codes_2_vec
+from maker import codes_2_vec
 
 demo_work_dir = ''
 
@@ -11,9 +11,9 @@ def test_dca():
     pass
 
 def test_maker():
-   
-    #os.system("python maker.py --method %s --dca %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s" % ())
-    pass
+    str_tup = ('dca','glove', '/proj/smallfry/git/smallfry/examples/data/glove.head.txt', '1234', '/proj/smallfry/embeddings', 'more_tests', '3', '8')
+    os.system("python maker.py --method %s --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s" % str_tup)
+    assert True
 
 def test_codes_2_vec():
     m = 2
@@ -28,7 +28,7 @@ def test_codes_2_vec():
     assert np.array_equal(dcc_mat, dcc_mat_check)
 
 parser = argh.ArghParser()
-parser.add_commands([test_dca])
+parser.add_commands([test_dca,test_maker])
 
 if __name__ == '__main__':
     parser.dispatch()

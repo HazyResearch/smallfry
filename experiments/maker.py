@@ -10,7 +10,6 @@ from subprocess import check_output
 from neuralcompressor.nncompress import EmbeddingCompressor
 from smallfry.smallfry import Smallfry
 from smallfry import utils as sfry_utils
-from . import codes_2_vec
 
 def main():
     config = vars(init_parser().parse_args())
@@ -140,6 +139,14 @@ def get_memory(config):
         raise ValueError('Method name invalid (must be dca or kmeans)')
     return mem
 
+
+def codes_2_vec(codes, codebook, m ,k ,v,d):
+    codes = codes.reshape(int(len(codes)/m),m)
+    dcc_mat = np.zeros([v,d])
+    for i in range(v):
+        for j in range(m):
+            dcc_mat[i,:] += codebook[j*k+codes[i,j],:]
+    return dcc_mat
 
 def get_date_str():
 	return '{:%Y-%m-%d}'.format(datetime.date.today())
