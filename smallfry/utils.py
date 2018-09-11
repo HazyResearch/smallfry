@@ -2,7 +2,8 @@ import numpy as np
 import marisa_trie as marisa
 
 
-def load_embeddings(embeds_txt_filepath):
+
+def load_embeddings_trie(embeds_txt_filepath):
     """
     Loads a GloVe embedding at 'filename'. Returns a vector of strings that 
     represents the vocabulary and a 2-D numpy matrix that is the embeddings. 
@@ -12,7 +13,6 @@ def load_embeddings(embeds_txt_filepath):
         wordlist = []
         embeddings = []
         for line in lines:
-            print(line)
             row = line.strip("\n").split(" ")
             wordlist.append(row.pop(0))
             embeddings.append([float(i) for i in row])
@@ -23,3 +23,24 @@ def load_embeddings(embeds_txt_filepath):
             i_prime = wordtrie[wordlist[i]]
             trie_order_embeds[i_prime,:] = embeddings[i,:]
     return wordtrie, trie_order_embeds
+
+def load_embeddings(embeds_txt_filepath):
+    """
+    Loads a GloVe embedding at 'filename'. Returns a vector of strings that 
+    represents the vocabulary and a 2-D numpy matrix that is the embeddings. 
+    """
+    with open(embeds_txt_filepath, 'r') as embeds_file:
+        lines = embeds_file.readlines()
+        wordlist = []
+        embeddings = []
+        for line in lines:
+            row = line.strip("\n").split(" ")
+            wordlist.append(row.pop(0))
+            embeddings.append([float(i) for i in row])
+        embeddings = np.array(embeddings)
+    return embeddings, wordlist
+
+
+
+
+

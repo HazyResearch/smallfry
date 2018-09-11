@@ -2,7 +2,7 @@ import numpy as np
 from scipy.stats import norm
 import torch
 
-sigma = 0.1
+sigma = 1
 d = 300
 v = 1000
 X = 1.0/(np.sqrt(d))*np.random.random([v,d])
@@ -13,7 +13,7 @@ max_val = 1.0/np.sqrt(d)
 
 def randround(X,b):
     if b == 32:
-        return X
+        return torch.Tensor(X)
     X_torch = torch.Tensor(X)
     scale = (max_val - min_val)/float(2**b -1)
     floor_val = min_val + torch.floor(( X_torch - min_val) / scale) *scale
@@ -26,15 +26,20 @@ def randround(X,b):
 
 def compute_gen(X_q, y, sigma, lamb):
     K = np.matmul(X_q,np.transpose(X_q))
-    K_sqr = np.matmul(K, np.transpose(K))
-    B1 = np.linalg.inv(K + lamb*np.identity(K.shape[0]))
-    B1 = np.matmul( np.transpose(B1), B1)
-    R = 1.0/v*lamb**2*np.matmul( np.transpose(y) , np.matmul(B1,y))
-    R = R + 1.0/v*sigma*np.trace(np.matmul(K_sqr,B1))
-    return R
+    l_i = np.linalg.eigvals(K)
+    l_i = l_i * np.hstack([np.ones(d),np.zeros(v-d)])
+    trace_val = sum([l**2/(l+lamb)**2 for l in l_i])
+    R2 = 1.0/v*sigma*trace_val
+    R = 0
+    U,_,_ = np.linalg.svd(X_q)
+    for i in range(v):
+        R += (np.matmul(U[:,i],y_bar)/(l_i[i]+lamb))**2
 
-b_s = [1,2,4,8]
-lamb_s = [0,0.01,100]
+
+    return 1.0/v*lamb**2*R + R2
+
+b_s = [1,2,4,8,32]
+lamb_s = [0.0000001 , 0.000001, 0.00001, 0.0001,0.001, 0.01, 0.1, 1, 10, 100, 1000]
 results = np.zeros([len(b_s),len(lamb_s)])
 
 for i in range(len(b_s)):
@@ -43,3 +48,16 @@ for i in range(len(b_s)):
     for j in range(len(lamb_s)):
         l = lamb_s[j]
         results[i,j] = compute_gen(X_q.data.numpy(), y_bar, sigma, l)
+
+
+import matplotlib.pyplot as plt
+for i in range(len(results)):
+    plt.plot(lamb_s, results[i,:],label=str(b_s[i])+" bits")
+
+
+plt.ylabel('loss')
+plt.xlabel('lambda')
+plt.xscale('log')
+plt.yscale('log')
+plt.legend(loc='upper left')
+plt.show()
