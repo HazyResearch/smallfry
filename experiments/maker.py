@@ -100,8 +100,6 @@ def make_embeddings(base_embeds, embed_dir, config):
         codes, codebook = compressor.export(base_embeds, work_dir)
         codes = np.array(codes).flatten()
         codebook = np.array(codebook)
-        print(codes.shape)
-        print(codebook.shape)
         embeds = codes_2_vec(codes, codebook, m, k, v, d)
     else:
         raise ValueError('Method name invalid')
@@ -141,22 +139,11 @@ def get_memory(config):
         raise ValueError('Method name invalid (must be dca or kmeans)')
     return mem
 
-
 def codes_2_vec(codes, codebook, m ,k ,v,d):
-    print(codes)
-    print(codes.shape)
-    print(codebook)
-    print(codebook.shape)
-    print(m)
-    print(k)
-    print(v)
-    print(d)
     codes = codes.reshape(int(len(codes)/m),m)
     dcc_mat = np.zeros([v,d])
     for i in range(v):
         for j in range(m):
-            print(i)
-            print(j)
             dcc_mat[i,:] += codebook[j*k+codes[i,j],:]
     return dcc_mat
 
