@@ -201,10 +201,10 @@ class EmbeddingCompressor(object):
                     report_token = "*"
                     best_loss = valid_loss
                     saver.save(sess, self._model_path)
-                trainloss = np.mean(train_loss_list) #tony line
-                validloss = np.mean(valid_loss_list) #tony line
-                trainmaxp = np.mean(train_maxp_list) #tony line
-                validmaxp = np.mean(valid_maxp_list) #tony line
+                trainloss = float(np.mean(train_loss_list)) #tony line
+                validloss = float(np.mean(valid_loss_list)) #tony line
+                trainmaxp = float(np.mean(train_maxp_list)) #tony line
+                validmaxp = float(np.mean(valid_maxp_list)) #tony line
                 t = len(train_loss_list) / time_elapsed # tony line
                 log_str = "[epoch{}] trian_loss={:.2f} train_maxp={:.2f} valid_loss={:.2f} valid_maxp={:.2f} bps={:.0f} {}".format(
                     epoch,

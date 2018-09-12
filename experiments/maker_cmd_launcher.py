@@ -1,9 +1,10 @@
 import os
 import argh
 import pathlib
+import maker
 
 '''
-CORE LAUNCH METHODS: lauch and qsub_launch
+CORE LAUNCH METHODS: launch and qsub_launch
 '''
 log = []
 
@@ -37,55 +38,58 @@ def log_launch(name):
     with open(log_launch_path, 'w+') as llp:
         llp.write('\n'.join(log))
 
-def kmeans_sweep(rungroup, base_embeds, base_embeds_path, seeds, bpb_bl, qsub=True):
+def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=True):
     l = qsub_launch if qsub else launch
     for seed in seeds:
         for e in range(len(base_embeds)):
-            for brl in bpb_bl:
-                l('kmeans',(
-                        base_embeds[0],
-                        base_embeds_path[0],
+            for p in params:
+                l(method,(
+                        base_embeds[e],
+                        base_embeds_path[e],
                         seed,
                         base_outputdir,
                         rungroup,
-                        brl[0],
-                        brl[1]))
-
-def dca_sweep(rungroup, base_embeds, base_embeds_path, seeds, mks, qsub=True):
-    l = qsub_launch if qsub else launch
-    for seed in seeds:
-        for e in len(base_embeds):
-            for mk in mks:
-                l('dca',(
-                        base_embeds[0],
-                        base_embeds_path[0],
-                        seed,
-                        base_outputdir,
-                        rungroup,
-                        mk[0],
-                        mk[1]))
-
+                        p[0],
+                        p[1]))
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
-def launch0_demo(name):
+
+def launch0_demo_dca(name):
+    #date of code Sept 12, 2018
     rungroup = 'demogroup'
-    name = name + '_' + rungroup
-    method = ['kmeans']
+    method = 'dca'
+    name = name + ':' + maker.get_date_str()+rungroup
+    base_embeds = ['glove']
+    glove = str(pathlib.PurePath(base_embed_path_head, 'glove_k=400000,v=10000'))
+    ft = str(pathlib.PurePath(base_embed_path_head, 'fasttext'))
+    base_embeds_path = [glove]
+    seeds = [1000]
+    mks = [(4,4),(6,4),(6,8)]
+    sweep(method, rungroup, base_embeds, base_embeds_path, seeds, mks, False)
+    log_launch(name)
+
+
+
+def launch0_demo(name):
+    #date of code Sept 12, 2018
+    rungroup = 'demogroup'
+    method = 'kmeans'
+    name = name + ':' + get_date_str()+rungroup
     base_embeds = ['glove']
     glove = str(pathlib.PurePath(base_embed_path_head, 'glove_k=400000,v=10000'))
     ft = str(pathlib.PurePath(base_embed_path_head, 'fasttext'))
     base_embeds_path = [glove]
     seeds = [1000]
     bpb_bl = [(4,1),(2,1),(1,1),(3,6),(1,4),(1,10)]
-    kmeans_sweep(rungroup, base_embeds, base_embeds_path, seeds, bpb_bl, False)
+    sweep(method, rungroup, base_embeds, base_embeds_path, seeds, bpb_bl, False)
     log_launch(name)
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch0_demo]
+cmd = [launch0_demo_dca]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
