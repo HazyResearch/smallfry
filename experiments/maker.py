@@ -99,7 +99,9 @@ def make_embeddings(base_embeds, embed_dir, config):
         work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
         compressor = EmbeddingCompressor(m, k, work_dir)
         base_embeds = base_embeds.astype(np.float32)
-        compressor.train(base_embeds)
+        dca_train_log = compressor.train(base_embeds)
+        with open(work_dir+'.dca-log-json','w+') as log_f:
+            log_f.write(json.dumps(dca_train_log))
         codes, codebook = compressor.export(base_embeds, work_dir)
         codes = np.array(codes).flatten()
         codebook = np.array(codebook)

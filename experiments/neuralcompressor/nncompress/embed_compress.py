@@ -151,6 +151,7 @@ class EmbeddingCompressor(object):
         Args:
             embed_matrix: a numpy matrix
         """
+        dca_train_log = [] #tony line
         vocab_size = embed_matrix.shape[0]
         valid_ids = np.random.RandomState(3).randint(0, vocab_size, size=(self._BATCH_SIZE * 10,)).tolist()
         # Training
@@ -200,14 +201,29 @@ class EmbeddingCompressor(object):
                     report_token = "*"
                     best_loss = valid_loss
                     saver.save(sess, self._model_path)
-                print("[epoch{}] trian_loss={:.2f} train_maxp={:.2f} valid_loss={:.2f} valid_maxp={:.2f} bps={:.0f} {}".format(
+                trainloss = np.mean(train_loss_list) #tony line
+                validloss = np.mean(valid_loss_list) #tony line
+                trainmaxp = np.mean(train_maxp_list) #tony line
+                validmaxp = np.mean(valid_maxp_list) #tony line
+                t = len(train_loss_list) / time_elapsed # tony line
+                log_str = "[epoch{}] trian_loss={:.2f} train_maxp={:.2f} valid_loss={:.2f} valid_maxp={:.2f} bps={:.0f} {}".format(
                     epoch,
-                    np.mean(train_loss_list), np.mean(train_maxp_list),
-                    np.mean(valid_loss_list), np.mean(valid_maxp_list),
-                    len(train_loss_list) / time_elapsed,
+                    trainloss, trainmaxp,
+                    validloss, validmaxp,
+                    t,
                     report_token
-                ))
+                ) #tony lines (log_str)
+                dca_train_log.append(           #tony line
+                    {'epoch': epoch,            #tony line
+                     'trainloss' : trainloss,   #tony line
+                     'validloss' : validloss,   #tony line
+                     'trainmaxp' : trainmaxp,   #tony line
+                     'validmaxp' : validmaxp,   #tony line
+                     'time-elapsed': t})        #tony line
+                print(log_str) #tony mod
+
         print("Training Done")
+        return dca_train_log # tony line
 
     def export(self, embed_matrix, prefix):
         """Export word codes and codebook for given embedding.
