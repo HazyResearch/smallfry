@@ -12,7 +12,7 @@ def launch(method, params):
     if method == 'kmeans':
         s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker.py --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s' % params
     if method == 'dca':
-        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker.py --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s' % params
+        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker.py --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s' % params
     else:
         assert 'bad method name in launch'
     log.append(s)
