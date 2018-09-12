@@ -13,10 +13,19 @@ import os
 import subprocess
 from subprocess import check_output
 
+
+#TODO: Ponder this, should we overwrite evals that already exist, or error out? I like err out
+
+
 def eval(embed_path, evaltype, eval_log_path, eval_params=None):
     #NOTE: embed_path refers to TOP-LEVEL embedding directory path, NOT the path to the .txt
     if evaltype == 'QA':
         qa_results = eval_qa(embed_path, fetch_dim(embed_path), eval_params['seed'])
+        embed_name = os.path.basename(embed_path)
+        qa_results_path = str(pathlib.PurePath(embed_path, embed_name+'_results-qa.json'))
+        with open(qa_results_path, 'w+') as qa_results_f:
+            qa_results_f.write(json.dumps(qa_results))
+
     elif evaltype == 'intrinsics':
         pass
     elif evaltype == 'synthetics':
@@ -107,7 +116,53 @@ def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
     return rtn_dict
 
 def eval_intrinsics():
-    pass
+    # Get intrinsic tasks to evaluate on        
+    similarity_tasks = [
+            "bruni_men.txt",
+            "luong_rare.txt",
+            "radinsky_mturk.txt",
+            "simlex999.txt",
+            "ws353_relatedness.txt",
+            "ws353_similarity.txt"
+    ]
+    analogy_tasks = [
+            "google_caseinsens.txt",
+            "msr.txt"
+    ]
+    all_tasks = similarity_tasks + analogy_tasks
+
+    # This line below is a bit jenky since it assumes `testsets` relative to this file.
+    # Should be fine since that data is pulled with the repo.
+    path_to_tasks = [os.path.dirname(os.path.abspath(__file__)) + "/testsets/" + x for x in tasks_to_use]
+
+    results = ""
+    results_dict = {}
+    for task_path in path_to_tasks:
+        if os.path.basename(task_path) in analogy_tasks:
+            output = evaluate_analogy(word_vectors, task_path)
+        elif os.path.basename(task_path) in similarity_tasks:
+            output = evaluate_similarity(word_vectors, task_path)
+        else:
+           lpmf_print("%s not in list of similarity or analogy tasks." % os.path.basename(task_path))
+        partial_result = "%s - %s\n" % (os.path.basename(task_path), str(output))
+        results += partial_result
+        lpmf_print(partial_result)
+
+        task_name = os.path.basename(task_path).replace(".txt", "")
+        task_name = task_name.replace("_", "-")
+        if type(output) == list or type(output) == tuple:
+            results_dict[task_name + "-add"] = output[0]
+            results_dict[task_name + "-mul"] = output[1]
+        else:
+            results_dict[task_name] = output
+            
+        lpmf_print("Results:")
+        lpmf_print("------------------------------")        
+        lpmf_print(results)
+        lpmf_print("------------------------------")
+        return results_dict
+
+
 
 def eval_synthetics():
     pass
