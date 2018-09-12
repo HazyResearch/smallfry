@@ -62,7 +62,18 @@ LAUNCH ROUTINES BELOW THIS LINE =========================
 def launch1_demo(name):
     #date of code Sept 12, 2018
     rungroup = 'sweep-6297-test'
-   
+    methods = ['dca','kmeans']
+    params = dict()
+    params['dca'] = [(4,4),(8,8)]
+    params['kmeans'] = [ (1,1),(2,4) ]
+    for method in methods:
+        base_embeds = ['glove']
+        glove_path = str(pathlib.PurePath(base_embed_path_head, 'glove_k=400000,v=10000'))
+        base_embeds_path = [glove_path]
+        seeds = [6297]
+        method_params = params[method]
+        sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params, False)
+    log_launch(get_log_name(name, rungroup))
 
 
     methods = ['dca','kmeans']
@@ -89,7 +100,7 @@ def launch0_demo(name):
     #date of code Sept 12, 2018
     rungroup = 'demogroup'
     method = 'kmeans'
-    name = name + ':' + get_date_str()+rungroup
+    name = name + ':' + maker.get_date_str()+rungroup
     base_embeds = ['glove']
     glove = str(pathlib.PurePath(base_embed_path_head, 'glove_k=400000,v=10000'))
     ft = str(pathlib.PurePath(base_embed_path_head, 'fasttext'))
