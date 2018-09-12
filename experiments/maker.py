@@ -16,6 +16,9 @@ def main():
     assert int(np.log2(config['k'])) == np.log2(config['k']),\
         'k must be a power of two.'
 
+    # in order to keep things clean, rungroups should not have underscores:
+    assert '_' not in config['rungroup'], 'rungroup names should not have underscores'
+
     # load base embeddings
     base_embeds, wordlist = sfry_utils.load_embeddings(config['basepath'])
     (v,d) = base_embeds.shape
