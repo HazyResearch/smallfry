@@ -52,10 +52,22 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
                         p[0],
                         p[1]))
 
+def get_log_name(name, rungroup):
+    return name + ':' + maker.get_date_str() + ':' + rungroup
+
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
+def launch1_demo(name):
+    #date of code Sept 12, 2018
+    rungroup = 'sweep-6297-test'
+   
+
+
+    methods = ['dca','kmeans']
+    
+    log_launch(get_log_name(name))
 
 def launch0_demo_dca(name):
     #date of code Sept 12, 2018
