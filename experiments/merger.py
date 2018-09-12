@@ -4,9 +4,10 @@ import pathlib
 import json
 
 def merger(basedir,query):
+    #USER NOTE: query matches for RUNGROUPS!
     qry = pathlib.PurePath(basedir,query)
     d_list = []
-    for e in glob.glob(str(qry)):
+    for e in glob.glob(str(qry)): #BUG ALERT
         qry_dict = pathlib.PurePath(qry,'*.json')
         e_dict = {}
         for file in glob.glob(str(qry_dict)):
