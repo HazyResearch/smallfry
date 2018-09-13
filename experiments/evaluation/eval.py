@@ -12,6 +12,8 @@ import pathlib
 import os
 import subprocess
 from subprocess import check_output
+from .hyperwords import ws_eval, analogy_eval
+from .hyperwords.representations.embedding import *
 
 
 #TODO: Ponder this, should we overwrite evals that already exist, or error out? I like err out
@@ -63,6 +65,32 @@ def get_relation_directory():
 
 def get_sentiment_directory():
     return "/proj/smallfry/embeddings_benchmark/compositional_code_learning/"
+
+
+# Evaluate similarity
+# -----------------------------------------
+# word_vectors - dictionary where keys are words, values are word vectors.
+# task_path - path to similarity dataset
+# return - similarity score
+def evaluate_similarity(word_vectors, task_path):
+    print("Evaluating similarity: %s" % task_path)
+    assert os.path.exists(task_path)
+    data = ws_eval.read_test_set(task_path)
+    representation = BootstrapEmbeddings(word_vectors)
+    return ws_eval.evaluate(representation, data)
+
+# Evaluate analogy
+# -----------------------------------------
+# word_vectors - dictionary where keys are words, values are word vectors.
+# task_path - path to similarity dataset
+# return - similarity score
+def evaluate_analogy(word_vectors, task_path):
+    print("Evaluating analogy: %s" % task_path)
+    assert os.path.exists(task_path)
+    data = analogy_eval.read_test_set(task_path)
+    xi, ix = analogy_eval.get_vocab(data)        
+    representation = BootstrapEmbeddings(word_vectors)
+    return analogy_eval.evaluate(representation, data, xi, ix)
 
 
 #### SPECIFC EVAL TYPES BELOW ###
@@ -129,7 +157,6 @@ def eval_intrinsics():
             "google_caseinsens.txt",
             "msr.txt"
     ]
-    all_tasks = similarity_tasks + analogy_tasks
 
     # This line below is a bit jenky since it assumes `testsets` relative to this file.
     # Should be fine since that data is pulled with the repo.
