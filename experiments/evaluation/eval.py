@@ -14,6 +14,7 @@ import subprocess
 from subprocess import check_output
 from .hyperwords import ws_eval, analogy_eval
 from .hyperwords.representations.embedding import *
+from smallfry.utils import load_embeddings
 
 
 #TODO: Ponder this, should we overwrite evals that already exist, or error out? I like err out
@@ -29,7 +30,10 @@ def eval(embed_path, evaltype, eval_log_path, eval_params=None):
             qa_results_f.write(json.dumps(qa_results))
 
     elif evaltype == 'intrinsics':
-        pass
+        embeds, wordlist = load_embeddings(embed_path)
+        assert len(embeds) == len(wordlist), 'Embeddings and wordlist have different lengths in eval.py'
+        word_2_embed_dict = { wordlist[i] : embeds[i] for i in range(len(embeds)) }
+        return eval_intrinsics(word_2_embed_dict) # temp stuff
     elif evaltype == 'synthetics':
         pass
     else:
