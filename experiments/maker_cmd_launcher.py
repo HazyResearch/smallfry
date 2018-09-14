@@ -75,11 +75,7 @@ def launch1_demo(name):
         sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params, False)
     log_launch(get_log_name(name, rungroup))
 
-
-    methods = ['dca','kmeans']
     
-    log_launch(get_log_name(name))
-
 def launch0_demo_dca(name):
     #date of code Sept 12, 2018
     rungroup = 'demogroup'
