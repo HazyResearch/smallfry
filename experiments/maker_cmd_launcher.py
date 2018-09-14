@@ -108,7 +108,7 @@ def launch0_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch0_demo_dca]
+cmd = [launch1_demo]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
