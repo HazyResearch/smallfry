@@ -143,7 +143,7 @@ def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
 
     return rtn_dict
 
-def eval_intrinsics():
+def eval_intrinsics(word_vectors):
     # Get intrinsic tasks to evaluate on        
     similarity_tasks = [
             "bruni_men.txt",
@@ -170,10 +170,10 @@ def eval_intrinsics():
         elif os.path.basename(task_path) in similarity_tasks:
             output = evaluate_similarity(word_vectors, task_path)
         else:
-           lpmf_print("%s not in list of similarity or analogy tasks." % os.path.basename(task_path))
+           eval_print("%s not in list of similarity or analogy tasks." % os.path.basename(task_path))
         partial_result = "%s - %s\n" % (os.path.basename(task_path), str(output))
         results += partial_result
-        lpmf_print(partial_result)
+        eval_print(partial_result)
 
         task_name = os.path.basename(task_path).replace(".txt", "")
         task_name = task_name.replace("_", "-")
@@ -183,10 +183,10 @@ def eval_intrinsics():
         else:
             results_dict[task_name] = output
             
-        lpmf_print("Results:")
-        lpmf_print("------------------------------")        
-        lpmf_print(results)
-        lpmf_print("------------------------------")
+        eval_print("Results:")
+        eval_print("------------------------------")        
+        eval_print(results)
+        eval_print("------------------------------")
         return results_dict
 
 
