@@ -12,35 +12,44 @@ import pathlib
 import os
 import subprocess
 from subprocess import check_output
-from .hyperwords import ws_eval, analogy_eval
-from .hyperwords.representations.embedding import *
+from hyperwords import ws_eval, analogy_eval
+from hyperwords.representations.embedding import *
 from smallfry.utils import load_embeddings
 
 
 #TODO: Ponder this, should we overwrite evals that already exist, or error out? I like err out
 
 
-def eval(embed_path, evaltype, eval_log_path, eval_params=None):
+def eval_embeddings(embed_path, evaltype, eval_log_path, eval_params=None):
+    results = None
     #NOTE: embed_path refers to TOP-LEVEL embedding directory path, NOT the path to the .txt
     if evaltype == 'QA':
-        qa_results = eval_qa(embed_path, fetch_dim(embed_path), eval_params['seed'])
-        embed_name = os.path.basename(embed_path)
-        qa_results_path = str(pathlib.PurePath(embed_path, embed_name+'_results-qa.json'))
-        with open(qa_results_path, 'w+') as qa_results_f:
-            qa_results_f.write(json.dumps(qa_results))
+        results = eval_qa(embed_path, fetch_dim(embed_path), eval_params['seed'])
 
     elif evaltype == 'intrinsics':
         embeds, wordlist = load_embeddings(embed_path)
         assert len(embeds) == len(wordlist), 'Embeddings and wordlist have different lengths in eval.py'
         word_2_embed_dict = { wordlist[i] : embeds[i] for i in range(len(embeds)) }
-        return eval_intrinsics(word_2_embed_dict) # temp stuff
+        results = eval_intrinsics(word_2_embed_dict)
+
     elif evaltype == 'synthetics':
         pass
     else:
         assert 'bad evaltype given to eval()'
 
+    results_to_file(embed_path, evaltype, results)
 
-### HELPERS BELOW ###
+
+'''
+HELPERS BELOW
+'''
+
+def results_to_file(embed_path, results_type, results):
+    embed_name = os.path.basename(embed_path)
+    results_file = '%s_results-%s.json' % (embed_name, results_type)
+    results_path = str(pathlib.PurePath(embed_path, results_file))
+    with open(results_path, 'w+') as results_f:
+            results_f.write(json.dumps(results)) 
 
 def fetch_dim(embed_path):
     embed_name = os.path.basename(embed_path)
@@ -164,7 +173,9 @@ def eval_intrinsics(word_vectors):
 
     # This line below is a bit jenky since it assumes `testsets` relative to this file.
     # Should be fine since that data is pulled with the repo.
-    path_to_tasks = [os.path.dirname(os.path.abspath(__file__)) + "/testsets/" + x for x in tasks_to_use]
+    all_tasks = analogy_tasks + similarity_tasks
+    print(all_tasks)
+    path_to_tasks = [os.path.dirname(os.path.abspath(__file__)) + "/testsets/" + x for x in all_tasks  ]
 
     results = ""
     results_dict = {}
@@ -174,7 +185,7 @@ def eval_intrinsics(word_vectors):
         elif os.path.basename(task_path) in similarity_tasks:
             output = evaluate_similarity(word_vectors, task_path)
         else:
-           eval_print("%s not in list of similarity or analogy tasks." % os.path.basename(task_path))
+            eval_print("%s not in list of similarity or analogy tasks." % os.path.basename(task_path))
         partial_result = "%s - %s\n" % (os.path.basename(task_path), str(output))
         results += partial_result
         eval_print(partial_result)
@@ -187,11 +198,11 @@ def eval_intrinsics(word_vectors):
         else:
             results_dict[task_name] = output
             
-        eval_print("Results:")
-        eval_print("------------------------------")        
-        eval_print(results)
-        eval_print("------------------------------")
-        return results_dict
+    eval_print("Results:")
+    eval_print("------------------------------")        
+    eval_print(results)
+    eval_print("------------------------------")
+    return results_dict
 
 
 
