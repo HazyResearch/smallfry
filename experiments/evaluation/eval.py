@@ -29,6 +29,7 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, eval_params=None):
 
     elif evaltype == 'intrinsics':
         embed_name = os.path.basename(embed_path)
+        print(embed_name)
         embed_txt_path = str(pathlib.PurePath(embed_path, embed_name+'.txt'))
         embeds, wordlist = load_embeddings(embed_txt_path)
         assert len(embeds) == len(wordlist), 'Embeddings and wordlist have different lengths in eval.py'
