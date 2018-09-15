@@ -1,7 +1,6 @@
 '''
 GENERAL PURPOSE EMBEDDINGS EVALUATION 
 '''
-from smallfry.utils import load_embeddings
 import re
 import uuid
 import json
@@ -11,10 +10,12 @@ import time
 import pathlib
 import os
 import subprocess
+import argh
 from subprocess import check_output
 from hyperwords import ws_eval, analogy_eval
 from hyperwords.representations.embedding import *
 from smallfry.utils import load_embeddings
+
 
 
 #TODO: Ponder this, should we overwrite evals that already exist, or error out? I like err out
@@ -106,7 +107,10 @@ def evaluate_analogy(word_vectors, task_path):
     return analogy_eval.evaluate(representation, data, xi, ix)
 
 
-#### SPECIFC EVAL TYPES BELOW ###
+'''
+CORE EVALUATION ROUTINES
+a new routine must be added for each evaltype!
+'''
 
 def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
 
@@ -204,7 +208,12 @@ def eval_intrinsics(word_vectors):
     eval_print("------------------------------")
     return results_dict
 
-
-
 def eval_synthetics():
     pass
+
+
+parser = argh.ArghParser()
+parser.add_commands([eval_embeddings])
+
+if __name__ == '__main__':
+    parser.dispatch()
