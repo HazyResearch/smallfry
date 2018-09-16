@@ -10,12 +10,14 @@ from subprocess import check_output
 from neuralcompressor.nncompress import EmbeddingCompressor
 from smallfry.smallfry import Smallfry
 from smallfry import utils as sfry_utils
-from . import codes_2_vec
 
 def main():
     config = vars(init_parser().parse_args())
     assert int(np.log2(config['k'])) == np.log2(config['k']),\
         'k must be a power of two.'
+
+    # in order to keep things clean, rungroups should not have underscores:
+    assert '_' not in config['rungroup'], 'rungroup names should not have underscores'
 
     # load base embeddings
     base_embeds, wordlist = sfry_utils.load_embeddings(config['basepath'])
@@ -29,7 +31,7 @@ def main():
     config['date'] = get_date_str()
     config['date-rungroup'] = '{}-{}'.format(config['date'],config['rungroup'])
     config['memory'] = get_memory(config)
-    config['bitrate'] = config['memory'] / v * d
+    config['bitrate'] = config['memory'] / (v * d)
     config['compression-ratio'] = 32 * v * d / config['memory']
 
     # Make embeddings
@@ -97,7 +99,9 @@ def make_embeddings(base_embeds, embed_dir, config):
         work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
         compressor = EmbeddingCompressor(m, k, work_dir)
         base_embeds = base_embeds.astype(np.float32)
-        compressor.train(base_embeds)
+        dca_train_log = compressor.train(base_embeds)
+        with open(work_dir+'.dca-log-json','w+') as log_f:
+            log_f.write(json.dumps(dca_train_log))
         codes, codebook = compressor.export(base_embeds, work_dir)
         codes = np.array(codes).flatten()
         codebook = np.array(codebook)
@@ -108,9 +112,9 @@ def make_embeddings(base_embeds, embed_dir, config):
 
 def get_embeddings_dir_and_name(config):
     if config['method'] == 'kmeans':
-        params = ['base','vocab','dim','bitsperblock','blocklen','seed','date', 'rungroup']
+        params = ['base','method','vocab','dim','bitsperblock','blocklen','seed','date', 'rungroup']
     elif config['method'] == 'dca':
-        params = ['base','vocab','dim','m','k','seed','date', 'rungroup']
+        params = ['base','method','vocab','dim','m','k','seed','date', 'rungroup']
     else:
         raise ValueError('Method name invalid')
 
@@ -140,6 +144,13 @@ def get_memory(config):
         raise ValueError('Method name invalid (must be dca or kmeans)')
     return mem
 
+def codes_2_vec(codes, codebook, m ,k ,v,d):
+    codes = codes.reshape(int(len(codes)/m),m)
+    dcc_mat = np.zeros([v,d])
+    for i in range(v):
+        for j in range(m):
+            dcc_mat[i,:] += codebook[j*k+codes[i,j],:]
+    return dcc_mat
 
 def get_date_str():
 	return '{:%Y-%m-%d}'.format(datetime.date.today())
