@@ -39,6 +39,7 @@ def log_launch(name):
         llp.write('\n'.join(log))
 
 def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=True):
+    '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
         for e in range(len(base_embeds)):
@@ -58,6 +59,22 @@ def get_log_name(name, rungroup):
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+
+def launch1_demo2(name):
+    #date of code Sept 16, 2018
+    rungroup = 'sweep-6297-test-2'
+    methods = ['dca','kmeans']
+    params = dict()
+    params['dca'] = [(16,16),(30,8)]
+    params['kmeans'] = [ (1,1),(2,4) ]
+    for method in methods:
+        base_embeds = ['fasttext']
+        glove_path = str(pathlib.PurePath(base_embed_path_head, 'fasttext_k=400000'))
+        base_embeds_path = [glove_path]
+        seeds = [6297]
+        method_params = params[method]
+        sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params, False)
+    log_launch(get_log_name(name, rungroup))
 
 def launch1_demo(name):
     #date of code Sept 12, 2018
@@ -108,7 +125,7 @@ def launch0_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch1_demo]
+cmd = [launch1_demo2]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
