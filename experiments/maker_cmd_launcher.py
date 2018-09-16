@@ -62,7 +62,7 @@ LAUNCH ROUTINES BELOW THIS LINE =========================
 def launch1_demo3(name):
     #date of code Sept 16, 2018
     rungroup = 'sweep-6297-test-2'
-    methods = ['dca','kmeans']
+    methods = ['kmeans']
     params = dict()
     params['kmeans'] = [ (4,1)]
     for method in methods:
