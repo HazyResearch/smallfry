@@ -16,6 +16,8 @@ from subprocess import check_output
 from hyperwords import ws_eval, analogy_eval
 from hyperwords.representations.embedding import *
 from smallfry.utils import load_embeddings
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+import experimental_utils
 
 
 
