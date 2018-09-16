@@ -28,11 +28,8 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, eval_params=None):
         results = eval_qa(embed_path, fetch_dim(embed_path), eval_params['seed'])
 
     elif evaltype == 'intrinsics':
-        print("HELLO")
         embed_name = os.path.basename(embed_path)
-        print("name: "+embed_name)
         embed_txt_path = str(pathlib.PurePath(embed_path, embed_name+'.txt'))
-        print(embed_txt_path)
         embeds, wordlist = load_embeddings(embed_txt_path)
         assert len(embeds) == len(wordlist), 'Embeddings and wordlist have different lengths in eval.py'
         word_2_embed_dict = { wordlist[i] : embeds[i] for i in range(len(embeds)) }
