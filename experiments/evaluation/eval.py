@@ -11,6 +11,7 @@ import pathlib
 import os
 import subprocess
 import argh
+import numpy as np
 from subprocess import check_output
 from hyperwords import ws_eval, analogy_eval
 from hyperwords.representations.embedding import *
@@ -235,6 +236,7 @@ def eval_intrinsics(embed_path):
     return results_dict
 
 def eval_synthetics(embed_path):
+    '''Evaluates synthetics'''
     embeds, wordlist = fetch_embeds_4_eval(embed_path)
     base_embeds, base_wordlist = fetch_embeds_4_eval(fetch_base_embed_path(embed_path))
 
