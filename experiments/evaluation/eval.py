@@ -1,5 +1,5 @@
 '''
-GENERAL PURPOSE EMBEDDINGS EVALUATION 
+GENERAL PURPOSE EMBEDDINGS EVALUATION SCRIPT
 '''
 import re
 import uuid
@@ -19,24 +19,27 @@ from smallfry.utils import load_embeddings
 
 
 #TODO: Ponder this, should we overwrite evals that already exist, or error out? I like err out
-
+#TODO: Change from argh to argparse?
 
 def eval_embeddings(embed_path, evaltype, eval_log_path, eval_params=None):
+    '''
+    This is the front-end routine for experimental evaluation. 
+    For each acceptable experiment type, denoted with 'evaltype', it dispatches
+    the appropriate evaluation subroutine.
+    Finally, results are written to file.
+    As of Sept. 16, valid 'evaltype' selections are: 'QA' OR 'intrinsics' OR 'synthetics'
+    NOTE: 'embed_path' refers to the TOP-LEVEL embedding directory path, NOT the path to the .txt embeddings file
+    '''
     results = None
     #NOTE: embed_path refers to TOP-LEVEL embedding directory path, NOT the path to the .txt
     if evaltype == 'QA':
         results = eval_qa(embed_path, fetch_dim(embed_path), eval_params['seed'])
 
     elif evaltype == 'intrinsics':
-        embed_name = os.path.basename(embed_path)
-        embed_txt_path = str(pathlib.PurePath(embed_path, embed_name+'.txt'))
-        embeds, wordlist = load_embeddings(embed_txt_path)
-        assert len(embeds) == len(wordlist), 'Embeddings and wordlist have different lengths in eval.py'
-        word_2_embed_dict = { wordlist[i] : embeds[i] for i in range(len(embeds)) }
-        results = eval_intrinsics(word_2_embed_dict)
+        results = eval_intrinsics(embed_path)
 
     elif evaltype == 'synthetics':
-        pass
+        results = eval_synthetics(embed_path)
     else:
         assert 'bad evaltype given to eval()'
 
@@ -54,6 +57,13 @@ def results_to_file(embed_path, results_type, results):
     with open(results_path, 'w+') as results_f:
             results_f.write(json.dumps(results)) 
 
+def fetch_embeds_4_eval(embed_path):
+    embed_name = os.path.basename(embed_path)
+    embed_txt_path = str(pathlib.PurePath(embed_path, embed_name+'.txt'))
+    embeds, wordlist = load_embeddings(embed_txt_path) #clarify what load_embeddings returns
+    assert len(embeds) == len(wordlist), 'Embeddings and wordlist have different lengths in eval.py'
+    return embeds, wordlist
+
 def fetch_dim(embed_path):
     embed_name = os.path.basename(embed_path)
     maker_config_path = str(pathlib.PurePath(embed_path, embed_name+'_config.json'))
@@ -61,6 +71,14 @@ def fetch_dim(embed_path):
     with open(maker_config_path, 'r') as maker_config_f:
         maker_config = json.loads(maker_config_f.read())
     return maker_config['dim']
+
+def fetch_base_embed_path(embed_path):
+    embed_name = os.path.basename(embed_path)
+    maker_config_path = str(pathlib.PurePath(embed_path, embed_name+'_config.json'))
+    maker_config = dict()
+    with open(maker_config_path, 'r') as maker_config_f:
+        maker_config = json.loads(maker_config_f.read())
+    return maker_config['basepath']
 
 def eval_print(message):
     callername = sys._getframe().f_back.f_code.co_name
@@ -83,7 +101,7 @@ def get_sentiment_directory():
     return "/proj/smallfry/embeddings_benchmark/compositional_code_learning/"
 
 
-# Evaluate similarity
+# Evaluate similarity -- ROUTINE WRITTEN BY MAXLAM
 # -----------------------------------------
 # word_vectors - dictionary where keys are words, values are word vectors.
 # task_path - path to similarity dataset
@@ -95,7 +113,7 @@ def evaluate_similarity(word_vectors, task_path):
     representation = BootstrapEmbeddings(word_vectors)
     return ws_eval.evaluate(representation, data)
 
-# Evaluate analogy
+# Evaluate analogy -- ROUTINE WRITTEN BY MAXLAM
 # -----------------------------------------
 # word_vectors - dictionary where keys are words, values are word vectors.
 # task_path - path to similarity dataset
@@ -115,6 +133,7 @@ a new routine must be added for each evaltype!
 '''
 
 def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
+    '''Calls DrQA's training routine'''
 
     def to_dict(text):
         result = {}    
@@ -162,7 +181,13 @@ def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
 
     return rtn_dict
 
-def eval_intrinsics(word_vectors):
+def eval_intrinsics(embed_path):
+    '''Evaluates intrinsics benchmarks given embed_path'''
+
+    #load embeddings and make into dict for intrinsic routines
+    embeds, wordlist = fetch_embeds_4_eval(embed_path)
+    word_vectors = { wordlist[i] : embeds[i] for i in range(len(embeds)) }
+
     # Get intrinsic tasks to evaluate on        
     similarity_tasks = [
             "bruni_men.txt",
@@ -180,7 +205,6 @@ def eval_intrinsics(word_vectors):
     # This line below is a bit jenky since it assumes `testsets` relative to this file.
     # Should be fine since that data is pulled with the repo.
     all_tasks = analogy_tasks + similarity_tasks
-    print(all_tasks)
     path_to_tasks = [os.path.dirname(os.path.abspath(__file__)) + "/testsets/" + x for x in all_tasks  ]
 
     results = ""
@@ -210,8 +234,15 @@ def eval_intrinsics(word_vectors):
     eval_print("------------------------------")
     return results_dict
 
-def eval_synthetics():
-    pass
+def eval_synthetics(embed_path):
+    embeds, wordlist = fetch_embeds_4_eval(embed_path)
+    base_embeds, base_wordlist = fetch_embeds_4_eval(fetch_base_embed_path(embed_path))
+
+    res_rtn = dict()
+    res_rtn['embed-fro'] = np.linalg.norm(base_embeds-embeds)
+    res_rtn['mean'] = np.mean(embeds)
+    res_rtn['var'] = np.var(embeds)
+    return res_rtn
 
 
 parser = argh.ArghParser()
