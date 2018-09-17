@@ -9,7 +9,7 @@ CORE LAUNCH METHODS: launch and qsub_launch
 log = []
 
 def launch(params):
-    s = 'python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings %s  %s %s %s' % params
+    s = 'python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings %s  %s %s --seed %s' % params
     return s
 
 def qsub_launch(params):
@@ -63,7 +63,7 @@ def launch1_demo_qsub(name):
 def launch1_demo(name):
     #date of code Sept 16, 2018
     rungroup = '2018-09-16-sweep-6297-test-2'
-    evaltypes = ['intrinsics','synthetics','QA']
+    evaltypes = ['QA']
     params = dict()
     for evaltype in evaltypes:
         seeds = [6297]
@@ -72,7 +72,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch1_demo_qsub]
+cmd = [launch1_demo]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
