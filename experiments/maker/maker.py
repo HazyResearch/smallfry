@@ -10,7 +10,7 @@ import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
 from smallfry import utils as sfry_utils
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
 from neuralcompressor.nncompress import EmbeddingCompressor
 
@@ -30,7 +30,7 @@ def main():
     # update config
     config['vocab'] = v
     config['dim'] = d
-    config['githash'] = get_git_hash()
+    config['githash-maker'] = get_git_hash()
     config['date'] = get_date_str()
     config['date-rungroup'] = '{}-{}'.format(config['date'],config['rungroup'])
     config['memory'] = get_memory(config)

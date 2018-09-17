@@ -1,4 +1,3 @@
-import os
 import argh
 import pathlib
 import maker
@@ -16,8 +15,6 @@ def launch(method, params):
         s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s' % params
     else:
         assert 'bad method name in launch'
-    log.append(s)
-    os.system(s)
     return s
 
 def qsub_launch(method, params):
@@ -27,7 +24,7 @@ def qsub_launch(method, params):
 GLOBAL PATHS CODED HERE
 '''
 base_embed_path_head = '/proj/smallfry/base_embeddings'
-launch_path = '/proj/smallfry/launches/'
+launch_path = '/proj/smallfry/launches/maker'
 base_outputdir = '/proj/smallfry/embeddings'
 
 '''
@@ -44,7 +41,7 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
     for seed in seeds:
         for e in range(len(base_embeds)):
             for p in params:
-                l(method,(
+                cmd = l(method,(
                         base_embeds[e],
                         base_embeds_path[e],
                         seed,
@@ -52,9 +49,10 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
                         rungroup,
                         p[0],
                         p[1]))
+                log.append(cmd)
 
 def get_log_name(name, rungroup):
-    return name + ':' + maker.get_date_str() + ':' + rungroup
+    return maker.get_date_str() + ':' + rungroup + ':' + name
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================

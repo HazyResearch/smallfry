@@ -24,7 +24,7 @@ import experimental_utils
 #TODO: Ponder this, should we overwrite evals that already exist, or error out? I like err out
 #TODO: Change from argh to argparse?
 
-def eval_embeddings(embed_path, evaltype, eval_log_path, eval_params=None):
+def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     '''
     This is the front-end routine for experimental evaluation. 
     For each acceptable experiment type, denoted with 'evaltype', it dispatches
@@ -36,7 +36,7 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, eval_params=None):
     results = None
     #NOTE: embed_path refers to TOP-LEVEL embedding directory path, NOT the path to the .txt
     if evaltype == 'QA':
-        results = eval_qa(embed_path, fetch_dim(embed_path), eval_params['seed'])
+        results = eval_qa(embed_path, fetch_dim(embed_path), seed)
 
     elif evaltype == 'intrinsics':
         results = eval_intrinsics(embed_path)
@@ -46,6 +46,7 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, eval_params=None):
     else:
         assert 'bad evaltype given to eval()'
 
+    results['githash-%s' % evaltype] = get_git_hash()
     results_to_file(embed_path, evaltype, results)
 
 
