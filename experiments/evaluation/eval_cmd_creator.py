@@ -12,13 +12,8 @@ def launch(params):
     s = 'python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings %s  %s %s %s' % params
     return s
 
-<<<<<<< HEAD
-def qsub_launch(method, params):
-    return 'qsub -V -b y -wd /proj/smallfry/qsub_logs'+launch(method, params)
-=======
 def qsub_launch(params):
-    return 'qsub '+launch(params)
->>>>>>> 70f1d13be861a66bbd949a3dd4cef921757b3460
+    return 'qsub -V -b y -wd /proj/smallfry/qsub_logs '+launch(params)
 
 '''
 GLOBAL PATHS CODED HERE
