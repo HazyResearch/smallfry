@@ -12,8 +12,8 @@ def launch(params):
     s = 'python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings %s  %s %s %s' % params
     return s
 
-def qsub_launch(method, params):
-    return 'qsub '+launch(method, params)
+def qsub_launch(params):
+    return 'qsub '+launch(params)
 
 '''
 GLOBAL PATHS CODED HERE
@@ -50,6 +50,19 @@ def get_log_name(name, rungroup):
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
+def launch1_demo_qsub(name):
+    #date of code Sept 16, 2018
+    rungroup = '2018-09-16-sweep-6297-test-2'
+    evaltypes = ['intrinsics','synthetics','QA']
+    params = dict()
+    for evaltype in evaltypes:
+        seeds = [6297]
+        forall_in_rungroup(evaltype, rungroup, seeds)
+    log_launch(get_log_name(name, rungroup))
+
+
+
+
 def launch1_demo(name):
     #date of code Sept 16, 2018
     rungroup = '2018-09-16-sweep-6297-test-2'
@@ -62,7 +75,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch1_demo]
+cmd = [launch1_demo_qsub]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
