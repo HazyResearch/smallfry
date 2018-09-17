@@ -36,6 +36,7 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     results = None
     #NOTE: embed_path refers to TOP-LEVEL embedding directory path, NOT the path to the .txt
     if evaltype == 'QA':
+        seed = int(seed)
         results = eval_qa(embed_path, fetch_dim(embed_path), seed)
 
     elif evaltype == 'intrinsics':
