@@ -58,6 +58,24 @@ def get_log_name(name, rungroup):
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
+def launch1_official_qsub(name):
+    #date of code Sept 17, 2018
+    rungroup = 'official-test-run-lite'
+    methods = ['dca','kmeans']
+    params = dict()
+    params['dca'] = [(16,16),(30,8)]
+    params['kmeans'] = [ (1,1),(2,4) ]
+    for method in methods:
+        base_embeds = ['fasttext']
+        glove_path = str(pathlib.PurePath(base_embed_path_head, 'fasttext_k=400000'))
+        base_embeds_path = [glove_path]
+        seeds = [20]
+        method_params = params[method]
+        sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
+    log_launch(get_log_name(name, rungroup))
+
+
+
 def launch1_official(name):
     #date of code Sept 17, 2018
     rungroup = 'official-test-run-lite'
@@ -139,7 +157,7 @@ def launch0_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch1_official]
+cmd = [launch1_official_qsub]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
