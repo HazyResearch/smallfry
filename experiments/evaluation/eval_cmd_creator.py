@@ -1,5 +1,6 @@
 import argh
 import pathlib
+import glob
 import evaluate
 
 '''
@@ -18,7 +19,7 @@ def qsub_launch(method, params):
 GLOBAL PATHS CODED HERE
 '''
 base_embed_path_head = '/proj/smallfry/base_embeddings'
-launch_path = '/proj/smallfry/launches/maker'
+launch_path = '/proj/smallfry/launches/eval'
 base_outputdir = '/proj/smallfry/embeddings'
 
 '''
@@ -33,18 +34,18 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
-        rungroup_qry = str(pathlib.PurePath(base_outputdir,rungroup+'/*') 
+        rungroup_qry = str(pathlib.PurePath(base_outputdir,rungroup+'/*')) 
         for e in glob.glob(rungroup_qry):
             #speical params not support yet TODO
             cmd = l(evaltype,(
                         e,
                         evaltype,
                         '/',
-                        seed)
+                        seed))
             log.append(cmd)
 
 def get_log_name(name, rungroup):
-    return maker.get_date_str() + ':' + rungroup + ':' + name
+    return evaluate.get_date_str() + ':' + rungroup + ':' + name
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
