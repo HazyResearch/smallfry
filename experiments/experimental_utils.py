@@ -1,3 +1,4 @@
+import numpy as np
 
 def get_git_hash():
    git_hash = None
