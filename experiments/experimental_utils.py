@@ -14,7 +14,8 @@ from smallfry.utils import *
 def get_git_hash():
    git_hash = None
    try:
-       git_hash = check_output(['git','rev-parse','--short','HEAD']).strip()
+       this_dir = os.path.dirname(os.path.realpath(__file__))
+       git_hash = check_output(['cd %s; git' % this_dir,'rev-parse','--short','HEAD']).strip()
        logging.info('Git hash {}'.format(git_hash))
    except FileNotFoundError:
        logging.info('Unable to get git hash.')
