@@ -11,9 +11,9 @@ log = []
 def launch(method, params):
     s = ''
     if method == 'kmeans':
-        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker.py --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s' % params
+        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s' % params
     if method == 'dca':
-        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker.py --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s' % params
+        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s' % params
     else:
         assert 'bad method name in launch'
     log.append(s)
@@ -77,8 +77,8 @@ def launch1_demo2(name):
     log_launch(get_log_name(name, rungroup))
 
 def launch1_demo(name):
-    #date of code Sept 12, 2018
-    rungroup = 'sweep-6297-test'
+    #date of code Sept 16, 2018
+    rungroup = 'sweep-100-test'
     methods = ['dca','kmeans']
     params = dict()
     params['dca'] = [(4,4),(8,8)]
@@ -87,7 +87,7 @@ def launch1_demo(name):
         base_embeds = ['glove']
         glove_path = str(pathlib.PurePath(base_embed_path_head, 'glove_k=400000,v=10000'))
         base_embeds_path = [glove_path]
-        seeds = [6297]
+        seeds = [100]
         method_params = params[method]
         sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params, False)
     log_launch(get_log_name(name, rungroup))
@@ -125,7 +125,7 @@ def launch0_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch1_demo2]
+cmd = [launch1_demo]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
