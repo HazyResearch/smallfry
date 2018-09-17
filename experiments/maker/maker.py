@@ -2,20 +2,16 @@ import json
 import pathlib
 import os
 import argparse
-import datetime
 import logging
-import time
 import sys
 import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
-from smallfry import utils as sfry_utils
+from smallfry.utils import *
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
 from neuralcompressor.nncompress import EmbeddingCompressor
 
-
-#TODO update seed such that it is creation seed
 
 def main():
     config = vars(init_parser().parse_args())

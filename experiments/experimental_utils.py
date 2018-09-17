@@ -3,8 +3,13 @@ import datetime
 import logging
 import os
 import pathlib
+import subprocess
+import sys
+import time
 import numpy as np
 from subprocess import check_output
+from smallfry.smallfry import Smallfry
+from smallfry.utils import *
 
 def get_git_hash():
    git_hash = None
@@ -41,11 +46,28 @@ def to_file_txt(path, wordlist, embeds):
             file.write(" ".join(strrow))
             file.write("\n")
 
+def eval_print(message):
+    callername = sys._getframe().f_back.f_code.co_name
+    tsstring = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+    print("%s-%s : %s" % (tsstring, callername, message))
+    sys.stdout.flush()
 
-def results_to_file(embed_path, results_type, results):
+def perform_command_local(command):
+    out = check_output(command, stderr=subprocess.STDOUT, shell=True).decode("utf-8") 
+    return out     
+
+def get_results_path(embed_path, results_type, results):
     embed_name = os.path.basename(embed_path)
     results_file = '%s_results-%s.json' % (embed_name, results_type)
-    results_path = str(pathlib.PurePath(embed_path, results_file))
+    return str(pathlib.PurePath(embed_path, results_file))
+
+
+def do_results_already_exist(embed_path, results_type, results):
+    results_path = get_results_path(embed_path, results_type, results)
+    return os.path.isfile(results_path)
+
+def results_to_file(embed_path, results_type, results):
+    results_path = get_results_path(embed_path, results_type, results)
     with open(results_path, 'w+') as results_f:
             results_f.write(json.dumps(results)) 
 
@@ -74,3 +96,22 @@ def fetch_base_embed_path(embed_path):
     with open(maker_config_path, 'r') as maker_config_f:
         maker_config = json.loads(maker_config_f.read())
     return maker_config['basepath']
+
+def get_drqa_directory():
+    return "/proj/smallfry/embeddings_benchmark/DrQA/"
+
+def get_relation_directory():
+    return "/proj/smallfry/embeddings_benchmark/tacred-relation/"
+
+def get_sentiment_directory():
+    return "/proj/smallfry/embeddings_benchmark/compositional_code_learning/"
+
+def get_base_embed_path_head():
+    return '/proj/smallfry/base_embeddings'
+
+def get_base_outputdir():
+    return '/proj/smallfry/embeddings'
+
+def get_launch_path():
+    return '/proj/smallfry/launches'
+

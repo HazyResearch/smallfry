@@ -51,17 +51,14 @@ LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
 def launch1_demo_qsub(name):
-    #date of code Sept 16, 2018
+    #date of code Sept 17, 2018
     rungroup = '2018-09-16-sweep-6297-test-2'
-    evaltypes = ['intrinsics','synthetics','QA']
+    evaltypes = ['QA']
     params = dict()
     for evaltype in evaltypes:
         seeds = [6297]
         forall_in_rungroup(evaltype, rungroup, seeds)
     log_launch(get_log_name(name, rungroup))
-
-
-
 
 def launch1_demo(name):
     #date of code Sept 16, 2018

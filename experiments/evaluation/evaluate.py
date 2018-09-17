@@ -34,7 +34,6 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     NOTE: 'embed_path' refers to the TOP-LEVEL embedding directory path, NOT the path to the .txt embeddings file
     '''
     results = None
-    #NOTE: embed_path refers to TOP-LEVEL embedding directory path, NOT the path to the .txt
     if evaltype == 'QA':
         seed = int(seed)
         results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed)
@@ -48,68 +47,18 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
         assert 'bad evaltype given to eval()'
 
     results['githash-%s' % evaltype] = get_git_hash()
+    results['seed-%s' % evaltype] = seed
     results_to_file(embed_path, evaltype, results)
 
-
 '''
-HELPERS BELOW
-'''
-
-def eval_print(message):
-    callername = sys._getframe().f_back.f_code.co_name
-    tsstring = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-    print("%s-%s : %s" % (tsstring, callername, message))
-    sys.stdout.flush()
-
-def perform_command_local(command):
-    out = check_output(command, stderr=subprocess.STDOUT, shell=True).decode("utf-8") 
-    return out
-
-
-def get_drqa_directory():
-        return "/proj/smallfry/embeddings_benchmark/DrQA/"
-
-def get_relation_directory():
-    return "/proj/smallfry/embeddings_benchmark/tacred-relation/"
-
-def get_sentiment_directory():
-    return "/proj/smallfry/embeddings_benchmark/compositional_code_learning/"
-
-
-# Evaluate similarity -- ROUTINE WRITTEN BY MAXLAM
-# -----------------------------------------
-# word_vectors - dictionary where keys are words, values are word vectors.
-# task_path - path to similarity dataset
-# return - similarity score
-def evaluate_similarity(word_vectors, task_path):
-    print("Evaluating similarity: %s" % task_path)
-    assert os.path.exists(task_path)
-    data = ws_eval.read_test_set(task_path)
-    representation = BootstrapEmbeddings(word_vectors)
-    return ws_eval.evaluate(representation, data)
-
-# Evaluate analogy -- ROUTINE WRITTEN BY MAXLAM
-# -----------------------------------------
-# word_vectors - dictionary where keys are words, values are word vectors.
-# task_path - path to similarity dataset
-# return - similarity score
-def evaluate_analogy(word_vectors, task_path):
-    print("Evaluating analogy: %s" % task_path)
-    assert os.path.exists(task_path)
-    data = analogy_eval.read_test_set(task_path)
-    xi, ix = analogy_eval.get_vocab(data)        
-    representation = BootstrapEmbeddings(word_vectors)
-    return analogy_eval.evaluate(representation, data, xi, ix)
-
-
-'''
-CORE EVALUATION ROUTINES
+CORE EVALUATION ROUTINES =======================
 a new routine must be added for each evaltype!
 '''
 
 def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
     '''Calls DrQA's training routine'''
 
+    #to_dict: transforms QA output into results-style json dict
     def to_dict(text):
         result = {}    
         f1_scores = []
@@ -158,6 +107,32 @@ def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
 
 def eval_intrinsics(embed_path):
     '''Evaluates intrinsics benchmarks given embed_path'''
+
+    # Evaluate analogy -- ROUTINE WRITTEN BY MAXLAM
+    # -----------------------------------------
+    # word_vectors - dictionary where keys are words, values are word vectors.
+    # task_path - path to similarity dataset
+    # return - similarity score
+    def evaluate_analogy(word_vectors, task_path):
+        print("Evaluating analogy: %s" % task_path)
+        assert os.path.exists(task_path)
+        data = analogy_eval.read_test_set(task_path)
+        xi, ix = analogy_eval.get_vocab(data)        
+        representation = BootstrapEmbeddings(word_vectors)
+        return analogy_eval.evaluate(representation, data, xi, ix)
+
+    # Evaluate similarity -- ROUTINE WRITTEN BY MAXLAM
+    # -----------------------------------------
+    # word_vectors - dictionary where keys are words, values are word vectors.
+    # task_path - path to similarity dataset
+    # return - similarity score
+    def evaluate_similarity(word_vectors, task_path):
+        '''Evaluates sim intrinsic suite'''
+        print("Evaluating similarity: %s" % task_path)
+        assert os.path.exists(task_path)
+        data = ws_eval.read_test_set(task_path)
+        representation = BootstrapEmbeddings(word_vectors)
+        return ws_eval.evaluate(representation, data)
 
     #load embeddings and make into dict for intrinsic routines
     embeds, wordlist = fetch_embeds_4_eval(embed_path)
@@ -211,6 +186,7 @@ def eval_intrinsics(embed_path):
 
 def eval_synthetics(embed_path):
     '''Evaluates synthetics'''
+    #TODO: what synthetics will we put in here?
     embeds, wordlist = fetch_embeds_4_eval(embed_path)
     base_embeds, base_wordlist = fetch_embeds_4_eval(fetch_base_embed_path(embed_path))
 
