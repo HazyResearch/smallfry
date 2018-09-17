@@ -1,7 +1,8 @@
 import numpy as np
 import argh
 import os
-import sysconfig
+import sys
+import config
 import smallfry
 import torch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
