@@ -37,8 +37,7 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
         rungroup_qry = str(pathlib.PurePath(base_outputdir,rungroup+'/*')) 
         for e in glob.glob(rungroup_qry):
             #speical params not support yet TODO
-            cmd = l(evaltype,(
-                        e,
+            cmd = l((e,
                         evaltype,
                         '/',
                         seed))
@@ -53,7 +52,7 @@ LAUNCH ROUTINES BELOW THIS LINE =========================
 
 def launch1_demo(name):
     #date of code Sept 16, 2018
-    rungroup = 'first-official-testrun'
+    rungroup = '2018-09-16-sweep-6297-test-2'
     evaltypes = ['intrinsics','synthetics','QA']
     params = dict()
     for evaltype in evaltypes:
