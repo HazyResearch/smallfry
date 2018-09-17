@@ -1,5 +1,6 @@
 import argh
 import pathlib
+import glob
 import evaluate
 
 '''
@@ -11,14 +12,19 @@ def launch(params):
     s = 'python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings %s  %s %s %s' % params
     return s
 
+<<<<<<< HEAD
 def qsub_launch(method, params):
     return 'qsub -V -b y -wd /proj/smallfry/qsub_logs'+launch(method, params)
+=======
+def qsub_launch(params):
+    return 'qsub '+launch(params)
+>>>>>>> 70f1d13be861a66bbd949a3dd4cef921757b3460
 
 '''
 GLOBAL PATHS CODED HERE
 '''
 base_embed_path_head = '/proj/smallfry/base_embeddings'
-launch_path = '/proj/smallfry/launches/maker'
+launch_path = '/proj/smallfry/launches/eval'
 base_outputdir = '/proj/smallfry/embeddings'
 
 '''
@@ -33,26 +39,38 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
-        rungroup_qry = str(pathlib.PurePath(base_outputdir,rungroup+'/*') 
+        rungroup_qry = str(pathlib.PurePath(base_outputdir,rungroup+'/*')) 
         for e in glob.glob(rungroup_qry):
             #speical params not support yet TODO
-            cmd = l(evaltype,(
-                        e,
+            cmd = l((e,
                         evaltype,
                         '/',
-                        seed)
+                        seed))
             log.append(cmd)
 
 def get_log_name(name, rungroup):
-    return maker.get_date_str() + ':' + rungroup + ':' + name
+    return evaluate.get_date_str() + ':' + rungroup + ':' + name
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
+def launch1_demo_qsub(name):
+    #date of code Sept 16, 2018
+    rungroup = '2018-09-16-sweep-6297-test-2'
+    evaltypes = ['intrinsics','synthetics','QA']
+    params = dict()
+    for evaltype in evaltypes:
+        seeds = [6297]
+        forall_in_rungroup(evaltype, rungroup, seeds)
+    log_launch(get_log_name(name, rungroup))
+
+
+
+
 def launch1_demo(name):
     #date of code Sept 16, 2018
-    rungroup = 'first-official-testrun'
+    rungroup = '2018-09-16-sweep-6297-test-2'
     evaltypes = ['intrinsics','synthetics','QA']
     params = dict()
     for evaltype in evaltypes:
@@ -62,7 +80,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch1_demo]
+cmd = [launch1_demo_qsub]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
