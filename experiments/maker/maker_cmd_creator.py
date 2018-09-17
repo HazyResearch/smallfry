@@ -23,10 +23,10 @@ def launch(method, params):
 def qsub_launch(method, params):
     return 'qsub -V -b y -wd /proj/smallfry/qsub_logs '+launch(method, params)
 
-
 '''
 HELPER METHODS FOR COMMON SWEEP STYLES (and logging)
 '''
+
 def log_launch(name):
     log_launch_path = str(pathlib.PurePath( launch_path, name ))
     with open(log_launch_path, 'w+') as llp:
@@ -49,7 +49,7 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
                 log.append(cmd)
 
 def get_log_name(name, rungroup):
-    return maker.get_date_str() + ':' + rungroup + ':' + name
+    return '%s:%s:%s' % (maker.get_date_str(), rungroup, name)
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
@@ -103,7 +103,6 @@ def launch1_demo(name):
         sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params, False)
     log_launch(get_log_name(name, rungroup))
 
-    
 def launch0_demo_dca(name):
     #date of code Sept 12, 2018
     rungroup = 'demogroup'
@@ -118,8 +117,6 @@ def launch0_demo_dca(name):
     sweep(method, rungroup, base_embeds, base_embeds_path, seeds, mks, False)
     log_launch(name)
 
-
-
 def launch0_demo(name):
     #date of code Sept 12, 2018
     rungroup = 'demogroup'
@@ -133,7 +130,6 @@ def launch0_demo(name):
     bpb_bl = [(4,1),(2,1),(1,1),(3,6),(1,4),(1,10)]
     sweep(method, rungroup, base_embeds, base_embeds_path, seeds, bpb_bl, False)
     log_launch(name)
-
 
 #IMPORTANT!! this line determines which cmd will be run
 cmd = [launch1_official]
