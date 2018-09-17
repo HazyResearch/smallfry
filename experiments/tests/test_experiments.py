@@ -4,7 +4,7 @@ import os
 import sys
 import smallfry
 import torch
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
 
 demo_work_dir = ''
