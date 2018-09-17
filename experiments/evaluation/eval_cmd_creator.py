@@ -12,7 +12,7 @@ def launch(params):
     return s
 
 def qsub_launch(method, params):
-    return 'qsub '+launch(method, params)
+    return 'qsub -V -b y -wd /proj/smallfry/qsub_logs'+launch(method, params)
 
 '''
 GLOBAL PATHS CODED HERE
