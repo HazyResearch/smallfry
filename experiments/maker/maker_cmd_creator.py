@@ -58,7 +58,7 @@ def get_log_name(name, rungroup):
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
-def launch1_official(name):'
+def launch1_official(name):
     #date of code Sept 17, 2018
     rungroup = 'official-test-run-lite'
     methods = ['dca','kmeans']
