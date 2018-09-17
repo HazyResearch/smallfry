@@ -17,7 +17,7 @@ from hyperwords import ws_eval, analogy_eval
 from hyperwords.representations.embedding import *
 from smallfry.utils import load_embeddings
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-import experimental_utils
+from experimental_utils import *
 
 
 
@@ -62,9 +62,12 @@ def results_to_file(embed_path, results_type, results):
     with open(results_path, 'w+') as results_f:
             results_f.write(json.dumps(results)) 
 
-def fetch_embeds_4_eval(embed_path):
+def fetch_embeds_txt_path(embed_path):
     embed_name = os.path.basename(embed_path)
-    embed_txt_path = str(pathlib.PurePath(embed_path, embed_name+'.txt'))
+    return str(pathlib.PurePath(embed_path, embed_name+'.txt'))
+    
+def fetch_embeds_4_eval(embed_path):
+    embed_txt_path = fetch_embeds_text_path(embed_path)
     embeds, wordlist = load_embeddings(embed_txt_path) #clarify what load_embeddings returns
     assert len(embeds) == len(wordlist), 'Embeddings and wordlist have different lengths in eval.py'
     return embeds, wordlist
