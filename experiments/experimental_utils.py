@@ -62,6 +62,13 @@ def get_results_path(embed_path, results_type, results):
     results_file = '%s_results-%s.json' % (embed_name, results_type)
     return str(pathlib.PurePath(embed_path, results_file))
 
+def get_log_name(name, rungroup):
+    return '%s:%s:%s' % (get_date_str(), rungroup, name)
+
+def prep_qsub_log_dir(qsub_log_path_generic, name, rungroup):
+    qsub_log_path_specific = str(pathlib.PurePath(qsub_log_path_generic,
+                                                 get_log_name(name, rungroup)))
+    os.mkdir(qsub_log_path_specific)
 
 def do_results_already_exist(embed_path, results_type, results):
     results_path = get_results_path(embed_path, results_type, results)
@@ -115,4 +122,7 @@ def get_base_outputdir():
 
 def get_launch_path():
     return '/proj/smallfry/launches'
+
+def get_qsub_log_path():
+    return 'proj/smallfry/qsub_logs'
 

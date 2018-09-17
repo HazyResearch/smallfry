@@ -1,5 +1,6 @@
 import argh
 import pathlib
+import os
 import maker
 
 '''
@@ -9,6 +10,7 @@ CORE LAUNCH METHODS: launch and qsub_launch
 log = []
 #maker cmd creator launch path
 launch_path = str(pathlib.PurePath(maker.get_launch_path(), 'maker'))
+qsub_log_path = str(pathlib.PurePath(maker.get_qsub_log_path(), 'maker'))
 
 def launch(method, params):
     s = ''
@@ -21,7 +23,8 @@ def launch(method, params):
     return s
 
 def qsub_launch(method, params):
-    return 'qsub -V -b y -wd /proj/smallfry/qsub_logs '+launch(method, params)
+    qsub_log_name_path = str(pathlib.PurePath(qsub_log_path, maker.get_log_name(name, r))
+    return 'qsub -V -b y -wd %s %s ' % (qsub_log_path, launch(method, params))
 
 '''
 HELPER METHODS FOR COMMON SWEEP STYLES (and logging)
@@ -48,9 +51,6 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
                         p[1]))
                 log.append(cmd)
 
-def get_log_name(name, rungroup):
-    return '%s:%s:%s' % (maker.get_date_str(), rungroup, name)
-
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
@@ -59,19 +59,18 @@ def launch1_official_qsub(name):
     #date of code Sept 17, 2018
     rungroup = 'official-test-run-lite'
     methods = ['dca','kmeans']
+    maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     params = dict()
     params['dca'] = [(16,16),(30,8)]
     params['kmeans'] = [ (1,1),(2,4) ]
     for method in methods:
         base_embeds = ['fasttext']
-        glove_path = str(pathlib.PurePath(base_embed_path_head, 'fasttext_k=400000'))
+        glove_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
         base_embeds_path = [glove_path]
         seeds = [20]
         method_params = params[method]
         sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
-    log_launch(get_log_name(name, rungroup))
-
-
+    log_launch(maker.get_log_name(name, rungroup))
 
 def launch1_official(name):
     #date of code Sept 17, 2018
