@@ -7,7 +7,7 @@ import sys
 import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
-from smallfry.utils import *
+from smallfry.utils import load_embeddings
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
 from neuralcompressor.nncompress import EmbeddingCompressor
@@ -22,7 +22,7 @@ def main():
     assert '_' not in config['rungroup'], 'rungroup names should not have underscores'
 
     # load base embeddings
-    base_embeds, wordlist = sfry_utils.load_embeddings(config['basepath'])
+    base_embeds, wordlist = load_embeddings(config['basepath'])
     (v,d) = base_embeds.shape
     assert len(wordlist) == v, 'Embedding dim must match wordlist length.'
 
