@@ -14,6 +14,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMP
 from experimental_utils import * 
 from neuralcompressor.nncompress import EmbeddingCompressor
 
+
+#TODO update seed such that it is creation seed
+
 def main():
     config = vars(init_parser().parse_args())
     assert int(np.log2(config['k'])) == np.log2(config['k']),\
