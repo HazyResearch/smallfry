@@ -105,3 +105,13 @@ def get_relation_directory():
 
 def get_sentiment_directory():
     return "/proj/smallfry/embeddings_benchmark/compositional_code_learning/"
+
+def get_base_embed_path_head():
+    return '/proj/smallfry/base_embeddings'
+
+def get_base_outputdir():
+    return '/proj/smallfry/embeddings'
+
+def get_launch_path():
+    return '/proj/smallfry/launches'
+

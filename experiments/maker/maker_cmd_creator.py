@@ -5,7 +5,10 @@ import maker
 '''
 CORE LAUNCH METHODS: launch and qsub_launch
 '''
+#globally stores a launch
 log = []
+#maker cmd creator launch path
+launch_path = str(pathlib.PurePath(maker.get_launch_path(), 'maker'))
 
 def launch(method, params):
     s = ''
@@ -20,12 +23,6 @@ def launch(method, params):
 def qsub_launch(method, params):
     return 'qsub -V -b y -wd /proj/smallfry/qsub_logs '+launch(method, params)
 
-'''
-GLOBAL PATHS CODED HERE
-'''
-base_embed_path_head = '/proj/smallfry/base_embeddings'
-launch_path = '/proj/smallfry/launches/maker'
-base_outputdir = '/proj/smallfry/embeddings'
 
 '''
 HELPER METHODS FOR COMMON SWEEP STYLES (and logging)
@@ -45,7 +42,7 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
                         base_embeds[e],
                         base_embeds_path[e],
                         seed,
-                        base_outputdir,
+                        maker.get_base_outputdir(),
                         rungroup,
                         p[0],
                         p[1]))
@@ -67,7 +64,7 @@ def launch1_official(name):
     params['kmeans'] = [ (1,1),(2,4) ]
     for method in methods:
         base_embeds = ['fasttext']
-        glove_path = str(pathlib.PurePath(base_embed_path_head, 'fasttext_k=400000'))
+        glove_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
         base_embeds_path = [glove_path]
         seeds = [20]
         method_params = params[method]
@@ -83,7 +80,7 @@ def launch1_demo2(name):
     params['kmeans'] = [ (1,1),(2,4) ]
     for method in methods:
         base_embeds = ['fasttext']
-        glove_path = str(pathlib.PurePath(base_embed_path_head, 'fasttext_k=400000'))
+        glove_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
         base_embeds_path = [glove_path]
         seeds = [6297]
         method_params = params[method]
@@ -99,7 +96,7 @@ def launch1_demo(name):
     params['kmeans'] = [ (1,1),(2,4) ]
     for method in methods:
         base_embeds = ['glove']
-        glove_path = str(pathlib.PurePath(base_embed_path_head, 'glove_k=400000,v=10000'))
+        glove_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000,v=10000'))
         base_embeds_path = [glove_path]
         seeds = [100]
         method_params = params[method]
@@ -113,8 +110,8 @@ def launch0_demo_dca(name):
     method = 'dca'
     name = name + ':' + maker.get_date_str()+rungroup
     base_embeds = ['glove']
-    glove = str(pathlib.PurePath(base_embed_path_head, 'glove_k=400000,v=10000'))
-    ft = str(pathlib.PurePath(base_embed_path_head, 'fasttext'))
+    glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000,v=10000'))
+    ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext'))
     base_embeds_path = [glove]
     seeds = [1000]
     mks = [(4,4),(6,4),(6,8)]
@@ -129,8 +126,8 @@ def launch0_demo(name):
     method = 'kmeans'
     name = name + ':' + maker.get_date_str()+rungroup
     base_embeds = ['glove']
-    glove = str(pathlib.PurePath(base_embed_path_head, 'glove_k=400000,v=10000'))
-    ft = str(pathlib.PurePath(base_embed_path_head, 'fasttext'))
+    glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000,v=10000'))
+    ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext'))
     base_embeds_path = [glove]
     seeds = [1000]
     bpb_bl = [(4,1),(2,1),(1,1),(3,6),(1,4),(1,10)]
