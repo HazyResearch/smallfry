@@ -49,6 +49,18 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def launch_debug_dca_loss(name):
+    #date of code Sept 17, 2018
+    rungroup = '2018-09-18-debug-dca-loss'
+    evaltypes = ['synthetics']
+    global qsub_log_path
+    qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    for evaltype in evaltypes:
+        seeds = [20]
+        forall_in_rungroup(evaltype, rungroup, seeds)
+    log_launch(evaluate.get_log_name(name, rungroup))
+
 def launch3_testrun(name):
     #date of code Sept 17, 2018
     rungroup = '2018-09-17-official-test-run-lite-2'
@@ -95,7 +107,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch3_testrun]
+cmd = [launch_debug_dca_loss]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
