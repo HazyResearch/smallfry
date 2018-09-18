@@ -31,13 +31,16 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
-        rungroup_qry = str(pathlib.PurePath(evaluate.get_base_outputdir(),rungroup+'/*')) 
-        for e in glob.glob(rungroup_qry):
+        rungroup_qry = str(pathlib.PurePath(evaluate.get_base_outputdir(),'/*')) 
+        print(rungroup_qry)
+        for rg in glob.glob(rungroup_qry):
+            print(rg)
+            if rg.split(':')[1] == rungroup:    
             #speical params not support yet TODO
-            cmd = l((e,
-                        evaltype,
-                        '/',
-                        seed))
+                cmd = l((rg,
+                            evaltype,
+                            '/',
+                            seed))
             log.append(cmd)
 
 '''
