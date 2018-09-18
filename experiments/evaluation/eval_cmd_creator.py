@@ -38,11 +38,13 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
             if os.path.basename(rg) == rungroup:    
             #speical params not support yet TODO
                 rungroup_found = True
-                cmd = l((rg,
+                rungroup_wildcard = rg +'/*'
+                for emb in glob.glob(rungroup_wildcard):
+                    cmd = l((emb,
                             evaltype,
                             '/',
                             seed))
-                log.append(cmd)
+                    log.append(cmd)
         assert rungroup_found, "rungroup requested in eval cmd creator not found"
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
