@@ -53,7 +53,22 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
-
+def launch_debug_dca_loss(name):
+    #date of code Sept 17, 2018
+    rungroup = 'debug-dca-loss'
+    methods = ['dca']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = [(16,16),(30,8)]
+    for method in methods:
+        base_embeds = ['fasttext']
+        base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000,v=10000'))
+        base_embeds_path = [base_path]
+        seeds = [20]
+        method_params = params[method]
+        sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
 
 def launch2_official_qsub(name):
     #date of code Sept 17, 2018
