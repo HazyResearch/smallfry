@@ -182,7 +182,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch2_official_qsub]
+cmd = [launch_debug_dca_loss]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
