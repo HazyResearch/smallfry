@@ -54,6 +54,25 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
+def launch_testrun4(name):
+    #date of code Sept 18, 2018
+    rungroup = 'test-run-4'
+    methods = ['dca','kmeans']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = [(68,16)]
+    params['kmeans'] = [(1,1)]
+    for method in methods:
+        base_embeds = ['fasttext']
+        base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+        base_embeds_path = [base_path]
+        seeds = [20]
+        method_params = params[method]
+        sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
+
+
 def launch_debug_githash(name):
     #date of code Sept 18, 2018
     rungroup = 'debug-githash'
@@ -200,7 +219,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_debug_githash]
+cmd = [launch_testrun4]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
