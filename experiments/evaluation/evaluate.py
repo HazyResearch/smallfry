@@ -16,13 +16,12 @@ from subprocess import check_output
 from hyperwords import ws_eval, analogy_eval
 from hyperwords.representations.embedding import *
 from smallfry.utils import load_embeddings
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #hacky way to import experimental_utils
 from experimental_utils import *
-
-
 
 #TODO: Ponder this, should we overwrite evals that already exist, or error out? I like err out
 #TODO: Change from argh to argparse?
+#TODO: get rid of eval_log_path -- not in use!
 
 def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     '''
@@ -76,19 +75,19 @@ def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
         result["all-ems"] = ems
         result["max-em"] = max(ems)
         result["max-f1"] = max(f1_scores)
-        return json.dumps(result)
+        return json.loads(result)
 
     # Evaluate on the word vectors
     cd_dir = "cd %s" % get_drqa_directory()
 
     # Write intermediate training results to temporary output file
     unique_temp_output_filename = str(uuid.uuid4())
-    intermediate_output_file_path = "/%s/%s.txt" % ("tmp", unique_temp_output_filename)
+    intermediate_output_file_path = "/%s/%s.txt" % ("/proj/smallfry/tmp", unique_temp_output_filename)
     eval_print("Writing intermediate training to output path: %s" % intermediate_output_file_path)
     
     # WARNING: REALLY DANGEROUS SINCE MAKES ASSUMPTIONS ABOUT 
     # FILEPATHS AND THEIR EXISTENCE
-    python_command = "CUDA_HOME=/usr/local/cuda-8.0 python3.6 scripts/reader/train.py --random-seed %d --embedding-dim %d  --embed-dir=  --embedding-file %s  --num-epochs 50 --tune-partial %d %s 2>&1 | tee %s" % (seed, dim, word_vectors_path, finetune_top_k, extra_args, intermediate_output_file_path)
+    python_command = "CUDA_HOME=/usr/local/cuda-8.0 python3.6 scripts/reader/train.py --random-seed %d --embedding-dim %d  --embed-dir=  --embedding-file %s  --num-epochs 3 --tune-partial %d %s 2>&1 | tee %s" % (seed, dim, word_vectors_path, finetune_top_k, extra_args, intermediate_output_file_path)
     full_command = " && ".join([cd_dir, python_command])
     eval_print("Executing: %s" % full_command)
     text = perform_command_local(full_command)
@@ -159,6 +158,8 @@ def eval_intrinsics(embed_path):
 
     results = ""
     results_dict = {}
+    ana_score_sum = 0
+    sim_score_sum = 0
     for task_path in path_to_tasks:
         if os.path.basename(task_path) in analogy_tasks:
             output = evaluate_analogy(word_vectors, task_path)
@@ -175,9 +176,14 @@ def eval_intrinsics(embed_path):
         if type(output) == list or type(output) == tuple:
             results_dict[task_name + "-add"] = output[0]
             results_dict[task_name + "-mul"] = output[1]
+            ana_score_sum += (output[0] + output[1])
         else:
             results_dict[task_name] = output
-            
+            if task_name != 'luong_rare': #we leave out rare words intrinsic
+                sim_score_sum += output
+
+    results_dict['analogy-avg-score'] = ana_score_sum/4 #four analogy tasks avg together
+    results_dict['similarity-avg-score'] = sim_score_sum/5 #five sim tasks avg together        
     eval_print("Results:")
     eval_print("------------------------------")        
     eval_print(results)
@@ -196,7 +202,6 @@ def eval_synthetics(embed_path):
     res_rtn['mean'] = np.mean(embeds)
     res_rtn['var'] = np.var(embeds)
     return res_rtn
-
 
 parser = argh.ArghParser()
 parser.add_commands([eval_embeddings])
