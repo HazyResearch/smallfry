@@ -23,10 +23,6 @@ def launch(method, params):
     return s
 
 def qsub_launch(method, params):
-<<<<<<< HEAD
-    qsub_log_name_path = str(pathlib.PurePath(qsub_log_path, maker.get_log_name(name, r)))
-=======
->>>>>>> f50a47520eed8ccf55db3904d3e132a6dc03515e
     return 'qsub -V -b y -wd %s %s ' % (qsub_log_path, launch(method, params))
 
 '''
@@ -63,7 +59,7 @@ def launch2_official_qsub(name):
     #date of code Sept 17, 2018
     rungroup = 'official-test-run-lite-2'
     methods = ['dca','kmeans']
-    maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     params = dict()
     params['dca'] = [(16,16),(30,8)]
     params['kmeans'] = [ (1,1),(2,4) ]

@@ -69,6 +69,7 @@ def prep_qsub_log_dir(qsub_log_path_generic, name, rungroup):
     qsub_log_path_specific = str(pathlib.PurePath(qsub_log_path_generic,
                                                  get_log_name(name, rungroup)))
     os.mkdir(qsub_log_path_specific)
+    return qsub_log_path_specific
 
 def do_results_already_exist(embed_path, results_type, results):
     results_path = get_results_path(embed_path, results_type, results)
