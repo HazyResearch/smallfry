@@ -59,6 +59,7 @@ def launch2_official_qsub(name):
     #date of code Sept 17, 2018
     rungroup = 'official-test-run-lite-2'
     methods = ['dca','kmeans']
+    global qsub_log_path
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     params = dict()
     params['dca'] = [(16,16),(30,8)]

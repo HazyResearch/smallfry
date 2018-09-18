@@ -18,7 +18,7 @@ def launch(params):
 
 def qsub_launch(params):
     return 'qsub -V -b y -wd %s %s ' % (qsub_log_path, launch(params))
-    
+
 '''
 HELPER METHODS FOR COMMON SWEEP STYLES (and logging)
 '''
@@ -47,6 +47,7 @@ def launch2_official_qsub(name):
     #date of code Sept 17, 2018
     rungroup = 'official-test-run-lite-2'
     evaltypes = ['intrinsics','synthetics','QA']
+    global qsub_log_path
     qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     params = dict()
     for evaltype in evaltypes:
