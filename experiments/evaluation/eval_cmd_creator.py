@@ -1,6 +1,7 @@
 import argh
 import pathlib
 import glob
+import os
 import evaluate
 
 '''
@@ -31,24 +32,24 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
-        rungroup_qry = str(pathlib.PurePath(evaluate.get_base_outputdir(),'/*')) 
-        print(rungroup_qry)
+        rungroup_qry = evaluate.get_base_outputdir()+'/*'
+        rungroup_found = False
         for rg in glob.glob(rungroup_qry):
-            print(rg)
-            if rg.split(':')[1] == rungroup:    
+            if os.path.basename(rg) == rungroup:    
             #speical params not support yet TODO
+                rungroup_found = True
                 cmd = l((rg,
                             evaltype,
                             '/',
                             seed))
-            log.append(cmd)
-
+                log.append(cmd)
+        assert rungroup_found, "rungroup requested in eval cmd creator not found"
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 def launch2_official_qsub(name):
     #date of code Sept 17, 2018
-    rungroup = 'official-test-run-lite-2'
+    rungroup = '2018-09-17-official-test-run-lite-2'
     evaltypes = ['intrinsics','synthetics','QA']
     global qsub_log_path
     qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
