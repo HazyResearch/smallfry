@@ -102,6 +102,8 @@ def make_embeddings(base_embeds, embed_dir, config):
         compressor = EmbeddingCompressor(m, k, work_dir)
         base_embeds = base_embeds.astype(np.float32)
         dca_train_log = compressor.train(base_embeds)
+        distance = compressor.evaluate(base_embeds)
+        config['mean-euclidean-dist'] = distance
         with open(work_dir+'.dca-log-json','w+') as log_f:
             log_f.write(json.dumps(dca_train_log))
         codes, codebook = compressor.export(base_embeds, work_dir)

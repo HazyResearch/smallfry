@@ -196,7 +196,7 @@ def eval_synthetics(embed_path):
     #TODO: what synthetics will we put in here?
     #TODO BUGS OUT
     embeds, wordlist = fetch_embeds_4_eval(embed_path)
-    base_embeds, base_wordlist = fetch_embeds_4_eval(fetch_base_embed_path(embed_path))
+    base_embeds, base_wordlist = load_embeddings(fetch_base_embed_path(embed_path))
 
     res_rtn = dict()
     res_rtn['embed-fro'] = np.linalg.norm(base_embeds-embeds)
