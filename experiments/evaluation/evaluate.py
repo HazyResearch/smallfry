@@ -75,7 +75,7 @@ def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
         result["all-ems"] = ems
         result["max-em"] = max(ems)
         result["max-f1"] = max(f1_scores)
-        return json.loads(result)
+        return result
 
     # Evaluate on the word vectors
     cd_dir = "cd %s" % get_drqa_directory()
@@ -87,6 +87,7 @@ def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
     
     # WARNING: REALLY DANGEROUS SINCE MAKES ASSUMPTIONS ABOUT 
     # FILEPATHS AND THEIR EXISTENCE
+    #TODO WARNING FIX EPOCHS HERE
     python_command = "CUDA_HOME=/usr/local/cuda-8.0 python3.6 scripts/reader/train.py --random-seed %d --embedding-dim %d  --embed-dir=  --embedding-file %s  --num-epochs 3 --tune-partial %d %s 2>&1 | tee %s" % (seed, dim, word_vectors_path, finetune_top_k, extra_args, intermediate_output_file_path)
     full_command = " && ".join([cd_dir, python_command])
     eval_print("Executing: %s" % full_command)
