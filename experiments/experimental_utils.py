@@ -124,5 +124,5 @@ def get_launch_path():
     return '/proj/smallfry/launches'
 
 def get_qsub_log_path():
-    return 'proj/smallfry/qsub_logs'
+    return '/proj/smallfry/qsub_logs'
 

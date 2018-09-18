@@ -23,7 +23,10 @@ def launch(method, params):
     return s
 
 def qsub_launch(method, params):
+<<<<<<< HEAD
     qsub_log_name_path = str(pathlib.PurePath(qsub_log_path, maker.get_log_name(name, r)))
+=======
+>>>>>>> f50a47520eed8ccf55db3904d3e132a6dc03515e
     return 'qsub -V -b y -wd %s %s ' % (qsub_log_path, launch(method, params))
 
 '''
@@ -54,6 +57,24 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+
+
+def launch2_official_qsub(name):
+    #date of code Sept 17, 2018
+    rungroup = 'official-test-run-lite-2'
+    methods = ['dca','kmeans']
+    maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = [(16,16),(30,8)]
+    params['kmeans'] = [ (1,1),(2,4) ]
+    for method in methods:
+        base_embeds = ['fasttext']
+        glove_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+        base_embeds_path = [glove_path]
+        seeds = [20]
+        method_params = params[method]
+        sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
 
 def launch1_official_qsub(name):
     #date of code Sept 17, 2018
@@ -149,7 +170,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch1_official_qsub]
+cmd = [launch2_official_qsub]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
