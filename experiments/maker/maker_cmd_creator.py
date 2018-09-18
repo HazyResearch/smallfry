@@ -23,7 +23,7 @@ def launch(method, params):
     return s
 
 def qsub_launch(method, params):
-    qsub_log_name_path = str(pathlib.PurePath(qsub_log_path, maker.get_log_name(name, r))
+    qsub_log_name_path = str(pathlib.PurePath(qsub_log_path, maker.get_log_name(name, r)))
     return 'qsub -V -b y -wd %s %s ' % (qsub_log_path, launch(method, params))
 
 '''
