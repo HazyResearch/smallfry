@@ -2,17 +2,25 @@
 import glob
 import pathlib
 import json
+import os
 
 def merger(basedir,query):
+    '''
+    Simple aggregation routine.
+    basedir -- the embeddings base directory
+    query -- a Unix-style (supports wildcards) query for EMBEDDINGS
+    query example: my-rungroup/my-embeds* -- captures all embeddings in 'my-rungroup' that start with 'my-embeds'
+    '''
     #USER NOTE: query matches for RUNGROUPS!
-    qry = pathlib.PurePath(basedir,query)
+    qry = str(pathlib.PurePath(basedir,query))
     d_list = []
-    for e in glob.glob(str(qry)): #BUG ALERT
-        qry_dict = pathlib.PurePath(qry,'*.json')
+    for emb in glob.glob(qry): #BUG ALERT
+        emb_data_qry = str(pathlib.PurePath(emb,'*.json'))
         e_dict = {}
-        for file in glob.glob(str(qry_dict)):
-            d = json.loads(file)
-            for k in d.key():
+        for data in glob.glob(emb_data_qry):
+            with open(data,'r') as data_json:
+                d = json.loads(data_json.read())
+            for k in d.keys():
                 assert k not in e_dict, "duplicated fields in json dicts"
                 e_dict[k] = d[k]
         d_list.append(e_dict)
@@ -25,6 +33,7 @@ def get_seeds(d_list, base, vocab, method):
     for d in d_list:
         if d['base'] == base and d['vocab'] == vocab and d['method'] == method:
             seeds.append(d['seed'])
+    seeds = list(set(seeds))
     seeds.sort()
     return seeds
 
