@@ -1,6 +1,7 @@
 import argh
 import pathlib
 import os
+import numpy as np
 import maker
 
 '''
@@ -33,6 +34,20 @@ def log_launch(name):
     log_launch_path = str(pathlib.PurePath( launch_path, name ))
     with open(log_launch_path, 'w+') as llp:
         llp.write('\n'.join(log))
+
+def dca_hyperparam_sweep(bitrates, base_embeds_path, upper_power=8, size_tol=0.15):
+    dca_params  = []
+    k_s = [2**i for i in range(1,upper_power+1)]
+    base_embeds,_ = maker.load_embeddings(base_embeds_path)
+    v,d = base_embeds.shape
+    m = lambda k,v,d,br: int(np.round(0.125*br*v*d/(0.125*v*np.log2(k) + 4*d*k)))
+    get_size_in_bits = lambda v,m,k,d: (0.125*v*m*np.log2(k) + 4*d*k*m)*8
+    for k in k_s:
+        for br in bitrates:
+            param = ((m(k,v,d,br),k))
+            if param[0] > 0 and abs(get_size_in_bits(v, param[0], param[1], d)-br*v*d) < size_tol*br*v*d:
+                dca_params.append((m(k,v,d,br),k))
+    return dca_params
 
 def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
