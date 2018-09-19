@@ -37,7 +37,7 @@ def save_dict_as_json(dict_to_write, path):
 
 def get_date_str():
     ''' gets datetime '''
-	return '{:%Y-%m-%d}'.format(datetime.date.today())
+    return '{:%Y-%m-%d}'.format(datetime.date.today())
 
 def to_file_np(path, embeds):
     ''' saves np file '''
