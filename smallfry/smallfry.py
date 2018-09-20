@@ -94,9 +94,7 @@ class Smallfry(nn.Module):
         bin_rep.encode(d, kmeans.labels_)
         codebook = [tuple(centroid) for centroid in kmeans.cluster_centers_]
         #handle edge case below: remove non-unique centroids
-        if len(set(codebook))  < len(codebook):
-            codebook = list(set(codebook))
-            codebook += [None] * (2**b - len(codebook))
+        assert len(set(codebook)) == len(codebook), "corner case: duplicate centroids not yet supported --TODO"
         return Smallfry(bin_rep, codebook, dim)
 
     @staticmethod

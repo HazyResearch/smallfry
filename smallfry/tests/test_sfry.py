@@ -116,7 +116,7 @@ def test_dec_frobenius():
 
 
 parser = argh.ArghParser()
-parser.add_commands([test_query, test_io, test_kmeans])
+parser.add_commands([test_query, test_io, test_kmeans, test_zeros])
 
 if __name__ == '__main__':
     parser.dispatch()

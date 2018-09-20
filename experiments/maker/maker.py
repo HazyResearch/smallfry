@@ -1,15 +1,17 @@
 import json
 import pathlib
-import numpy as np
 import os
 import argparse
-import datetime
 import logging
-import time
+import sys
+import numpy as np
 from subprocess import check_output
-from neuralcompressor.nncompress import EmbeddingCompressor
 from smallfry.smallfry import Smallfry
-from smallfry import utils as sfry_utils
+from smallfry.utils import load_embeddings
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
+from experimental_utils import * 
+from neuralcompressor.nncompress import EmbeddingCompressor
+
 
 def main():
     config = vars(init_parser().parse_args())
@@ -20,14 +22,14 @@ def main():
     assert '_' not in config['rungroup'], 'rungroup names should not have underscores'
 
     # load base embeddings
-    base_embeds, wordlist = sfry_utils.load_embeddings(config['basepath'])
+    base_embeds, wordlist = load_embeddings(config['basepath'])
     (v,d) = base_embeds.shape
     assert len(wordlist) == v, 'Embedding dim must match wordlist length.'
 
     # update config
     config['vocab'] = v
     config['dim'] = d
-    config['githash'] = get_git_hash()
+    config['githash-maker'] = get_git_hash()
     config['date'] = get_date_str()
     config['date-rungroup'] = '{}-{}'.format(config['date'],config['rungroup'])
     config['memory'] = get_memory(config)
@@ -100,6 +102,8 @@ def make_embeddings(base_embeds, embed_dir, config):
         compressor = EmbeddingCompressor(m, k, work_dir)
         base_embeds = base_embeds.astype(np.float32)
         dca_train_log = compressor.train(base_embeds)
+        distance = compressor.evaluate(base_embeds)
+        config['mean-euclidean-dist'] = distance
         with open(work_dir+'.dca-log-json','w+') as log_f:
             log_f.write(json.dumps(dca_train_log))
         codes, codebook = compressor.export(base_embeds, work_dir)
@@ -143,42 +147,6 @@ def get_memory(config):
     else:
         raise ValueError('Method name invalid (must be dca or kmeans)')
     return mem
-
-def codes_2_vec(codes, codebook, m ,k ,v,d):
-    codes = codes.reshape(int(len(codes)/m),m)
-    dcc_mat = np.zeros([v,d])
-    for i in range(v):
-        for j in range(m):
-            dcc_mat[i,:] += codebook[j*k+codes[i,j],:]
-    return dcc_mat
-
-def get_date_str():
-	return '{:%Y-%m-%d}'.format(datetime.date.today())
-
-def to_file_np(path, embeds):
-    np.save(path, embeds)
-
-def to_file_txt(path, wordlist, embeds):
-    with open(path, "w+") as file:
-        for i in range(len(wordlist)):
-            file.write(wordlist[i] + " ")
-            row = embeds[i, :]
-            strrow = [str(r) for r in row]
-            file.write(" ".join(strrow))
-            file.write("\n")
-
-def get_git_hash():
-   git_hash = None
-   try:
-       git_hash = check_output(['git','rev-parse','--short','HEAD']).strip()
-       logging.info('Git hash {}'.format(git_hash))
-   except FileNotFoundError:
-       logging.info('Unable to get git hash.')
-   return str(git_hash)
-
-
-def save_dict_as_json(dict_to_write, path):
-    with open(path, 'w') as f: json.dump(dict_to_write, f, indent=2)
 
 if __name__ == '__main__':
     main()

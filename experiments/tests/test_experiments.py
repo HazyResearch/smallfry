@@ -1,9 +1,11 @@
 import numpy as np
 import argh
 import os
+import sys
 import smallfry
 import torch
-from maker import *
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
+from experimental_utils import * 
 
 demo_work_dir = ''
 
