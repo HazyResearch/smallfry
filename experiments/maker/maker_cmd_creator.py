@@ -100,7 +100,7 @@ def launch_testrun4(name):
         base_embeds = ['fasttext']
         base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
         base_embeds_path = [base_path]
-        seeds = [int(np.random.random()*1000i), int(np.random.random()*1000), int(np.random.random()*1000)]
+        seeds = [int(np.random.random()*1000), int(np.random.random()*1000), int(np.random.random()*1000)]
         method_params = params[method]
         sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
     log_launch(maker.get_log_name(name, rungroup))
@@ -251,7 +251,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_testrun4]
+cmd = [launch_experiment1_dca_tune_400K]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
