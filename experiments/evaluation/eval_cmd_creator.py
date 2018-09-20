@@ -50,6 +50,18 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
+def launch_experiment1_final_testrun(name):
+    #date of code Sept 17, 2018
+    rungroup = '2018-09-20-experiment1-final-testrun'
+    evaltypes = ['synthetics','intrinsics','QA']
+    global qsub_log_path
+    qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    for evaltype in evaltypes:
+        seeds = [20]
+        forall_in_rungroup(evaltype, rungroup, seeds)
+    log_launch(evaluate.get_log_name(name, rungroup))
+
 def launch_testrun4(name):
     #date of code Sept 17, 2018
     rungroup = '2018-09-18-test-run-4'
@@ -120,7 +132,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_testrun4]
+cmd = [launch_experiment1_final_testrun]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

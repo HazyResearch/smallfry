@@ -68,9 +68,10 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
-def launch_experiment1_dca_tune_400K(name):
-    #date of code Sept 19, 2018
-    rungroup = 'experiment1-dca-tune'
+
+def launch_experiment1_dca_tune(name):
+    #date of code Sept 20, 2018
+    rungroup = 'experiment1-dca-hp-tune'
     methods = ['dca']
     bitrates = [0.1,0.25,0.5,1,2,4]
     global qsub_log_path
@@ -81,26 +82,26 @@ def launch_experiment1_dca_tune_400K(name):
         base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
         base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
         base_embeds_path = [base_path_ft, base_path_glove]
-        seeds = [int(np.random.random()*10000), int(np.random.random()*10000), int(np.random.random()*10000)]
+        seeds = [int(np.random.random()*10000)]
         #line below assumes all base embeddings are of the same size!
         method_params = dca_hyperparam_sweep(bitrates, base_embeds_path[0])
         sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
     log_launch(maker.get_log_name(name, rungroup))
 
-def launch_testrun4(name):
-    #date of code Sept 18, 2018
-    rungroup = 'test-run-4'
-    methods = ['dca','kmeans']
+def launch_experiment1_kmeans_5X(name):
+    #date of code Sept 20, 2018
+    rungroup = 'experiment1-5X-seeds'
+    methods = ['kmeans']
     global qsub_log_path
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     params = dict()
-    params['dca'] = [(68,16)]
-    params['kmeans'] = [(1,1)]
+    params['kmeans'] = [(1,10),(1,4),(1,2),(1,1),(1,2),(1,4)]
     for method in methods:
-        base_embeds = ['fasttext']
-        base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
-        base_embeds_path = [base_path]
-        seeds = [int(np.random.random()*1000), int(np.random.random()*1000), int(np.random.random()*1000)]
+        base_embeds = ['fasttext','glove']
+        base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+        base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+        base_embeds_path = [base_path_ft, base_path_glove]
+        seeds = [4974, 7737, 6665, 6117, 8559]
         method_params = params[method]
         sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
     log_launch(maker.get_log_name(name, rungroup))
@@ -251,7 +252,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment1_dca_tune_400K]
+cmd = [launch_experiment1_kmeans_5X]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
