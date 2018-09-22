@@ -125,24 +125,36 @@ def fetch_base_embed_path(embed_path):
 
 '''HARDCODED PATHS BELOW'''
 
+def get_base_directory():
+    return "/proj/smallfry"
+
 def get_drqa_directory():
-    return "/proj/smallfry/embeddings_benchmark/DrQA/"
+    return str(pathlib.PurePath(get_base_directory(), "embeddings_benchmark/DrQA/"))
 
 def get_relation_directory():
-    return "/proj/smallfry/embeddings_benchmark/tacred-relation/"
+    return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/tacred-relation/"))
+
+def get_senwu_sentiment_directory():
+    return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/sentence_classification"))
+
+def get_harvardnlp_sentiment_data_directory():
+    return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/sent-conv-torch/data"))
+
+def get_senwu_sentiment_out_directory():
+    return str(pathlib.PurePath(get_base_directory(), "senwu_sentiment_out"))
 
 def get_sentiment_directory():
-    return "/proj/smallfry/embeddings_benchmark/compositional_code_learning/"
+    return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/compositional_code_learning/"))
 
 def get_base_embed_path_head():
-    return '/proj/smallfry/base_embeddings'
+    return str(pathlib.PurePath(get_base_directory(),'base_embeddings'))
 
 def get_base_outputdir():
-    return '/proj/smallfry/embeddings'
+    return str(pathlib.PurePath(get_base_directory(),'embeddings'))
 
 def get_launch_path():
-    return '/proj/smallfry/launches'
+    return str(pathlib.PurePath(get_base_directory(),'launches'))
 
 def get_qsub_log_path():
-    return '/proj/smallfry/qsub_logs'
+    return str(pathlib.PurePath(get_base_directory(),'qsub_logs'))
 

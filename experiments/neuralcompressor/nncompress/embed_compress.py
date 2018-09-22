@@ -274,4 +274,5 @@ class EmbeddingCompressor(object):
                 reconstructed_vecs = sess.run(reconstruct_op, {word_ids_var: word_ids})
                 original_vecs = embed_matrix[start_idx:start_idx + self._BATCH_SIZE]
                 distances.extend(np.linalg.norm(reconstructed_vecs - original_vecs, axis=1).tolist())
-            return np.mean(distances)
+            frob_error = np.sum([d**2 for d in distances]) #tony line
+            return np.mean(distances), frob_error #tony mod

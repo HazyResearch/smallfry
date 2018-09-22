@@ -205,6 +205,27 @@ def eval_synthetics(embed_path):
     res_rtn['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
     return res_rtn
 
+def eval_sent(embed_path, seed):
+    def parse_senwu_outlogs(outlog):
+        lines = outlog.split('\n')
+        return float(lines[-3].split(' ')[-1])
+
+    models = ['lstm', 'cnn', 'la']
+    datasets = ['mr', 'subj', 'cr', 'sst', 'trec', 'mpqa']
+    for model in models:
+        for dataset in datasets:
+            command = "python2  %s --dataset %s --path %s --embedding %s --cv 0 --%s --out %s" % (
+                str(pathlib.PurePath(get_senwu_sentiment_directory(),'train_classifier.py')),
+                dataset,
+                get_harvardnlp_sentiment_data_directory(),
+                embed_path,
+                model,
+                get_senwu_sentiment_out_directory()
+            ) 
+            cmd_output_txt = perform_command_local(command)
+
+
+
 parser = argh.ArghParser()
 parser.add_commands([eval_embeddings])
 
