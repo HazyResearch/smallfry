@@ -4,6 +4,36 @@ import pathlib
 import json
 import os
 
+
+def agg(basedir,query):
+    '''
+    Simple aggregation routine.
+    basedir -- the embeddings base directory
+    query -- a Unix-style (supports wildcards) query for EMBEDDINGS
+    query example: my-rungroup/my-embeds* -- captures all embeddings in 'my-rungroup' that start with 'my-embeds'
+    '''
+    #USER NOTE: query matches for RUNGROUPS!
+    qry = str(pathlib.PurePath(basedir,query))
+    print(qry)
+    d_list = []
+    for emb in glob.glob(qry):
+        print(emb)
+        emb_data_qry = str(pathlib.PurePath(emb,'*.json'))
+        print(emb_data_qry)
+        e_dict = {}
+        for data in glob.glob(emb_data_qry):
+            print(data)
+            with open(data,'r') as data_json:
+                d = json.loads(data_json.read())
+            for k in d.keys():
+                assert k not in e_dict, "duplicated fields in json dicts"
+                e_dict[k] = d[k]
+        d_list.append(e_dict)
+    return d_list
+
+
+
+
 def merger(basedir,query):
     '''
     Simple aggregation routine.
@@ -59,8 +89,14 @@ def compute_avg(data):
     count_d = dict()
     for i in range(len(data)):
         for pair in data[i]:
-            count_d[pair[0]] +=1 if pair[0] in count_d else count_d[pair[0]] = 1
-            data_d[pair[0]] += pair[1] if pair[0] in data_d else data_d[pair[0]] = pair[1]
+            if pair[0] in count_d.keys(): 
+                count_d[pair[0]] += 1
+            else: 
+                count_d[pair[0]] = 1
+            if pair[0] in data_d.keys():
+                data_d[pair[0]] += pair[1]
+            else:
+                data_d[pair[0]] = pair[1]
     for x in data_d.keys():
         data_d[x] = data_d[x]/count_d[x]
     data_x = sorted(list(data_d))
@@ -70,7 +106,7 @@ def compute_avg(data):
     return data_x, data_y
 
 def get_dca_params(dca_hp_tune_rg, bitrates, base):
-    res = merger(get_base_outputdir(), dca_hp_tune_rg+'/*'+base+'*')
+    res = agg(get_base_outputdir(), dca_hp_tune_rg+'/*'+base+'*')
     br_2_mks = dict()
     for br in bitrates:
         for r in res:
@@ -79,7 +115,7 @@ def get_dca_params(dca_hp_tune_rg, bitrates, base):
     return br_2_mks
 
 def get_dca_best_params(dca_hp_tune_rg, bitrates, base):
-    res = merger(get_base_outputdir(),dca_hp_tune_rg+'/*'+base+'*')
+    res = agg(get_base_outputdir(),dca_hp_tune_rg+'/*'+base+'*')
     br_2_mk = dict()
     for br in bitrates:
         lowest_mdd = 9999999
