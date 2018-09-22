@@ -70,6 +70,18 @@ def forall_in_rungroup_with_seed(evaltype, rungroup, seeds, params=None, qsub=Tr
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def launch_dca_fronorm_eval(name):
+    #date of code Sept 21, 2018
+    rungroups = ['2018-09-21-experiment1-dca-hp-tune','2018-09-20-experiment1-dca-hp-tune']
+    evaltypes = ['sythetics']
+    global qsub_log_path
+    for rungroup in rungroups:
+        qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+        params = dict()
+        for evaltype in evaltypes:
+            seeds = [20]
+            forall_in_rungroup(evaltype, rungroup, seeds)
+        log_launch(evaluate.get_log_name(name, rungroup))
 
 def launch_experiment1_final_testrun(name):
     #date of code Sept 17, 2018
@@ -153,7 +165,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment1_final_testrun]
+cmd = [launch_dca_fronorm_eval]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
