@@ -35,7 +35,7 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     results = None
     if evaltype == 'QA':
         seed = int(seed)
-        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed)
+        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, eval_log_path=eval_log_path)
 
     elif evaltype == 'intrinsics':
         results = eval_intrinsics(embed_path)
@@ -54,7 +54,7 @@ CORE EVALUATION ROUTINES =======================
 a new routine must be added for each evaltype!
 '''
 
-def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
+def eval_qa(word_vectors_path, dim, seed, eval_log_path="", finetune_top_k=0, extra_args=""):
     '''Calls DrQA's training routine'''
 
     #to_dict: transforms QA output into results-style json dict
@@ -80,9 +80,7 @@ def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
     # Evaluate on the word vectors
     cd_dir = "cd %s" % get_drqa_directory()
 
-    # Write intermediate training results to temporary output file
-    unique_temp_output_filename = str(uuid.uuid4())
-    intermediate_output_file_path = "/%s/%s.txt" % ("/proj/smallfry/tmp", unique_temp_output_filename)
+    intermediate_output_file_path = eval_intrinsics
     eval_print("Writing intermediate training to output path: %s" % intermediate_output_file_path)
     
     # WARNING: REALLY DANGEROUS SINCE MAKES ASSUMPTIONS ABOUT 
