@@ -102,7 +102,7 @@ def init_logging(log_filename):
 def make_embeddings(base_embeds, embed_dir, config):
     if config['method'] == 'kmeans':
         bitsperblock = config['']
-        blocklen = 
+        blocklen = config['blocklen']
         sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'],
             block_len=config['blocklen'], r_seed=config['seed'])
         embeds = sfry.decode(np.array(list(range(config['vocab']))))
@@ -145,6 +145,7 @@ def get_embeddings_dir_and_name(config):
     return embed_dir, embed_name
 
 def get_memory(config):
+    logging.info('Getting memory')
     v = config['vocab']
     d = config['dim']
     if config['method'] == 'kmeans':

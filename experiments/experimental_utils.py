@@ -65,6 +65,7 @@ def eval_print(message):
 
 def perform_command_local(command):
     ''' performs a command -- author: MAXLAM'''
+    logging.info('performing a local command: %s' % command)
     out = check_output(command, stderr=subprocess.STDOUT, shell=True).decode("utf-8") 
     return out     
 
@@ -129,6 +130,7 @@ def fetch_base_embed_path(embed_path):
 '''HARDCODED PATHS BELOW'''
 
 def get_base_directory():
+    logging.info('Accessing base dir')
     return "/proj/smallfry"
 
 def get_drqa_directory():
