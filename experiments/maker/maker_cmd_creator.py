@@ -16,9 +16,9 @@ qsub_log_path = str(pathlib.PurePath(maker.get_qsub_log_path(), 'maker'))
 def launch(method, params):
     s = ''
     if method == 'kmeans':
-        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s' % params
+        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s --ibr %s' % params
     elif method == 'dca':
-        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s' % params
+        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s --ibr %s' % params
     else:
         assert 'bad method name in launch'
     return s

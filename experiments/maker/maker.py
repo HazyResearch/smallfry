@@ -80,6 +80,8 @@ def init_parser():
         help='Number of codebooks for DCA.')
     parser.add_argument('--k', type=int, default=1,
         help='Codebook size for DCA.')
+    parser.add_argument('--ibr', type=float, default=-1.0,
+        help='Developer intended bitrate.')
     return parser
 
 def init_logging(log_filename):
@@ -89,6 +91,9 @@ def init_logging(log_filename):
                         datefmt='[%m/%d/%Y %H:%M:%S]: ',
                         filemode='w', # this will overwrite existing log file.
                         level=logging.DEBUG)
+    console = logging.StreamHandler(sys.stdout)
+    console.setLevel(logging.DEBUG)
+    logging.getLogger('').addHandler(console)
     logging.info('Begin logging.')
 
 def make_embeddings(base_embeds, embed_dir, config):
@@ -97,7 +102,9 @@ def make_embeddings(base_embeds, embed_dir, config):
             block_len=config['blocklen'], r_seed=config['seed'])
         embeds = sfry.decode(np.array(list(range(config['vocab']))))
     elif config['method'] == 'dca':
-        m,k,v,d = config['m'], config['k'], config['vocab'], config['dim']
+        m,k,v,d,ibr = config['m'], config['k'], config['vocab'], config['dim'], config['ibr']
+        #does m make sense given ibr and k?
+        assert m == compute_m_dca(k,v,d,ibr), "m and k does not match intended bit rate"
         work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
         compressor = EmbeddingCompressor(m, k, work_dir)
         base_embeds = base_embeds.astype(np.float32)

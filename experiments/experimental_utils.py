@@ -31,6 +31,9 @@ def codes_2_vec(codes, codebook, m ,k ,v,d):
             dcc_mat[i,:] += codebook[j*k+codes[i,j],:]
     return dcc_mat
 
+def compute_m_dca(k, v, d, br):
+    return int(np.round(0.125*br*v*d/(0.125*v*np.log2(k) + 4*d*k)))
+
 def save_dict_as_json(dict_to_write, path):
     ''' pydict to json --> this method is fairly pointless and not really used '''
     with open(path, 'w') as f: json.dump(dict_to_write, f, indent=2)
