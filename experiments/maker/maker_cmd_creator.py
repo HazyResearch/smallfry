@@ -69,6 +69,25 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def launch_test1_logging(name):
+    #date of code Sept 22, 2018
+    rungroup = 'test-logging-1'
+    methods = ['dca','kmeans']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = [(3,8,0.1)]
+    params['kmeans'] = [(1,1,1)]
+    for method in methods:
+        base_embeds = ['glove']
+        base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000,v=10000'))
+        base_embeds_path = [base_path]
+        seeds = [int(np.random.random()*1000)]
+        method_params = params[method]
+        sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params, qsub=False)
+    log_launch(maker.get_log_name(name, rungroup))
+
+
 def launch_experiment1_dca_tune_400K(name):
     #date of code Sept 19, 2018
     rungroup = 'experiment1-dca-tune'
@@ -252,7 +271,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment1_dca_tune_400K]
+cmd = [launch_test1_logging]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

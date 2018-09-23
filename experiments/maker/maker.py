@@ -40,8 +40,17 @@ def main():
     embed_dir, embed_name = get_embeddings_dir_and_name(config)
     core_filename = str(pathlib.PurePath(embed_dir, embed_name))
     os.makedirs(embed_dir)
+    log_filename = core_filename +  '_maker.log'
+    logging.basicConfig(filename=log_filename,
+                        format='%(levelname)s:%(message)s',
+                        level=logging.DEBUG)
+    #console = logging.StreamHandler(sys.stdout)
+    #console.setLevel(logging.DEBUG)
+    #logging.getLogger('').addHandler(console)
+    logging.info('Begin logging.')
+
     init_logging(core_filename + '_maker.log')
-    logging.info('Begining to make embeddings')
+    logging.warn('Begining to make embeddings')
     start = time.time()
     embeds = make_embeddings(base_embeds, embed_dir, config)
     end = time.time()
@@ -86,14 +95,13 @@ def init_parser():
 
 def init_logging(log_filename):
     """Initialize logfile to be used for experiment."""
-    logging.basicConfig(filename=log_filename,
-                        format='%(asctime)s %(message)s',
-                        datefmt='[%m/%d/%Y %H:%M:%S]: ',
-                        filemode='w', # this will overwrite existing log file.
+    print("?")
+    logging.basicConfig(filename='/proj/smallfry/log.log',
+                        format='%(levelname)s:%(message)s',
                         level=logging.DEBUG)
-    console = logging.StreamHandler(sys.stdout)
-    console.setLevel(logging.DEBUG)
-    logging.getLogger('').addHandler(console)
+    #console = logging.StreamHandler(sys.stdout)
+    #console.setLevel(logging.DEBUG)
+    #logging.getLogger('').addHandler(console)
     logging.info('Begin logging.')
 
 def make_embeddings(base_embeds, embed_dir, config):
