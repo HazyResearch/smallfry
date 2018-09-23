@@ -10,7 +10,8 @@ from experimental_utils import *
 demo_work_dir = ''
 
 def test_dca():
-    pass
+    print("hey")
+    
 
 def test_maker():
     str_tup = ('dca','glove', '/proj/smallfry/git/smallfry/examples/data/glove.head.txt', '1234', '/proj/smallfry/embeddings', 'more_tests', '3', '8')

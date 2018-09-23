@@ -4,13 +4,14 @@ import os
 import argparse
 import logging
 import sys
+
 import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
 from smallfry.utils import load_embeddings
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
-from neuralcompressor.nncompress import EmbeddingCompressor
+#from neuralcompressor.nncompress import EmbeddingCompressor
 
 
 def main():
@@ -29,7 +30,6 @@ def main():
     # update config
     config['vocab'] = v
     config['dim'] = d
-    config['githash-maker'] = get_git_hash()
     config['date'] = get_date_str()
     config['date-rungroup'] = '{}-{}'.format(config['date'],config['rungroup'])
     config['memory'] = get_memory(config)
@@ -40,17 +40,9 @@ def main():
     embed_dir, embed_name = get_embeddings_dir_and_name(config)
     core_filename = str(pathlib.PurePath(embed_dir, embed_name))
     os.makedirs(embed_dir)
-    log_filename = core_filename +  '_maker.log'
-    logging.basicConfig(filename=log_filename,
-                        format='%(levelname)s:%(message)s',
-                        level=logging.DEBUG)
-    #console = logging.StreamHandler(sys.stdout)
-    #console.setLevel(logging.DEBUG)
-    #logging.getLogger('').addHandler(console)
-    logging.info('Begin logging.')
-
     init_logging(core_filename + '_maker.log')
-    logging.warn('Begining to make embeddings')
+    config['githash-maker'] = get_git_hash()
+    logging.info('Begining to make embeddings')
     start = time.time()
     embeds = make_embeddings(base_embeds, embed_dir, config)
     end = time.time()
@@ -58,6 +50,7 @@ def main():
     logging.info('Finished making embeddings.'
                  'It took {} minutes'.format(maketime/60))
     config['maketime-secs'] = maketime
+
 
     # Save embeddings (text and numpy) and config
     to_file_txt(core_filename + '.txt', wordlist, embeds)
@@ -95,17 +88,22 @@ def init_parser():
 
 def init_logging(log_filename):
     """Initialize logfile to be used for experiment."""
-    print("?")
-    logging.basicConfig(filename='/proj/smallfry/log.log',
-                        format='%(levelname)s:%(message)s',
+    log_filename = '/home/mint/Research/SF/test_log.txt'
+    logging.basicConfig(filename=log_filename,
+                        format='%(asctime)s %(message)s',
+                        datefmt='[%m/%d/%Y %H:%M:%S]: ',
+                        filemode='w', # this will overwrite existing log file.
                         level=logging.DEBUG)
-    #console = logging.StreamHandler(sys.stdout)
-    #console.setLevel(logging.DEBUG)
-    #logging.getLogger('').addHandler(console)
+    console = logging.StreamHandler(sys.stdout)
+    console.setLevel(logging.DEBUG)
+    logging.getLogger('').addHandler(console)
     logging.info('Begin logging.')
 
 def make_embeddings(base_embeds, embed_dir, config):
     if config['method'] == 'kmeans':
+        bitsperblock = config['bitsperblock']
+        blocklen = config['blocklen']
+        assert bitsperblock/blocklen == config['ibr'], "intended bitrate for kmeans not met!"
         sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'],
             block_len=config['blocklen'], r_seed=config['seed'])
         embeds = sfry.decode(np.array(list(range(config['vocab']))))
