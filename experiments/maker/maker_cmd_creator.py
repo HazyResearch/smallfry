@@ -62,7 +62,8 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
                         maker.get_base_outputdir(),
                         rungroup,
                         p[0],
-                        p[1]))
+                        p[1],
+                        p[2]))
                 log.append(cmd)
 
 '''
