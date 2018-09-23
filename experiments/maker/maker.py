@@ -27,8 +27,6 @@ def main():
     (v,d) = base_embeds.shape
     assert len(wordlist) == v, 'Embedding dim must match wordlist length.'
 
-
-
     # update config
     config['vocab'] = v
     config['dim'] = d
@@ -103,6 +101,8 @@ def init_logging(log_filename):
 
 def make_embeddings(base_embeds, embed_dir, config):
     if config['method'] == 'kmeans':
+        bitsperblock = config['']
+        blocklen = 
         sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'],
             block_len=config['blocklen'], r_seed=config['seed'])
         embeds = sfry.decode(np.array(list(range(config['vocab']))))

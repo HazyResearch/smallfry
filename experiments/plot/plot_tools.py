@@ -29,7 +29,6 @@ def agg(basedir,query):
                 e_dict[k] = d[k]
         d_list.append(e_dict)
     return d_list
- 
 
 def get_seeds(d_list, base, vocab, method):
     seeds = []
