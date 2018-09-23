@@ -44,7 +44,7 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
                             evaltype,
                             '/',
                             seed))
-                    log.append(cmd)
+                    losg.append(cmd)
         assert rungroup_found, "rungroup requested in eval cmd creator not found"
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
