@@ -43,7 +43,7 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     elif evaltype == 'synthetics':
         results = eval_synthetics(embed_path)
     else:
-        assert 'bad evaltype given to eval()'
+        assert False, 'bad evaltype given to eval()'
 
     results['githash-%s' % evaltype] = get_git_hash()
     results['seed-%s' % evaltype] = seed
