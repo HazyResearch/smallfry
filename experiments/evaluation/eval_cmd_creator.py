@@ -46,9 +46,66 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
                             seed))
                     log.append(cmd)
         assert rungroup_found, "rungroup requested in eval cmd creator not found"
+
+def forall_in_rungroup_with_seed(evaltype, rungroup, seeds, params=None, qsub=True):
+    '''a subroutine for complete 'sweeps' of params'''
+    l = qsub_launch if qsub else launch
+    for seed in seeds:
+        rungroup_qry = evaluate.get_base_outputdir()+'/*'
+        rungroup_found = False
+        for rg in glob.glob(rungroup_qry):
+            if os.path.basename(rg) == rungroup:    
+            #speical params not support yet TODO
+                rungroup_found = True
+                rungroup_wildcard = rg +'/*'
+                for emb in glob.glob(rungroup_wildcard):
+                    if not( 'seed=%s' % seed in emb): continue #only match up correct seeds
+                    cmd = l((emb,
+                            evaltype,
+                            '/',
+                            seed))
+                    log.append(cmd)
+        assert rungroup_found, "rungroup requested in eval cmd creator not found"
+
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def launch_dca_fronorm_eval(name):
+    #date of code Sept 21, 2018
+    rungroups = ['2018-09-21-experiment1-dca-hp-tune','2018-09-20-experiment1-dca-hp-tune']
+    evaltypes = ['sythetics']
+    global qsub_log_path
+    for rungroup in rungroups:
+        qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+        params = dict()
+        for evaltype in evaltypes:
+            seeds = [20]
+            forall_in_rungroup(evaltype, rungroup, seeds)
+        log_launch(evaluate.get_log_name(name, rungroup))
+
+def launch_experiment1_dca_fronorm_eval(name):
+    #date of code Sept 22, 2018
+    rungroup = '2018-09-20-experiment1-dca-hp-tune'
+    evaltypes = ['synthetics']
+    global qsub_log_path
+    qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    for evaltype in evaltypes:
+        seeds = [20]
+        forall_in_rungroup(evaltype, rungroup, seeds)
+    log_launch(evaluate.get_log_name(name, rungroup)) 
+
+def launch_experiment1_final_testrun(name):
+    #date of code Sept 17, 2018
+    rungroup = '2018-09-20-experiment1-final-testrun'
+    evaltypes = ['synthetics','intrinsics','QA']
+    global qsub_log_path
+    qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    for evaltype in evaltypes:
+        seeds = [20]
+        forall_in_rungroup(evaltype, rungroup, seeds)
+    log_launch(evaluate.get_log_name(name, rungroup))
 
 def launch_testrun4(name):
     #date of code Sept 17, 2018
@@ -120,7 +177,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_testrun4]
+cmd = [launch_experiment1_dca_fronorm_eval]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
