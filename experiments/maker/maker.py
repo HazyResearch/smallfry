@@ -11,7 +11,7 @@ from smallfry.smallfry import Smallfry
 from smallfry.utils import load_embeddings
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
-#from neuralcompressor.nncompress import EmbeddingCompressor
+from neuralcompressor.nncompress import EmbeddingCompressor
 
 
 def main():
@@ -88,7 +88,6 @@ def init_parser():
 
 def init_logging(log_filename):
     """Initialize logfile to be used for experiment."""
-    log_filename = '/home/mint/Research/SF/test_log.txt'
     logging.basicConfig(filename=log_filename,
                         format='%(asctime)s %(message)s',
                         datefmt='[%m/%d/%Y %H:%M:%S]: ',
