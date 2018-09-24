@@ -16,9 +16,9 @@ qsub_log_path = str(pathlib.PurePath(maker.get_qsub_log_path(), 'maker'))
 def launch(method, params):
     s = ''
     if method == 'kmeans':
-        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s' % params
+        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s --ibr %s' % params
     elif method == 'dca':
-        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s' % params
+        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s --ibr %s' % params
     else:
         assert 'bad method name in launch'
     return s
@@ -62,16 +62,71 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
                         maker.get_base_outputdir(),
                         rungroup,
                         p[0],
-                        p[1]))
+                        p[1],
+                        p[2]))
                 log.append(cmd)
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def launch_experiment2_5X_seeds_glove(name):
+    #date of code Sept 23, 2018
+    rungroup = 'experiment2-5X-seeds'
+    methods = ['dca','kmeans']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = [(4,64,0.1),(17,16,0.25),(47,8,0.5),(286,2,1),(286,4,2),(376,4,4)]
+    params['kmeans'] = [(1,10,0.1),(1,4,0.25),(1,2,0.5),(1,1,1),(2,1,2),(4,1,4)]
+    for method in methods:
+        base_embeds = ['glove']
+        base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+        base_embeds_path = [base_path]
+        seeds = seeds = [4974, 7737, 6665, 6117, 8559]
+        method_params = params[method]
+        sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
 
-def launch_experiment1_dca_tune_old(name):
-    #date of code Sept 20, 2018
-    rungroup = 'experiment1-dca-hp-tune'
+def launch_experiment2_5X_seeds_fasttext(name):
+    #date of code Sept 23, 2018
+    rungroup = 'experiment2-5X-seeds'
+    methods = ['dca','kmeans']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = [(4,64,0.1),(13,32,0.25),(47,8,0.5),(286,2,1),(286,4,2),(573,4,4)]
+    params['kmeans'] = [(1,10,0.1),(1,4,0.25),(1,2,0.5),(1,1,1),(2,1,2),(4,1,4)]
+    for method in methods:
+        base_embeds = ['fasttext']
+        base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+        base_embeds_path = [base_path]
+        seeds = seeds = [4974, 7737, 6665, 6117, 8559]
+        method_params = params[method]
+        sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
+
+def launch_test1_logging(name):
+    #date of code Sept 22, 2018
+    rungroup = 'test-logging-1'
+    methods = ['dca','kmeans']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = [(3,8,0.1)]
+    params['kmeans'] = [(1,1,1)]
+    for method in methods:
+        base_embeds = ['glove']
+        base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000,v=10000'))
+        base_embeds_path = [base_path]
+        seeds = [int(np.random.random()*1000)]
+        method_params = params[method]
+        sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params, qsub=False)
+    log_launch(maker.get_log_name(name, rungroup))
+
+
+def launch_experiment1_dca_tune_400K(name):
+    #date of code Sept 19, 2018
+    rungroup = 'experiment1-dca-tune'
     methods = ['dca']
     global qsub_log_path
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
@@ -265,7 +320,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment1_dca_tune_missing_pts]
+cmd = [launch_experiment2_5X_seeds_fasttext]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

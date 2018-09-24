@@ -31,6 +31,9 @@ def codes_2_vec(codes, codebook, m ,k ,v,d):
             dcc_mat[i,:] += codebook[j*k+codes[i,j],:]
     return dcc_mat
 
+def compute_m_dca(k, v, d, br):
+    return int(np.round(0.125*br*v*d/(0.125*v*np.log2(k) + 4*d*k)))
+
 def save_dict_as_json(dict_to_write, path):
     ''' pydict to json --> this method is fairly pointless and not really used '''
     with open(path, 'w') as f: json.dump(dict_to_write, f, indent=2)
@@ -62,6 +65,7 @@ def eval_print(message):
 
 def perform_command_local(command):
     ''' performs a command -- author: MAXLAM'''
+    logging.info('performing a local command: %s' % command)
     out = check_output(command, stderr=subprocess.STDOUT, shell=True).decode("utf-8") 
     return out     
 
@@ -125,24 +129,37 @@ def fetch_base_embed_path(embed_path):
 
 '''HARDCODED PATHS BELOW'''
 
+def get_base_directory():
+    logging.info('Accessing base dir')
+    return "/proj/smallfry"
+
 def get_drqa_directory():
-    return "/proj/smallfry/embeddings_benchmark/DrQA/"
+    return str(pathlib.PurePath(get_base_directory(), "embeddings_benchmark/DrQA/"))
 
 def get_relation_directory():
-    return "/proj/smallfry/embeddings_benchmark/tacred-relation/"
+    return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/tacred-relation/"))
+
+def get_senwu_sentiment_directory():
+    return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/sentence_classification"))
+
+def get_harvardnlp_sentiment_data_directory():
+    return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/sent-conv-torch/data"))
+
+def get_senwu_sentiment_out_directory():
+    return str(pathlib.PurePath(get_base_directory(), "senwu_sentiment_out"))
 
 def get_sentiment_directory():
-    return "/proj/smallfry/embeddings_benchmark/compositional_code_learning/"
+    return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/compositional_code_learning/"))
 
 def get_base_embed_path_head():
-    return '/proj/smallfry/base_embeddings'
+    return str(pathlib.PurePath(get_base_directory(),'base_embeddings'))
 
 def get_base_outputdir():
-    return '/proj/smallfry/embeddings'
+    return str(pathlib.PurePath(get_base_directory(),'embeddings'))
 
 def get_launch_path():
-    return '/proj/smallfry/launches'
+    return str(pathlib.PurePath(get_base_directory(),'launches'))
 
 def get_qsub_log_path():
-    return '/proj/smallfry/qsub_logs'
+    return str(pathlib.PurePath(get_base_directory(),'qsub_logs'))
 

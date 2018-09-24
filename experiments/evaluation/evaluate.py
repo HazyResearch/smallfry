@@ -11,6 +11,7 @@ import pathlib
 import os
 import subprocess
 import argh
+import logging
 import numpy as np
 from subprocess import check_output
 from hyperwords import ws_eval, analogy_eval
@@ -32,10 +33,13 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     As of Sept. 16, valid 'evaltype' selections are: 'QA' OR 'intrinsics' OR 'synthetics'
     NOTE: 'embed_path' refers to the TOP-LEVEL embedding directory path, NOT the path to the .txt embeddings file
     '''
+    log_path = '%s_eval.log' % embed_path 
+    init_logging(log_path)
     results = None
+    logging.info('Evaltype confirmed: %s' % evaltype)
     if evaltype == 'QA':
         seed = int(seed)
-        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed)
+        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, qa_log_path='%s_qa-eval.log' % embed_path)
 
     elif evaltype == 'intrinsics':
         results = eval_intrinsics(embed_path)
@@ -43,18 +47,32 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     elif evaltype == 'synthetics':
         results = eval_synthetics(embed_path)
     else:
-        assert 'bad evaltype given to eval()'
+        assert False, 'bad evaltype given to eval()'
 
     results['githash-%s' % evaltype] = get_git_hash()
     results['seed-%s' % evaltype] = seed
+    logging.info("Evaluation complete! Writing results to file... ")
     results_to_file(embed_path, evaltype, results)
+
+#TODO: move this into experimental utils both here and in maker!!! DUPE CODE
+def init_logging(log_filename):
+    """Initialize logfile to be used for experiment."""
+    logging.basicConfig(filename=log_filename,
+                        format='%(asctime)s %(message)s',
+                        datefmt='[%m/%d/%Y %H:%M:%S]: ',
+                        filemode='w', # this will overwrite existing log file.
+                        level=logging.DEBUG)
+    console = logging.StreamHandler(sys.stdout)
+    console.setLevel(logging.DEBUG)
+    logging.getLogger('').addHandler(console)
+    logging.info('Begin logging.')
 
 '''
 CORE EVALUATION ROUTINES =======================
 a new routine must be added for each evaltype!
 '''
 
-def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
+def eval_qa(word_vectors_path, dim, seed, qa_log_path="", finetune_top_k=0, extra_args=""):
     '''Calls DrQA's training routine'''
 
     #to_dict: transforms QA output into results-style json dict
@@ -80,9 +98,7 @@ def eval_qa(word_vectors_path, dim, seed, finetune_top_k=0, extra_args=""):
     # Evaluate on the word vectors
     cd_dir = "cd %s" % get_drqa_directory()
 
-    # Write intermediate training results to temporary output file
-    unique_temp_output_filename = str(uuid.uuid4())
-    intermediate_output_file_path = "/%s/%s.txt" % ("/proj/smallfry/tmp", unique_temp_output_filename)
+    intermediate_output_file_path =  '%s-QA' % qa_log_path
     eval_print("Writing intermediate training to output path: %s" % intermediate_output_file_path)
     
     # WARNING: REALLY DANGEROUS SINCE MAKES ASSUMPTIONS ABOUT 
@@ -204,6 +220,27 @@ def eval_synthetics(embed_path):
     res_rtn['var'] = np.var(embeds)
     res_rtn['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
     return res_rtn
+
+def eval_sent(embed_path, seed):
+    def parse_senwu_outlogs(outlog):
+        lines = outlog.split('\n')
+        return float(lines[-3].split(' ')[-1])
+
+    models = ['lstm', 'cnn', 'la']
+    datasets = ['mr', 'subj', 'cr', 'sst', 'trec', 'mpqa']
+    for model in models:
+        for dataset in datasets:
+            command = "python2  %s --dataset %s --path %s --embedding %s --cv 0 --%s --out %s" % (
+                str(pathlib.PurePath(get_senwu_sentiment_directory(),'train_classifier.py')),
+                dataset,
+                get_harvardnlp_sentiment_data_directory(),
+                embed_path,
+                model,
+                get_senwu_sentiment_out_directory()
+            ) 
+            cmd_output_txt = perform_command_local(command)
+
+
 
 parser = argh.ArghParser()
 parser.add_commands([eval_embeddings])

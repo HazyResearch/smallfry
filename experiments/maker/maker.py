@@ -4,6 +4,7 @@ import os
 import argparse
 import logging
 import sys
+
 import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
@@ -29,7 +30,6 @@ def main():
     # update config
     config['vocab'] = v
     config['dim'] = d
-    config['githash-maker'] = get_git_hash()
     config['date'] = get_date_str()
     config['date-rungroup'] = '{}-{}'.format(config['date'],config['rungroup'])
     config['memory'] = get_memory(config)
@@ -41,6 +41,7 @@ def main():
     core_filename = str(pathlib.PurePath(embed_dir, embed_name))
     os.makedirs(embed_dir)
     init_logging(core_filename + '_maker.log')
+    config['githash-maker'] = get_git_hash()
     logging.info('Begining to make embeddings')
     start = time.time()
     embeds = make_embeddings(base_embeds, embed_dir, config)
@@ -49,6 +50,7 @@ def main():
     logging.info('Finished making embeddings.'
                  'It took {} minutes'.format(maketime/60))
     config['maketime-secs'] = maketime
+
 
     # Save embeddings (text and numpy) and config
     to_file_txt(core_filename + '.txt', wordlist, embeds)
@@ -80,6 +82,8 @@ def init_parser():
         help='Number of codebooks for DCA.')
     parser.add_argument('--k', type=int, default=1,
         help='Codebook size for DCA.')
+    parser.add_argument('--ibr', type=float, default=-1.0,
+        help='Developer intended bitrate.')
     return parser
 
 def init_logging(log_filename):
@@ -89,21 +93,30 @@ def init_logging(log_filename):
                         datefmt='[%m/%d/%Y %H:%M:%S]: ',
                         filemode='w', # this will overwrite existing log file.
                         level=logging.DEBUG)
+    console = logging.StreamHandler(sys.stdout)
+    console.setLevel(logging.DEBUG)
+    logging.getLogger('').addHandler(console)
     logging.info('Begin logging.')
 
 def make_embeddings(base_embeds, embed_dir, config):
     if config['method'] == 'kmeans':
+        bitsperblock = config['bitsperblock']
+        blocklen = config['blocklen']
+        assert bitsperblock/blocklen == config['ibr'], "intended bitrate for kmeans not met!"
         sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'],
             block_len=config['blocklen'], r_seed=config['seed'])
         embeds = sfry.decode(np.array(list(range(config['vocab']))))
     elif config['method'] == 'dca':
-        m,k,v,d = config['m'], config['k'], config['vocab'], config['dim']
+        m,k,v,d,ibr = config['m'], config['k'], config['vocab'], config['dim'], config['ibr']
+        #does m make sense given ibr and k?
+        assert m == compute_m_dca(k,v,d,ibr), "m and k does not match intended bit rate"
         work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
         compressor = EmbeddingCompressor(m, k, work_dir)
         base_embeds = base_embeds.astype(np.float32)
         dca_train_log = compressor.train(base_embeds)
-        distance = compressor.evaluate(base_embeds)
-        config['mean-euclidean-dist'] = distance
+        me_distance,frob_error = compressor.evaluate(base_embeds)
+        config['mean-euclidean-dist'] = me_distance
+        config['embed-frob-err'] = frob_error
         with open(work_dir+'.dca-log-json','w+') as log_f:
             log_f.write(json.dumps(dca_train_log))
         codes, codebook = compressor.export(base_embeds, work_dir)
@@ -132,6 +145,7 @@ def get_embeddings_dir_and_name(config):
     return embed_dir, embed_name
 
 def get_memory(config):
+    logging.info('Getting memory')
     v = config['vocab']
     d = config['dim']
     if config['method'] == 'kmeans':

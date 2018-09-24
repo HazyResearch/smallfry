@@ -43,19 +43,22 @@ def merger(basedir,query):
     '''
     #USER NOTE: query matches for RUNGROUPS!
     qry = str(pathlib.PurePath(basedir,query))
+    print(qry)
     d_list = []
-    for emb in glob.glob(qry): #BUG ALERT
+    for emb in glob.glob(qry):
+        print(emb)
         emb_data_qry = str(pathlib.PurePath(emb,'*.json'))
+        print(emb_data_qry)
         e_dict = {}
         for data in glob.glob(emb_data_qry):
+            print(data)
             with open(data,'r') as data_json:
                 d = json.loads(data_json.read())
             for k in d.keys():
                 assert k not in e_dict, "duplicated fields in json dicts"
                 e_dict[k] = d[k]
         d_list.append(e_dict)
-
-    return d_list   
+    return d_list
 
 def get_seeds(d_list, base, vocab, method):
     seeds = []
@@ -65,7 +68,6 @@ def get_seeds(d_list, base, vocab, method):
     seeds = list(set(seeds))
     seeds.sort()
     return seeds
-
 
 def get_data(d_list, base, vocab, method, seeds, x, y):
     seeds.sort()
