@@ -87,6 +87,7 @@ def init_parser():
 
 def init_logging(log_filename):
     """Initialize logfile to be used for experiment."""
+    print('logging')
     logging.basicConfig(filename=log_filename,
                         format='%(asctime)s %(message)s',
                         datefmt='[%m/%d/%Y %H:%M:%S]: ',
@@ -142,7 +143,6 @@ def get_embeddings_dir_and_name(config):
     return embed_dir, embed_name
 
 def get_memory(config):
-    logging.info('Getting memory')
     v = config['vocab']
     d = config['dim']
     if config['method'] == 'kmeans':
