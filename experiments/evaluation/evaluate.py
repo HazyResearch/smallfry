@@ -11,6 +11,7 @@ import pathlib
 import os
 import subprocess
 import argh
+import logging
 import numpy as np
 from subprocess import check_output
 from hyperwords import ws_eval, analogy_eval
@@ -32,10 +33,13 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     As of Sept. 16, valid 'evaltype' selections are: 'QA' OR 'intrinsics' OR 'synthetics'
     NOTE: 'embed_path' refers to the TOP-LEVEL embedding directory path, NOT the path to the .txt embeddings file
     '''
+    log_path = '%s_eval.log' % embed_path 
+    init_logging(log_path)
     results = None
+    logging.info('Evaltype confirmed: %s' % evaltype)
     if evaltype == 'QA':
         seed = int(seed)
-        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, eval_log_path=eval_log_path)
+        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, qa_log_path='%s_qa-eval.log' % embed_path)
 
     elif evaltype == 'intrinsics':
         results = eval_intrinsics(embed_path)
@@ -47,14 +51,28 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
 
     results['githash-%s' % evaltype] = get_git_hash()
     results['seed-%s' % evaltype] = seed
+    logging.info("Evaluation complete! Writing results to file... ")
     results_to_file(embed_path, evaltype, results)
+
+#TODO: move this into experimental utils both here and in maker!!! DUPE CODE
+def init_logging(log_filename):
+    """Initialize logfile to be used for experiment."""
+    logging.basicConfig(filename=log_filename,
+                        format='%(asctime)s %(message)s',
+                        datefmt='[%m/%d/%Y %H:%M:%S]: ',
+                        filemode='w', # this will overwrite existing log file.
+                        level=logging.DEBUG)
+    console = logging.StreamHandler(sys.stdout)
+    console.setLevel(logging.DEBUG)
+    logging.getLogger('').addHandler(console)
+    logging.info('Begin logging.')
 
 '''
 CORE EVALUATION ROUTINES =======================
 a new routine must be added for each evaltype!
 '''
 
-def eval_qa(word_vectors_path, dim, seed, eval_log_path="", finetune_top_k=0, extra_args=""):
+def eval_qa(word_vectors_path, dim, seed, qa_log_path="", finetune_top_k=0, extra_args=""):
     '''Calls DrQA's training routine'''
 
     #to_dict: transforms QA output into results-style json dict
@@ -80,7 +98,7 @@ def eval_qa(word_vectors_path, dim, seed, eval_log_path="", finetune_top_k=0, ex
     # Evaluate on the word vectors
     cd_dir = "cd %s" % get_drqa_directory()
 
-    intermediate_output_file_path = eval_intrinsics
+    intermediate_output_file_path =  '%s-QA' % qa_log_path
     eval_print("Writing intermediate training to output path: %s" % intermediate_output_file_path)
     
     # WARNING: REALLY DANGEROUS SINCE MAKES ASSUMPTIONS ABOUT 
