@@ -69,7 +69,7 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
-def launch_experiment2_5X_seeds_glove():
+def launch_experiment2_5X_seeds_glove(name):
     #date of code Sept 23, 2018
     rungroup = 'experiment2-5X-seeds'
     methods = ['dca','kmeans']
@@ -87,7 +87,7 @@ def launch_experiment2_5X_seeds_glove():
         sweep(method, rungroup, base_embeds, base_embeds_path, seeds, method_params)
     log_launch(maker.get_log_name(name, rungroup))
 
-def launch_experiment2_5X_seeds_fasttext():
+def launch_experiment2_5X_seeds_fasttext(name):
     #date of code Sept 23, 2018
     rungroup = 'experiment2-5X-seeds'
     methods = ['dca','kmeans']
