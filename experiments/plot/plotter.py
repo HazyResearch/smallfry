@@ -2,7 +2,6 @@ import sys
 import os
 from plot_tools import *
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
-from experimental_utils import *
 
 def get_dca_params(results, bitrates, base):
     res = results
@@ -12,8 +11,9 @@ def get_dca_params(results, bitrates, base):
         for r in res:
             if r == {} or r['base'] != base: continue
             if r['method'] == 'dca' and abs(r['bitrate'] - br) < 0.15*br:
-                br_2_mks[br].append((r['m'],r['k'],r['embed-fro-dist']))
-                br_2_mks[br].sort(key=lambda x:x[1])
+                if 'embed-fro-dist' in r.keys():
+                    br_2_mks[br].append((r['m'],r['k'],r['embed-fro-dist']))
+                    br_2_mks[br].sort(key=lambda x:x[1])
     return br_2_mks
 
 def get_dca_best_params(results, bitrates, base):
