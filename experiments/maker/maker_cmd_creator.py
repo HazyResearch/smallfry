@@ -77,8 +77,8 @@ def launch_experiment2_5X_seeds(name):
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     params = dict()
     params['dca'] = dict()
-    params['dca'] ['glove']= [(4,64,0.1),(17,16,0.25),(47,8,0.5),(286,2,1),(286,4,2),(376,4,4)]
-    params['dca'] ['fasttext']= [(4,64,0.1),(13,32,0.25),(47,8,0.5),(286,2,1),(286,4,2),(573,4,4)]
+    params['dca']['glove']= [(4,64,0.1),(17,16,0.25),(47,8,0.5),(286,2,1),(286,4,2),(376,8,4)]
+    params['dca']['fasttext']= [(4,64,0.1),(13,32,0.25),(47,8,0.5),(286,2,1),(286,4,2),(573,4,4)]
     params['kmeans'] = [(1,10,0.1),(1,4,0.25),(1,2,0.5),(1,1,1),(2,1,2),(4,1,4)]
     for method in methods:
         base_embeds = ['fasttext','glove']
@@ -342,7 +342,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment2_5X_seeds_glove]
+cmd = [launch_experiment2_5X_seeds]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
