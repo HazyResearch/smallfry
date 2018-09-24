@@ -4,7 +4,6 @@ import os
 import argparse
 import logging
 import sys
-
 import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
@@ -82,7 +81,7 @@ def init_parser():
         help='Number of codebooks for DCA.')
     parser.add_argument('--k', type=int, default=1,
         help='Codebook size for DCA.')
-    parser.add_argument('--ibr', type=float, default=-1.0,
+    parser.add_argument('--ibr', type=float, required=True,
         help='Developer intended bitrate.')
     return parser
 
@@ -100,9 +99,7 @@ def init_logging(log_filename):
 
 def make_embeddings(base_embeds, embed_dir, config):
     if config['method'] == 'kmeans':
-        bitsperblock = config['bitsperblock']
-        blocklen = config['blocklen']
-        assert bitsperblock/blocklen == config['ibr'], "intended bitrate for kmeans not met!"
+        assert config['bitsperblock']/config['blocklen'] == config['ibr'], "intended bitrate for kmeans not met!"
         sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'],
             block_len=config['blocklen'], r_seed=config['seed'])
         embeds = sfry.decode(np.array(list(range(config['vocab']))))

@@ -69,6 +69,28 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def launch_experiment2_5X_seeds(name):
+    #date of code Sept 23, 2018
+    rungroup = 'experiment2-5X-seeds'
+    methods = ['dca','kmeans']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = dict()
+    params['dca'] ['glove']= [(4,64,0.1),(17,16,0.25),(47,8,0.5),(286,2,1),(286,4,2),(376,4,4)]
+    params['dca'] ['fasttext']= [(4,64,0.1),(13,32,0.25),(47,8,0.5),(286,2,1),(286,4,2),(573,4,4)]
+    params['kmeans'] = [(1,10,0.1),(1,4,0.25),(1,2,0.5),(1,1,1),(2,1,2),(4,1,4)]
+    for method in methods:
+        base_embeds = ['fasttext','glove']
+        base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+        base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+        base_embeds_path = [base_path_ft, base_path_glove]
+        for i in range(len(base_embeds)):
+            seeds = [4974, 7737, 6665, 6117, 8559]
+            method_params = params[method][base_embeds[i]] if method == 'dca' else params[method]
+            sweep(method, rungroup, [base_embeds[i]], [base_embeds_path[i]], seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
+
 def launch_experiment2_5X_seeds_glove(name):
     #date of code Sept 23, 2018
     rungroup = 'experiment2-5X-seeds'
