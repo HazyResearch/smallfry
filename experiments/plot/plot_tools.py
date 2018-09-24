@@ -4,9 +4,6 @@ import pathlib
 import json
 import os
 
-<<<<<<< HEAD:experiments/plot/plot_tools.py
-def agg(basedir,query):
-=======
 
 def agg(basedir,query):
     '''
@@ -38,7 +35,6 @@ def agg(basedir,query):
 
 
 def merger(basedir,query):
->>>>>>> master:experiments/plot/plot.py
     '''
     Simple aggregation routine.
     basedir -- the embeddings base directory
