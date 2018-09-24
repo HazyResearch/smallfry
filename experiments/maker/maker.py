@@ -145,6 +145,7 @@ def get_embeddings_dir_and_name(config):
     return embed_dir, embed_name
 
 def get_memory(config):
+    logging.info('Getting memory')
     v = config['vocab']
     d = config['dim']
     if config['method'] == 'kmeans':
