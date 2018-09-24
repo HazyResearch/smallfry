@@ -320,7 +320,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment2_5X_seeds_fasttext]
+cmd = [launch_experiment2_5X_seeds_glove]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
