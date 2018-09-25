@@ -91,17 +91,6 @@ def launch_experiment2_5X_baselines_9_25_18(name):
             log.append(qsub_launch('baseline',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
     log_launch(maker.get_log_name(name, rungroup))
 
-    for method in methods:
-        base_embeds = ['fasttext','glove']
-        base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
-        base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
-        base_embeds_path = [base_path_ft, base_path_glove]
-        for i in range(len(base_embeds)):
-            seeds = [4974, 7737, 6665, 6117, 8559]
-            method_params = params[method][base_embeds[i]] if method == 'dca' else params[method]
-            sweep(method, rungroup, [base_embeds[i]], [base_embeds_path[i]], seeds, method_params)
-    log_launch(maker.get_log_name(name, rungroup))
-
 
 def launch_experiment2_5X_seeds(name):
     #date of code Sept 23, 2018
@@ -376,7 +365,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment2_5X_seeds]
+cmd = [launch_experiment2_5X_baselines_9_25_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
