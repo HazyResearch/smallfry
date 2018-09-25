@@ -15,7 +15,7 @@ qsub_log_path = str(pathlib.PurePath(maker.get_qsub_log_path(), 'maker'))
 
 def launch(method, params):
     s = ''
-    maker_path = str(pathlib.PurePath(os.path.basename(__file__),'maker.py'))
+    maker_path = str(pathlib.PurePath(os.path.basename(os.path.dirname(__file__)),'maker.py'))
     python36_maker_cmd = 'python3.6 %s' % maker_path
     if method == 'kmeans':
         s = '%s --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s --ibr %s' % ((python36_maker_cmd,)+params)
