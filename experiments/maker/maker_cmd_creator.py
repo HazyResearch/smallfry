@@ -15,10 +15,14 @@ qsub_log_path = str(pathlib.PurePath(maker.get_qsub_log_path(), 'maker'))
 
 def launch(method, params):
     s = ''
+    maker_path = str(pathlib.PurePath(os.path.basename(__file__),'maker.py'))
+    python36_maker_cmd = 'python3.6 %s' % maker_path
     if method == 'kmeans':
-        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s --ibr %s' % params
+        s = '%s --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s --ibr %s' % ((python36_maker_cmd,)+params)
     elif method == 'dca':
-        s = 'python3.6 /proj/smallfry/git/smallfry/experiments/maker/maker.py --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s --ibr %s' % params
+        s = '%s --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s --ibr %s' % ((python36_maker_cmd,)+params)
+    elif method == 'baseline':
+        s = '%s --method baseline --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --ibr %s' % ((python36_maker_cmd,)+params)
     else:
         assert 'bad method name in launch'
     return s
@@ -69,6 +73,36 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+
+def launch_experiment2_5X_baselines_9_25_18(name):
+    rungroup = 'experiment2-5X-seeds'
+    methods = ['baseline']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibr = 32.0
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [4974, 7737, 6665, 6117, 8559]
+    for seed in seeds:
+        for i in [0,1]: #loop over baselines: fasttext and glove
+            log.append(qsub_launch('baseline',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+    log_launch(maker.get_log_name(name, rungroup))
+
+    for method in methods:
+        base_embeds = ['fasttext','glove']
+        base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+        base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+        base_embeds_path = [base_path_ft, base_path_glove]
+        for i in range(len(base_embeds)):
+            seeds = [4974, 7737, 6665, 6117, 8559]
+            method_params = params[method][base_embeds[i]] if method == 'dca' else params[method]
+            sweep(method, rungroup, [base_embeds[i]], [base_embeds_path[i]], seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
+
+
 def launch_experiment2_5X_seeds(name):
     #date of code Sept 23, 2018
     rungroup = 'experiment2-5X-seeds'
