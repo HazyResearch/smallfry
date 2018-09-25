@@ -14,7 +14,7 @@ launch_path = str(pathlib.PurePath(evaluate.get_launch_path(), 'eval'))
 qsub_log_path = str(pathlib.PurePath(evaluate.get_qsub_log_path(), 'eval'))
 
 def launch(params):
-    s = 'python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings %s  %s %s --seed %s' % params
+    s = 'python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings %s %s --seed %s' % params
     return s
 
 def qsub_launch(params):
@@ -42,7 +42,6 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
                 for emb in glob.glob(rungroup_wildcard):
                     cmd = l((emb,
                             evaltype,
-                            '/',
                             seed))
                     log.append(cmd)
         assert rungroup_found, "rungroup requested in eval cmd creator not found"
@@ -62,7 +61,6 @@ def forall_in_rungroup_with_seed(evaltype, rungroup, seeds, params=None, qsub=Tr
                     if not( 'seed=%s' % seed in emb): continue #only match up correct seeds
                     cmd = l((emb,
                             evaltype,
-                            '/',
                             seed))
                     log.append(cmd)
         assert rungroup_found, "rungroup requested in eval cmd creator not found"

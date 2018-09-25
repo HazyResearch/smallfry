@@ -20,11 +20,9 @@ from smallfry.utils import load_embeddings
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #hacky way to import experimental_utils
 from experimental_utils import *
 
-#TODO: Ponder this, should we overwrite evals that already exist, or error out? I like err out
 #TODO: Change from argh to argparse?
-#TODO: get rid of eval_log_path -- not in use!
 
-def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
+def eval_embeddings(embed_path, evaltype, seed=None):
     '''
     This is the front-end routine for experimental evaluation. 
     For each acceptable experiment type, denoted with 'evaltype', it dispatches
@@ -37,18 +35,21 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     init_logging(log_path)
     results = None
     logging.info('Evaltype confirmed: %s' % evaltype)
+    if do_results_already_exist(embed_path, evaltype):
+        logging.info("OOPS these results already are present -- ABORTING")
+
+    # determine evaltype and send off to that subroutine -- SEE THIS LOGIC TREE FOR VALID EVALTYPES
     if evaltype == 'QA':
         seed = int(seed)
         results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, qa_log_path='%s_qa-eval.log' % embed_path)
-
     elif evaltype == 'intrinsics':
         results = eval_intrinsics(embed_path)
-
     elif evaltype == 'synthetics':
         results = eval_synthetics(embed_path)
     else:
         assert False, 'bad evaltype given to eval()'
 
+    #wrap up the results and document stuff
     results['githash-%s' % evaltype] = get_git_hash()
     results['seed-%s' % evaltype] = seed
     logging.info("Evaluation complete! Writing results to file... ")
@@ -84,9 +85,7 @@ def eval_qa(word_vectors_path, dim, seed, qa_log_path="", finetune_top_k=0, extr
 
     # Evaluate on the word vectors
     cd_dir = "cd %s" % get_drqa_directory()
-
-    intermediate_output_file_path =  '%s-QA' % qa_log_path
-    eval_print("Writing intermediate training to output path: %s" % intermediate_output_file_path)
+    eval_print("Writing intermediate training to output path: %s" % qa_log_path)
     
     # WARNING: REALLY DANGEROUS SINCE MAKES ASSUMPTIONS ABOUT 
     # FILEPATHS AND THEIR EXISTENCE
@@ -104,7 +103,7 @@ def eval_qa(word_vectors_path, dim, seed, qa_log_path="", finetune_top_k=0, extr
     eval_print("==============================")
 
     rtn_dict = to_dict(text)
-    rtn_dict['full_log'] = text
+    logging.info(text)
 
     return rtn_dict
 
@@ -158,7 +157,7 @@ def eval_intrinsics(embed_path):
     # This line below is a bit jenky since it assumes `testsets` relative to this file.
     # Should be fine since that data is pulled with the repo.
     all_tasks = analogy_tasks + similarity_tasks
-    path_to_tasks = [os.path.dirname(os.path.abspath(__file__)) + "/testsets/" + x for x in all_tasks  ]
+    path_to_tasks = [os.path.dirname(os.path.abspath(__file__)) + "/testsets/" + x for x in all_tasks]
 
     results = ""
     results_dict = {}
@@ -197,7 +196,6 @@ def eval_intrinsics(embed_path):
 def eval_synthetics(embed_path):
     '''Evaluates synthetics'''
     #TODO: what synthetics will we put in here?
-    #TODO BUGS OUT
     embeds, wordlist = fetch_embeds_4_eval(embed_path)
     base_embeds, base_wordlist = load_embeddings(fetch_base_embed_path(embed_path))
 
@@ -209,6 +207,8 @@ def eval_synthetics(embed_path):
     return res_rtn
 
 def eval_sent(embed_path, seed):
+    #TODO: sent eval not operational yet
+
     def parse_senwu_outlogs(outlog):
         lines = outlog.split('\n')
         return float(lines[-3].split(' ')[-1])

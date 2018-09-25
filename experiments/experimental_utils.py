@@ -12,7 +12,7 @@ from smallfry.smallfry import Smallfry
 from smallfry.utils import *
 
 def get_git_hash():
-    ''' returns githash of current directory'''
+    ''' returns githash of current directory. NOTE: not safe before init_logging'''
     git_hash = None
     try:
         this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -81,7 +81,7 @@ def perform_command_local(command):
     out = check_output(command, stderr=subprocess.STDOUT, shell=True).decode("utf-8") 
     return out     
 
-def get_results_path(embed_path, results_type, results):
+def get_results_path(embed_path, results_type):
     ''' gets path to a certain results-type given embeddings path'''
     embed_name = os.path.basename(embed_path)
     results_file = '%s_results-%s.json' % (embed_name, results_type)
@@ -98,14 +98,14 @@ def prep_qsub_log_dir(qsub_log_path_generic, name, rungroup):
     os.mkdir(qsub_log_path_specific)
     return qsub_log_path_specific
 
-def do_results_already_exist(embed_path, results_type, results):
+def do_results_already_exist(embed_path, results_type):
     ''' boolean function -- default behavior is to fail when results already exist'''
-    results_path = get_results_path(embed_path, results_type, results)
+    results_path = get_results_path(embed_path, results_type)
     return os.path.isfile(results_path)
 
 def results_to_file(embed_path, results_type, results):
     ''' writes json results to file'''
-    results_path = get_results_path(embed_path, results_type, results)
+    results_path = get_results_path(embed_path, results_type)
     with open(results_path, 'w+') as results_f:
             results_f.write(json.dumps(results)) 
 
@@ -139,11 +139,29 @@ def fetch_base_embed_path(embed_path):
         maker_config = json.loads(maker_config_f.read())
     return maker_config['basepath']
 
+def get_environment():
+    ''' Use this routine to determine your compute environment'''
+    host = perform_command_local('hostname')
+    if 'smallfry' in host: # In Avner's smallfry AWS image
+        return 'AWS'
+    elif 'dawn' in host: #On the DAWN cluster
+        return 'DAWN'
+    elif 'ThinkPad-X270' in host: #on Tony's laptop
+        return 'TONY'
+
+def whoami():
+    '''Wraps bash whoami'''
+    return perform_command_local('whoami')
+
 '''HARDCODED PATHS BELOW'''
 
 def get_base_directory():
+    '''NOTE: not safe before init_logging'''
     logging.info('Accessing base dir')
-    return "/proj/smallfry"
+    path = '/proj/smallfry'
+    if get_environment() == 'DAWN':
+        path = '/dfs/scratch1/%s%s' % (whoami(),path) 
+    return path
 
 def get_drqa_directory():
     return str(pathlib.PurePath(get_base_directory(), "embeddings_benchmark/DrQA/"))
