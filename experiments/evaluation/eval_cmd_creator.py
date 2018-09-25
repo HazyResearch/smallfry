@@ -14,7 +14,7 @@ launch_path = str(pathlib.PurePath(evaluate.get_launch_path(), 'eval'))
 qsub_log_path = str(pathlib.PurePath(evaluate.get_qsub_log_path(), 'eval'))
 
 def launch(params):
-    s = 'python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings %s %s --seed %s' % params
+    s = 'python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings %s %s --seed %s --epochs %s' % params
     return s
 
 def qsub_launch(params):
@@ -28,7 +28,7 @@ def log_launch(name):
     with open(log_launch_path, 'w+') as llp:
         llp.write('\n'.join(log))
 
-def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
+def forall_in_rungroup(evaltype, rungroup, seeds, epochs=None, params=None, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
@@ -42,11 +42,12 @@ def forall_in_rungroup(evaltype, rungroup, seeds, params=None, qsub=True):
                 for emb in glob.glob(rungroup_wildcard):
                     cmd = l((emb,
                             evaltype,
-                            seed))
+                            seed,
+                            epochs))
                     log.append(cmd)
         assert rungroup_found, "rungroup requested in eval cmd creator not found"
 
-def forall_in_rungroup_with_seed(evaltype, rungroup, seeds, params=None, qsub=True):
+def forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=None, params=None, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
@@ -61,13 +62,29 @@ def forall_in_rungroup_with_seed(evaltype, rungroup, seeds, params=None, qsub=Tr
                     if not( 'seed=%s' % seed in emb): continue #only match up correct seeds
                     cmd = l((emb,
                             evaltype,
-                            seed))
+                            seed,
+                            epochs))
                     log.append(cmd)
         assert rungroup_found, "rungroup requested in eval cmd creator not found"
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+
+def launch_eval_tests_experiment2(name):
+    #date of code Sept. 25, 2018
+    rungroup = '2018-09-23-test-logging-1'
+    evaltypes = ['synthetics','QA','intrinsics']
+    global qsub_log_path
+    for rungroup in rungroups:
+        qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+        params = dict()
+        for evaltype in evaltypes:
+            seeds = [20]
+            forall_in_rungroup(evaltype, rungroup, seeds, epochs=1)
+        log_launch(evaluate.get_log_name(name, rungroup))
+
+
 def launch_dca_fronorm_eval(name):
     #date of code Sept 21, 2018
     rungroups = ['2018-09-21-experiment1-dca-hp-tune','2018-09-20-experiment1-dca-hp-tune']

@@ -42,6 +42,8 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None):
     # determine evaltype and send off to that subroutine -- SEE THIS LOGIC TREE FOR VALID EVALTYPES
     if evaltype == 'QA':
         seed = int(seed)
+        if epochs == None:
+            epochs = 50
         results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, epochs, qa_log_path='%s_qa-eval.log' % embed_path)
     elif evaltype == 'intrinsics':
         results = eval_intrinsics(embed_path)
