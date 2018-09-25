@@ -32,7 +32,9 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None):
     As of Sept. 16, valid 'evaltype' selections are: 'QA' OR 'intrinsics' OR 'synthetics'
     NOTE: 'embed_path' refers to the TOP-LEVEL embedding directory path, NOT the path to the .txt embeddings file
     '''
-    log_path = '%s_eval.log' % embed_path 
+    embed_name = os.path.basename(embed_path)
+    log_path_head = str(pathlib.PurePath(embed_path,embed_name))
+    log_path = '%s_%s-eval.log' % (log_path_head, evaltype) 
     init_logging(log_path)
     results = None
     logging.info('Evaltype confirmed: %s' % evaltype)
@@ -44,7 +46,7 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None):
         seed = int(seed)
         if epochs == None:
             epochs = 50
-        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, epochs, qa_log_path='%s_qa-eval.log' % embed_path)
+        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, epochs, qa_log_path='%s-tmp'%log_path)
     elif evaltype == 'intrinsics':
         results = eval_intrinsics(embed_path)
     elif evaltype == 'synthetics':
@@ -97,18 +99,22 @@ def eval_qa(word_vectors_path, dim, seed, epochs, qa_log_path="", finetune_top_k
     full_command = " && ".join([cd_dir, python_command])
     eval_print("Executing: %s" % full_command)
     text = perform_command_local(full_command)
-    eval_print("==============================")
+    eval_print("==============================") 
+    logging.info("==============================")
     eval_print("Output of DrQA run:")
+    logging.info("Output of DrQA run:")
     eval_print("==============================")
+    logging.info("==============================")
     eval_print(text)
-    eval_print("==============================")
-    eval_print("End output of DrQA run")
-    eval_print("==============================")
-
-    rtn_dict = to_dict(text)
     logging.info(text)
-
-    return rtn_dict
+    eval_print("==============================")
+    logging.info("==============================")
+    eval_print("End output of DrQA run")
+    logging.info("End output of DrQA run")
+    eval_print("==============================")
+    logging.info("==============================")
+    rtn_dict = to_dict(text)
+    return to_dict(text)
 
 def eval_intrinsics(embed_path):
     '''Evaluates intrinsics benchmarks given embed_path'''
@@ -191,9 +197,13 @@ def eval_intrinsics(embed_path):
     results_dict['analogy-avg-score'] = ana_score_sum/4 #four analogy tasks avg together
     results_dict['similarity-avg-score'] = sim_score_sum/5 #five sim tasks avg together        
     eval_print("Results:")
-    eval_print("------------------------------")        
-    eval_print(results)
+    logging.info("Results:")
     eval_print("------------------------------")
+    logging.info("------------------------------")        
+    eval_print(results)
+    logging.info(results)
+    eval_print("------------------------------")
+    logging.info("------------------------------")
     return results_dict
 
 def eval_synthetics(embed_path):
@@ -219,7 +229,9 @@ def eval_sent(embed_path, seed):
 
     models = ['lstm', 'cnn', 'la']
     datasets = ['mr', 'subj', 'cr', 'sst', 'trec', 'mpqa']
+    res = dict()
     for model in models:
+        res[model] = dict()
         for dataset in datasets:
             command = "python2  %s --dataset %s --path %s --embedding %s --cv 0 --%s --out %s" % (
                 str(pathlib.PurePath(get_senwu_sentiment_directory(),'train_classifier.py')),
@@ -230,6 +242,7 @@ def eval_sent(embed_path, seed):
                 get_senwu_sentiment_out_directory()
             ) 
             cmd_output_txt = perform_command_local(command)
+            res[model][dataset] = parse_senwu_outlogs
 
 
 
