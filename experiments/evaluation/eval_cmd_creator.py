@@ -71,6 +71,18 @@ def forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=None, params=
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
+def launch_eval_official_experiment2_9_25_18(name):
+    #date of code Sept. 25, 2018
+    rungroups = ['merged-experiment2-5X-seeds']
+    evaltypes = ['QA','intrinsics','synthetics']
+    global qsub_log_path
+    for rungroup in rungroups:
+        qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+        for evaltype in evaltypes:
+            seeds = [20]
+            forall_in_rungroup(evaltype, rungroup, seeds, epochs=1)
+        log_launch(evaluate.get_log_name(name, rungroup))
+
 def launch_eval_tests_experiment2(name):
     #date of code Sept. 25, 2018
     rungroups = ['2018-09-23-test-logging-1']
@@ -83,7 +95,6 @@ def launch_eval_tests_experiment2(name):
             seeds = [20]
             forall_in_rungroup(evaltype, rungroup, seeds, epochs=1)
         log_launch(evaluate.get_log_name(name, rungroup))
-
 
 def launch_dca_fronorm_eval(name):
     #date of code Sept 21, 2018
