@@ -69,6 +69,24 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+
+def launch_experiment2_5X_seeds_final_4(name):
+    #date of code Sept 24, 2018
+    rungroup = 'experiment2-5X-seeds'
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    methods = 'dca'
+    seeds = [6665, 7737, 8559, 8559]
+    ibr = [1,2,3,4]
+    m = [286,286,286,376]
+    k = [2,4,4,8]
+    base_embeds = 'fasttext'
+    base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_embeds_path = base_path
+    for i in range(4):
+        qsub_launch('dca', (base_embeds, base_embeds_path, seeds[i], maker.get_base_outputdir(), rungroup, m[i], k[i], ibr[i]))
+    log_launch(maker.get_log_name(name, rungroup))
+
 def launch_experiment2_5X_seeds(name):
     #date of code Sept 23, 2018
     rungroup = 'experiment2-5X-seeds'
@@ -342,7 +360,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment2_5X_seeds]
+cmd = [launch_experiment2_5X_seeds_final_4]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
