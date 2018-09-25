@@ -50,7 +50,6 @@ def main():
                  'It took {} minutes'.format(maketime/60))
     config['maketime-secs'] = maketime
 
-
     # Save embeddings (text and numpy) and config
     to_file_txt(core_filename + '.txt', wordlist, embeds)
     to_file_np(core_filename + '.npy', embeds)
@@ -84,19 +83,6 @@ def init_parser():
     parser.add_argument('--ibr', type=float, required=True,
         help='Developer intended bitrate.')
     return parser
-
-def init_logging(log_filename):
-    """Initialize logfile to be used for experiment."""
-    print('logging')
-    logging.basicConfig(filename=log_filename,
-                        format='%(asctime)s %(message)s',
-                        datefmt='[%m/%d/%Y %H:%M:%S]: ',
-                        filemode='w', # this will overwrite existing log file.
-                        level=logging.DEBUG)
-    console = logging.StreamHandler(sys.stdout)
-    console.setLevel(logging.DEBUG)
-    logging.getLogger('').addHandler(console)
-    logging.info('Begin logging.')
 
 def make_embeddings(base_embeds, embed_dir, config):
     if config['method'] == 'kmeans':
