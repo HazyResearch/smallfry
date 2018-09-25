@@ -77,14 +77,14 @@ def launch_experiment2_5X_seeds_final_4(name):
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     methods = 'dca'
     seeds = [6665, 7737, 8559, 8559]
-    ibr = [1,2,3,4]
+    ibr = [1,2,2,4]
     m = [286,286,286,376]
     k = [2,4,4,8]
     base_embeds = 'fasttext'
     base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
     base_embeds_path = base_path
     for i in range(4):
-        qsub_launch('dca', (base_embeds, base_embeds_path, seeds[i], maker.get_base_outputdir(), rungroup, m[i], k[i], ibr[i]))
+        log.append(qsub_launch('dca', (base_embeds, base_embeds_path, seeds[i], maker.get_base_outputdir(), rungroup, m[i], k[i], ibr[i])))
     log_launch(maker.get_log_name(name, rungroup))
 
 def launch_experiment2_5X_seeds(name):
