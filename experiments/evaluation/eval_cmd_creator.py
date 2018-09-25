@@ -73,7 +73,7 @@ LAUNCH ROUTINES BELOW THIS LINE =========================
 
 def launch_eval_tests_experiment2(name):
     #date of code Sept. 25, 2018
-    rungroup = '2018-09-23-test-logging-1'
+    rungroups = ['2018-09-23-test-logging-1']
     evaltypes = ['synthetics','QA','intrinsics']
     global qsub_log_path
     for rungroup in rungroups:
@@ -192,7 +192,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment1_dca_fronorm_eval]
+cmd = [launch_eval_tests_experiment2]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
