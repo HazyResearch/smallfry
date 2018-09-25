@@ -109,7 +109,7 @@ def make_embeddings(base_embeds, embed_dir, config):
         embeds = codes_2_vec(codes, codebook, m, k, v, d)
     elif config['method'] == 'baseline':
         assert config['ibr'] == 32.0, "Baselines use floating point precision"
-        embeds = load_embeddings(config['basepath'])
+        embeds = load_embeddings(config['basepath'])[0]
     else:
         raise ValueError('Method name invalid')
     return embeds

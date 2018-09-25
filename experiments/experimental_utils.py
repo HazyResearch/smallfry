@@ -193,3 +193,5 @@ def get_launch_path():
 def get_qsub_log_path():
     return str(pathlib.PurePath(get_base_directory(),'qsub_logs'))
 
+def get_scripts_exec_path():
+    return str(pathlib.PurePath(get_base_directory(),'scripts_exec'))
