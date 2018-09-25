@@ -56,6 +56,18 @@ def to_file_txt(path, wordlist, embeds):
             file.write(" ".join(strrow))
             file.write("\n")
 
+def init_logging(log_filename):
+    """Initialize logfile to be used for experiment."""
+    logging.basicConfig(filename=log_filename,
+                        format='%(asctime)s %(message)s',
+                        datefmt='[%m/%d/%Y %H:%M:%S]: ',
+                        filemode='w', # this will overwrite existing log file.
+                        level=logging.DEBUG)
+    console = logging.StreamHandler(sys.stdout)
+    console.setLevel(logging.DEBUG)
+    logging.getLogger('').addHandler(console)
+    logging.info('Begin logging.')
+
 def eval_print(message):
     ''' fancy print out stuff -- author: MAXLAM'''
     callername = sys._getframe().f_back.f_code.co_name

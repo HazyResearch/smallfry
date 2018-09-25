@@ -4,6 +4,7 @@ import sys
 import os
 import time
 import math
+import logging
 import tensorflow as tf
 import numpy as np
 # Import _linear
@@ -220,9 +221,9 @@ class EmbeddingCompressor(object):
                      'trainmaxp' : trainmaxp,   #tony line
                      'validmaxp' : validmaxp,   #tony line
                      'time-elapsed': t})        #tony line
-                print(log_str) #tony mod
+                logging.info(log_str) #tony mod
 
-        print("Training Done")
+        logging.info("Training Done") #tony mod
         return dca_train_log # tony line
 
     def export(self, embed_matrix, prefix):

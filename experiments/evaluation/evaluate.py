@@ -54,19 +54,6 @@ def eval_embeddings(embed_path, evaltype, eval_log_path, seed=None):
     logging.info("Evaluation complete! Writing results to file... ")
     results_to_file(embed_path, evaltype, results)
 
-#TODO: move this into experimental utils both here and in maker!!! DUPE CODE
-def init_logging(log_filename):
-    """Initialize logfile to be used for experiment."""
-    logging.basicConfig(filename=log_filename,
-                        format='%(asctime)s %(message)s',
-                        datefmt='[%m/%d/%Y %H:%M:%S]: ',
-                        filemode='w', # this will overwrite existing log file.
-                        level=logging.DEBUG)
-    console = logging.StreamHandler(sys.stdout)
-    console.setLevel(logging.DEBUG)
-    logging.getLogger('').addHandler(console)
-    logging.info('Begin logging.')
-
 '''
 CORE EVALUATION ROUTINES =======================
 a new routine must be added for each evaltype!
