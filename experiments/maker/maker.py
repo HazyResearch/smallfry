@@ -60,7 +60,7 @@ def init_parser():
     """Initialize Cmd-line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, required=True,
-        choices=['kmeans','dca'],
+        choices=['kmeans','dca','baseline'],
         help='Name of compression method to use (kmeans or dca).')
     parser.add_argument('--base', type=str, required=True,
         help='Name of base embeddings')
@@ -107,6 +107,9 @@ def make_embeddings(base_embeds, embed_dir, config):
         codes = np.array(codes).flatten()
         codebook = np.array(codebook)
         embeds = codes_2_vec(codes, codebook, m, k, v, d)
+    elif config['method'] == 'baseline':
+        assert ibr == 32.0, "Baselines use floating point precision"
+        embeds = load_embeddings(config['basepath'])
     else:
         raise ValueError('Method name invalid')
     return embeds
@@ -116,6 +119,8 @@ def get_embeddings_dir_and_name(config):
         params = ['base','method','vocab','dim','ibr','bitsperblock','blocklen','seed','date','rungroup']
     elif config['method'] == 'dca':
         params = ['base','method','vocab','dim','ibr','m','k','seed','date','rungroup']
+    elif config['method'] == 'baseline':
+        params = ['base','method','vocab','dim','ibr','seed','date','rungroup']
     else:
         raise ValueError('Method name invalid')
 
@@ -141,6 +146,8 @@ def get_memory(config):
         m = config['m']
         k = config['k']
         mem = v * m * np.log2(k) + 32 * d * m * k
+    elif config['method'] == 'baseline':
+        return v*d*32
     else:
         raise ValueError('Method name invalid (must be dca or kmeans)')
     return mem
