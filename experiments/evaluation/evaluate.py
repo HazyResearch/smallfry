@@ -14,6 +14,7 @@ import argh
 import logging
 import numpy as np
 from subprocess import check_output
+from scipy.spatial import distance
 from hyperwords import ws_eval, analogy_eval
 from hyperwords.representations.embedding import *
 from smallfry.utils import load_embeddings
@@ -22,7 +23,7 @@ from experimental_utils import *
 
 #TODO: Change from argh to argparse?
 
-def eval_embeddings(embed_path, evaltype, seed=None):
+def eval_embeddings(embed_path, evaltype, seed=None, epochs=None):
     '''
     This is the front-end routine for experimental evaluation. 
     For each acceptable experiment type, denoted with 'evaltype', it dispatches
@@ -41,7 +42,7 @@ def eval_embeddings(embed_path, evaltype, seed=None):
     # determine evaltype and send off to that subroutine -- SEE THIS LOGIC TREE FOR VALID EVALTYPES
     if evaltype == 'QA':
         seed = int(seed)
-        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, qa_log_path='%s_qa-eval.log' % embed_path)
+        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, epochs, qa_log_path='%s_qa-eval.log' % embed_path)
     elif evaltype == 'intrinsics':
         results = eval_intrinsics(embed_path)
     elif evaltype == 'synthetics':
@@ -60,7 +61,7 @@ CORE EVALUATION ROUTINES =======================
 a new routine must be added for each evaltype!
 '''
 
-def eval_qa(word_vectors_path, dim, seed, qa_log_path="", finetune_top_k=0, extra_args=""):
+def eval_qa(word_vectors_path, dim, seed, epochs, qa_log_path="", finetune_top_k=0, extra_args=""):
     '''Calls DrQA's training routine'''
 
     #to_dict: transforms QA output into results-style json dict
@@ -90,7 +91,7 @@ def eval_qa(word_vectors_path, dim, seed, qa_log_path="", finetune_top_k=0, extr
     # WARNING: REALLY DANGEROUS SINCE MAKES ASSUMPTIONS ABOUT 
     # FILEPATHS AND THEIR EXISTENCE
     #TODO WARNING FIX EPOCHS HERE
-    python_command = "CUDA_HOME=/usr/local/cuda-8.0 python3.6 scripts/reader/train.py --random-seed %d --embedding-dim %d  --embed-dir=  --embedding-file %s  --num-epochs 50 --tune-partial %d %s 2>&1 | tee %s" % (seed, dim, word_vectors_path, finetune_top_k, extra_args, intermediate_output_file_path)
+    python_command = "CUDA_HOME=/usr/local/cuda-8.0 python3.6 scripts/reader/train.py --random-seed %d --embedding-dim %d  --embed-dir=  --embedding-file %s  --num-epochs %s --tune-partial %d %s 2>&1 | tee %s" % (seed, dim, word_vectors_path, epochs, finetune_top_k, extra_args, qa_log_path)
     full_command = " && ".join([cd_dir, python_command])
     eval_print("Executing: %s" % full_command)
     text = perform_command_local(full_command)
@@ -204,6 +205,7 @@ def eval_synthetics(embed_path):
     res_rtn['mean'] = np.mean(embeds)
     res_rtn['var'] = np.var(embeds)
     res_rtn['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
+    res_rtn['semantic-sim'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
     return res_rtn
 
 def eval_sent(embed_path, seed):
