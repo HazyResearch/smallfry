@@ -71,7 +71,21 @@ LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
 def launch_experiment2_5X_seeds_final_4(name):
-    #date of code Sept 24, 2018
+    #date of code Sept 24, 2se=glove,method=dca,vocab=400000,dim=300,ibr=1.0,m=286,k=2,seed=6665,date=2018-09-24,rungroup=experiment2-5X-seeds
+    ''' THESE ARE THE POINTS WE WANT
+    Script:
+
+    for dr in $(ls /proj/smallfry/embeddings/2018-09-24-experiment2-5X-seeds); do
+      if [ ! -f ${dr}/*config.json ]; then
+            echo "${dr}"
+              fi
+              done
+    Output:
+
+    base=glove,method=dca,vocab=400000,dim=300,ibr=2.0,m=286,k=4,seed=7737,date=2018-09-24,rungroup=experiment2-5X-seeds
+    base=glove,method=dca,vocab=400000,dim=300,ibr=2.0,m=286,k=4,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds
+    base=glove,method=dca,vocab=400000,dim=300,ibr=4.0,m=376,k=8,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds
+    '''
     rungroup = 'experiment2-5X-seeds'
     global qsub_log_path
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
@@ -80,8 +94,8 @@ def launch_experiment2_5X_seeds_final_4(name):
     ibr = [1,2,2,4]
     m = [286,286,286,376]
     k = [2,4,4,8]
-    base_embeds = 'fasttext'
-    base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_embeds = 'glove'
+    base_path = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
     base_embeds_path = base_path
     for i in range(4):
         log.append(qsub_launch('dca', (base_embeds, base_embeds_path, seeds[i], maker.get_base_outputdir(), rungroup, m[i], k[i], ibr[i])))
