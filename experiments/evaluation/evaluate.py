@@ -217,7 +217,7 @@ def eval_synthetics(embed_path):
     res_rtn['mean'] = np.mean(embeds)
     res_rtn['var'] = np.var(embeds)
     res_rtn['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
-    res_rtn['semantic-sim'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
+    res_rtn['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
     return res_rtn
 
 def eval_sent(embed_path, seed):
