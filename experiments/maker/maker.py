@@ -108,7 +108,7 @@ def make_embeddings(base_embeds, embed_dir, config):
         codebook = np.array(codebook)
         embeds = codes_2_vec(codes, codebook, m, k, v, d)
     elif config['method'] == 'baseline':
-        assert ibr == 32.0, "Baselines use floating point precision"
+        assert config['ibr'] == 32.0, "Baselines use floating point precision"
         embeds = load_embeddings(config['basepath'])
     else:
         raise ValueError('Method name invalid')
