@@ -243,9 +243,6 @@ def eval_sent(embed_path, seed):
             cmd_output_txt = perform_command_local(command)
             res[model][dataset] = parse_senwu_outlogs(cmd_output_txt)
 
-
-
-
 parser = argh.ArghParser()
 parser.add_commands([eval_embeddings])
 

@@ -3,23 +3,23 @@ import glob
 import pathlib
 import json
 import os
+import sys
+import numpy as np
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
+from experimental_utils import *
 
 
-def agg(basedir,query):
+def agg(query, basedir=get_base_outputdir(), expected_num_res=None):
     '''
     Simple aggregation routine.
     basedir -- the embeddings base directory
     query -- a Unix-style (supports wildcards) query for EMBEDDINGS
     query example: my-rungroup/my-embeds* -- captures all embeddings in 'my-rungroup' that start with 'my-embeds'
     '''
-    #USER NOTE: query matches for RUNGROUPS!
     qry = str(pathlib.PurePath(basedir,query))
-    print(qry)
     d_list = []
     for emb in glob.glob(qry):
-        print(emb)
         emb_data_qry = str(pathlib.PurePath(emb,'*.json'))
-        print(emb_data_qry)
         e_dict = {}
         for data in glob.glob(emb_data_qry):
             print(data)
@@ -29,9 +29,11 @@ def agg(basedir,query):
                 assert k not in e_dict, "duplicated fields in json dicts"
                 e_dict[k] = d[k]
         d_list.append(e_dict)
+    if expected_num_res != None:
+        assert expected_num_res == len(d_list), "The number of results found does not match up the expected number of results"
     return d_list
 
-def get_seeds(d_list, base, vocab, method):
+def get_all_seeds(d_list, base, vocab, method):
     seeds = []
     for d in d_list:
         if d['base'] == base and d['vocab'] == vocab and d['method'] == method:
@@ -57,18 +59,19 @@ def data_formatter(data):
     data_y = [y[1] for y in data_prime]
     return data_x, data_y
 
-def compute_avg(data):
+def compute_avg(data,compute_var=False,compute_minmax=False):
     data_d = dict()
     count_d = dict()
+    store_d = dict()
     for i in range(len(data)):
         for pair in data[i]:
             if pair[0] in count_d.keys(): 
                 count_d[pair[0]] += 1
+                store_d[pair[0]].append(pair[1])
+                data_d[pair[0]] += pair[1]
             else: 
                 count_d[pair[0]] = 1
-            if pair[0] in data_d.keys():
-                data_d[pair[0]] += pair[1]
-            else:
+                store_d[pair[0]] = [pair[1]]
                 data_d[pair[0]] = pair[1]
     for x in data_d.keys():
         data_d[x] = data_d[x]/count_d[x]
@@ -76,5 +79,12 @@ def compute_avg(data):
     data_y = list()
     for i in range(len(data_x)):
         data_y.append(data_d[data_x[i]])
+    #if compute_var:
+
+    #rtn = (data_x, data_y)
+    #if compute_var:
+       # data_var = 
+        #rtn = rtn + ()
+
     return data_x, data_y
 
