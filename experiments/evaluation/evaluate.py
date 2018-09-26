@@ -97,23 +97,22 @@ def eval_qa(word_vectors_path, dim, seed, epochs, qa_log_path="", finetune_top_k
     #TODO WARNING FIX EPOCHS HERE
     python_command = "CUDA_HOME=/usr/local/cuda-8.0 python3.6 scripts/reader/train.py --random-seed %d --embedding-dim %d  --embed-dir=  --embedding-file %s  --num-epochs %s --tune-partial %d %s 2>&1 | tee %s" % (seed, dim, word_vectors_path, epochs, finetune_top_k, extra_args, qa_log_path)
     full_command = " && ".join([cd_dir, python_command])
-    eval_print("Executing: %s" % full_command)
+    logging.info("Executing: %s" % full_command)
     text = perform_command_local(full_command)
-    eval_print("==============================") 
+    #eval_print("==============================") 
     logging.info("==============================")
-    eval_print("Output of DrQA run:")
+    #eval_print("Output of DrQA run:")
     logging.info("Output of DrQA run:")
-    eval_print("==============================")
+    #eval_print("==============================")
     logging.info("==============================")
-    eval_print(text)
+    #eval_print(text)
     logging.info(text)
-    eval_print("==============================")
+    #eval_print("==============================")
     logging.info("==============================")
-    eval_print("End output of DrQA run")
+    #eval_print("End output of DrQA run")
     logging.info("End output of DrQA run")
-    eval_print("==============================")
+    #eval_print("==============================")
     logging.info("==============================")
-    rtn_dict = to_dict(text)
     return to_dict(text)
 
 def eval_intrinsics(embed_path):
@@ -196,13 +195,13 @@ def eval_intrinsics(embed_path):
 
     results_dict['analogy-avg-score'] = ana_score_sum/4 #four analogy tasks avg together
     results_dict['similarity-avg-score'] = sim_score_sum/5 #five sim tasks avg together        
-    eval_print("Results:")
+    #eval_print("Results:")
     logging.info("Results:")
-    eval_print("------------------------------")
+    #eval_print("------------------------------")
     logging.info("------------------------------")        
-    eval_print(results)
+    #eval_print(results)
     logging.info(results)
-    eval_print("------------------------------")
+    #eval_print("------------------------------")
     logging.info("------------------------------")
     return results_dict
 
@@ -242,7 +241,8 @@ def eval_sent(embed_path, seed):
                 get_senwu_sentiment_out_directory()
             ) 
             cmd_output_txt = perform_command_local(command)
-            res[model][dataset] = parse_senwu_outlogs
+            res[model][dataset] = parse_senwu_outlogs(cmd_output_txt)
+
 
 
 
