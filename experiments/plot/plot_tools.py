@@ -44,6 +44,17 @@ def get_all_seeds(d_list, base, vocab, method):
     seeds.sort()
     return seeds
 
+def get_all_data(d_list, base, vocab, method, x, y):
+    res = dict()
+    for d in d_list:
+        if d['base'] == base and d['vocab'] == vocab and d['method'] == method and x in d.keys() and y in d.keys():
+            if x in res.keys():
+                res[d[x]].append(d[y])
+            else:
+                res [d[x]] = [d[y]]
+
+    return res
+
 def get_data(d_list, base, vocab, method, seeds, x, y):
     seeds.sort()
     res = []
