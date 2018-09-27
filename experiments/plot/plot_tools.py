@@ -16,6 +16,8 @@ def agg(query, basedir=get_base_outputdir(), expected_num_res=None):
     query -- a Unix-style (supports wildcards) query for EMBEDDINGS
     query example: my-rungroup/my-embeds* -- captures all embeddings in 'my-rungroup' that start with 'my-embeds'
     '''
+    print(query)
+    print(basedir)
     qry = str(pathlib.PurePath(basedir,query))
     d_list = []
     for emb in glob.glob(qry):
@@ -49,6 +51,11 @@ def get_data(d_list, base, vocab, method, seeds, x, y):
         res.append([])
         for d in d_list:
             if d['base'] == base and d['vocab'] == vocab and d['method'] == method and d['seed'] == seeds[i]:
+                print(seeds[i])
+                print(base)
+                print(vocab)
+                print(method)
+                print(d['ibr'])
                 res[i].append((d[x],d[y]))
         res[i].sort()
     return res

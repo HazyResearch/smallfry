@@ -46,14 +46,14 @@ def plot_embeddings_frobenius(qry='merged-experiment2-5X-seeds/*',seeds=[4974,61
                 data = dict()
                 plt.tick_params(axis='both', which='major', labelsize=lbl_size)
                 for method in methods:
-                    data_x,data_y = compute_avg(get_data(agg(qry,130), source, vocab, method, seeds, x[i], y[i]))
+                    data_x,data_y = compute_avg(get_data(agg(qry,expected_num_res=130), source, vocab, method, seeds, x[i], y[i]))
                     plt.errorbar(data_x, data_y, fmt='r', linewidth=3.0, label=method)
                 #plt.axhline(y=np.mean(baselines),linestyle='--',label='baseline (32-bit)',linewidth=3.0)
                 plt.xlabel(x[i], size=lbl_size)
                 plt.ylabel(y[i], size=lbl_size)
                 plt.title('%s vs. %s' % (x[i],y[i]))
                 plt.tight_layout()
-                plt.savefig(str(pathlib.PurePath(get_plots_path,'%s-vs-%s_%s,%s' % (x[i], y[i], source, vocab))))
+                plt.savefig(str(pathlib.PurePath(get_plots_path(),'%s-vs-%s_%s,%s' % (x[i], y[i], source, vocab))))
 
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_frobenius])
