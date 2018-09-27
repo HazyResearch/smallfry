@@ -74,6 +74,15 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
+def relaunch_experiment2_5X_faulty_QA3_9_27_18(name):
+    with open('/proj/smallfry/launches/eval/2018-09-26:merged-experiment2-5X-seeds:'+name,'w+') as log_f:
+        #94
+        log_f.write("qsub -V -b y -wd /proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings /proj/smallfry/embeddings/merged-experiment2-5X-seeds/base=glove,method=kmeans,vocab=400000,dim=300,ibr=0.1,bitsperblock=1,blocklen=10,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds QA --seed 8559 --epochs 50\n")
+        
+        #99
+        log_f.write("qsub -V -b y -wd /proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings /proj/smallfry/embeddings/merged-experiment2-5X-seeds/base=fasttext,method=dca,vocab=400000,dim=300,ibr=2.0,m=286,k=4,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds QA --seed 8559 --epochs 50\n")
+
+ 
 
 def relaunch_experiment2_5X_faulty_QA2_9_26_18(name):
     '''
