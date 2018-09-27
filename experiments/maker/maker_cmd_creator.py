@@ -82,6 +82,19 @@ def relaunch_experiment2_5X_faulty_QA3_9_27_18(name):
         #99
         log_f.write("qsub -V -b y -wd /proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings /proj/smallfry/embeddings/merged-experiment2-5X-seeds/base=fasttext,method=dca,vocab=400000,dim=300,ibr=2.0,m=286,k=4,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds QA --seed 8559 --epochs 50\n")
 
+        #101
+        log_f.write("qsub -V -b y -wd /proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings /proj/smallfry/embeddings/merged-experiment2-5X-seeds/base=fasttext,method=dca,vocab=400000,dim=300,ibr=0.1,m=4,k=64,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds QA --seed 8559 --epochs 50\n")
+
+        #102 
+        log_f.write("qsub -V -b y -wd /proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings /proj/smallfry/embeddings/merged-experiment2-5X-seeds/base=fasttext,method=kmeans,vocab=400000,dim=300,ibr=2.0,bitsperblock=2,blocklen=1,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds QA --seed 8559 --epochs 50\n") 
+
+        #103
+        log_f.write("qsub -V -b y -wd /proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings /proj/smallfry/embeddings/merged-experiment2-5X-seeds/base=glove,method=kmeans,vocab=400000,dim=300,ibr=0.5,bitsperblock=1,blocklen=2,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds QA --seed 8559 --epochs 50\n")
+
+        #104
+        log_f.write("qsub -V -b y -wd /proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings /proj/smallfry/embeddings/merged-experiment2-5X-seeds/base=glove,method=kmeans,vocab=400000,dim=300,ibr=1.0,bitsperblock=1,blocklen=1,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds QA --seed 8559 --epochs 50\n") 
+
+
  
 
 def relaunch_experiment2_5X_faulty_QA2_9_26_18(name):
@@ -409,7 +422,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [relaunch_experiment2_5X_faulty_QA2_9_26_18]
+cmd = [relaunch_experiment2_5X_faulty_QA3_9_26_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
