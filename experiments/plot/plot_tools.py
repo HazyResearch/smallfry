@@ -16,15 +16,12 @@ def agg(query, basedir=get_base_outputdir(), expected_num_res=None):
     query -- a Unix-style (supports wildcards) query for EMBEDDINGS
     query example: my-rungroup/my-embeds* -- captures all embeddings in 'my-rungroup' that start with 'my-embeds'
     '''
-    print(query)
-    print(basedir)
     qry = str(pathlib.PurePath(basedir,query))
     d_list = []
     for emb in glob.glob(qry):
         emb_data_qry = str(pathlib.PurePath(emb,'*.json'))
         e_dict = {}
         for data in glob.glob(emb_data_qry):
-            print(data)
             with open(data,'r') as data_json:
                 d = json.loads(data_json.read())
             for k in d.keys():
