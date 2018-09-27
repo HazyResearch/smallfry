@@ -109,6 +109,13 @@ def compute_avg_variable_len(data):
         data_y.append(sum(data[data_x[i]])/len(data[data_x[i]]))
     return data_x, data_y
 
+def compute_var_variable_len(data):
+    data_x = sorted(list(data.keys()))
+    data_y = list()
+    for i in range(len(data_x)):
+        data_y.append(np.var(data[data_x[i]]))
+    return data_x, data_y
+
 def nice_names_lookup(ugly_name):
     ugly_2_nice = dict()
     ugly_2_nice['max-f1'] = 'F1 Score'
