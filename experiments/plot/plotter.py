@@ -50,7 +50,7 @@ def plot_embeddings_frobenius(qry='merged-experiment2-5X-seeds/*',seeds=[4974,61
                     data_x,data_y = compute_avg_variable_len(data)
                     _,errbars = compute_avg_variable_len(data)
                     color = 'r' if method == 'dca' else 'b'
-                    plt.errorbar(data_x, data_y, fmt=color, linewidth=3.0, label=method)
+                    plt.errorbar(data_x, data_y, fmt=color, yerr=errbars, linewidth=3.0, label=method)
                 #plt.axhline(y=np.mean(baselines),linestyle='--',label='baseline (32-bit)',linewidth=3.0)
                 plt.xlabel(nice_names_lookup(x[i]), size=lbl_size)
                 plt.ylabel(nice_names_lookup(y[i]), size=lbl_size)
