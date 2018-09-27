@@ -75,17 +75,22 @@ LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
 def relaunch_experiment2_5X_faulty_QA_9_26_18(name):
+    '''
+    This is a special command creation -- relaunches a faulty job
+    '''
     relaunch = []
-    relaunch.extend([2,14,42])
-    relaunch.extend(list(range(66,131))
-    with open('/proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official','r') as cmd_f:
-        with open('/proj/smallfry/qsub_logs/eval/2018-09-26:merged-experiment2-5X-seeds:'+name
-        cnt = 1
-        line = cmd_f.readline()
-        while line:
+    relaunch.extend([2,14,42,49,52])
+    relaunch.extend(list(range(66,131)))
+    with open('/proj/smallfry/launches/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official','r') as cmd_f:
+        with open('/proj/smallfry/launches/eval/2018-09-26:merged-experiment2-5X-seeds:'+name,'w+') as log_f:
+            cnt = 1
+            line = cmd_f.readline()
+            while line:
+                if cnt in relaunch:
+                    log_f.write(line)
+                cnt += 1
+                line = cmd_f.readline()
             
-        
-
 def launch_experiment2_5X_baselines_9_25_18(name):
     rungroup = 'experiment2-5X-seeds'
     methods = ['baseline']
@@ -377,7 +382,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment2_5X_baselines_9_25_18]
+cmd = [relaunch_experiment2_5X_faulty_QA_9_26_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
