@@ -422,7 +422,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [relaunch_experiment2_5X_faulty_QA3_9_26_18]
+cmd = [relaunch_experiment2_5X_faulty_QA3_9_27_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
