@@ -35,8 +35,8 @@ def get_dca_best_params(results, bitrates, base):
     return br_2_mk
 
 def plot_embeddings_frobenius(qry='merged-experiment2-5X-seeds/*',seeds=[4974,6117],lbl_size=17):
-    x = ['bitrate','bitrate','bitrate','bitrate','bitrate']
-    y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist']
+    x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
+    y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','maketime-secs']
     sources = ['glove', 'fasttext']
     vocabs = [400000]
     methods = ['dca','kmeans']
@@ -52,8 +52,8 @@ def plot_embeddings_frobenius(qry='merged-experiment2-5X-seeds/*',seeds=[4974,61
                     color = 'r' if method == 'dca' else 'b'
                     plt.errorbar(data_x, data_y, fmt=color, linewidth=3.0, label=method)
                 #plt.axhline(y=np.mean(baselines),linestyle='--',label='baseline (32-bit)',linewidth=3.0)
-                plt.xlabel(x[i], size=lbl_size)
-                plt.ylabel(y[i], size=lbl_size)
+                plt.xlabel(nice_names_lookup(x[i]), size=lbl_size)
+                plt.ylabel(nice_names_lookup(y[i]), size=lbl_size)
                 plt.title('%s vs. %s' % (x[i],y[i]))
                 plt.legend(fontsize='x-large')
                 plt.tight_layout()

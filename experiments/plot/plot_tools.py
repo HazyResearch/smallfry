@@ -108,3 +108,16 @@ def compute_avg_variable_len(data):
     for i in range(len(data_x)):
         data_y.append(sum(data[data_x[i]])/len(data[data_x[i]]))
     return data_x, data_y
+
+def nice_names_lookup(ugly_name):
+    ugly_2_nice = dict()
+    ugly_2_nice['max-f1'] = 'F1 Score'
+    ugly_2_nice['semantic-dist'] = 'Average Cosine Distance'
+    ugly_2_nice['analogy-avg-score'] = 'Aggregate Word Analogy Score'
+    ugly_2_nice['similarity-avg-score'] = 'Aggregate Word Similarity Spearman Correlation'
+    ugly_2_nice['bitrate'] = 'Bitrate'
+    ugly_2_nice['maketime-secs'] = 'Compression Runtime (secs)'
+    if ugly_name in ugly_2_nice.keys():
+        return ugly_2_nice[ugly_name]
+    else:
+        return ugly_name
