@@ -109,5 +109,5 @@ def compute_avg_variable_len(data):
     data_x = sorted(list(data.keys()))
     data_y = list()
     for i in range(len(data_x)):
-        data_y[i] = sum(data[data_x[i]])/len(data[data_x[i]])
+        data_y.append(sum(data[data_x[i]])/len(data[data_x[i]]))
     return data_x, data_y
