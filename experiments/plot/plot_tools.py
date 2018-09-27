@@ -52,7 +52,6 @@ def get_all_data(d_list, base, vocab, method, x, y):
                 res[d[x]].append(d[y])
             else:
                 res [d[x]] = [d[y]]
-
     return res
 
 def get_data(d_list, base, vocab, method, seeds, x, y):
@@ -106,3 +105,9 @@ def compute_avg(data,compute_var=False,compute_minmax=False):
 
     return data_x, data_y
 
+def compute_avg_variable_len(data):
+    data_x = sorted(list(data.keys()))
+    data_y = list()
+    for i in range(len(data_x)):
+        data_y[i] = sum(data[data_x[i]])/len(data[data_x[i]])
+    return data_x, data_y
