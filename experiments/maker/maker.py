@@ -94,6 +94,7 @@ def make_embeddings(base_embeds, embed_dir, config):
         sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'],
             block_len=config['blocklen'], r_seed=config['seed'])
         config['sfry-maketime-quantize-secs'] = time.time()-start
+        config['embed-maketime-secs'] = config['sfry-maketime-quantize-secs']
         start = time.time()
         embeds = sfry.decode(np.array(list(range(config['vocab']))))
         config['sfry-maketime-decode-secs'] = time.time()-start
@@ -107,6 +108,7 @@ def make_embeddings(base_embeds, embed_dir, config):
         base_embeds = base_embeds.astype(np.float32)
         dca_train_log = compressor.train(base_embeds)
         config['dca-maketime-train-secs'] = time.time()-start
+        config['embed-maketime-secs'] = config['dca-maketime-train-secs']
         me_distance,frob_error = compressor.evaluate(base_embeds)
         config['mean-euclidean-dist'] = me_distance
         config['embed-frob-err'] = frob_error
