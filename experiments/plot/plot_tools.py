@@ -45,7 +45,7 @@ def get_all_data(d_list, base, vocab, method, x, y):
     res = dict()
     for d in d_list:
         if d['base'] == base and d['vocab'] == vocab and d['method'] == method and x in d.keys() and y in d.keys():
-            if x in res.keys():
+            if d[x] in res.keys():
                 res[d[x]].append(d[y])
             else:
                 res [d[x]] = [d[y]]
@@ -109,16 +109,22 @@ def compute_avg_variable_len(data):
         data_y.append(sum(data[data_x[i]])/len(data[data_x[i]]))
     return data_x, data_y
 
+
 def compute_std_variable_len(data):
     data_x = sorted(list(data.keys()))
     data_y = list()
+    data_y_low = list()
+    data_y_high = list()
     for i in range(len(data_x)):
-        data_y.append(np.std(data[data_x[i]]))
-    return data_x, data_y
+        print(data_x[i])
+        print(data[data_x[i]])
+        data_y_low.append( min(data[data_x[i]])  )
+        data_y_high.append( max(data[data_x[i]]) )
+    return data_y_low, data_y_high
 
 def nice_names_lookup(ugly_name):
     ugly_2_nice = dict()
-    ugly_2_nice['max-f1'] = 'F1 Score'
+    ugly_2_nice['max-f1'] = 'QA F1 Score'
     ugly_2_nice['semantic-dist'] = 'Average Cosine Distance'
     ugly_2_nice['analogy-avg-score'] = 'Aggregate Word Analogy Score'
     ugly_2_nice['similarity-avg-score'] = 'Aggregate Word Sim. Spearman Correlation'
