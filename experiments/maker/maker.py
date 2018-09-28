@@ -4,6 +4,7 @@ import os
 import argparse
 import logging
 import sys
+import datetime
 import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
@@ -42,10 +43,12 @@ def main():
     init_logging(core_filename + '_maker.log')
     config['githash-maker'] = get_git_hash()
     logging.info('Begining to make embeddings')
+    logging.info('Datetime is %s' % datetime.datetime.now())
     start = time.time()
     embeds = make_embeddings(base_embeds, embed_dir, config)
     end = time.time()
     maketime = end - start
+    logging.info('Datetime is %s' % datetime.datetime.now())
     logging.info('Finished making embeddings.'
                  'It took {} minutes'.format(maketime/60))
     config['maketime-secs'] = maketime
