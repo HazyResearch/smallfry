@@ -94,8 +94,10 @@ def make_embeddings(base_embeds, embed_dir, config):
         sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'],
             block_len=config['blocklen'], r_seed=config['seed'])
         config['sfry-maketime-quantize-secs'] = time.time()-start
+        start = time.time()
         embeds = sfry.decode(np.array(list(range(config['vocab']))))
-    elif config['method'] == 'dca':
+        config['sfry-maketime-decode-secs'] = time.time()-start
+     elif config['method'] == 'dca':
         m,k,v,d,ibr = config['m'], config['k'], config['vocab'], config['dim'], config['ibr']
         #does m make sense given ibr and k?
         assert m == compute_m_dca(k,v,d,ibr), "m and k does not match intended bit rate"
@@ -113,9 +115,11 @@ def make_embeddings(base_embeds, embed_dir, config):
         start = time.time()
         codes, codebook = compressor.export(base_embeds, work_dir)
         config['dca-maketime-export-secs'] = time.time() - start
+        start = time.time()
         codes = np.array(codes).flatten()
         codebook = np.array(codebook)
         embeds = codes_2_vec(codes, codebook, m, k, v, d)
+        config['dca-maketime-codes2vec-secs'] = time.time() - start
     elif config['method'] == 'baseline':
         assert config['ibr'] == 32.0, "Baselines use floating point precision"
         embeds = load_embeddings(config['basepath'])[0]
