@@ -45,10 +45,10 @@ def get_all_data(d_list, base, vocab, method, x, y):
     res = dict()
     for d in d_list:
         if d['base'] == base and d['vocab'] == vocab and d['method'] == method and x in d.keys() and y in d.keys():
-            if x in res.keys():
+            if d[x] in res.keys():
                 res[d[x]].append(d[y])
             else:
-                res [d[x]] = [d[y]]
+                res[d[x]] = [d[y]]
     return res
 
 def get_data(d_list, base, vocab, method, seeds, x, y):
@@ -77,6 +77,7 @@ def compute_avg(data,compute_var=False,compute_minmax=False):
     data_d = dict()
     count_d = dict()
     store_d = dict()
+    #print(data)
     for i in range(len(data)):
         for pair in data[i]:
             if pair[0] in count_d.keys(): 
@@ -111,10 +112,14 @@ def compute_avg_variable_len(data):
 
 def compute_std_variable_len(data):
     data_x = sorted(list(data.keys()))
-    data_y = list()
+    data_y_low = list()
+    data_y_high = list()
     for i in range(len(data_x)):
-        data_y.append(np.std(data[data_x[i]]))
-    return data_x, data_y
+        print(data_x[i])
+        print(data[data_x[i]])
+        data_y_low.append( min(data[data_x[i]])  )
+        data_y_high.append( max(data[data_x[i]]) )
+    return data_y_low, data_y_high
 
 def nice_names_lookup(ugly_name):
     ugly_2_nice = dict()
