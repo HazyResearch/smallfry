@@ -74,6 +74,27 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
+def debug_timing_1_9_28_18(name):
+    #date of code Sept 28, 2018
+    rungroup = 'debug-timing'
+    methods = ['dca']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = dict()
+    params['dca']['glove']= [(4,64,0.1),(17,16,0.25)]
+    params['dca']['fasttext']= [(573,4,4)]
+    for method in methods:
+        base_embeds = ['fasttext','glove']
+        base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+        base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+        base_embeds_path = [base_path_ft, base_path_glove]
+        for i in range(len(base_embeds)):
+            seeds = [100]
+            method_params = params[method][base_embeds[i]] if method == 'dca' else params[method]
+            sweep(method, rungroup, [base_embeds[i]], [base_embeds_path[i]], seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
+
 def relaunch_experiment2_5X_faulty_QA3_9_27_18(name):
     with open('/proj/smallfry/launches/eval/2018-09-26:merged-experiment2-5X-seeds:'+name,'w+') as log_f:
         #94
@@ -92,10 +113,7 @@ def relaunch_experiment2_5X_faulty_QA3_9_27_18(name):
         log_f.write("qsub -V -b y -wd /proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings /proj/smallfry/embeddings/merged-experiment2-5X-seeds/base=glove,method=kmeans,vocab=400000,dim=300,ibr=0.5,bitsperblock=1,blocklen=2,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds QA --seed 8559 --epochs 50\n")
 
         #104
-        log_f.write("qsub -V -b y -wd /proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings /proj/smallfry/embeddings/merged-experiment2-5X-seeds/base=glove,method=kmeans,vocab=400000,dim=300,ibr=1.0,bitsperblock=1,blocklen=1,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds QA --seed 8559 --epochs 50\n") 
-
-
- 
+        log_f.write("qsub -V -b y -wd /proj/smallfry/qsub_logs/eval/2018-09-25:merged-experiment2-5X-seeds:eval-QA-int-simple-synths-official python3.6 /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings /proj/smallfry/embeddings/merged-experiment2-5X-seeds/base=glove,method=kmeans,vocab=400000,dim=300,ibr=1.0,bitsperblock=1,blocklen=1,seed=8559,date=2018-09-24,rungroup=experiment2-5X-seeds QA --seed 8559 --epochs 50\n")  
 
 def relaunch_experiment2_5X_faulty_QA2_9_26_18(name):
     '''
@@ -147,7 +165,6 @@ def launch_experiment2_5X_baselines_9_25_18(name):
         for i in [0,1]: #loop over baselines: fasttext and glove
             log.append(qsub_launch('baseline',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
     log_launch(maker.get_log_name(name, rungroup))
-
 
 def launch_experiment2_5X_seeds(name):
     #date of code Sept 23, 2018
@@ -422,7 +439,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [relaunch_experiment2_5X_faulty_QA3_9_27_18]
+cmd = [debug_timing_1_9_28_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

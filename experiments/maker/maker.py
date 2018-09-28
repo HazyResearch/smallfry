@@ -90,23 +90,29 @@ def init_parser():
 def make_embeddings(base_embeds, embed_dir, config):
     if config['method'] == 'kmeans':
         assert config['bitsperblock']/config['blocklen'] == config['ibr'], "intended bitrate for kmeans not met!"
+        start = time.time()
         sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'],
             block_len=config['blocklen'], r_seed=config['seed'])
+        config['sfry-maketime-quantize-secs'] = time.time()-start
         embeds = sfry.decode(np.array(list(range(config['vocab']))))
     elif config['method'] == 'dca':
         m,k,v,d,ibr = config['m'], config['k'], config['vocab'], config['dim'], config['ibr']
         #does m make sense given ibr and k?
         assert m == compute_m_dca(k,v,d,ibr), "m and k does not match intended bit rate"
         work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
+        start = time.time()
         compressor = EmbeddingCompressor(m, k, work_dir)
         base_embeds = base_embeds.astype(np.float32)
         dca_train_log = compressor.train(base_embeds)
+        config['dca-maketime-train-secs'] = time.time()-start
         me_distance,frob_error = compressor.evaluate(base_embeds)
         config['mean-euclidean-dist'] = me_distance
         config['embed-frob-err'] = frob_error
         with open(work_dir+'.dca-log-json','w+') as log_f:
             log_f.write(json.dumps(dca_train_log))
+        start = time.time()
         codes, codebook = compressor.export(base_embeds, work_dir)
+        config['dca-maketime-export-secs'] = time.time() - start
         codes = np.array(codes).flatten()
         codebook = np.array(codebook)
         embeds = codes_2_vec(codes, codebook, m, k, v, d)

@@ -152,7 +152,6 @@ class EmbeddingCompressor(object):
         Args:
             embed_matrix: a numpy matrix
         """
-        max_epochs = 3 #tony line TODO REMOVE
         dca_train_log = [] #tony line
         vocab_size = embed_matrix.shape[0]
         valid_ids = np.random.RandomState(3).randint(0, vocab_size, size=(self._BATCH_SIZE * 10,)).tolist()
@@ -221,7 +220,7 @@ class EmbeddingCompressor(object):
                      'validloss' : validloss,   #tony line
                      'trainmaxp' : trainmaxp,   #tony line
                      'validmaxp' : validmaxp,   #tony line
-                     'time-elapsed': t})        #tony line
+                     'time-elapsed': time_elapsed})        #tony line
                 logging.info(log_str) #tony mod
 
         logging.info("Training Done") #tony mod
