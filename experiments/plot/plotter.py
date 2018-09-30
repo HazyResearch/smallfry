@@ -76,7 +76,7 @@ def plot_embeddings_frobenius(qry='merged-experiment2-5X-seeds/*',seeds=[4974,61
                 #plt.axhline(y=data_y,linestyle='--',label='baseline (32-bit)',linewidth=3.0)
                 plt.xlabel(nice_names_lookup(x[i]), size=lbl_size)
                 plt.ylabel(nice_names_lookup(y[i]), size=lbl_size)
-                plt.xscale('log')
+                plt.yscale('log')
                 plt.xticks([0.1,0.25,0.5,1,2,4],['0.1','0.25','0.5','1','2','4'])
                 plt.title('%s vs. %s for %s' % (nice_names_lookup(x[i]),
                                                     nice_names_lookup(y[i]),

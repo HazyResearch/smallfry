@@ -98,7 +98,7 @@ def make_embeddings(base_embeds, embed_dir, config):
         start = time.time()
         embeds = sfry.decode(np.array(list(range(config['vocab']))))
         config['sfry-maketime-decode-secs'] = time.time()-start
-     elif config['method'] == 'dca':
+    elif config['method'] == 'dca':
         m,k,v,d,ibr = config['m'], config['k'], config['vocab'], config['dim'], config['ibr']
         #does m make sense given ibr and k?
         assert m == compute_m_dca(k,v,d,ibr), "m and k does not match intended bit rate"
