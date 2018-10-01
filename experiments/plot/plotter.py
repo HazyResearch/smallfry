@@ -8,7 +8,7 @@ from experimental_utils import *
 
 def plot_embeddings_battery():
     x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
-    y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','maketime-secs']
+    y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','embed-maketime-secs']
     sources = ['glove', 'fasttext']
     vocabs = [400000]
     methods = ['dca','kmeans']
@@ -17,8 +17,8 @@ def plot_embeddings_battery():
             for vocab in vocabs:
                 needs_baseline = y in ['similarity-avg-score','analogy-avg-score','max-f1']
                 qry, expected_num = xy_dataset_qry_lookup(x[i],y[i])
-                results = agg(qry,expected_num_res=expected_num,include_baseline=needs_baseline)
-                make_plots(x,y,results,source,vocab)
+                results = agg(qry,expected_num_res=expected_num)
+                make_plots(x[i],y[i],results,source,vocab,include_baseline=needs_baseline)
 '''
 def plot_embeddings_battery_old(qry='merged-experiment2-5X-seeds/*',seeds=[4974,6117],lbl_size=12):
     x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']

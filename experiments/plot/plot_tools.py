@@ -6,6 +6,7 @@ import os
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
+plt.switch_backend('agg')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import *
 
@@ -18,9 +19,11 @@ def agg(query, basedir=get_base_outputdir(), expected_num_res=None):
     query example: my-rungroup/my-embeds* -- captures all embeddings in 'my-rungroup' that start with 'my-embeds'
     '''
     qry = str(pathlib.PurePath(basedir,query))
+    print(qry)
     d_list = []
     for emb in glob.glob(qry):
         emb_data_qry = str(pathlib.PurePath(emb,'*.json'))
+        #print(emb_data_qry)
         e_dict = {}
         for data in glob.glob(emb_data_qry):
             with open(data,'r') as data_json:
@@ -29,8 +32,11 @@ def agg(query, basedir=get_base_outputdir(), expected_num_res=None):
                 assert k not in e_dict, "duplicated fields in json dicts"
                 e_dict[k] = d[k]
         d_list.append(e_dict)
+        #print(len(d_list))
     if expected_num_res != None:
-        assert expected_num_res == len(d_list), "The number of results found does not match up the expected number of results"
+        assert expected_num_res == len(d_list),\
+        "The number of results found (%s) does not match up the expected number of results (%s). Query: %s" \
+        % (len(d_list),expected_num_res,qry)
     return d_list
 
 def get_all_seeds(d_list, base, vocab, method):
@@ -125,8 +131,6 @@ def compute_min_max_variable_len(data):
     data_y_low = list()
     data_y_high = list()
     for i in range(len(data_x)):
-        print(data_x[i])
-        print(data[data_x[i]])
         data_y_low.append( min(data[data_x[i]])  )
         data_y_high.append( max(data[data_x[i]]) )
     return data_y_low, data_y_high
@@ -213,8 +217,8 @@ def color_lookup(method):
 
 def xy_dataset_qry_lookup(x,y):
     qry = 'merged-experiment2-5X-seeds/*', 130
-    if y == 'maketime-secs':
-        qry = '2018-10-01-experiment4-1X-seeds', 72
+    if 'maketime' in y: 
+        qry = '2018-10-01-experiment4-1X-seeds/*', 72
     return qry
 
 def nice_names_lookup(ugly_name):
