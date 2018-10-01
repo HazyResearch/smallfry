@@ -10,7 +10,6 @@ plt.switch_backend('agg')
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import *
 
-
 def agg(query, basedir=get_base_outputdir(), expected_num_res=None):
     '''
     Simple aggregation routine.
@@ -191,6 +190,7 @@ def make_plots( x,
             data_x = [0.1,0.25,0.5,1,2,4]
             data_y = [np.mean(np.array(vals))]*6
             errbar = 0.5*(max(vals) - min(vals)) #TODO fix this weird error bar centering
+            print(data_x, data_y)
             plt.errorbar(data_x, data_y, fmt=color_lookup('baseline'), yerr=errbar, label='baseline (32-bit)', linewidth=3.0, linestyle='--')
     plt.xlabel(nice_names_lookup(x), size=lbl_size)
     plt.ylabel(nice_names_lookup(y), size=lbl_size)
@@ -205,7 +205,6 @@ def make_plots( x,
     plt.savefig(str(pathlib.PurePath(get_plots_path(),
         '%s:%s-vs-%s_%s,%s,%s-%s' % (get_date_str(),x, y, source, vocab, xscale, yscale))))
     plt.close()
-
 
 def color_lookup(method):
     colors = dict()
