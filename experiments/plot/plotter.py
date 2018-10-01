@@ -2,40 +2,24 @@ import sys
 import os
 import argh
 import numpy as np
-import matplotlib.pyplot as plt
 from plot_tools import *
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import *
 
-def get_dca_params(results, bitrates, base):
-    res = results
-    br_2_mks = dict()
-    for br in bitrates:
-        br_2_mks[br] = []
-        for r in res:
-            if r == {} or r['base'] != base: continue
-            if r['method'] == 'dca' and abs(r['bitrate'] - br) < 0.15*br:
-                if 'embed-fro-dist' in r.keys():
-                    br_2_mks[br].append((r['m'],r['k'],r['embed-fro-dist']))
-                    br_2_mks[br].sort(key=lambda x:x[1])
-    return br_2_mks
+def plot_embeddings_battery():
+    x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
+    y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','maketime-secs']
+    sources = ['glove', 'fasttext']
+    vocabs = [400000]
+    methods = ['dca','kmeans']
+    for i in range(len(x)):
+        for source in sources:
+            for vocab in vocabs:
+                qry, expected_num = xy_dataset_qry_lookup(x[i],y[i])
+                results = agg(qry,expected_num_res=expected_num)
+                make_plots(x,y,results,source,vocab)
 
-def get_dca_best_params(results, bitrates, base):
-    res = results
-    br_2_mk = dict()
-    for br in bitrates:
-        lowest_mdd = 9999999
-        best_res = None
-        for r in res:
-            if r == {} or r['base'] != base: continue
-            if r['method'] == 'dca' and abs(r['bitrate'] - br) < 0.15*br:
-                if lowest_mdd > r['embed-fro-dist']:
-                    lowest_mdd = r['embed-fro-dist']
-                    best_res = r
-        br_2_mk[br] = (best_res['m'], best_res['k'])
-    return br_2_mk
-
-def plot_embeddings_frobenius(qry='merged-experiment2-5X-seeds/*',seeds=[4974,6117],lbl_size=12):
+def plot_embeddings_battery_old(qry='merged-experiment2-5X-seeds/*',seeds=[4974,6117],lbl_size=12):
     x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
     y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','maketime-secs']
     #x = ['bitrate']

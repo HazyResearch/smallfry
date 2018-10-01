@@ -95,7 +95,7 @@ def eval_qa(word_vectors_path, dim, seed, epochs, qa_log_path="", finetune_top_k
     # WARNING: REALLY DANGEROUS SINCE MAKES ASSUMPTIONS ABOUT 
     # FILEPATHS AND THEIR EXISTENCE
     #TODO WARNING FIX EPOCHS HERE
-    python_command = "CUDA_HOME=/usr/local/cuda-8.0 python3.6 scripts/reader/train.py --random-seed %d --embedding-dim %d  --embed-dir=  --embedding-file %s  --num-epochs %s --tune-partial %d %s 2>&1 | tee %s" % (seed, dim, word_vectors_path, epochs, finetune_top_k, extra_args, qa_log_path)
+    python_command = "python scripts/reader/train.py --random-seed %d --embedding-dim %d  --embed-dir=  --embedding-file %s  --num-epochs %s --tune-partial %d %s 2>&1 | tee %s" % (seed, dim, word_vectors_path, epochs, finetune_top_k, extra_args, qa_log_path)
     full_command = " && ".join([cd_dir, python_command])
     logging.info("Executing: %s" % full_command)
     text = perform_command_local(full_command)
@@ -213,6 +213,7 @@ def eval_synthetics(embed_path):
 
     res_rtn = dict()
     res_rtn['embed-fro-dist'] = np.linalg.norm(base_embeds-embeds)
+    res_rtn['embed-fro-norm'] = np.linalg.norm(embeds)
     res_rtn['mean'] = np.mean(embeds)
     res_rtn['var'] = np.var(embeds)
     res_rtn['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
