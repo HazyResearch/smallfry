@@ -16,7 +16,7 @@ qsub_log_path = str(pathlib.PurePath(maker.get_qsub_log_path(), 'maker'))
 def launch(method, params):
     s = ''
     maker_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'maker.py'))
-    python36_maker_cmd = 'python3.6 %s' % maker_path
+    python36_maker_cmd = 'python %s' % maker_path
     if method == 'kmeans':
         s = '%s --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s --ibr %s' % ((python36_maker_cmd,)+params)
     elif method == 'dca':
@@ -73,6 +73,74 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def launch_experiment4_2X_seeds_10_1_18(name):
+    #date of code Oct 1, 2018
+    rungroup = 'experiment4-1X-seeds'
+    methods = ['dca','kmeans']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = dict()
+    params['dca']['glove']= [(4,64,0.1),(17,16,0.25),(47,8,0.5),(286,2,1),(286,4,2),(376,8,4)]
+    params['dca']['fasttext']= [(4,64,0.1),(13,32,0.25),(47,8,0.5),(286,2,1),(286,4,2),(573,4,4)]
+    params['kmeans'] = [(1,10,0.1),(1,4,0.25),(1,2,0.5),(1,1,1),(2,1,2),(4,1,4)]
+    for method in methods:
+        base_embeds = ['fasttext','glove']
+        base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+        base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+        base_embeds_path = [base_path_ft, base_path_glove]
+        for i in range(len(base_embeds)):
+            seeds = [1944, 7997]
+            method_params = params[method][base_embeds[i]] if method == 'dca' else params[method]
+            sweep(method, rungroup, [base_embeds[i]], [base_embeds_path[i]], seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
+
+
+
+def launch_experiment4_1X_seeds_10_1_18(name):
+    #date of code Oct 1, 2018
+    rungroup = 'experiment4-1X-seeds'
+    methods = ['dca','kmeans']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = dict()
+    params['dca']['glove']= [(4,64,0.1),(17,16,0.25),(47,8,0.5),(286,2,1),(286,4,2),(376,8,4)]
+    params['dca']['fasttext']= [(4,64,0.1),(13,32,0.25),(47,8,0.5),(286,2,1),(286,4,2),(573,4,4)]
+    params['kmeans'] = [(1,10,0.1),(1,4,0.25),(1,2,0.5),(1,1,1),(2,1,2),(4,1,4)]
+    for method in methods:
+        base_embeds = ['fasttext','glove']
+        base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+        base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+        base_embeds_path = [base_path_ft, base_path_glove]
+        for i in range(len(base_embeds)):
+            seeds = [3506]
+            method_params = params[method][base_embeds[i]] if method == 'dca' else params[method]
+            sweep(method, rungroup, [base_embeds[i]], [base_embeds_path[i]], seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
+
+def test_cfn_2_9_30_18(name):
+    #date of code Sept 28, 2018
+    #dupe of launch_experiment2_5X_seeds
+    rungroup = 'test-cfn-2'
+    methods = ['dca','kmeans']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    params['dca'] = dict()
+    params['dca']['glove']= [(4,64,0.1)]
+    params['dca']['fasttext']= [(4,64,0.1)]
+    params['kmeans'] = [(1,10,0.1)]
+    for method in methods:
+        base_embeds = ['fasttext','glove']
+        base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+        base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+        base_embeds_path = [base_path_ft, base_path_glove]
+        for i in range(len(base_embeds)):
+            seeds = [1]
+            method_params = params[method][base_embeds[i]] if method == 'dca' else params[method]
+            sweep(method, rungroup, [base_embeds[i]], [base_embeds_path[i]], seeds, method_params)
+    log_launch(maker.get_log_name(name, rungroup))
 
 
 def launch_experiment3_5X_seeds(name):
@@ -463,7 +531,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [debug_timing_1_9_28_18]
+cmd = [launch_experiment4_2X_seeds_10_1_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
