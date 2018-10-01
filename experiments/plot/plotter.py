@@ -15,7 +15,7 @@ def plot_embeddings_battery():
     for i in range(len(x)):
         for source in sources:
             for vocab in vocabs:
-                needs_baseline = y in ['similarity-avg-score','analogy-avg-score','max-f1']
+                needs_baseline = y[i] in ['similarity-avg-score','analogy-avg-score','max-f1']
                 qry, expected_num = xy_dataset_qry_lookup(x[i],y[i])
                 results = agg(qry,expected_num_res=expected_num)
                 make_plots(x[i],y[i],results,source,vocab,include_baseline=needs_baseline)
