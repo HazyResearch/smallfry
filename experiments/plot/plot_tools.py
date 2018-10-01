@@ -188,8 +188,8 @@ def make_plots( x,
             data_y = [np.mean(np.array(vals))]*6
             errbar = 0.5*(max(vals) - min(vals)) #TODO fix this weird error bar centering
             plt.errorbar(data_x, data_y, fmt=color_lookup('baseline'), yerr=errbar, label='baseline (32-bit)', linewidth=3.0, linestyle='--')
-    plt.xlabel(nice_names_lookup(x[i]), size=lbl_size)
-    plt.ylabel(nice_names_lookup(y[i]), size=lbl_size)
+    plt.xlabel(nice_names_lookup(x), size=lbl_size)
+    plt.ylabel(nice_names_lookup(y), size=lbl_size)
     plt.xscale(xscale)
     plt.yscale(yscale)
     plt.xticks([0.1,0.25,0.5,1,2,4],['0.1','0.25','0.5','1','2','4'])

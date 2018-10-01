@@ -15,10 +15,11 @@ def plot_embeddings_battery():
     for i in range(len(x)):
         for source in sources:
             for vocab in vocabs:
+                needs_baseline = y in ['similarity-avg-score','analogy-avg-score','max-f1']
                 qry, expected_num = xy_dataset_qry_lookup(x[i],y[i])
-                results = agg(qry,expected_num_res=expected_num)
+                results = agg(qry,expected_num_res=expected_num,include_baseline=needs_baseline)
                 make_plots(x,y,results,source,vocab)
-
+'''
 def plot_embeddings_battery_old(qry='merged-experiment2-5X-seeds/*',seeds=[4974,6117],lbl_size=12):
     x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
     y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','maketime-secs']
@@ -69,9 +70,9 @@ def plot_embeddings_battery_old(qry='merged-experiment2-5X-seeds/*',seeds=[4974,
                 plt.tight_layout()
                 plt.savefig(str(pathlib.PurePath(get_plots_path(),'%s-vs-%s_%s,%s' % (x[i], y[i], source, vocab))))
                 plt.close()
-
+'''
 parser = argh.ArghParser()
-parser.add_commands([plot_embeddings_frobenius])
+parser.add_commands([plot_embeddings_battery])
 
 if __name__ == '__main__':
     parser.dispatch()
