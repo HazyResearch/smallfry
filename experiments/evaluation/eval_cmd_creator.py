@@ -225,7 +225,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_eval_official_experiment2_9_25_18]
+cmd = [test0_sent_10_1_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
