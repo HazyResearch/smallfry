@@ -185,6 +185,12 @@ def prep_sentiment_results(results):
             sum(scores_for_sentiment[score_key])/len(scores_for_sentiment[score_key])
     return results
 
+def prep_codebook_free_bitrate_results(results):
+    for res in results:
+        if res['method'] == 'dca':
+            res['bitrate-codes-only'] = res['vocab']*res['m']*np.log2(res['k'])
+    return results
+
 def make_plots( x,
                 y,
                 results,

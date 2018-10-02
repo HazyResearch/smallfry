@@ -6,34 +6,42 @@ from plot_tools import *
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import *
 
-def plot_embeddings_battery():
-    x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
-    y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','embed-maketime-secs']
-    sources = ['glove', 'fasttext']
-    vocabs = [400000]
-    methods = ['dca','kmeans']
+def core_plotter(x,y,sources,vocabs,methods,results_prep):
     for i in range(len(x)):
         for source in sources:
             for vocab in vocabs:
                 needs_baseline = y[i] in ['similarity-avg-score','analogy-avg-score','max-f1']
                 qry, expected_num = xy_dataset_qry_lookup(x[i],y[i])
                 results = agg(qry,expected_num_res=expected_num)
+                results = results_prep(results)
                 for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
-                    make_plots(x[i],y[i],results,source,vocab,include_baseline=needs_baseline,xscale=scales[0],yscale=scale[1])
+                    make_plots(x[i],y[i],results,source,vocab,
+                        include_baseline=needs_baseline,xscale=scales[0],yscale=scale[1])
 
+def plot_embeddings_battery():
+    x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
+    y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','embed-maketime-secs']
+    sources = ['glove', 'fasttext']
+    vocabs = [400000]
+    methods = ['dca','kmeans']
+    core_plotter(x,y,sources,vocabs,methods,lambda x: x)
+    
 def plot_embeddings_sentiment():
     x = ['bitrate','bitrate','bitrate']
     y = ['avg-sentiment-lstm','avg-sentiment-cnn','avg-sentiment-la']
     sources = ['glove', 'fasttext']
     vocabs = [400000]
     methods = ['dca','kmeans']
-    for i in range(len(x)):
-        for source in sources:
-            for vocab in vocabs:
-                qry, expected_num = xy_dataset_qry_lookup(x[i],y[i])
-                results = agg(qry,expected_num_res=expected_num)
-                results = prep_sentiment_results(results)
-                make_plots(x[i],y[i],results,source,vocab,include_baseline=True)
+    core_plotter(x,y,sources,vocabs,methods,prep_sentiment_results)
+
+def plot_embeddings_bitrate_codes_only():
+    x = ['bitrate-codes-only']
+    y = ['embed-fro-dist']
+    sources = ['glove', 'fasttext']
+    vocabs = [400000]
+    methods = ['dca','kmeans']
+    core_plotter(x,y,sources,vocabs,methods,prep_codebook_free_bitrate_results)
+
 '''
 def plot_embeddings_battery_old(qry='merged-experiment2-5X-seeds/*',seeds=[4974,6117],lbl_size=12):
     x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
@@ -87,7 +95,7 @@ def plot_embeddings_battery_old(qry='merged-experiment2-5X-seeds/*',seeds=[4974,
                 plt.close()
 '''
 parser = argh.ArghParser()
-parser.add_commands([plot_embeddings_battery, plot_embeddings_sentiment])
+parser.add_commands([plot_embeddings_battery, plot_embeddings_sentiment,plot_embeddings_bitrate_codes_only])
 
 if __name__ == '__main__':
     parser.dispatch()
