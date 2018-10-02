@@ -19,6 +19,20 @@ def plot_embeddings_battery():
                 qry, expected_num = xy_dataset_qry_lookup(x[i],y[i])
                 results = agg(qry,expected_num_res=expected_num)
                 make_plots(x[i],y[i],results,source,vocab,include_baseline=needs_baseline)
+
+def plot_embeddings_sentiment():
+    x = ['bitrate','bitrate','bitrate']
+    y = ['avg-sentiment-lstm','avg-sentiment-cnn','avg-sentiment-lr']
+    sources = ['glove', 'fasttext']
+    vocabs = [400000]
+    methods = ['dca','kmeans']
+    for i in range(len(x)):
+        for source in sources:
+            for vocab in vocabs:
+                qry, expected_num = xy_dataset_qry_lookup(x[i],y[i])
+                results = agg(qry,expected_num_res=expected_num)
+                results = prep_sentiment_results(results)
+                make_plots(x[i],y[i],results,source,vocab,include_baseline=True)
 '''
 def plot_embeddings_battery_old(qry='merged-experiment2-5X-seeds/*',seeds=[4974,6117],lbl_size=12):
     x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
@@ -72,7 +86,7 @@ def plot_embeddings_battery_old(qry='merged-experiment2-5X-seeds/*',seeds=[4974,
                 plt.close()
 '''
 parser = argh.ArghParser()
-parser.add_commands([plot_embeddings_battery])
+parser.add_commands([plot_embeddings_battery, plot_embeddings_sentiment])
 
 if __name__ == '__main__':
     parser.dispatch()

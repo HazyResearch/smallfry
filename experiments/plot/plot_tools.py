@@ -134,7 +134,6 @@ def compute_min_max_variable_len(data):
         data_y_high.append( max(data[data_x[i]]) )
     return data_y_low, data_y_high
 
-
 def get_dca_params(results, bitrates, base):
     '''A simple query routine for getting the results of dca parameter tune'''
     res = results
@@ -164,6 +163,28 @@ def get_dca_best_params(results, bitrates, base):
                     best_res = r
         br_2_mk[br] = (best_res['m'], best_res['k'])
     return br_2_mk
+
+def prep_sentiment_results(results):
+    '''
+    Since sentiment data requires average over data sets and plotting for three differen models,
+    I use this prep routine to convert the data into a format that works with rest of plotting pipeline
+    Input: results -- list of json results
+    Output: prepped_results -- same list of json results, with additional entries used for plotting 
+    NO modification to original values
+    '''
+    scores_for_sentiment = dict()
+    for res in results:
+        for key in res.keys():
+            if 'sentiment' in key:
+                _,dataset,model = key.split('-')
+                if model in scores_for_sentiment.keys():
+                    scores_for_sentiment[model].extend(res[key])
+                else:
+                     scores_for_sentiment[model] = [res[key]]
+        for score_key in scores_for_sentiment.keys():
+            res['avg-sentiment-%s' % score_key] = \
+            sum(scores_for_sentiment[score_key])/len(scores_for_sentiment[score_key])
+    return results
 
 def make_plots( x,
                 y,
@@ -224,13 +245,17 @@ def nice_names_lookup(ugly_name):
     ugly_2_nice = dict()
     ugly_2_nice['max-f1'] = 'QA F1 Score'
     ugly_2_nice['semantic-dist'] = 'Average Cosine Distance'
-    ugly_2_nice['analogy-avg-score'] = 'Aggregate Word Analogy Score'
+    ugly_2_nice['analogy-avg-score'] = 'Aggregate Word Analogy Accu.'
     ugly_2_nice['similarity-avg-score'] = 'Aggregate Word Sim. Spearman Corr.'
     ugly_2_nice['embed-fro-dist'] = 'Frobenius Distance'
     ugly_2_nice['bitrate'] = 'Bitrate'
     ugly_2_nice['maketime-secs'] = 'Compression Runtime (secs)'
     ugly_2_nice['glove'] = 'GloVe'
     ugly_2_nice['fasttext'] = 'FastText'
+    ugly_2_nice['avg-sentiment-lstm'] = 'Agg. Sentiment Analysis Accu.. with LSTM'
+    ugly_2_nice['avg-sentiment-cnn'] = 'Agg. Sentiment Analysis Accu. with CNN'
+    ugly_2_nice['avg-sentiment-lr'] = 'Agg. Sentiment Analysis Accu. with Perceptron'
+
     if ugly_name in ugly_2_nice.keys():
         return ugly_2_nice[ugly_name]
     else:
