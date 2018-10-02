@@ -70,6 +70,16 @@ def forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=None, params=
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def test0_sent_10_1_18(name):
+    rungroups = ['2018-10-01-test-cfn-2']
+    evaltypes = ['sentiment']
+    global qsub_log_path
+    for rungroup in rungroups:
+        qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+        for evaltype in evaltypes:
+            seeds = [1,2,3]
+            forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=1)
+        log_launch(evaluate.get_log_name(name, rungroup))
 
 def launch_eval_official_experiment2_9_25_18(name):
     #date of code Sept. 25, 2018
