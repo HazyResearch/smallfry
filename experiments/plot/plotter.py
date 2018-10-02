@@ -10,7 +10,7 @@ def core_plotter(x,y,sources,vocabs,methods,results_prep):
     for i in range(len(x)):
         for source in sources:
             for vocab in vocabs:
-                needs_baseline = y[i] in ['similarity-avg-score','analogy-avg-score','max-f1']
+                needs_baseline = y[i] in ['similarity-avg-score','analogy-avg-score','max-f1','avg-sentiment-lstm','avg-sentiment-la','avg-sentiment-cnn']
                 qry, expected_num = xy_dataset_qry_lookup(x[i],y[i])
                 results = agg(qry,expected_num_res=expected_num)
                 results = results_prep(results)

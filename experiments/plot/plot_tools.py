@@ -188,9 +188,9 @@ def prep_sentiment_results(results):
 def prep_codebook_free_bitrate_results(results):
     for res in results:
         if res['method'] == 'dca':
-            res['bitrate-codes-only'] = res['vocab']*res['m']*np.log2(res['k'])
+            res['bitrate-codes-only'] = res['vocab']*res['m']*np.log2(res['k'])/(res['vocab']*res['dim'])
         elif res['method'] == 'kmeans':
-            res['bitrate-codes-only'] = res['ibr']
+            res['bitrate-codes-only'] = res['bitsperblock']/res['blocklen']
     return results
 
 def make_plots( x,
