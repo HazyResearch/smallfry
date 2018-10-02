@@ -42,7 +42,7 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None):
         logging.info("OOPS these results already are present -- ABORTING")
 
     # determine evaltype and send off to that subroutine -- SEE THIS LOGIC TREE FOR VALID EVALTYPES
-    if evaltype == 'QA':
+    if evaltype == 'QA' or 'sentiment':
         seed = int(seed)
         if epochs == None:
             epochs = 50
@@ -51,6 +51,8 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None):
         results = eval_intrinsics(embed_path)
     elif evaltype == 'synthetics':
         results = eval_synthetics(embed_path)
+    elif evaltype == 'sentiment':
+        results eval_sent(fetch_embeds_text_path(embed_path), seed)
     else:
         assert False, 'bad evaltype given to eval()'
 
@@ -220,18 +222,18 @@ def eval_synthetics(embed_path):
     res_rtn['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
     return res_rtn
 
-def eval_sent(embed_path, seed):
+def eval_sent(embed_txt_path, seed):
     #TODO: sent eval not operational yet
 
     def parse_senwu_outlogs(outlog):
         lines = outlog.split('\n')
         return float(lines[-3].split(' ')[-1])
 
+    logging.info('starting sentiment')
     models = ['lstm', 'cnn', 'la']
     datasets = ['mr', 'subj', 'cr', 'sst', 'trec', 'mpqa']
     res = dict()
     for model in models:
-        res[model] = dict()
         for dataset in datasets:
             command = "python2  %s --dataset %s --path %s --embedding %s --cv 0 --%s --out %s" % (
                 str(pathlib.PurePath(get_senwu_sentiment_directory(),'train_classifier.py')),
@@ -242,7 +244,10 @@ def eval_sent(embed_path, seed):
                 get_senwu_sentiment_out_directory()
             ) 
             cmd_output_txt = perform_command_local(command)
-            res[model][dataset] = parse_senwu_outlogs(cmd_output_txt)
+            logging.info(cmd_output_txt)
+            res['sentiment-score-%s-%s'%(model,dataset)] = parse_senwu_outlogs(cmd_output_txt)
+    logging.info('done with sentiment evals')
+    return res
 
 parser = argh.ArghParser()
 parser.add_commands([eval_embeddings])
