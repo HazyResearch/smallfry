@@ -42,7 +42,7 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None):
         logging.info("OOPS these results already are present -- ABORTING")
 
     # determine evaltype and send off to that subroutine -- SEE THIS LOGIC TREE FOR VALID EVALTYPES
-    if evaltype == 'QA' or 'sentiment':
+    if evaltype == 'QA':
         seed = int(seed)
         if epochs == None:
             epochs = 50
@@ -52,7 +52,8 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None):
     elif evaltype == 'synthetics':
         results = eval_synthetics(embed_path)
     elif evaltype == 'sentiment':
-        results eval_sent(fetch_embeds_text_path(embed_path), seed)
+        seed = int(seed)
+        results = eval_sent(fetch_embeds_txt_path(embed_path), seed)
     else:
         assert False, 'bad evaltype given to eval()'
 
