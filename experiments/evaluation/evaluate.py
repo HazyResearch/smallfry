@@ -240,7 +240,7 @@ def eval_sent(embed_txt_path, seed):
                 str(pathlib.PurePath(get_senwu_sentiment_directory(),'train_classifier.py')),
                 dataset,
                 get_harvardnlp_sentiment_data_directory(),
-                embed_path,
+                embed_txt_path,
                 model,
                 get_senwu_sentiment_out_directory()
             ) 
