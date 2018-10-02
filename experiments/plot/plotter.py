@@ -18,6 +18,7 @@ def plot_embeddings_battery():
                 needs_baseline = y[i] in ['similarity-avg-score','analogy-avg-score','max-f1']
                 qry, expected_num = xy_dataset_qry_lookup(x[i],y[i])
                 results = agg(qry,expected_num_res=expected_num)
+                for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log')
                 make_plots(x[i],y[i],results,source,vocab,include_baseline=needs_baseline)
 
 def plot_embeddings_sentiment():
