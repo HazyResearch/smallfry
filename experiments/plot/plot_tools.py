@@ -18,7 +18,6 @@ def agg(query, basedir=get_base_outputdir(), expected_num_res=None):
     query example: my-rungroup/my-embeds* -- captures all embeddings in 'my-rungroup' that start with 'my-embeds'
     '''
     qry = str(pathlib.PurePath(basedir,query))
-    print(qry)
     d_list = []
     for emb in glob.glob(qry):
         emb_data_qry = str(pathlib.PurePath(emb,'*.json'))
@@ -172,13 +171,13 @@ def prep_sentiment_results(results):
     Output: prepped_results -- same list of json results, with additional entries used for plotting 
     NO modification to original values
     '''
-    scores_for_sentiment = dict()
     for res in results:
+        scores_for_sentiment = dict()
         for key in res.keys():
-            if 'sentiment' in key:
-                _,dataset,model = key.split('-')
+            if 'sentiment-score' in key:
+                _,_,model,dataset = key.split('-')
                 if model in scores_for_sentiment.keys():
-                    scores_for_sentiment[model].extend(res[key])
+                    scores_for_sentiment[model].extend(scores_for_sentiment[model])
                 else:
                      scores_for_sentiment[model] = [res[key]]
         for score_key in scores_for_sentiment.keys():
@@ -205,14 +204,17 @@ def make_plots( x,
         errbars_high_rel = np.array(errbars_high_abs) - np.array(data_y)
         errbars = np.array([errbars_low_rel, errbars_high_rel])
         plt.errorbar(data_x, data_y, fmt=color_lookup(method), yerr=errbars, linewidth=3.0, label=method)
-        if include_baseline: #hardcoded for now -- needs a fix
-            data = get_all_data(results, source, vocab, 'baseline', x, y)
-            vals = data[32.0]
-            data_x = [0.1,0.25,0.5,1,2,4]
-            data_y = [np.mean(np.array(vals))]*6
-            errbar = 0.5*(max(vals) - min(vals)) #TODO fix this weird error bar centering
-            print(data_x, data_y)
-            plt.errorbar(data_x, data_y, fmt=color_lookup('baseline'), yerr=errbar, label='baseline (32-bit)', linewidth=3.0, linestyle='--')
+    if include_baseline: #hardcoded for now -- needs a fix
+        data = get_all_data(results, source, vocab, 'baseline', x, y)
+        print(data)
+        print(x)
+        print(y)
+        print(source)
+        vals = data[32.0]
+        data_x = [0.1,0.25,0.5,1,2,4]
+        data_y = [np.mean(np.array(vals))]*6
+        errbar = 0.5*(max(vals) - min(vals)) #TODO fix this weird error bar centering
+    plt.errorbar(data_x, data_y, fmt=color_lookup('baseline'), yerr=errbar, label='baseline (32-bit)', linewidth=3.0, linestyle='--')
     plt.xlabel(nice_names_lookup(x), size=lbl_size)
     plt.ylabel(nice_names_lookup(y), size=lbl_size)
     plt.xscale(xscale)
@@ -254,7 +256,7 @@ def nice_names_lookup(ugly_name):
     ugly_2_nice['fasttext'] = 'FastText'
     ugly_2_nice['avg-sentiment-lstm'] = 'Agg. Sentiment Analysis Accu.. with LSTM'
     ugly_2_nice['avg-sentiment-cnn'] = 'Agg. Sentiment Analysis Accu. with CNN'
-    ugly_2_nice['avg-sentiment-lr'] = 'Agg. Sentiment Analysis Accu. with Perceptron'
+    ugly_2_nice['avg-sentiment-la'] = 'Agg. Sentiment Analysis Accu. with Perceptron'
 
     if ugly_name in ugly_2_nice.keys():
         return ugly_2_nice[ugly_name]

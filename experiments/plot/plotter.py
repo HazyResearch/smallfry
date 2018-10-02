@@ -22,7 +22,7 @@ def plot_embeddings_battery():
 
 def plot_embeddings_sentiment():
     x = ['bitrate','bitrate','bitrate']
-    y = ['avg-sentiment-lstm','avg-sentiment-cnn','avg-sentiment-lr']
+    y = ['avg-sentiment-lstm','avg-sentiment-cnn','avg-sentiment-la']
     sources = ['glove', 'fasttext']
     vocabs = [400000]
     methods = ['dca','kmeans']

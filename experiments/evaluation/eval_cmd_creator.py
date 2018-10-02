@@ -90,7 +90,7 @@ def test0_sent_10_1_18(name):
         qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
         for evaltype in evaltypes:
             seeds = [1,2,3]
-            forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=1:wq)
+            forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=1)
         log_launch(evaluate.get_log_name(name, rungroup))
 
 def launch_eval_official_experiment2_9_25_18(name):
@@ -225,7 +225,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [test0_sent_10_1_18]
+cmd = [launch_eval_official_sentiment2_10_2_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
