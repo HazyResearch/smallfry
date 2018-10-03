@@ -182,7 +182,7 @@ def prep_sentiment_results(results):
                      scores_for_sentiment[model] = [res[key]]
         for score_key in scores_for_sentiment.keys():
             res['avg-sentiment-%s' % score_key] = \
-            sum(scores_for_sentiment[score_key])/len(scores_for_sentiment[score_key])
+            1 - sum(scores_for_sentiment[score_key])/len(scores_for_sentiment[score_key])
     return results
 
 def prep_codebook_free_bitrate_results(results):
@@ -203,7 +203,9 @@ def make_plots( x,
                 xscale='linear',
                 yscale='linear',
                 lbl_size=12):
+    plt.figure(figsize=(14,8))
     plt.tick_params(axis='both', which='major', labelsize=lbl_size)
+
     for method in methods:
         data = get_all_data(results, source, vocab, method, x, y)
         data_x,data_y = compute_avg_variable_len(data)
@@ -232,7 +234,8 @@ def make_plots( x,
                                     nice_names_lookup(y),
                                     nice_names_lookup(source)))
     plt.legend(fontsize='x-large')
-    plt.tight_layout()
+    #plt.figure(figsize=(8,8))
+    #plt.tight_layout()
     plt.savefig(str(pathlib.PurePath(get_plots_path(),
         '%s:%s-vs-%s_%s,%s,%s-%s' % (get_date_str(),x, y, source, vocab, xscale, yscale))))
     plt.close()
