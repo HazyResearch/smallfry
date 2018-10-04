@@ -74,6 +74,24 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
+def launch_official_stochround_maketime_10_4_18(name):
+    rungroup = 'experiment4-1X-seeds'
+    methods = ['stochround']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibrs = [1,2,4]
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [1944, 7997, 3506]
+    for seed in seeds:
+        for i in [0,1]: #loop over baselines: fasttext and glove
+            for ibr in ibrs:
+                log.append(qsub_launch('stochround',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+    log_launch(maker.get_log_name(name, rungroup))
+
 def launch_official_stochround_10_3_18(name):
     rungroup = 'experiment2-5X-seeds'
     methods = ['stochround']
@@ -566,7 +584,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_official_stochround_10_3_18]
+cmd = [launch_official_stochround_maketime_10_4_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
