@@ -3,6 +3,7 @@ import argh
 import os
 import smallfry
 import torch
+import sys
 
 demo_embed_path = 'examples/data/glove.head.txt'
 
@@ -26,6 +27,17 @@ def test_io():
 def test_kmeans():
     X = np.random.random([1000,10])
     sfry = smallfry.smallfry.Smallfry.quantize(X)
+    passing = True
+    for i in range(1000):
+        X_hat = sfry.decode(np.array(i))
+        for j in range(10):
+            if abs(X[i,j] - X_hat[j]) > 0.27: 
+                passing = False
+    assert passing
+
+def test_dynprog():
+    X = np.random.random([1000,10])
+    sfry = smallfry.smallfry.Smallfry.quantize(X,solver='dynprog')
     passing = True
     for i in range(1000):
         X_hat = sfry.decode(np.array(i))
@@ -116,7 +128,7 @@ def test_dec_frobenius():
 
 
 parser = argh.ArghParser()
-parser.add_commands([test_query, test_io, test_kmeans, test_zeros])
+parser.add_commands([test_query, test_io, test_kmeans, test_zeros, test_dynprog])
 
 if __name__ == '__main__':
     parser.dispatch()
