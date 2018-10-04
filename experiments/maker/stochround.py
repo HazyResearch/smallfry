@@ -1,6 +1,7 @@
 import torch
 
 def stochround(X,b):
+    dtype = torch.cuda.FloatTensor
     L = torch.max( torch.abs( X )) # compute range
     n = 2**b - 1
     quanta = [] # compute quanta
