@@ -21,8 +21,8 @@ def launch(method, params):
         s = '%s --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s --ibr %s' % ((python36_maker_cmd,)+params)
     elif method == 'dca':
         s = '%s --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s --ibr %s' % ((python36_maker_cmd,)+params)
-    elif method == 'baseline':
-        s = '%s --method baseline --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --ibr %s' % ((python36_maker_cmd,)+params)
+    elif method == 'baseline' or method == 'stochround':
+        s = '%s --method %s --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --ibr %s' % ((python36_maker_cmd,)+(method,)+params)
     else:
         assert 'bad method name in launch'
     return s
@@ -74,13 +74,13 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
-def test0_stochround(name):
+def test0_stochround_10_3_18(name):
     rungroup = 'test0-stochround'
     methods = ['stochround']
     global qsub_log_path
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     params = dict()
-    ibr = [1,2]
+    ibrs = [1,2]
     base_embeds = ['fasttext','glove']
     base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
     base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
@@ -88,7 +88,8 @@ def test0_stochround(name):
     seeds = [1]
     for seed in seeds:
         for i in [0,1]: #loop over baselines: fasttext and glove
-            log.append(qsub_launch('stochround',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+            for ibr in ibrs:
+                log.append(qsub_launch('stochround',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
     log_launch(maker.get_log_name(name, rungroup))
 
 def launch_experiment4_2X_seeds_10_1_18(name):
@@ -547,7 +548,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_experiment4_2X_seeds_10_1_18]
+cmd = [test0_stochround_10_3_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

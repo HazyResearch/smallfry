@@ -9,9 +9,9 @@ import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
 from smallfry.utils import load_embeddings
+from stochround import stochround
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
-from ..stochround import stochround
 from neuralcompressor.nncompress import EmbeddingCompressor
 
 
