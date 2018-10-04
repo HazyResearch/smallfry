@@ -11,6 +11,7 @@ from smallfry.smallfry import Smallfry
 from smallfry.utils import load_embeddings
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
+from ..stochround import stochround
 from neuralcompressor.nncompress import EmbeddingCompressor
 
 
@@ -63,8 +64,8 @@ def init_parser():
     """Initialize Cmd-line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, required=True,
-        choices=['kmeans','dca','baseline'],
-        help='Name of compression method to use (kmeans or dca).')
+        choices=['kmeans','dca','baseline','stochround'],
+        help='Name of compression method to use (kmeans or dca or stochastic rounding).')
     parser.add_argument('--base', type=str, required=True,
         help='Name of base embeddings')
     parser.add_argument('--basepath', type=str, required=True,
@@ -125,6 +126,11 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'baseline':
         assert config['ibr'] == 32.0, "Baselines use floating point precision"
         embeds = load_embeddings(config['basepath'])[0]
+    elif config['method'] == 'stochround':
+        embeds = load_embeddings(config['basepath'])[0]
+        start = time.time()
+        embeds = stochround(embeds,config['ibr'])
+        config['embed-maketime-secs'] = time.time()-start
     else:
         raise ValueError('Method name invalid')
     return embeds
@@ -134,7 +140,7 @@ def get_embeddings_dir_and_name(config):
         params = ['base','method','vocab','dim','ibr','bitsperblock','blocklen','seed','date','rungroup']
     elif config['method'] == 'dca':
         params = ['base','method','vocab','dim','ibr','m','k','seed','date','rungroup']
-    elif config['method'] == 'baseline':
+    elif config['method'] in ['baseline', 'stochround']:
         params = ['base','method','vocab','dim','ibr','seed','date','rungroup']
     else:
         raise ValueError('Method name invalid')
@@ -163,6 +169,8 @@ def get_memory(config):
         mem = v * m * np.log2(k) + 4 * 32 * d * m * k
     elif config['method'] == 'baseline':
         return v*d*32
+    elif config['method'] == 'baseline':
+        return config['ibr']*d*v + 32
     else:
         raise ValueError('Method name invalid (must be dca or kmeans)')
     return mem
