@@ -169,7 +169,7 @@ def get_memory(config):
         mem = v * m * np.log2(k) + 4 * 32 * d * m * k
     elif config['method'] == 'baseline':
         return v*d*32
-    elif config['method'] == 'baseline':
+    elif config['method'] == 'stochround':
         return config['ibr']*d*v + 32
     else:
         raise ValueError('Method name invalid (must be dca or kmeans)')
