@@ -76,6 +76,8 @@ def init_parser():
         help='Head output directory')
     parser.add_argument('--rungroup', type=str, required=True,
         help='Rungroup for organization')
+    parser.add_argument('--ibr', type=float, required=True,
+        help='Developer intended bitrate.')
     parser.add_argument('--bitsperblock', type=int,
         help='Bits per block')
     parser.add_argument('--blocklen', type=int, default=1,
@@ -84,8 +86,14 @@ def init_parser():
         help='Number of codebooks for DCA.')
     parser.add_argument('--k', type=int, default=1,
         help='Codebook size for DCA.')
-    parser.add_argument('--ibr', type=float, required=True,
-        help='Developer intended bitrate.')
+    parser.add_argument('--tau', type=float, default=1.0,
+        help='Temperature parameter for deep net training.')
+    parser.add_argument('--batchsize', type=int, default=64,
+        help='Batch size for deep net training.')
+    parser.add_argument('--gradclip', type=float, default=0.001,
+        help='Clipping of gradient norm for deep net training.')
+    parser.add_argument('--lr', type=float, default=0.0001,
+        help='Learning rate for deep net training.')
     return parser
 
 def make_embeddings(base_embeds, embed_dir, config):

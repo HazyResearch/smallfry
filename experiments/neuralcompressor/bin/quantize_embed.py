@@ -18,13 +18,21 @@ if __name__ == '__main__':
     ap.add_argument("--train", action="store_true")
     ap.add_argument("--export", action="store_true")
     ap.add_argument("--evaluate", action="store_true")
+    ap.add_argument("--tau", default=1.0, type=float) #tony line
+    ap.add_argument("--batch_size", default=64, type=int) #tony line
+    ap.add_argument("--learning_rate", default=0.0001, type=float) #tony line
+    ap.add_argument("--grad_clip", default=0.001, type=float)
     args = ap.parse_args()
 
     matrix = np.load(args.matrix)
     if args.limit > 0:
         matrix = matrix[:args.limit]
 
-    compressor = EmbeddingCompressor(args.M, args.K, args.model)
+    compressor = EmbeddingCompressor(args.M, args.K, args.model, 
+                                            args.tau, # tony line
+                                            args.batch_size, # tony line
+                                            args.learning_rate,# tony line
+                                            args.grad_clip) # tony line
     if args.train:
         compressor.train(matrix)
     elif args.export:
