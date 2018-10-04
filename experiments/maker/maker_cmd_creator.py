@@ -70,9 +70,57 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
                         p[2]))
                 log.append(cmd)
 
+def sweep2(method, rungroup, base_embeds, base_embeds_path, seeds, bitsperblock=None,
+                                                                    blocklen=None, 
+                                                                    m=None,
+                                                                    k=None,
+                                                                    tau=None,
+                                                                    batchsize=None,
+                                                                    gradclip=None,
+                                                                    lr=None,
+                                                                    qsub=True):
+    '''a subroutine for complete 'sweeps' of params'''
+    l = qsub_launch2 if qsub else launch2
+    for seed in seeds:
+        for e in range(len(base_embeds)):
+            for p in params:
+                cmd = l(method,(
+                        base_embeds[e],
+                        base_embeds_path[e],
+                        seed,
+                        maker.get_base_outputdir(),
+                        rungroup,
+                        p[0],
+                        p[1],
+                        p[2]))
+                log.append(cmd)
+
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def dca_hp_all_params_demo_10_4_18(name):
+    rungroup = 'hp_tune_all_demo'
+    methods = 'dca'
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    m = [1145, 573, 376]
+    k = [2,4,8]
+    ibr = 4
+    seed = 1234
+    tau = [1.0,0.5,2]
+    batchsize = [64,32,128]
+    gradclip = [0.001,0.01,0.0005,0.002]
+    lr = [0.0001,0.001,0.00005,0.00025]  
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [4974, 7737, 6665, 6117, 8559]
+    for seed in seeds:
+        for i in [0,1]: #loop over baselines: fasttext and glove
+            for ibr in ibrs:
+                log.append(qsub_launch('stochround',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+    log_launch(maker.get_log_name(name, rungroup))
 
 def launch_official_stochround_10_3_18(name):
     rungroup = 'experiment2-5X-seeds'
