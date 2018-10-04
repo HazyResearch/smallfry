@@ -73,6 +73,24 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+
+def test0_stochround(name):
+    rungroup = 'test0-stochround'
+    methods = ['stochround']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibr = [1,2]
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [1]
+    for seed in seeds:
+        for i in [0,1]: #loop over baselines: fasttext and glove
+            log.append(qsub_launch('stochround',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+    log_launch(maker.get_log_name(name, rungroup))
+
 def launch_experiment4_2X_seeds_10_1_18(name):
     #date of code Oct 1, 2018
     rungroup = 'experiment4-1X-seeds'
@@ -94,8 +112,6 @@ def launch_experiment4_2X_seeds_10_1_18(name):
             method_params = params[method][base_embeds[i]] if method == 'dca' else params[method]
             sweep(method, rungroup, [base_embeds[i]], [base_embeds_path[i]], seeds, method_params)
     log_launch(maker.get_log_name(name, rungroup))
-
-
 
 def launch_experiment4_1X_seeds_10_1_18(name):
     #date of code Oct 1, 2018
