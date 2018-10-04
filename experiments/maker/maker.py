@@ -129,7 +129,7 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'stochround':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = stochround(embeds,config['ibr'])
+        embeds = stochround(embeds,config['ibr'],config['seed'])
         config['embed-maketime-secs'] = time.time()-start
     else:
         raise ValueError('Method name invalid')

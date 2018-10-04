@@ -4,6 +4,7 @@ def stochround(X,b,seed):
     b = int(b)
     torch.manual_seed(seed)
     dtype = torch.cuda.FloatTensor
+    X = torch.Tensor(X)
     L = torch.max( torch.abs( X )) # compute range
     n = 2**b - 1
     quanta = [] # compute quanta
