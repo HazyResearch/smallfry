@@ -207,6 +207,7 @@ def make_plots( x,
     plt.tick_params(axis='both', which='major', labelsize=lbl_size)
 
     for method in methods:
+        print(method)
         data = get_all_data(results, source, vocab, method, x, y)
         data_x,data_y = compute_avg_variable_len(data)
         errbars_low_abs, errbars_high_abs = compute_min_max_variable_len(data)
@@ -250,7 +251,7 @@ def color_lookup(method):
     return colors[method]
 
 def xy_dataset_qry_lookup(x,y):
-    qry = 'merged-experiment2-5X-seeds/*', 130
+    qry = 'merged-experiment2-5X-seeds/*', 160
     if 'maketime' in y: 
         qry = '2018-10-01-experiment4-1X-seeds/*', 72
     return qry

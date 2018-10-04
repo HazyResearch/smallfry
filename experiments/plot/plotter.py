@@ -15,7 +15,7 @@ def core_plotter(x,y,sources,vocabs,methods,results_prep):
                 results = agg(qry,expected_num_res=expected_num)
                 results = results_prep(results)
                 for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
-                    make_plots(x[i],y[i],results,source,vocab,
+                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
                         include_baseline=needs_baseline,xscale=scales[0],yscale=scales[1])
 
 def plot_embeddings_battery():
