@@ -23,8 +23,14 @@ class EmbeddingCompressor(object):
 
     _TAU = 1.0
     _BATCH_SIZE = 64
+    _GRAD_CLIP = 0.001
+    _LEARNING_RATE = 0.0001
 
-    def __init__(self, n_codebooks, n_centroids, model_path):
+    def __init__(self, n_codebooks, n_centroids, model_path,
+                                            tau, # tony line
+                                            batch_size, # tony line
+                                            learning_rate, # tony line
+                                            grad_clip): # tony line
         """
         M: number of codebooks (subcodes)
         K: number of vectors in each codebook
@@ -33,6 +39,10 @@ class EmbeddingCompressor(object):
         self.M = n_codebooks
         self.K = n_centroids
         self._model_path = model_path
+        self._TAU = tau # tony line
+        self._BATCH_SIZE = batch_size # tony line
+        self._GRAD_CLIP = grad_clip # tony line
+        self.LEARNING_RATE = learning_rate #tony line
 
     def _gumbel_dist(self, shape, eps=1e-20):
         U = tf.random_uniform(shape,minval=0,maxval=1)
@@ -136,12 +146,12 @@ class EmbeddingCompressor(object):
         loss = tf.reduce_mean(loss, name="loss")
 
         # Define optimization
-        max_grad_norm = 0.001
+        max_grad_norm = self._GRAD_CLIP # tony mod
         tvars = tf.trainable_variables()
         grads = tf.gradients(loss, tvars)
         grads, global_norm = tf.clip_by_global_norm(grads, max_grad_norm)
         global_norm = tf.identity(global_norm, name="global_norm")
-        optimizer = tf.train.AdamOptimizer(0.0001)
+        optimizer = tf.train.AdamOptimizer(self._LEARNING_RATE) # tony mod
         train_op = optimizer.apply_gradients(zip(grads, tvars), name="train_op")
 
         return word_ids, loss, train_op, maxp
