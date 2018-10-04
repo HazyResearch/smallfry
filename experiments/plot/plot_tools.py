@@ -245,6 +245,7 @@ def color_lookup(method):
     colors['dca'] = 'r'
     colors['kmeans'] = 'b'
     colors['baseline'] = 'c'
+    colors['stochround'] = 'm'
     assert method in colors.keys(), "A color has not been designated for the requested method"
     return colors[method]
 

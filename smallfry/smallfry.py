@@ -29,7 +29,7 @@ class Smallfry(nn.Module):
         embed_query = torch.from_numpy(self.decode(
             input.to(device='cpu').numpy())).to(device=orig_device)
         embed_query.requires_grad = False
-        return embed_query
+        return embed_query.type(torch.float)
 
     def decode_all_in_one(self, index_tensor):
         '''

@@ -23,7 +23,7 @@ def plot_embeddings_battery():
     y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','embed-maketime-secs']
     sources = ['glove', 'fasttext']
     vocabs = [400000]
-    methods = ['dca','kmeans']
+    methods = ['dca','kmeans','stochround']
     core_plotter(x,y,sources,vocabs,methods,lambda x: x)
     
 def plot_embeddings_sentiment():
