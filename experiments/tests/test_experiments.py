@@ -6,7 +6,7 @@ import smallfry
 import torch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
-from maker.stochround import stochround
+from maker.uniform_quant import stochround, midriser
 
 demo_work_dir = ''
 

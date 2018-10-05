@@ -21,7 +21,7 @@ def launch(method, params):
         s = '%s --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s --ibr %s' % ((python36_maker_cmd,)+params)
     elif method == 'dca':
         s = '%s --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s --ibr %s' % ((python36_maker_cmd,)+params)
-    elif method == 'baseline' or method == 'stochround':
+    elif method == 'baseline' or method == 'stochround' or method == 'midriser':
         s = '%s --method %s --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --ibr %s' % ((python36_maker_cmd,)+(method,)+params)
     else:
         assert 'bad method name in launch'
@@ -53,7 +53,7 @@ def dca_hyperparam_sweep(bitrates, base_embeds_path, upper_power=8, size_tol=0.1
                 dca_params.append((m(k,v,d,br),k))
     return dca_params
 
-def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=True):
+def simple_sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
@@ -70,15 +70,20 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
                         p[2]))
                 log.append(cmd)
 
-def sweep2(method, rungroup, base_embeds, base_embeds_path, seeds, bitsperblock=None,
-                                                                    blocklen=None, 
-                                                                    m=None,
-                                                                    k=None,
-                                                                    tau=None,
-                                                                    batchsize=None,
-                                                                    gradclip=None,
-                                                                    lr=None,
-                                                                    qsub=True):
+def config_sweep(method, 
+                rungroup, 
+                base_embeds, 
+                base_embeds_path, 
+                seeds, 
+                bitsperblock=None,
+                blocklen=None, 
+                m=None,
+                k=None,
+                tau=None,
+                batchsize=None,
+                gradclip=None,
+                lr=None,
+                qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch2 if qsub else launch2
     for seed in seeds:

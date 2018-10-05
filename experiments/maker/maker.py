@@ -64,7 +64,7 @@ def init_parser():
     """Initialize Cmd-line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, required=True,
-        choices=['kmeans','dca','baseline','stochround'],
+        choices=['kmeans','dca','baseline','stochround','midriser'],
         help='Name of compression method to use (kmeans or dca or stochastic rounding).')
     parser.add_argument('--base', type=str, required=True,
         help='Name of base embeddings')
@@ -94,13 +94,16 @@ def init_parser():
         help='Clipping of gradient norm for deep net training.')
     parser.add_argument('--lr', type=float, default=0.0001,
         help='Learning rate for deep net training.')
+    parser.add('--solver', type=str, default='iterative'
+        choices=['iterative','dynprog'],
+        help='Solver used to solve k-means.')
     return parser
 
 def make_embeddings(base_embeds, embed_dir, config):
     if config['method'] == 'kmeans':
         assert config['bitsperblock']/config['blocklen'] == config['ibr'], "intended bitrate for kmeans not met!"
         start = time.time()
-        sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'],
+        sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'], solver=config['solver']
             block_len=config['blocklen'], r_seed=config['seed'])
         config['sfry-maketime-quantize-secs'] = time.time()-start
         config['embed-maketime-secs'] = config['sfry-maketime-quantize-secs']
@@ -134,10 +137,11 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'baseline':
         assert config['ibr'] == 32.0, "Baselines use floating point precision"
         embeds = load_embeddings(config['basepath'])[0]
-    elif config['method'] == 'stochround':
+    elif config['method'] == 'stochround' or config['method'] == 'midriser':
         embeds = load_embeddings(config['basepath'])[0]
+        uniform_quantizer = stochround if config['method'] == 'stochround' else midriser
         start = time.time()
-        embeds = stochround(embeds,config['ibr'],config['seed'])
+        embeds = uniform_quantizer(embeds,config['ibr'],config['seed'])
         config['embed-maketime-secs'] = time.time()-start
     else:
         raise ValueError('Method name invalid')
@@ -177,7 +181,7 @@ def get_memory(config):
         mem = v * m * np.log2(k) + 4 * 32 * d * m * k
     elif config['method'] == 'baseline':
         return v*d*32
-    elif config['method'] == 'stochround':
+    elif config['method'] in ['stochround', 'midriser'] :
         return config['ibr']*d*v + 32
     else:
         raise ValueError('Method name invalid (must be dca or kmeans)')
