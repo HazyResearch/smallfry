@@ -137,14 +137,15 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'baseline':
         assert config['ibr'] == 32.0, "Baselines use floating point precision"
         embeds = load_embeddings(config['basepath'])[0]
-    elif config['method'] == 'stochround' or config['method'] == 'midriser':
+    elif config['method'] == 'midriser':
         embeds = load_embeddings(config['basepath'])[0]
-        uniform_quantizer = stochround if config['method'] == 'stochround' else midriser
         start = time.time()
-        if config['method'] == 'stochround':
-            embeds = uniform_quantizer(embeds,config['ibr'],config['seed'])
-        else:
-            embeds = uniform_quantizer(embeds,config['ibr'],config['seed']) 
+        embeds = midriser(embeds,config['ibr'])
+        config['embed-maketime-secs'] = time.time()-start
+    elif config['method'] == 'stochround':
+        embeds = load_embeddings(config['basepath'])[0]
+        start = time.time()
+        embeds = stochround(embeds,config['ibr'],config['seed'])
         config['embed-maketime-secs'] = time.time()-start
     else:
         raise ValueError('Method name invalid')
