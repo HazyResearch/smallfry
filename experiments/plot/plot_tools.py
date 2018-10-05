@@ -214,6 +214,9 @@ def make_plots( x,
         errbars_low_rel = np.array(data_y) - np.array(errbars_low_abs)
         errbars_high_rel = np.array(errbars_high_abs) - np.array(data_y)
         errbars = np.array([errbars_low_rel, errbars_high_rel])
+        if method == 'stochround':
+            print(data_y)
+
         plt.errorbar(data_x, data_y, fmt=color_lookup(method), yerr=errbars, linewidth=3.0, label=method)
     if include_baseline: #hardcoded for now -- needs a fix
         data = get_all_data(results, source, vocab, 'baseline', x, y)
@@ -264,7 +267,7 @@ def nice_names_lookup(ugly_name):
     ugly_2_nice['similarity-avg-score'] = 'Aggregate Word Sim. Spearman Corr.'
     ugly_2_nice['embed-fro-dist'] = 'Frobenius Distance'
     ugly_2_nice['bitrate'] = 'Bitrate'
-    ugly_2_nice['maketime-secs'] = 'Compression Runtime (secs)'
+    ugly_2_nice['embed-maketime-secs'] = 'Compression Runtime (secs)'
     ugly_2_nice['glove'] = 'GloVe'
     ugly_2_nice['fasttext'] = 'FastText'
     ugly_2_nice['avg-sentiment-lstm'] = 'Agg. Sentiment Analysis Accu.. with LSTM'
