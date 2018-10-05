@@ -94,7 +94,7 @@ def init_parser():
         help='Clipping of gradient norm for deep net training.')
     parser.add_argument('--lr', type=float, default=0.0001,
         help='Learning rate for deep net training.')
-    parser.add('--solver', type=str, default='iterative'
+    parser.add_argument('--solver', type=str, default='iterative'
         choices=['iterative','dynprog'],
         help='Solver used to solve k-means.')
     return parser
