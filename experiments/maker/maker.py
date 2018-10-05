@@ -141,7 +141,10 @@ def make_embeddings(base_embeds, embed_dir, config):
         embeds = load_embeddings(config['basepath'])[0]
         uniform_quantizer = stochround if config['method'] == 'stochround' else midriser
         start = time.time()
-        embeds = uniform_quantizer(embeds,config['ibr'],config['seed'])
+        if config['method'] == 'stochround':
+            embeds = uniform_quantizer(embeds,config['ibr'],config['seed'])
+        else:
+            embeds = uniform_quantizer(embeds,config['ibr'],config['seed']) 
         config['embed-maketime-secs'] = time.time()-start
     else:
         raise ValueError('Method name invalid')
