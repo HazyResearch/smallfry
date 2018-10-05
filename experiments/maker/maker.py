@@ -152,7 +152,7 @@ def get_embeddings_dir_and_name(config):
         params = ['base','method','vocab','dim','ibr','bitsperblock','blocklen','seed','date','rungroup']
     elif config['method'] == 'dca':
         params = ['base','method','vocab','dim','ibr','m','k','seed','date','rungroup']
-    elif config['method'] in ['baseline', 'stochround']:
+    elif config['method'] in ['baseline', 'stochround', 'midriser']:
         params = ['base','method','vocab','dim','ibr','seed','date','rungroup']
     else:
         raise ValueError('Method name invalid')
