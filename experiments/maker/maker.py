@@ -9,7 +9,7 @@ import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
 from smallfry.utils import load_embeddings
-from stochround import stochround
+from uniform_quant import stochround, midriser
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
 from neuralcompressor.nncompress import EmbeddingCompressor
@@ -94,7 +94,7 @@ def init_parser():
         help='Clipping of gradient norm for deep net training.')
     parser.add_argument('--lr', type=float, default=0.0001,
         help='Learning rate for deep net training.')
-    parser.add('--solver', type=str, default='iterative'
+    parser.add('--solver', type=str, default='iterative',
         choices=['iterative','dynprog'],
         help='Solver used to solve k-means.')
     return parser
@@ -103,7 +103,7 @@ def make_embeddings(base_embeds, embed_dir, config):
     if config['method'] == 'kmeans':
         assert config['bitsperblock']/config['blocklen'] == config['ibr'], "intended bitrate for kmeans not met!"
         start = time.time()
-        sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'], solver=config['solver']
+        sfry = Smallfry.quantize(base_embeds, b=config['bitsperblock'], solver=config['solver'],
             block_len=config['blocklen'], r_seed=config['seed'])
         config['sfry-maketime-quantize-secs'] = time.time()-start
         config['embed-maketime-secs'] = config['sfry-maketime-quantize-secs']
