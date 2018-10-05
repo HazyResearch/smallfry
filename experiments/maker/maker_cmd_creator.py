@@ -69,40 +69,27 @@ def simple_sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params,
                         p[1],
                         p[2]))
                 log.append(cmd)
-
-def config_sweep(method, 
-                rungroup, 
-                base_embeds, 
-                base_embeds_path, 
-                seeds, 
-                bitsperblock=None,
-                blocklen=None, 
-                m=None,
-                k=None,
-                tau=None,
-                batchsize=None,
-                gradclip=None,
-                lr=None,
-                qsub=True):
-    '''a subroutine for complete 'sweeps' of params'''
-    l = qsub_launch2 if qsub else launch2
-    for seed in seeds:
-        for e in range(len(base_embeds)):
-            for p in params:
-                cmd = l(method,(
-                        base_embeds[e],
-                        base_embeds_path[e],
-                        seed,
-                        maker.get_base_outputdir(),
-                        rungroup,
-                        p[0],
-                        p[1],
-                        p[2]))
-                log.append(cmd)
-
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def test0_midriser_10_5_18(name):
+    rungroup = 'test0-midriser'
+    methods = ['midriser']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibrs = [1,2]
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [1]
+    for seed in seeds:
+        for i in [0,1]: #loop over baselines: fasttext and glove
+            for ibr in ibrs:
+                log.append(qsub_launch('midriser',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+    log_launch(maker.get_log_name(name, rungroup))
+
 def dca_hp_all_params_demo_10_4_18(name):
     rungroup = 'hp_tune_all_demo'
     methods = 'dca'
@@ -123,7 +110,7 @@ def dca_hp_all_params_demo_10_4_18(name):
     seeds = [4974, 7737, 6665, 6117, 8559]
     for seed in seeds:
         for i in [0,1]: #loop over baselines: fasttext and glove
-            for ibr in ibrs:
+            for ibr in ibr:
                 log.append(qsub_launch('stochround',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
     log_launch(maker.get_log_name(name, rungroup))
 
@@ -637,7 +624,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_official_stochround_maketime_10_4_18]
+cmd = [test0_midriser_10_5_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
