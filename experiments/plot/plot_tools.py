@@ -256,7 +256,7 @@ def color_lookup(method):
 def xy_dataset_qry_lookup(x,y):
     qry = 'merged-experiment2-5X-seeds/*', 160
     if 'maketime' in y: 
-        qry = '2018-10-01-experiment4-1X-seeds/*', 72
+        qry = 'merged-experiment4-1X-seeds/*', 90
     return qry
 
 def nice_names_lookup(ugly_name):
