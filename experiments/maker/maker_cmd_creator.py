@@ -78,7 +78,7 @@ def dca_param_gen(bitrates, base_embeds_path, upper_power=8, size_tol=0.15):
                 dca_params.append((m(k,v,d,br),k))
     return dca_params
 
-def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=True):
+def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=True):       
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
@@ -102,6 +102,84 @@ def sweep_configs(configs):
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def launch_trial_dca_br6(name):
+    rungroup = 'trial-dca-sweep'
+    methods = ['dca']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibrs = [4]
+    base_embeds = ['fasttext']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_embeds_path = [base_path_ft]
+    seeds = [1]
+    lrs = [1e-4]
+    batchsizes = [64, 128]
+    m = 573
+    k = 4
+    configs = []
+    for seed in seeds:
+        for batchsize in batchsizes:
+            for i in [0]: #loop over baselines: fasttext and glove
+                for lr in lrs:
+                    for ibr in ibrs:
+                        config = dict()
+                        config['m'] = 573
+                        config['k'] = 4
+                        config['method'] = methods[0]
+                        config['ibr'] = ibr
+                        config['seed'] = seed
+                        config['outputdir'] = maker.get_base_outputdir()
+                        config['basepath'] = base_embeds_path[0]
+                        config['base'] = base_embeds[0]
+                        config['lr'] = lr
+                        config['rungroup'] = rungroup
+                        config['tau'] = 1.0
+                        config['gradclip'] = 0.001
+                        config['batchsize'] = batchsize
+                        configs.append(config)
+    sweep_configs(configs)
+    log_launch(maker.get_log_name(name, rungroup))
+
+def launch_trial_dca_sweep_br6(name):
+    rungroup = 'trial-dca-sweep'
+    methods = ['dca']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibrs = [6]
+    base_embeds = ['fasttext']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_embeds_path = [base_path_ft]
+    seeds = [1]
+    lrs = [1e-4]
+    batchsizes = [64]
+    mks = [(1718,2),(127,256),(312,32)]
+    configs = []
+    for seed in seeds:
+        for batchsize in batchsizes:
+            for i in [0]: #loop over baselines: fasttext and glove
+                for lr in lrs:
+                    for ibr in ibrs:
+                        for mk in mks:
+                            config = dict()
+                            config['m'] = mk[0]
+                            config['k'] = mk[1]
+                            config['method'] = methods[0]
+                            config['ibr'] = ibr
+                            config['seed'] = seed
+                            config['outputdir'] = maker.get_base_outputdir()
+                            config['basepath'] = base_embeds_path[0]
+                            config['base'] = base_embeds[0]
+                            config['lr'] = lr
+                            config['rungroup'] = rungroup
+                            config['tau'] = 1.0
+                            config['gradclip'] = 0.001
+                            config['batchsize'] = batchsize
+                            configs.append(config)
+    sweep_configs(configs)
+    log_launch(maker.get_log_name(name, rungroup))
+
 def launch_trial_dca_sweep(name):
     rungroup = 'trial-dca-sweep'
     methods = ['dca']
@@ -747,7 +825,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_trial_dca_sweep]
+cmd = [launch_trial_dca_sweep_br6]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
