@@ -124,6 +124,8 @@ def launch_trial_dca_sweep(name):
                 for lr in lrs:
                     for ibr in ibrs:
                         config = dict()
+                        config['m']
+                        config['k']
                         config['method'] = methods[0]
                         config['ibr'] = ibr
                         config['seed'] = seed
