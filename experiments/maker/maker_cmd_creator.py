@@ -124,6 +124,7 @@ def launch_trial_dca_sweep(name):
                 for lr in lrs:
                     for ibr in ibrs:
                         config = dict()
+                        config['method'] = methods[0]
                         config['ibr'] = ibr
                         config['seed'] = seed
                         config['outputdir'] = maker.get_base_outputdir()
