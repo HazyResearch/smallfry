@@ -26,9 +26,7 @@ def midriser(X,b):
     L = torch.max( torch.abs( X )) + eps # compute range
     X = X / (2*L) # apply affine transform to get on unit interval
     X = X+0.5
-    print(X)
     X = delta*( torch.floor(X/delta) + 0.5)
-    print(X)
     X = X - 0.5
     X = X*2*L
     return X

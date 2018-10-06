@@ -39,7 +39,7 @@ def log_launch(name):
     with open(log_launch_path, 'w+') as llp:
         llp.write('\n'.join(log))
 
-def dca_hyperparam_sweep(bitrates, base_embeds_path, upper_power=8, size_tol=0.15):
+def dca_param_gen(bitrates, base_embeds_path, upper_power=8, size_tol=0.15):
     dca_params  = []
     k_s = [2**i for i in range(1,upper_power+1)]
     base_embeds,_ = maker.load_embeddings(base_embeds_path)
@@ -52,6 +52,14 @@ def dca_hyperparam_sweep(bitrates, base_embeds_path, upper_power=8, size_tol=0.1
             if param[0] > 0 and abs(get_size_in_bits(v, param[0], param[1], d)-br*v*d) < size_tol*br*v*d:
                 dca_params.append((m(k,v,d,br),k))
     return dca_params
+
+def launch_dca(base, basepath, seed, outputdir, rungroup, ibr, m, k, tau, batchsize, gradclip, lr):
+    s = ''
+    maker_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'maker.py'))
+    python_maker_cmd = 'python %s' % maker_path
+    s = f"{python_maker_cmd} --method dca --base {base} --basepath {basepath} --seed {seed} --outputdir {outputdir} \
+            --rungroup {rungrou[]} --ibr {ibr}, --batchsize {batchsize} --gradclip {gradclip} --lr {lr}"
+    s = f"qsub -V -b y -wd {qsub_log_path} {s}"
 
 def simple_sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
@@ -72,6 +80,60 @@ def simple_sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params,
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def launch_trial_dca_sweep(name):
+    rungroup = 'trial-dca-sweep'
+    methods = ['dc']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibrs = [1,2,4]
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [1]
+    for seed in seeds:
+        for i in [0,1]: #loop over baselines: fasttext and glove
+            for ibr in ibrs:
+                log.append(launch_dca('midriser',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+    log_launch(maker.get_log_name(name, rungroup))
+
+def launch_official_midriser_10_5_18(name):
+    rungroup = 'experiment2-5X-seeds'
+    methods = ['midriser']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibrs = [1,2,4]
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [4974, 7737, 6665, 6117, 8559]
+    for seed in seeds:
+        for i in [0,1]: #loop over baselines: fasttext and glove
+            for ibr in ibrs:
+                log.append(qsub_launch('midriser',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+    log_launch(maker.get_log_name(name, rungroup))
+
+def launch_official_midriser_10_5_18(name):
+    rungroup = 'experiment2-5X-seeds'
+    methods = ['midriser']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibrs = [1,2,4]
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [4974, 7737, 6665, 6117, 8559]
+    for seed in seeds:
+        for i in [0,1]: #loop over baselines: fasttext and glove
+            for ibr in ibrs:
+                log.append(qsub_launch('midriser',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+    log_launch(maker.get_log_name(name, rungroup))
+
 def launch_official_midriser_10_5_18(name):
     rungroup = 'experiment2-5X-seeds'
     methods = ['midriser']
