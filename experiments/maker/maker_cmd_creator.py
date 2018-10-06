@@ -12,6 +12,7 @@ log = []
 #maker cmd creator launch path
 launch_path = str(pathlib.PurePath(maker.get_launch_path(), 'maker'))
 qsub_log_path = str(pathlib.PurePath(maker.get_qsub_log_path(), 'maker'))
+qsub_preamble = "qsub -V -b y -wd"
 
 def launch(method, params):
     s = ''
@@ -24,11 +25,35 @@ def launch(method, params):
     elif method == 'baseline' or method == 'stochround' or method == 'midriser':
         s = '%s --method %s --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --ibr %s' % ((python36_maker_cmd,)+(method,)+params)
     else:
-        assert 'bad method name in launch'
+        raise ValueError(f"bad method name in launch: {method}")
     return s
 
 def qsub_launch(method, params):
     return 'qsub -V -b y -wd %s %s ' % (qsub_log_path, launch(method, params))
+
+def qsub_launch_config(config):
+    s = ''
+    global qsub_preamble
+    maker_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'maker.py'))
+    python_maker_cmd = 'python %s' % maker_path
+    if config['method'] == 'dca':
+        s = f"{python_maker_cmd} --method {config['method']} --base {config['base']} --basepath {config['basepath']} \
+                --seed {config['seed']} --outputdir {config['outputdir']} --rungroup {config['rungroup']} --ibr {config['ibr']} \
+                --batchsize {config['batchsize']} --gradclip {config['gradclip']} --lr {config['lr']}"
+        s = f"{qsub_preamble} {qsub_log_path} {s}"
+    elif config['method'] == 'kmeans':
+        s = f"{python_maker_cmd} --method {config['method']} --base {config['base']} --basepath {config['basepath']} \
+                --seed {config['seed']} --outputdir {config['outputdir']} --rungroup {config['rungroup']} --ibr {config['ibr']} \
+                --bitsperblock {config['bitsperblock']} --blocklen {config['blocklen']} --solver {config['solver']}"
+        s = f"{qsub_preamble} {qsub_log_path} {s}"
+    elif config['method'] == 'midriser':
+        s = f"{python_maker_cmd} --method {config['method']} --base {config['base']} --basepath {config['basepath']} \
+                --seed {config['seed']} --outputdir {config['outputdir']} --rungroup {config['rungroup']} --ibr {config['ibr']}
+        s = f"{qsub_preamble} {qsub_log_path} {s}"
+    else:
+        raise ValueError(f"bad method name in launch: {config['method']}")
+    return s
+
 
 '''
 HELPER METHODS FOR COMMON SWEEP STYLES (and logging)
@@ -53,15 +78,7 @@ def dca_param_gen(bitrates, base_embeds_path, upper_power=8, size_tol=0.15):
                 dca_params.append((m(k,v,d,br),k))
     return dca_params
 
-def launch_dca(base, basepath, seed, outputdir, rungroup, ibr, m, k, tau, batchsize, gradclip, lr):
-    s = ''
-    maker_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'maker.py'))
-    python_maker_cmd = 'python %s' % maker_path
-    s = f"{python_maker_cmd} --method dca --base {base} --basepath {basepath} --seed {seed} --outputdir {outputdir} \
-            --rungroup {rungrou[]} --ibr {ibr}, --batchsize {batchsize} --gradclip {gradclip} --lr {lr}"
-    s = f"qsub -V -b y -wd {qsub_log_path} {s}"
-
-def simple_sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=True):
+def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
@@ -77,25 +94,41 @@ def simple_sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params,
                         p[1],
                         p[2]))
                 log.append(cmd)
+
+def sweep_configs(configs):
+    for config in configs:
+        log.append(qsub_launch_config(config))
+
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 def launch_trial_dca_sweep(name):
     rungroup = 'trial-dca-sweep'
-    methods = ['dc']
+    methods = ['dca']
     global qsub_log_path
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     params = dict()
-    ibrs = [1,2,4]
-    base_embeds = ['fasttext','glove']
+    ibrs = [4]
+    base_embeds = ['fasttext']
     base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
-    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
-    base_embeds_path = [base_path_ft, base_path_glove]
+    base_embeds_path = [base_path_ft]
     seeds = [1]
+    lrs = [1e-3, 3e-4, 1e-4, 3e-5, 1e-5]
+    batchsizes = [64, 128]
+    m = 573
+    k = 4
+    configs = []
     for seed in seeds:
-        for i in [0,1]: #loop over baselines: fasttext and glove
-            for ibr in ibrs:
-                log.append(launch_dca('midriser',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+        for batchsize in batchsizes:
+            for i in [0]: #loop over baselines: fasttext and glove
+                for lr in lrs:
+                    for ibr in ibrs:
+                        config['ibr'] = ibr
+                        config['seed'] = seed
+                        config['lr'] = lr
+                        config['tau'] = 1.0
+                        config['gradclip'] = 0.001
+                        config['batchsize'] = batchsize
     log_launch(maker.get_log_name(name, rungroup))
 
 def launch_official_midriser_10_5_18(name):
