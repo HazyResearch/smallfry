@@ -737,7 +737,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_official_midriser_10_5_18]
+cmd = [launch_trial_dca_sweep]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
