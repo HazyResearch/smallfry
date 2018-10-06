@@ -78,7 +78,7 @@ def launch_official_midriser_10_5_18(name):
     global qsub_log_path
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     params = dict()
-    ibrs = [1,2,4]
+    ibrs = [1,2,4,6]
     base_embeds = ['fasttext','glove']
     base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
     base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
@@ -642,7 +642,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [test0_midriser_10_5_18]
+cmd = [launch_official_midriser_10_5_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

@@ -70,7 +70,7 @@ def forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=None, params=
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
-def launch_eval_official_QA_intrinsics_synthetics_10_4_18(name):
+def launch_eval_official_QA_intrinsics_synthetics_10_5_18(name):
     rungroups = ['2018-10-05-experiment2-5X-seeds']
     evaltypes = ['QA', 'intrinsics', 'synthetics']
     global qsub_log_path
@@ -247,7 +247,7 @@ def launch1_demo(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_eval_official_QA_intrinsics_synthetics_10_4_18]
+cmd = [launch_eval_official_QA_intrinsics_synthetics_10_5_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
