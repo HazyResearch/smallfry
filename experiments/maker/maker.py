@@ -153,9 +153,9 @@ def make_embeddings(base_embeds, embed_dir, config):
 
 def get_embeddings_dir_and_name(config):
     if config['method'] == 'kmeans':
-        params = ['base','method','vocab','dim','ibr','bitsperblock','blocklen','seed','date','rungroup']
+        params = ['base','method','vocab','dim','ibr','bitsperblock','blocklen','seed','date','rungroup','solver']
     elif config['method'] == 'dca':
-        params = ['base','method','vocab','dim','ibr','m','k','seed','date','rungroup']
+        params = ['base','method','vocab','dim','ibr','m','k','seed','date','rungroup','lr','gradclip','batchsize','tau']
     elif config['method'] in ['baseline', 'stochround', 'midriser']:
         params = ['base','method','vocab','dim','ibr','seed','date','rungroup']
     else:

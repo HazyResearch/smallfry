@@ -133,7 +133,6 @@ def launch_trial_dca_sweep(name):
                         config['tau'] = 1.0
                         config['gradclip'] = 0.001
                         config['batchsize'] = batchsize
-                        
                         configs.append(config)
     sweep_configs(configs)
     log_launch(maker.get_log_name(name, rungroup))
