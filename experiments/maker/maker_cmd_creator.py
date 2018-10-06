@@ -131,6 +131,7 @@ def launch_trial_dca_sweep(name):
                         config['basepath'] = base_embeds_path[0]
                         config['base'] = base_embeds[0]
                         config['lr'] = lr
+                        config['rungroup'] = rungroup
                         config['tau'] = 1.0
                         config['gradclip'] = 0.001
                         config['batchsize'] = batchsize
