@@ -38,8 +38,8 @@ def qsub_launch_config(config):
     python_maker_cmd = 'python %s' % maker_path
     if config['method'] == 'dca':
         s = f"{python_maker_cmd} --method {config['method']} --base {config['base']} --basepath {config['basepath']} \
-                --seed {config['seed']} --outputdir {config['outputdir']} --rungroup {config['rungroup']} --ibr {config['ibr']} \
-                --batchsize {config['batchsize']} --gradclip {config['gradclip']} --lr {config['lr']}"
+        --seed {config['seed']} --outputdir {config['outputdir']} --rungroup {config['rungroup']} --ibr {config['ibr']} \
+        --m {config['m']} --k {config['k']}  --batchsize {config['batchsize']} --gradclip {config['gradclip']} --lr {config['lr']}"
         s = f"{qsub_preamble} {qsub_log_path} {s}"
     elif config['method'] == 'kmeans':
         s = f"{python_maker_cmd} --method {config['method']} --base {config['base']} --basepath {config['basepath']} \
