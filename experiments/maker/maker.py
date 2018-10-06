@@ -119,8 +119,8 @@ def make_embeddings(base_embeds, embed_dir, config):
         compressor = EmbeddingCompressor(m, k, work_dir, 
                                             config['tau'],
                                             config['batchsize'],
-                                            config['learning_rate'],
-                                            config['grad_clip'])
+                                            config['lr'],
+                                            config['gradclip'])
         base_embeds = base_embeds.astype(np.float32)
         dca_train_log = compressor.train(base_embeds)
         config['dca-maketime-train-secs'] = time.time()-start
