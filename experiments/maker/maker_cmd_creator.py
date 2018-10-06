@@ -48,7 +48,7 @@ def qsub_launch_config(config):
         s = f"{qsub_preamble} {qsub_log_path} {s}"
     elif config['method'] == 'midriser':
         s = f"{python_maker_cmd} --method {config['method']} --base {config['base']} --basepath {config['basepath']} \
-                --seed {config['seed']} --outputdir {config['outputdir']} --rungroup {config['rungroup']} --ibr {config['ibr']}
+                --seed {config['seed']} --outputdir {config['outputdir']} --rungroup {config['rungroup']} --ibr {config['ibr']}"
         s = f"{qsub_preamble} {qsub_log_path} {s}"
     else:
         raise ValueError(f"bad method name in launch: {config['method']}")
