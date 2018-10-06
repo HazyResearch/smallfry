@@ -123,12 +123,19 @@ def launch_trial_dca_sweep(name):
             for i in [0]: #loop over baselines: fasttext and glove
                 for lr in lrs:
                     for ibr in ibrs:
+                        config = dict()
                         config['ibr'] = ibr
                         config['seed'] = seed
+                        config['outputdir'] = maker.get_base_outputdir()
+                        config['basepath'] = base_embeds_path[0]
+                        config['base'] = base_embeds[0]
                         config['lr'] = lr
                         config['tau'] = 1.0
                         config['gradclip'] = 0.001
                         config['batchsize'] = batchsize
+                        
+                        configs.append(config)
+    sweep_configs(configs)
     log_launch(maker.get_log_name(name, rungroup))
 
 def launch_official_midriser_10_5_18(name):
