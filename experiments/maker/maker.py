@@ -116,7 +116,11 @@ def make_embeddings(base_embeds, embed_dir, config):
         assert m == compute_m_dca(k,v,d,ibr), "m and k does not match intended bit rate"
         work_dir = str(pathlib.PurePath(embed_dir,'dca_tmp'))
         start = time.time()
-        compressor = EmbeddingCompressor(m, k, work_dir)
+        compressor = EmbeddingCompressor(m, k, work_dir, 
+                                            config['tau'],
+                                            config['batchsize'],
+                                            config['learning_rate'],
+                                            config['grad_clip'])
         base_embeds = base_embeds.astype(np.float32)
         dca_train_log = compressor.train(base_embeds)
         config['dca-maketime-train-secs'] = time.time()-start
