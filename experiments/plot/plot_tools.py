@@ -143,7 +143,7 @@ def get_dca_params(results, bitrates, base):
         for r in res:
             if r == {} or r['base'] != base: continue
             if r['method'] == 'dca' and abs(r['bitrate'] - br) < 0.15*br:
-                if 'embed-fro-dist' in r.keys():
+                if 'embed-fro-err' in r.keys():
                     frodist = math.sqrt(r['embed-fro-err'])
                     br_2_mks[br].append((r['m'],r['k'],frodist))
                     br_2_mks[br].sort(key=lambda x:x[1])
@@ -152,18 +152,23 @@ def get_dca_params(results, bitrates, base):
 def get_dca_best_params(results, bitrates, base):
     '''A simple query routine for getting the best parameters in a dca tune experiment'''
     res = results
-    br_2_mk = dict()
+    br_2_params = dict()
     for br in bitrates:
         lowest_mdd = float('inf')
         best_res = None
         for r in res:
             if r == {} or r['base'] != base: continue
-            if r['method'] == 'dca' and abs(r['bitrate'] - br) < 0.15*br:
+            if r['method'] == 'dca' and  r['ibr'] == br:
                 if lowest_mdd > r['embed-fro-err']:
                     lowest_mdd = r['embed-fro-err']
                     best_res = r
-        br_2_mk[br] = (best_res['m'], best_res['k'])
-    return br_2_mk
+        br_2_params[br] = (best_res['m'], 
+                            best_res['k'], 
+                            best_res['lr'], 
+                            best_res['batchsize'], 
+                            best_res['tau'],
+                            best_res['gradclip'])
+    return br_2_params
 
 def prep_sentiment_results(results):
     '''
