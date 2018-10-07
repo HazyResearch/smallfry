@@ -103,7 +103,7 @@ def sweep_configs(configs):
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 def launch_trial_dca_br6(name):
-    rungroup = 'trial-dca-sweep'
+    rungroup = 'trial-dca-br6'
     methods = ['dca']
     global qsub_log_path
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
