@@ -114,6 +114,21 @@ def fetch_embeds_txt_path(embed_path):
     embed_name = os.path.basename(embed_path)
     return str(pathlib.PurePath(embed_path, embed_name+'.txt'))
 
+def fetch_embeds_npy_path(embed_path):
+    ''' returns path to npy embeddings representation given embeddings dir path'''
+    embed_name = os.path.basename(embed_path)
+    return str(pathlib.PurePath(embed_path, embed_name+'.npy')) 
+
+def fetch_embeds_config_path(embed_path):
+    ''' returns path to npy embeddings representation given embeddings dir path'''
+    embed_name = os.path.basename(embed_path)
+    return str(pathlib.PurePath(embed_path, embed_name+'_config.json'))
+
+def fetch_embeds_makelog_path(embed_path):
+    ''' returns path to npy embeddings representation given embeddings dir path'''
+    embed_name = os.path.basename(embed_path)
+    return str(pathlib.PurePath(embed_path, embed_name+'_maker.log'))
+
 def fetch_embeds_4_eval(embed_path):
     ''' returns numpy embeddings and wordlist using smallfry load embeddings'''
     embed_txt_path = fetch_embeds_txt_path(embed_path)

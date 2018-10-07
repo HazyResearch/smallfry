@@ -42,6 +42,12 @@ def plot_embeddings_bitrate_codes_only():
     methods = ['dca','kmeans']
     core_plotter(x,y,sources,vocabs,methods,prep_codebook_free_bitrate_results)
 
+def plot_histograms():
+    ft_path = str(pathlib.PurePath(get_base_embed_path_head(),'fasttext_k=400000'))
+    histogram(ft_path,'fasttext')
+    glove_path = str(pathlib.PurePath(get_base_embed_path_head(),'glove_k=400000'))
+    histogram(glove_path, 'glove')
+
 '''
 def plot_embeddings_battery_old(qry='merged-experiment2-5X-seeds/*',seeds=[4974,6117],lbl_size=12):
     x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
