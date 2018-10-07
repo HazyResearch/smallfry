@@ -8,6 +8,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
+from smallfry.utils import load_embeddings
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import *
 
@@ -154,21 +155,30 @@ def get_dca_best_params(results, bitrates, base):
     res = results
     br_2_params = dict()
     for br in bitrates:
-        lowest_mdd = float('inf')
+        lowest_loss = float('inf')
         best_res = None
         for r in res:
             if r == {} or r['base'] != base: continue
             if r['method'] == 'dca' and  r['ibr'] == br:
-                if lowest_mdd > r['embed-fro-err']:
-                    lowest_mdd = r['embed-fro-err']
+                if lowest_loss > r['embed-fro-err']:
+                    lowest_loss = r['embed-fro-err']
                     best_res = r
-        br_2_params[br] = (best_res['m'], 
+        br_2_params[br] = (lowest_loss,
+                            best_res['m'], 
                             best_res['k'], 
                             best_res['lr'], 
                             best_res['batchsize'], 
                             best_res['tau'],
                             best_res['gradclip'])
     return br_2_params
+
+def histogram(embpath,name):
+    '''plots histogram of npy embeddings'''
+    X,v = load_embeddings(embpath)
+    plt.hist(X)
+    plt.savefig(str(pathlib.PurePath(get_plots_path(),
+        f"{get_date_str()}:embeddings-histogram,{name},{embpath}")))
+    
 
 def prep_sentiment_results(results):
     '''
