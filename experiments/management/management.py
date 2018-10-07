@@ -18,19 +18,22 @@ def cleanup_rungroup_make(rungroup, basedir=get_base_outputdir()):
 
     def check_file_present(embpath, f_ending):
         check_file_qry = str(pathlib.PurePath(embpath,f"*{f_ending}"))
+        print(f"Checking for following files: {check_file_qry}")
         num_files_present = len(glob.glob(check_file_qry))
         assert num_files_present == 1, f"Invalid number of {f_ending} files in embedding: {num_files_present}"
 
     def delete_emb_dir(embpath):
+        print(f"Delete embedding dir: {embpath}")
         os.system(f"rm -rf {embpath}")
 
-    f_endings_to_check = ['maker.log', 'config.json', '.txt', '.npy']
+    f_endings_to_check = ['maker.log', 'config.json', '.txt']
     qry = str(pathlib.PurePath(basedir,f"{rungroup}/*"))
     for emb in glob.glob(qry):
         for f_ending in f_endings_to_check:
             try:
                 check_file_present(emb,f_ending)
-            except AssertionError:
+            except AssertionError as e:
+                print(e)
                 delete_emb_dir(emb)
 
 

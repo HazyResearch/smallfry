@@ -39,7 +39,7 @@ def qsub_launch_config(config):
     if config['method'] == 'dca':
         s = f"{python_maker_cmd} --method {config['method']} --base {config['base']} --basepath {config['basepath']} \
         --seed {config['seed']} --outputdir {config['outputdir']} --rungroup {config['rungroup']} --ibr {config['ibr']} \
-        --m {config['m']} --k {config['k']}  --batchsize {config['batchsize']} --gradclip {config['gradclip']} --lr {config['lr']}"
+        --m {config['m']} --k {config['k']}  --batchsize {config['batchsize']} --gradclip {config['gradclip']} --lr {config['lr']} --tau {config['tau']}"
         s = f"{qsub_preamble} {qsub_log_path} {s}"
     elif config['method'] == 'kmeans':
         s = f"{python_maker_cmd} --method {config['method']} --base {config['base']} --basepath {config['basepath']} \
@@ -118,23 +118,26 @@ def launch_official_dca_sweep1_exp5_10_6_18(name):
     batchsizes = [64, 128]
     taus = [1,2,0.5]
     ibr_2_mks = dict()
-    ibr_2_mks[0.1] = [(7,16),(5,32),(4,64),(3,128)]
-    ibr_2_mks[0.25] = [(23,8)(17,16),(13,32),(10,64)]
-    ibr_2_mks[0.5] = [(72,4),(47,8),(34,16)]
-    ibr_2_mks[1] = [(286,2),(143,4),(95,8)]
-    ibr_2_mks[2] = [(573,2),(286,4),(188,8)]
-    ibr_2_mks[4] = [(1145,2),(573,4),(376,8)]
+    ibr_2_mks[str(0.1)] = [(7,16),(5,32),(4,64),(3,128)]
+    ibr_2_mks[str(0.25)] = [(23,8),(17,16),(13,32),(10,64)]
+    ibr_2_mks[str(0.5)] = [(72,4),(47,8),(34,16)]
+    ibr_2_mks[str(1)] = [(286,2),(143,4),(94,8)]
+    ibr_2_mks[str(2)] = [(573,2),(286,4),(188,8)]
+    ibr_2_mks[str(4)] = [(1145,2),(573,4),(376,8)]
 
     configs = []
     for seed in seeds:
         for i in [0,1]:
             for batchsize in batchsizes:
-                for graclip in [0.001]
+                for gradclip in [0.001]:
                     for lr in lrs:
                         for tau in taus:
                             for ibr in ibrs:
-                                mks = ibr_2_mks[ibr]
+                                mks = ibr_2_mks[str(ibr)]
+                                print(mks)
                                 for mk in mks:
+                                    print(mk)
+                                    k = mk[1]
                                     if base_embeds[i] == 'glove' and ibr == 0.1 and k == 128:
                                         continue
                                     if base_embeds[i] == 'glove' and ibr == 0.25 and k == 64:
@@ -144,21 +147,21 @@ def launch_official_dca_sweep1_exp5_10_6_18(name):
                                     if base_embeds[i] == 'fasttext' and ibr == 0.25 and k == 8:
                                         continue
 
-                                config = dict()
-                                config['m'] = mk[0]
-                                config['k'] = mk[1]
-                                config['method'] = methods[0]
-                                config['ibr'] = ibr
-                                config['seed'] = seed
-                                config['outputdir'] = maker.get_base_outputdir()
-                                config['basepath'] = base_embeds_path[i]
-                                config['base'] = base_embeds[i]
-                                config['lr'] = lr
-                                config['rungroup'] = rungroup
-                                config['tau'] = tau
-                                config['gradclip'] = gradclip
-                                config['batchsize'] = batchsize
-                                configs.append(config)
+                                    config = dict()
+                                    config['m'] = mk[0]
+                                    config['k'] = mk[1]
+                                    config['method'] = methods[0]
+                                    config['ibr'] = ibr
+                                    config['seed'] = seed
+                                    config['outputdir'] = maker.get_base_outputdir()
+                                    config['basepath'] = base_embeds_path[i]
+                                    config['base'] = base_embeds[i]
+                                    config['lr'] = lr
+                                    config['rungroup'] = rungroup
+                                    config['tau'] = tau
+                                    config['gradclip'] = gradclip
+                                    config['batchsize'] = batchsize
+                                    configs.append(config)
         sweep_configs(configs)
         log_launch(maker.get_log_name(name, rungroup))
 
