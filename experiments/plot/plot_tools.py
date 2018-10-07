@@ -177,7 +177,8 @@ def histogram(embpath,name):
     X,v = load_embeddings(embpath)
     plt.hist(X)
     plt.savefig(str(pathlib.PurePath(get_plots_path(),
-        f"{get_date_str()}:embeddings-histogram,{name},{embpath}")))
+        f"{get_date_str()}:embeddings-histogram:{name}:{embpath}")))
+    plt.close()
     
 
 def prep_sentiment_results(results):
