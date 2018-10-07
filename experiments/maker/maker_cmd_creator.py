@@ -127,9 +127,9 @@ def launch_official_dca_sweep1_exp5_10_6_18(name):
 
     configs = []
     for seed in seeds:
-        for i in [0,1]
+        for i in [0,1]:
             for batchsize in batchsizes:
-                for i in [0]: #loop over baselines: fasttext and glove
+                for graclip in [0.001]
                     for lr in lrs:
                         for tau in taus:
                             for ibr in ibrs:
@@ -156,7 +156,7 @@ def launch_official_dca_sweep1_exp5_10_6_18(name):
                                 config['lr'] = lr
                                 config['rungroup'] = rungroup
                                 config['tau'] = tau
-                                config['gradclip'] = 0.001
+                                config['gradclip'] = gradclip
                                 config['batchsize'] = batchsize
                                 configs.append(config)
         sweep_configs(configs)
