@@ -55,6 +55,7 @@ def plot_histograms():
     histogram(ft_path,'fasttext')
     glove_path = str(pathlib.PurePath(get_base_embed_path_head(),'glove_k=400000'))
     histogram(glove_path, 'glove')
+    
 
 
 parser = argh.ArghParser()

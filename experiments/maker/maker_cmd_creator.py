@@ -102,6 +102,67 @@ def sweep_configs(configs):
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def launch_official_dca_sweep2_exp5_10_8_18(name):
+    rungroup = 'experiment5-dca-hp-tune'
+    methods = ['dca']
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibrs = [0.1,0.25,0.5,1,2,4]
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [1234]
+    lrs = [1e-4,1e-3,1e-5]
+    batchsizes = [64, 128]
+    taus = [1,2,0.5]
+    ibr_2_mks = dict()
+    ibr_2_mks[str(0.1)] = [(7,16),(5,32),(4,64),(3,128)]
+    ibr_2_mks[str(0.25)] = [(23,8),(17,16),(13,32),(10,64)]
+    ibr_2_mks[str(0.5)] = [(72,4),(47,8),(34,16)]
+    ibr_2_mks[str(1)] = [(286,2),(143,4),(94,8)]
+    ibr_2_mks[str(2)] = [(573,2),(286,4),(188,8)]
+    ibr_2_mks[str(4)] = [(1145,2),(573,4),(376,8)]
+
+    configs = []
+    for seed in seeds:
+        for i in [0,1]:
+            for batchsize in batchsizes:
+                for gradclip in [0.01]
+                    for lr in lrs:
+                        for tau in taus:
+                            for ibr in ibrs:
+                                mks = ibr_2_mks[ibr]
+                                for mk in mks:
+                                    if base_embeds[i] == 'glove' and ibr == 0.1 and k == 128:
+                                        continue
+                                    if base_embeds[i] == 'glove' and ibr == 0.25 and k == 64:
+                                        continue
+                                    if base_embeds[i] == 'fasttext' and ibr == 0.1 and k == 16:
+                                        continue
+                                    if base_embeds[i] == 'fasttext' and ibr == 0.25 and k == 8:
+                                        continue
+
+                                config = dict()
+                                config['m'] = mk[0]
+                                config['k'] = mk[1]
+                                config['method'] = methods[0]
+                                config['ibr'] = ibr
+                                config['seed'] = seed
+                                config['outputdir'] = maker.get_base_outputdir()
+                                config['basepath'] = base_embeds_path[i]
+                                config['base'] = base_embeds[i]
+                                config['lr'] = lr
+                                config['rungroup'] = rungroup
+                                config['tau'] = tau
+                                config['gradclip'] = gradclip
+                                config['batchsize'] = batchsize
+                                configs.append(config)
+        sweep_configs(configs)
+        log_launch(maker.get_log_name(name, rungroup))
+
+
 def launch_official_dca_sweep1_exp5_10_6_18(name):
     rungroup = 'experiment5-dca-hp-tune'
     methods = ['dca']
