@@ -129,12 +129,15 @@ def launch_official_dca_sweep2_exp5_10_8_18(name):
     for seed in seeds:
         for i in [0,1]:
             for batchsize in batchsizes:
-                for gradclip in [0.01]
+                for gradclip in [0.01]:
                     for lr in lrs:
                         for tau in taus:
                             for ibr in ibrs:
-                                mks = ibr_2_mks[ibr]
+                                mks = ibr_2_mks[str(ibr)]
+                                print(mks)
                                 for mk in mks:
+                                    print(mk)
+                                    k = mk[1]
                                     if base_embeds[i] == 'glove' and ibr == 0.1 and k == 128:
                                         continue
                                     if base_embeds[i] == 'glove' and ibr == 0.25 and k == 64:
@@ -144,21 +147,21 @@ def launch_official_dca_sweep2_exp5_10_8_18(name):
                                     if base_embeds[i] == 'fasttext' and ibr == 0.25 and k == 8:
                                         continue
 
-                                config = dict()
-                                config['m'] = mk[0]
-                                config['k'] = mk[1]
-                                config['method'] = methods[0]
-                                config['ibr'] = ibr
-                                config['seed'] = seed
-                                config['outputdir'] = maker.get_base_outputdir()
-                                config['basepath'] = base_embeds_path[i]
-                                config['base'] = base_embeds[i]
-                                config['lr'] = lr
-                                config['rungroup'] = rungroup
-                                config['tau'] = tau
-                                config['gradclip'] = gradclip
-                                config['batchsize'] = batchsize
-                                configs.append(config)
+                                    config = dict()
+                                    config['m'] = mk[0]
+                                    config['k'] = mk[1]
+                                    config['method'] = methods[0]
+                                    config['ibr'] = ibr
+                                    config['seed'] = seed
+                                    config['outputdir'] = maker.get_base_outputdir()
+                                    config['basepath'] = base_embeds_path[i]
+                                    config['base'] = base_embeds[i]
+                                    config['lr'] = lr
+                                    config['rungroup'] = rungroup
+                                    config['tau'] = tau
+                                    config['gradclip'] = gradclip
+                                    config['batchsize'] = batchsize
+                                    configs.append(config)
         sweep_configs(configs)
         log_launch(maker.get_log_name(name, rungroup))
 
@@ -949,7 +952,7 @@ def launch0_demo(name):
     log_launch(name)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_official_dca_sweep1_exp5_10_6_18]
+cmd = [launch_official_dca_sweep2_exp5_10_7_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
