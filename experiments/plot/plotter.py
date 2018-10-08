@@ -23,7 +23,7 @@ def plot_embeddings_battery():
     y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','embed-maketime-secs']
     sources = ['glove', 'fasttext']
     vocabs = [400000]
-    methods = ['dca','kmeans','stochround']
+    methods = ['dca','kmeans','stochround','midriser']
     core_plotter(x,y,sources,vocabs,methods,lambda x: x)
     
 def plot_embeddings_sentiment():
@@ -47,6 +47,7 @@ def plot_histograms():
     histogram(ft_path,'fasttext')
     glove_path = str(pathlib.PurePath(get_base_embed_path_head(),'glove_k=400000'))
     histogram(glove_path, 'glove')
+    
 
 '''
 def plot_embeddings_battery_old(qry='merged-experiment2-5X-seeds/*',seeds=[4974,6117],lbl_size=12):
