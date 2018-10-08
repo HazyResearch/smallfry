@@ -23,9 +23,17 @@ def plot_embeddings_battery():
     y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','embed-maketime-secs']
     sources = ['glove', 'fasttext']
     vocabs = [400000]
-    methods = ['dca','kmeans','stochround']
+    methods = ['dca','kmeans','stochround','midriser']
     core_plotter(x,y,sources,vocabs,methods,lambda x: x)
-    
+
+def plot_midriser():
+    x = ['bitrate','bitrate','bitrate','bitrate','bitrate','bitrate']
+    y = ['embed-fro-dist','similarity-avg-score','analogy-avg-score','max-f1','semantic-dist','embed-maketime-secs']
+    sources = ['glove', 'fasttext']
+    vocabs = [400000]
+    methods = ['midriser']
+    core_plotter(x,y,sources,vocabs,methods,lambda x: x)
+
 def plot_embeddings_sentiment():
     x = ['bitrate','bitrate','bitrate']
     y = ['avg-sentiment-lstm','avg-sentiment-cnn','avg-sentiment-la']
@@ -50,7 +58,11 @@ def plot_histograms():
 
 
 parser = argh.ArghParser()
-parser.add_commands([plot_embeddings_battery, plot_embeddings_sentiment,plot_embeddings_bitrate_codes_only,plot_histograms])
+parser.add_commands([plot_embeddings_battery, 
+                    plot_embeddings_sentiment,
+                    plot_embeddings_bitrate_codes_only,
+                    plot_midriser,
+                    plot_histograms])
 
 if __name__ == '__main__':
     parser.dispatch()

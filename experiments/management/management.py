@@ -26,7 +26,7 @@ def cleanup_rungroup_make(rungroup, basedir=get_base_outputdir()):
         print(f"Delete embedding dir: {embpath}")
         os.system(f"rm -rf {embpath}")
 
-    f_endings_to_check = ['maker.log', 'config.json', '.txt']
+    f_endings_to_check = ['config.json', '.txt']
     qry = str(pathlib.PurePath(basedir,f"{rungroup}/*"))
     for emb in glob.glob(qry):
         for f_ending in f_endings_to_check:

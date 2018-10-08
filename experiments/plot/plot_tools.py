@@ -175,9 +175,9 @@ def get_dca_best_params(results, bitrates, base):
 def histogram(embpath,name):
     '''plots histogram of npy embeddings'''
     X,v = load_embeddings(embpath)
-    plt.hist(X)
+    plt.hist(X,bins=100)
     plt.savefig(str(pathlib.PurePath(get_plots_path(),
-        f"{get_date_str()}:embeddings-histogram:{name}:{embpath}")))
+        f"{get_date_str()}:embeddings-histogram:{name}")))
     plt.close()
     
 
@@ -268,11 +268,12 @@ def color_lookup(method):
     colors['kmeans'] = 'b'
     colors['baseline'] = 'c'
     colors['stochround'] = 'm'
+    colors['midriser'] = 'g'
     assert method in colors.keys(), "A color has not been designated for the requested method"
     return colors[method]
 
 def xy_dataset_qry_lookup(x,y):
-    qry = 'merged-experiment2-5X-seeds/*', 160
+    qry = 'merged-experiment2-5X-seeds/*', 192
     if 'maketime' in y: 
         qry = 'merged-experiment4-1X-seeds/*', 90
     return qry
