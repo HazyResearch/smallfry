@@ -213,6 +213,7 @@ def prep_codebook_free_bitrate_results(results):
 
 def prep_dca_br_correction_results(results):
     for res in results:
+        print(res)
         if res['method'] == 'dca':
             res['bitrate'] = (res['m'] * res['vocab'] * np.log2(res['k']) + 32 * res['m']*res['k']*res['dim'])/(res['vocab']*res['dim'])
     return results
@@ -233,12 +234,13 @@ def make_plots( x,
     for method in methods:
         if method in special_treatment_methods(): # some methods need special treatment
             if method == 'tuned-dca':
-                br_2_params = get_best_dca_params()
+                br_2_params = get_dca_best_params(agg('merged-experiment5-dca-hp-tune/*'), [0.1,0.25,0.5,1,2,4], source)
                 data_x = sorted(list(br_2_params.keys()))
-                data_y = [b_2_params[0] for x in data_x]
-                plt.plot(data_x, data_y, fmt=color_lookup(method), linewidth=3.0, label=method)
+                data_y = [br_2_params[x][0] for x in data_x]
+                plt.plot(data_x, data_y, color=color_lookup(method), linewidth=3.0, label=method)
             else:
                 raise ValueError('method identified as special treatment, but not supported in code')
+            continue
         print(method)
         data = get_all_data(results, source, vocab, method, x, y)
         data_x,data_y = compute_avg_variable_len(data)
@@ -288,7 +290,7 @@ def color_lookup(method):
     return colors[method]
 
 def xy_dataset_qry_lookup(x,y,method=None):
-    qry = 'merged-experiment2-5X-seeds/*', 192
+    qry = 'merged-experiment2-5X-seeds/*', 198
     if 'maketime' in y: 
         qry = 'merged-experiment4-1X-seeds/*', 90
     return qry
