@@ -7,15 +7,14 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMP
 from experimental_utils import * 
 
 def setup_testbench_drive():
-    os.makedirs(get_base_directory())
-    dirs = [get_base_directory(),
-            get_base_embed_path_head(),
+    dirs = [get_base_embed_path_head(),
             get_base_outputdir(),
             get_launch_path(),
             get_qsub_log_path(),
             get_plots_path(),
             get_corpus_path()]
     for directory in dirs:
+        print(f"making dir {directory}")
         os.makedirs(directory)
     
     benchmarks_path = str(
@@ -27,6 +26,7 @@ def setup_testbench_drive():
             ('https://github.com/yuhaozhang/tacred-relation.git',get_relation_directory()),
             ('https://github.com/harvardnlp/sent-conv-torch.git',get_harvardnlp_sentiment_data_directory())]
     for repo in repos:
+        print(f"cloning repo {repo[0]}")
         Repo.clone_from(repo[0],repo[1])
 
 
