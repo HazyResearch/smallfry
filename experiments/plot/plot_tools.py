@@ -231,12 +231,20 @@ def make_plots( x,
     plt.tick_params(axis='both', which='major', labelsize=lbl_size)
 
     for method in methods:
+        if method in special_treatment_methods(): # some methods need special treatment
+            if method == 'tuned-dca':
+                br_2_params = get_best_dca_params()
+                data_x = sorted(list(br_2_params.keys()))
+                data_y = [b_2_params[0] for x in data_x]
+                plt.plot(data_x, data_y, fmt=color_lookup(method), linewidth=3.0, label=method)
+            else:
+                raise ValueError('method identified as special treatment, but not supported in code')
         print(method)
         data = get_all_data(results, source, vocab, method, x, y)
         data_x,data_y = compute_avg_variable_len(data)
         errbars_low_abs, errbars_high_abs = compute_min_max_variable_len(data)
         errbars_low_rel = np.array(data_y) - np.array(errbars_low_abs)
-        errbars_high_rel = np.array(errbars_high_abs) - np.array(data_y)
+        errbars_high_rel =  np.array(errbars_high_abs) - np.array(data_y)
         errbars = np.array([errbars_low_rel, errbars_high_rel])
         if method == 'stochround':
             print(data_y)
@@ -274,15 +282,19 @@ def color_lookup(method):
     colors['kmeans'] = 'b'
     colors['baseline'] = 'c'
     colors['stochround'] = 'm'
+    colors['tuned-dca'] = 'm'
     colors['midriser'] = 'g'
     assert method in colors.keys(), "A color has not been designated for the requested method"
     return colors[method]
 
-def xy_dataset_qry_lookup(x,y):
+def xy_dataset_qry_lookup(x,y,method=None):
     qry = 'merged-experiment2-5X-seeds/*', 192
     if 'maketime' in y: 
         qry = 'merged-experiment4-1X-seeds/*', 90
     return qry
+
+def special_treatment_methods():
+    return ['tuned-dca']
 
 def nice_names_lookup(ugly_name):
     ugly_2_nice = dict()

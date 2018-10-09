@@ -61,6 +61,14 @@ def list_best_dca():
     br_2_params = get_dca_best_params(results,[0.1,0.25,0.5,1,2,4], 'glove')
     print(br_2_params)
 
+def plot_frobenius():
+    x = ['bitrate']
+    y = ['embed-fro-dist']
+    sources = ['glove', 'fasttext']
+    vocabs = [400000]
+    methods = ['dca','kmeans','tuned-dca']
+    core_plotter(x,y,sources,vocabs,methods, prep_dca_br_correction_results)
+
 
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_battery, 
