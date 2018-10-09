@@ -30,3 +30,29 @@ def midriser(X,b):
     X = X - 0.5
     X = X*2*L
     return X
+
+def optranuni(X,b):
+    b= int(b)
+    L = None
+    if b == 1:
+        L = 0.3
+    if b == 2:
+        L = 0.7
+    if b == 4:
+        L = 1.5
+    assert not L == None, "Only bitrates 1,2,4 currently supported"
+    X = torch.Tensor(X)
+    X = torch.clamp(X, min=-1*L, max=L)
+    n = 2**b - 1
+    X = X / (2*L) # apply affine transform to get on unit interval
+    X = X+0.5
+    X = n*X # apply linear transform to put each quanta at integer
+    X = torch.ceil(X)
+    X = X/n #undo linear transform
+    X = X-0.5 #undo shift
+    X = X*2*L #put back in original range
+    return X
+    
+
+
+

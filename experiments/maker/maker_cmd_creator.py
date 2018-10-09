@@ -102,6 +102,23 @@ def sweep_configs(configs):
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
+def make_optranuni_exp2_10_9_18(name):
+    rungroup = 'experiment2-5X-seeds-DBG'
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibrs = [1,2,4]
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [4974]
+    for seed in seeds:
+        for i in [0,1]: #loop over baselines: fasttext and glove
+            for ibr in ibrs:
+                log.append(qsub_launch('optranuni',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+    log_launch(maker.get_log_name(name, rungroup))
+
 def launch_official_dca_sweep2_exp5_10_8_18(name):
     rungroup = 'experiment5-dca-hp-tune'
     methods = ['dca']
