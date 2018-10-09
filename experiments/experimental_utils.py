@@ -210,3 +210,6 @@ def get_qsub_log_path():
 
 def get_plots_path():
     return str(pathlib.PurePath(get_base_directory(),'plots'))
+
+def get_corpus_path():
+    return str(pathlib.PurePath(get_base_directory(),'corpus'))
