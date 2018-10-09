@@ -310,7 +310,7 @@ def nice_names_lookup(ugly_name):
     ugly_2_nice['embed-maketime-secs'] = 'Compression Runtime (secs)'
     ugly_2_nice['glove'] = 'GloVe'
     ugly_2_nice['fasttext'] = 'FastText'
-    ugly_2_nice['avg-sentiment-lstm'] = 'Agg. Sentiment Analysis Accu.. with LSTM'
+    ugly_2_nice['avg-sentiment-lstm'] = 'Agg. Sentiment Analysis Accu. with LSTM'
     ugly_2_nice['avg-sentiment-cnn'] = 'Agg. Sentiment Analysis Accu. with CNN'
     ugly_2_nice['avg-sentiment-la'] = 'Agg. Sentiment Analysis Accu. with Perceptron'
 
