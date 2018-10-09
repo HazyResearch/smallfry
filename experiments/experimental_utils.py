@@ -166,7 +166,7 @@ def get_environment():
 
 def whoami():
     '''Wraps bash whoami'''
-    return perform_command_local('whoami')[:-1]
+    return perform_command_local('whoami')[:-1] # last char is newline, so drop it
 
 '''HARDCODED PATHS BELOW'''
 
