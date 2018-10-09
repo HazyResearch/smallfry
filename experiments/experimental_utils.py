@@ -171,8 +171,6 @@ def whoami():
 '''HARDCODED PATHS BELOW'''
 
 def get_base_directory():
-    '''NOTE: not safe before init_logging'''
-    logging.info('Accessing base dir')
     path = '/proj/smallfry'
     if get_environment() == 'DAWN':
         path = '/lfs/1/%s%s' % (whoami(),path) 
