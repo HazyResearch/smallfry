@@ -56,6 +56,10 @@ def plot_histograms():
     glove_path = str(pathlib.PurePath(get_base_embed_path_head(),'glove_k=400000'))
     histogram(glove_path, 'glove')
     
+def list_best_dca():
+    results = agg('merged-experiment5-dca-hp-tune/*',expected_num_res=1296)
+    br_2_params = get_dca_best_params(results,[0.1,0.25,0.5,1,2,4], 'glove')
+    print(br_2_params)
 
 
 parser = argh.ArghParser()
@@ -63,7 +67,8 @@ parser.add_commands([plot_embeddings_battery,
                     plot_embeddings_sentiment,
                     plot_embeddings_bitrate_codes_only,
                     plot_midriser,
-                    plot_histograms])
+                    plot_histograms,
+                    list_best_dca])
 
 if __name__ == '__main__':
     parser.dispatch()
