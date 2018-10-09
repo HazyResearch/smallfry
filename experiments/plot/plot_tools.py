@@ -284,6 +284,7 @@ def color_lookup(method):
     colors['stochround'] = 'm'
     colors['tuned-dca'] = 'm'
     colors['midriser'] = 'g'
+    colors['optranuni'] = 'g'
     assert method in colors.keys(), "A color has not been designated for the requested method"
     return colors[method]
 

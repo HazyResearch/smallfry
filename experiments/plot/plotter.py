@@ -66,7 +66,7 @@ def plot_frobenius():
     y = ['embed-fro-dist']
     sources = ['glove', 'fasttext']
     vocabs = [400000]
-    methods = ['dca','kmeans','tuned-dca']
+    methods = ['dca','kmeans','tuned-dca','optranuni']
     core_plotter(x,y,sources,vocabs,methods, prep_dca_br_correction_results)
 
 
