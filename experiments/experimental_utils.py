@@ -175,7 +175,7 @@ def get_base_directory():
     logging.info('Accessing base dir')
     path = '/proj/smallfry'
     if get_environment() == 'DAWN':
-        path = '/dfs/scratch1/%s%s' % (whoami(),path) 
+        path = '/lfs/1/%s%s' % (whoami(),path) 
     return path
 
 def get_drqa_directory():
