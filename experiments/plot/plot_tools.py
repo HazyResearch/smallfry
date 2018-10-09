@@ -160,10 +160,10 @@ def get_dca_best_params(results, bitrates, base):
         for r in res:
             if r == {} or r['base'] != base: continue
             if r['method'] == 'dca' and  r['ibr'] == br:
-                if lowest_loss > r['embed-fro-err']:
-                    lowest_loss = r['embed-fro-err']
+                if lowest_loss > r['embed-frob-err']:
+                    lowest_loss = r['embed-frob-err']
                     best_res = r
-        br_2_params[br] = (lowest_loss,
+        br_2_params[br] = (np.sqrt(lowest_loss),
                             best_res['m'], 
                             best_res['k'], 
                             best_res['lr'], 
@@ -209,6 +209,12 @@ def prep_codebook_free_bitrate_results(results):
             res['bitrate-codes-only'] = res['vocab']*res['m']*np.log2(res['k'])/(res['vocab']*res['dim'])
         elif res['method'] == 'kmeans':
             res['bitrate-codes-only'] = res['bitsperblock']/res['blocklen']
+    return results
+
+def prep_dca_br_correction_results(results):
+    for res in results:
+        if res['method'] == 'dca':
+            res['bitrate'] = (res['m'] * res['vocab'] * np.log2(res['k']) + 32 * res['m']*res['k']*res['dim'])/(res['vocab']*res['dim'])
     return results
 
 def make_plots( x,

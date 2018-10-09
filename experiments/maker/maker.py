@@ -186,7 +186,7 @@ def get_memory(config):
     elif config['method'] == 'dca':
         m = config['m']
         k = config['k']
-        mem = v * m * np.log2(k) + 4 * 32 * d * m * k
+        mem = v * m * np.log2(k) + 32 * d * m * k
     elif config['method'] == 'baseline':
         return v*d*32
     elif config['method'] in ['stochround', 'midriser'] :
