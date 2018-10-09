@@ -144,18 +144,20 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'midriser':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = midriser(embeds,config['ibr'])
+        embeds = midriser(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
     elif config['method'] == 'stochround':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = stochround(embeds,config['ibr'],config['seed'])
+        embeds = stochround(base_embeds,config['ibr'],config['seed'])
         config['embed-maketime-secs'] = time.time()-start
     elif config['method'] == 'optranuni':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = optranuni(embeds,config['ibr'])
+        embeds = optranuni(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
+        #TODO remove this from here
+        config['embed-frobenius-dist'] = np.linalg.norm(base_embeds - embeds)
     else:
         raise ValueError('Method name invalid')
     return embeds
