@@ -966,7 +966,7 @@ def make_optranuni_exp6_10_9_18(name):
     log_launch(maker.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [make_kmeans_exp6_10_9_18]
+cmd = [make_optranuni_exp6_10_9_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

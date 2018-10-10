@@ -255,7 +255,7 @@ def launch_ints_exp6_10_9_18(name):
         qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
         for evaltype in evaltypes:
             seeds = [1234]
-            forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=50)
+            forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=50, qsub=False)
         log_launch(evaluate.get_log_name(name, rungroup))
 
 
