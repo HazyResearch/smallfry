@@ -26,7 +26,7 @@ def main():
     os.makedirs(embed_dir)
     os.chdir(embed_dir)
     init_logging(core_filename + '_maker.log')
-    config['githash-maker'] = get_git_hash()
+    #TODO ADD BACK IN THIS LATER config['githash-maker'] = get_git_hash()
     logging.info('Begining to gen embeddings')
     start = time.time()
     embeds, wordlist, v = generate_embeddings(config, embed_name) #this routine must return v to set config
@@ -69,11 +69,11 @@ def init_parser():
         help='Rungroup for organization')
     parser.add_argument('--dim', type=int, default=300,
         help='Dimension for generated embeddings')
-    parser.add_argument('--max-vocab', type=int, default=1e5,
+    parser.add_argument('--maxvocab', type=int, default=1e5,
         help='Maximum vocabulary size')
-    parser.add_argument('--mem-usage', type=int, default=128,
+    parser.add_argument('--memusage', type=int, default=128,
         help='Memory usage in GB')
-    parser.add_argument('--num-cores', type=int, default=24,
+    parser.add_argument('--numthreads', type=int, default=24,
         help='Number of threads to spin up')
     return parser
 
@@ -83,13 +83,14 @@ def generate_embeddings(config, embed_name):
     v = None #this value must be populated by all method types
     if config['method'] == 'glove':
         dir_path = os.path.dirname(os.path.realpath(__file__))
+        print(dir_path)
         gen_glove_path = str(pathlib.PurePath(dir_path,'GloVe/gen_glove.sh'))
         corpuspath = str(pathlib.PurePath( get_corpus_path(), config['corpus']))
-        output = perform_command_local(f"{gen_glove_path} {corpuspath} \
-                                    {config['dimension']} \
-                                    {config['vocab']} \
-                                    {config['num-threads']} \
-                                    {config['mem-usage']} \
+        output = os.system(f"bash {get_glove_generator_path()} {corpuspath} \
+                                    {config['dim']} \
+                                    {config['maxvocab']} \
+                                    {config['numthreads']} \
+                                    {config['memusage']} \
                                     {embed_name}")
         logging.info(output)
         wc = perform_command_local(f"wc {embed_name}.txt")
@@ -101,7 +102,7 @@ def generate_embeddings(config, embed_name):
 
 def get_embeddings_dir_and_name(config):
     if config['method'] == 'glove':
-        params = ['corpus','method','max_vocab','dim','mem_usage','seed','date','rungroup']
+        params = ['corpus','method','maxvocab','dim','memusage','seed','date','rungroup']
     else:
         raise ValueError('Method name invalid')
 
