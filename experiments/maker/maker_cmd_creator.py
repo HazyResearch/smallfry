@@ -54,6 +54,17 @@ def qsub_launch_config(config):
         raise ValueError(f"bad method name in launch: {config['method']}")
     return s
 
+def launch_config(config, qsub=False):
+    s = ''
+    global qsub_preamble
+    maker_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'generate.py'))
+    python_maker_cmd = 'python %s' % maker_path
+    flags = [python_maker_cmd]
+    for key in config.keys():
+        flags.append(f"--{key} {config[key]}")
+    s = " ".join(flags)
+    s = f"{qsub_preamble} {qsub_log_path} {s}" if qsub else s
+    return s
 
 '''
 HELPER METHODS FOR COMMON SWEEP STYLES (and logging)
