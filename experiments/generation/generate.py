@@ -29,7 +29,7 @@ def main():
     #TODO ADD BACK IN THIS LATER config['githash-maker'] = get_git_hash()
     logging.info('Begining to gen embeddings')
     start = time.time()
-    embeds, wordlist, v = generate_embeddings(config, embed_name) #this routine must return v to set config
+    embeds, wordlist, v = generate_embeddings(config, embed_dir, embed_name) #this routine must return v to set config
     end = time.time()
     maketime = end - start
     logging.info('Finished generating embeddings.'
