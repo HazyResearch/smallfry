@@ -93,7 +93,7 @@ def generate_embeddings(config, embed_dir, embed_name):
                                     {config['maxvocab']} \
                                     {config['numthreads']} \
                                     {config['memusage']} \
-                                    {config['numiters']} \ 
+                                    {config['numiters']} \
                                     {embed_name}")
         logging.info(output)
         wc = perform_command_local(f"wc {embed_name}.txt")
