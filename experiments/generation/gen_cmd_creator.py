@@ -37,7 +37,7 @@ def log_launch(name):
 
 def ibr_2_dim(ibr,dim=300):
     compratio = 32/ibr
-    return np.round(dim/compratio)
+    return int(np.round(dim/compratio))
 
 def sweep_configs(configs):
     for config in configs:
