@@ -183,7 +183,6 @@ def launch_official_dca_sweep2_exp5_10_8_18(name):
         log_launch(maker.get_log_name(name, rungroup))
 
 
-c
 def launch_trial_dca_br6(name):
     rungroup = 'trial-dca-br6'
     methods = ['dca']
@@ -921,18 +920,20 @@ def make_kmeans_exp6_10_9_18(name):
             config['ibr'] = ibrs[i]
             config['bitsperblock'] = bpb[i]
             config['blocklen'] = blkln[i]
+            config['rungroup'] = rungroup
             config['base'] = 'glove'
             config['basepath'] = str(pathlib.PurePath(maker.get_base_embed_path_head(),
              'corpus=text8,method=glove,maxvocab=100000,dim=300,memusage=128,seed=1234,date=2018-10-09,rungroup=experiment6-dim-reduc-mini.txt'))
             config['method'] = method
             config['outputdir'] = maker.get_base_outputdir()
             config['seed'] = 1234
+            config['solver'] = 'iterative'
             configs.append(config)
     sweep_configs(configs)
     log_launch(maker.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_official_dca_sweep2_exp5_10_8_18]
+cmd = [make_kmeans_exp6_10_9_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
