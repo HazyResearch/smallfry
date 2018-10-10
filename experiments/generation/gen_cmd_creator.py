@@ -53,10 +53,6 @@ def generate_dim_reduction_exp6_10_9_18(name):
     ibrs = [0.1,0.25,0.5,1,2,4]
     global qsub_log_path
     qsub_log_path = generate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
-    params = dict()
-    ibrs = [0.1,0.25,0.5,1,2,4]
-    corpus = 'text8'
-    seed = 1234
     configs = []
     for ibr in ibrs:
         config = dict()
@@ -65,6 +61,7 @@ def generate_dim_reduction_exp6_10_9_18(name):
         config['corpus'] = 'text8'
         config['dim'] = ibr_2_dim(ibr)
         config['outputdir'] = generate.get_base_outputdir()
+        config['seed'] = 1234
         configs.append(config)
     sweep_configs(configs)
     log_launch(generate.get_log_name(name, rungroup))
