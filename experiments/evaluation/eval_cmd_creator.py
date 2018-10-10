@@ -245,9 +245,20 @@ def launch1_demo(name):
         forall_in_rungroup(evaltype, rungroup, seeds, qsub=False)
     log_launch(get_log_name(name, rungroup))
 
+def launch_ints_exp6_10_9_18(name):
+    rungroups = ['2018-10-09-experiment6-dim-reduc-mini']
+    evaltypes = ['intrinsics']
+    global qsub_log_path
+    for rungroup in rungroups:
+        qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+        for evaltype in evaltypes:
+            seeds = [1234]
+            forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=50)
+        log_launch(evaluate.get_log_name(name, rungroup))
+
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_eval_official_QA_intrinsics_synthetics_10_5_18]
+cmd = [launch_ints_exp6_10_9_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
