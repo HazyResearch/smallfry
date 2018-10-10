@@ -97,6 +97,7 @@ parser.add_commands([plot_embeddings_battery,
                     plot_embeddings_bitrate_codes_only,
                     plot_midriser,
                     plot_histograms,
+                    plot_exp6,
                     list_best_dca])
 
 if __name__ == '__main__':
