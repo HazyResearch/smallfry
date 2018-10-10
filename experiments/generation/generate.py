@@ -101,7 +101,7 @@ def generate_embeddings(config, embed_name):
 
 def get_embeddings_dir_and_name(config):
     if config['method'] == 'glove':
-        params = ['corpus','method','max-vocab','dim','mem-usage','seed','date','rungroup']
+        params = ['corpus','method','max_vocab','dim','mem_usage','seed','date','rungroup']
     else:
         raise ValueError('Method name invalid')
 
