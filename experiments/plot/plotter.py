@@ -102,13 +102,10 @@ parser.add_commands([plot_embeddings_battery,
                     plot_embeddings_bitrate_codes_only,
                     plot_midriser,
                     plot_histograms,
-<<<<<<< HEAD
                     list_best_dca,
-                    plot_frobenius])
-=======
+                    plot_frobenius,
                     plot_exp6,
                     list_best_dca])
->>>>>>> ac979c41f9943972ebd1e24640dbb3073652740b
 
 if __name__ == '__main__':
     parser.dispatch()

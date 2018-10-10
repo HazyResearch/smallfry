@@ -272,6 +272,7 @@ def make_plots( x,
     plt.xscale(xscale)
     plt.yscale(yscale)
     plt.xticks([0.1,0.25,0.5,1,2,4,6],['0.1','0.25','0.5','1','2','4','6'])
+    plt.yticks([1000,3000,5000],['1000','3000','5000'])
     plt.title('%s vs. %s for %s' % (nice_names_lookup(x),
                                     nice_names_lookup(y),
                                     nice_names_lookup(source)))
