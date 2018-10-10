@@ -47,10 +47,10 @@ def sweep_configs(configs):
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
-def generate_dim_reduction2_exp6_10_9_18(name):
+def generate_dim_reduction_exp6_10_9_18(name):
     rungroup = 'experiment6-dim-reduc-mini'
     method = 'glove'
-    ibrs = [6, 32]
+    ibrs = [0.1,0.25,0.5,1,2,4]
     global qsub_log_path
     qsub_log_path = generate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     configs = []
@@ -66,12 +66,10 @@ def generate_dim_reduction2_exp6_10_9_18(name):
     sweep_configs(configs)
     log_launch(generate.get_log_name(name, rungroup))
 
-
-
-def generate_dim_reduction_exp6_10_9_18(name):
+def generate_dim_reduction2_exp6_10_9_18(name):
     rungroup = 'experiment6-dim-reduc-mini'
     method = 'glove'
-    ibrs = [0.1,0.25,0.5,1,2,4]
+    ibrs = [6, 32]
     global qsub_log_path
     qsub_log_path = generate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     configs = []
