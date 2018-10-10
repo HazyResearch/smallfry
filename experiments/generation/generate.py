@@ -98,7 +98,7 @@ def generate_embeddings(config, embed_dir, embed_name):
         logging.info(output)
         wc = perform_command_local(f"wc {embed_name}.txt")
         print(wc)
-        v = int(wc.split(' ')[1])
+        v = int(wc.strip()[0])
     else:
         raise ValueError(f"Method name invalid: {config['method']}")
     assert not v == None, f"Method {config['method']} does must return vocab size"
