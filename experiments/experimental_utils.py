@@ -213,4 +213,4 @@ def get_corpus_path():
     return str(pathlib.PurePath(get_base_directory(),'corpus'))
 
 def get_glove_generator_path():
-    return str(pathlib.PurePath(get_base_directory(),'smallfry/experiments/generation/GloVe/gen_glove.sh'))
+    return str(pathlib.PurePath(get_base_directory(),'smallfry/experiments/generation/GloVe'))
