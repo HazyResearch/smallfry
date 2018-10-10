@@ -16,7 +16,7 @@ def get_git_hash():
     git_hash = None
     try:
         this_dir = os.path.dirname(os.path.realpath(__file__))
-        git_hash = check_output(['git','rev-parse','--short','HEAD'],cwd=this_dir).strip()
+        git_hash = check_outputl(['git','rev-parse','--short','HEAD'],cwd=this_dir).strip()
         logging.info('Git hash {}'.format(git_hash))
     except FileNotFoundError:
         logging.info('Unable to get git hash.')
