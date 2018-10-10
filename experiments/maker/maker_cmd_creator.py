@@ -57,7 +57,7 @@ def qsub_launch_config(config):
 def launch_config(config, qsub=False):
     s = ''
     global qsub_preamble
-    maker_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'generate.py'))
+    maker_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'maker.py'))
     python_maker_cmd = 'python %s' % maker_path
     flags = [python_maker_cmd]
     for key in config.keys():
@@ -108,7 +108,7 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
 
 def sweep_configs(configs):
     for config in configs:
-        log.append(qsub_launch_config(config))
+        log.append(launch_config(config))
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
