@@ -24,7 +24,6 @@ def main():
     embed_dir, embed_name = get_embeddings_dir_and_name(config)
     core_filename = str(pathlib.PurePath(embed_dir, embed_name)) #full path to embeddings txt
     os.makedirs(embed_dir)
-    os.chdir(embed_dir)
     init_logging(core_filename + '_maker.log')
     #TODO ADD BACK IN THIS LATER config['githash-maker'] = get_git_hash()
     logging.info('Begining to gen embeddings')
@@ -83,7 +82,6 @@ def generate_embeddings(config, embed_name):
     v = None #this value must be populated by all method types
     if config['method'] == 'glove':
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        print(dir_path)
         gen_glove_path = str(pathlib.PurePath(dir_path,'GloVe/gen_glove.sh'))
         corpuspath = str(pathlib.PurePath( get_corpus_path(), config['corpus']))
         output = os.system(f"bash {get_glove_generator_path()} {corpuspath} \
