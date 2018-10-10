@@ -47,8 +47,8 @@ def main():
         logging.info(f"For method {config['method']}, generate.py is responsible for writing embeddings to file...")
         to_file_txt(core_filename + '.txt', wordlist, embeds)
         to_file_np(core_filename + '.npy', embeds)
-        save_dict_as_json(config, core_filename + '_config.json')
-        logging.info(f"Write complete")
+    save_dict_as_json(config, core_filename + '_config.json')
+    logging.info(f"Write complete")
     logging.info('maker.py finished!')
 
 def init_parser():
@@ -68,11 +68,11 @@ def init_parser():
         help='Rungroup for organization')
     parser.add_argument('--dim', type=int, default=300,
         help='Dimension for generated embeddings')
-    parser.add_argument('--maxvocab', type=int, default=1e5,
+    parser.add_argument('--maxvocab', type=int, default=100000,
         help='Maximum vocabulary size')
     parser.add_argument('--memusage', type=int, default=128,
         help='Memory usage in GB')
-    parser.add_argument('--numthreads', type=int, default=24,
+    parser.add_argument('--numthreads', type=int, default=50,
         help='Number of threads to spin up')
     parser.add_argument('--numiters', type=int, default=15,
         help='Number of iterations to optimize over')
