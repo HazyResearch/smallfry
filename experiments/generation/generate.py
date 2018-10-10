@@ -68,7 +68,7 @@ def init_parser():
         help='Rungroup for organization')
     parser.add_argument('--dim', type=int, default=300,
         help='Dimension for generated embeddings')
-    parser.add_argument('--maxvocab', type=int, default=1e5,
+    parser.add_argument('--maxvocab', type=int, default=100000,
         help='Maximum vocabulary size')
     parser.add_argument('--memusage', type=int, default=128,
         help='Memory usage in GB')
@@ -98,7 +98,7 @@ def generate_embeddings(config, embed_dir, embed_name):
         logging.info(output)
         wc = perform_command_local(f"wc {embed_name}.txt")
         print(wc)
-        v = int(wc.split(' ')[1])
+        v = int(wc.strip()[0])
     else:
         raise ValueError(f"Method name invalid: {config['method']}")
     assert not v == None, f"Method {config['method']} does must return vocab size"
