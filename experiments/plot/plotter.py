@@ -74,11 +74,14 @@ def plot_exp6():
     print(results)
     for result in results:
         if result['method'] == 'glove':
-            result['bitrate'] = result['dim']/300
+            result['bitrate'] = result['dim']/300*32
             result['base'] = 'glove'
+            result['vocab'] = 71291
             if result['dim'] < 300:
                 result['method'] = 'dim-reduc'
-                print('dim-reduc')
+            else:
+                result['method'] = 'baseline'
+                print(result)
         
     vocabs = [71291]
     x = ['bitrate','bitrate']
@@ -90,7 +93,7 @@ def plot_exp6():
             for vocab in vocabs:
                 for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
                     make_plots(x[i],y[i],results,source,vocab,methods=methods,
-                        include_baseline=False,xscale=scales[0],yscale=scales[1])    
+                        include_baseline=True,xscale=scales[0],yscale=scales[1])    
 
 
 parser = argh.ArghParser()
