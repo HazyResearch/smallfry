@@ -59,6 +59,9 @@ def get_all_data(d_list, base, vocab, method, x, y):
     '''
     res = dict()
     for d in d_list:
+        print(d['base'])
+        print(d['method'])
+        print(d['vocab'])
         if d['base'] == base and d['vocab'] == vocab and d['method'] == method and x in d.keys() and y in d.keys():
             if d[x] in res.keys():
                 res[d[x]].append(d[y])
@@ -243,6 +246,7 @@ def make_plots( x,
             continue
         print(method)
         data = get_all_data(results, source, vocab, method, x, y)
+        print(data)
         data_x,data_y = compute_avg_variable_len(data)
         errbars_low_abs, errbars_high_abs = compute_min_max_variable_len(data)
         errbars_low_rel = np.array(data_y) - np.array(errbars_low_abs)
@@ -259,15 +263,15 @@ def make_plots( x,
         print(y)
         print(source)
         vals = data[32.0]
-        data_x = [0.1,0.25,0.5,1,2,4]
-        data_y = [np.mean(np.array(vals))]*6
+        data_x = [0.1,0.25,0.5,1,2,4,6]
+        data_y = [np.mean(np.array(vals))]*7
         errbar = 0.5*(max(vals) - min(vals)) #TODO fix this weird error bar centering
         plt.errorbar(data_x, data_y, fmt=color_lookup('baseline'), yerr=errbar, label='baseline (32-bit)', linewidth=3.0, linestyle='--')
     plt.xlabel(nice_names_lookup(x), size=lbl_size)
     plt.ylabel(nice_names_lookup(y), size=lbl_size)
     plt.xscale(xscale)
     plt.yscale(yscale)
-    plt.xticks([0.1,0.25,0.5,1,2,4],['0.1','0.25','0.5','1','2','4'])
+    plt.xticks([0.1,0.25,0.5,1,2,4,6],['0.1','0.25','0.5','1','2','4','6'])
     plt.title('%s vs. %s for %s' % (nice_names_lookup(x),
                                     nice_names_lookup(y),
                                     nice_names_lookup(source)))
@@ -287,6 +291,7 @@ def color_lookup(method):
     colors['tuned-dca'] = 'm'
     colors['midriser'] = 'g'
     colors['optranuni'] = 'g'
+    colors['dim-reduc'] = 'm'
     assert method in colors.keys(), "A color has not been designated for the requested method"
     return colors[method]
 

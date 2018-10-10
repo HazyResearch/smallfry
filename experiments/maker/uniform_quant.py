@@ -35,11 +35,13 @@ def optranuni(X,b):
     b= int(b)
     L = None
     if b == 1:
-        L = 0.3
+        L = 0.17
     if b == 2:
-        L = 0.7
+        L = 0.38
     if b == 4:
-        L = 1.5
+        L = 0.82
+    if b == 6:
+        L = 1.22
     assert not L == None, "Only bitrates 1,2,4 currently supported"
     X = torch.Tensor(X)
     X = torch.clamp(X, min=-1*L, max=L)

@@ -69,6 +69,32 @@ def plot_frobenius():
     methods = ['dca','kmeans','tuned-dca','optranuni']
     core_plotter(x,y,sources,vocabs,methods, prep_dca_br_correction_results)
 
+def plot_exp6():
+    results = agg('2018-10-09-experiment6-dim-reduc-mini/*',expected_num_res=19)
+    print(results)
+    for result in results:
+        if result['method'] == 'glove':
+            result['bitrate'] = result['dim']/300*32
+            result['base'] = 'glove'
+            result['vocab'] = 71291
+            if result['dim'] < 300:
+                result['method'] = 'dim-reduc'
+            else:
+                result['method'] = 'baseline'
+                print(result)
+        
+    vocabs = [71291]
+    x = ['bitrate','bitrate']
+    y = ['similarity-avg-score', 'analogy-avg-score']
+    sources = ['glove']
+    methods = ['dim-reduc', 'kmeans', 'optranuni']
+    for i in range(len(x)):
+        for source in sources:
+            for vocab in vocabs:
+                for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
+                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
+                        include_baseline=True,xscale=scales[0],yscale=scales[1])    
+
 
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_battery, 
@@ -76,8 +102,13 @@ parser.add_commands([plot_embeddings_battery,
                     plot_embeddings_bitrate_codes_only,
                     plot_midriser,
                     plot_histograms,
+<<<<<<< HEAD
                     list_best_dca,
                     plot_frobenius])
+=======
+                    plot_exp6,
+                    list_best_dca])
+>>>>>>> ac979c41f9943972ebd1e24640dbb3073652740b
 
 if __name__ == '__main__':
     parser.dispatch()

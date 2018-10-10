@@ -166,16 +166,14 @@ def get_environment():
 
 def whoami():
     '''Wraps bash whoami'''
-    return perform_command_local('whoami')
+    return perform_command_local('whoami')[:-1] # last char is newline, so drop it
 
 '''HARDCODED PATHS BELOW'''
 
 def get_base_directory():
-    '''NOTE: not safe before init_logging'''
-    logging.info('Accessing base dir')
     path = '/proj/smallfry'
     if get_environment() == 'DAWN':
-        path = '/dfs/scratch1/%s%s' % (whoami(),path) 
+        path = '/lfs/1/%s%s' % (whoami(),path) 
     return path
 
 def get_drqa_directory():
@@ -210,3 +208,9 @@ def get_qsub_log_path():
 
 def get_plots_path():
     return str(pathlib.PurePath(get_base_directory(),'plots'))
+
+def get_corpus_path():
+    return str(pathlib.PurePath(get_base_directory(),'corpus'))
+
+def get_glove_generator_path():
+    return str(pathlib.PurePath(get_base_directory(),'smallfry/experiments/generation/GloVe'))
