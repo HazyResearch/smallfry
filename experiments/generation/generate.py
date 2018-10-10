@@ -18,6 +18,7 @@ def main():
     # update config
     config['date'] = get_date_str()
     config['date-rungroup'] = '{}-{}'.format(config['date'],config['rungroup'])
+    print(config)
 
     # Gen embeddings
     embed_dir, embed_name = get_embeddings_dir_and_name(config)
@@ -60,8 +61,6 @@ def init_parser():
     parser.add_argument('--corpus', type=str, required=True,
         choices=['text8'],
         help='Natural language dataset used to train embeddings')
-    parser.add_argument('--corpuspath', type=str, required=True,
-        help='Path to dataset')
     parser.add_argument('--seed', type=int, required=True,
         help='Random seed to use for experiment.')
     parser.add_argument('--outputdir', type=str, required=True,
@@ -74,6 +73,8 @@ def init_parser():
         help='Maximum vocabulary size')
     parser.add_argument('--mem-usage', type=int, default=128,
         help='Memory usage in GB')
+    parser.add_argument('--num-cores', type=int, default=24,
+        help='Number of threads to spin up')
     return parser
 
 def generate_embeddings(config, embed_name):
