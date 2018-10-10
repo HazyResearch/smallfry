@@ -943,6 +943,28 @@ def make_kmeans_exp6_10_9_18(name):
     sweep_configs(configs)
     log_launch(maker.get_log_name(name, rungroup))
 
+def make_optranuni_exp6_10_9_18(name):
+    rungroup = 'experiment6-dim-reduc-mini'
+    methods = ['optranuni']
+    ibrs = [1,2,4,6]
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    configs = []
+    for method in methods:
+        for i in range(len(ibrs)):
+            config = dict()
+            config['ibr'] = ibrs[i]
+            config['rungroup'] = rungroup
+            config['base'] = 'glove'
+            config['basepath'] = str(pathlib.PurePath(maker.get_base_embed_path_head(),
+             'corpus=text8,method=glove,maxvocab=100000,dim=300,memusage=128,seed=1234,date=2018-10-09,rungroup=experiment6-dim-reduc-mini.txt'))
+            config['method'] = method
+            config['outputdir'] = maker.get_base_outputdir()
+            config['seed'] = 1234
+            configs.append(config)
+    sweep_configs(configs)
+    log_launch(maker.get_log_name(name, rungroup))
+
 #IMPORTANT!! this line determines which cmd will be run
 cmd = [make_kmeans_exp6_10_9_18]
 
