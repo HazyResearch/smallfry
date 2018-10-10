@@ -13,8 +13,10 @@ log = []
 launch_path = str(pathlib.PurePath(evaluate.get_launch_path(), 'eval'))
 qsub_log_path = str(pathlib.PurePath(evaluate.get_qsub_log_path(), 'eval'))
 
+
 def launch(params):
-    s = 'python /proj/smallfry/git/smallfry/experiments/evaluation/evaluate.py eval-embeddings %s %s --seed %s --epochs %s' % params
+    eval_py_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'evaluate.py'))
+    s = f"python {eval_py_path} eval-embeddings {params[0]} {params[1]} --seed {params[2]} --epochs {params[3]}"
     return s
 
 def qsub_launch(params):
