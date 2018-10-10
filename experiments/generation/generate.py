@@ -82,6 +82,7 @@ def generate_embeddings(config, embed_dir, embed_name):
     v = None #this value must be populated by all method types
     if config['method'] == 'glove':
         gen_glove_qry = str(pathlib.PurePath(get_glove_generator_path(), '/*' ))
+        print(f"cp {gen_glove_qry} {embed_dir}")
         os.system(f"cp {gen_glove_qry} {embed_dir}")
         os.chdir(embed_dir)
         corpuspath = str(pathlib.PurePath( get_corpus_path(), config['corpus']))
