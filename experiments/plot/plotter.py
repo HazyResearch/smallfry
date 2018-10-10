@@ -71,12 +71,14 @@ def plot_frobenius():
 
 def plot_exp6():
     results = agg('2018-10-09-experiment6-dim-reduc-mini/*',expected_num_res=19)
+    print(results)
     for result in results:
         if result['method'] == 'glove':
             result['bitrate'] = result['dim']/300
             result['base'] = 'glove'
             if result['dim'] < 300:
                 result['method'] = 'dim-reduc'
+                print('dim-reduc')
         
     vocabs = [71291]
     x = ['bitrate','bitrate']
