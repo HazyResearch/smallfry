@@ -142,6 +142,12 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'baseline':
         assert config['ibr'] == 32.0, "Baselines use floating point precision"
         embeds = load_embeddings(config['basepath'])[0]
+    elif config['method'] == 'clipnoquant':
+        start = time.time()
+        embeds = load_embeddings(config['basepath'])[0]
+        config['embed-maketime-secs'] = time.time()-start
+        embeds = clipnoquant(embeds,config['ibr'])
+        config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
     elif config['method'] == 'midriser':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
@@ -157,8 +163,8 @@ def make_embeddings(base_embeds, embed_dir, config):
         start = time.time()
         embeds = optranuni(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
-        #TODO remove this from here
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
+        #TODO remove this from here
     else:
         raise ValueError('Method name invalid')
     return embeds
