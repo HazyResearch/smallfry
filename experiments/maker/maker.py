@@ -53,6 +53,7 @@ def main():
     logging.info('Finished making embeddings.'
                  'It took {} minutes'.format(maketime/60))
     config['maketime-secs'] = maketime
+    config['range'] = max(abs(embeds)) #add range 
 
     # Save embeddings (text and numpy) and config
     to_file_txt(core_filename + '.txt', wordlist, embeds)
@@ -64,7 +65,7 @@ def init_parser():
     """Initialize Cmd-line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, required=True,
-        choices=['kmeans','dca','baseline','stochround','midriser','optranuni'],
+        choices=['kmeans','dca','baseline','stochround','midriser','optranuni','clipnoquant'],
         help='Name of compression method to use (kmeans or dca or stochastic rounding).')
     parser.add_argument('--base', type=str, required=True,
         help='Name of base embeddings')
@@ -141,6 +142,12 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'baseline':
         assert config['ibr'] == 32.0, "Baselines use floating point precision"
         embeds = load_embeddings(config['basepath'])[0]
+    elif config['method'] == 'clipnoquant':
+        start = time.time()
+        embeds = load_embeddings(config['basepath'])[0]
+        config['embed-maketime-secs'] = time.time()-start
+        embeds = clipnoquant(embeds,config['ibr'])
+        config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
     elif config['method'] == 'midriser':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
@@ -156,8 +163,8 @@ def make_embeddings(base_embeds, embed_dir, config):
         start = time.time()
         embeds = optranuni(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
-        #TODO remove this from here
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
+        #TODO remove this from here
     else:
         raise ValueError('Method name invalid')
     return embeds
@@ -167,7 +174,7 @@ def get_embeddings_dir_and_name(config):
         params = ['base','method','vocab','dim','ibr','bitsperblock','blocklen','seed','date','rungroup','solver']
     elif config['method'] == 'dca':
         params = ['base','method','vocab','dim','ibr','m','k','seed','date','rungroup','lr','gradclip','batchsize','tau']
-    elif config['method'] in ['baseline', 'stochround', 'midriser','optranuni']:
+    elif config['method'] in ['baseline', 'stochround', 'midriser','optranuni','clipnoquant']:
         params = ['base','method','vocab','dim','ibr','seed','date','rungroup']
     else:
         raise ValueError('Method name invalid')
@@ -194,7 +201,7 @@ def get_memory(config):
         m = config['m']
         k = config['k']
         mem = v * m * np.log2(k) + 32 * d * m * k
-    elif config['method'] == 'baseline':
+    elif config['method'] in ['baseline','clipnoquant']:
         return v*d*32
     elif config['method'] in ['stochround', 'midriser','optranuni'] :
         return config['ibr']*d*v + 32

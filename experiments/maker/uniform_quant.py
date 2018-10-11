@@ -40,20 +40,8 @@ def midriser(X,b):
     X = X*2*L
     return X
 
-def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
-    '''
-    Implements the golden section line search
-    Adaptively finds optimal range based on data
-    Deterministic uniform rounding over optimal range
-    '''
-    br = int(br)
-    phi = (1+np.sqrt(5))/2 # golden ratio
-
-    def quant(X,L):
-        '''Copies X, quantizes X, returns X'''
-        #br # never changes, so no reason to pass it in each time as a variable
-       # print(br)
-        #print(f"quantizing with {L}")
+def uniquant(X,br,L):
+        '''Copies X, quantizes X, returns X. Uses range L'''
         X_q = torch.Tensor(X)
         X_q = torch.clamp(X_q, min=-1*L, max=L)
         n = 2**br - 1
@@ -62,22 +50,42 @@ def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
         X_q = torch.round(X_q)
         X_q = X_q/n #undo linear transform
         X_q = X_q*2*L - L #undo shift
-        #print(torch.unique(X_q))
         return X_q
 
-    def evaluate(baseX,X_q):
-        '''Value we are minimizing -- Frobenius distance'''
-        return np.linalg.norm(baseX-X_q)
+def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
+    '''
+    Implements the golden section line search
+    Adaptively finds optimal range based on data
+    Deterministic uniform rounding over optimal range
+    '''
+    br = int(br)
+    quant = lambda X,L: uniquant(X,br,L) #bitrate does not change, no reason to pass it in each time
+    f = lambda X,X_q: _compute_frobenius(X,X_q)
+    L_star = _goldensearch(X,f,quant,eps=eps,tol=tol,L_max=L_max)
+    return quant(X,L_star)
 
+def clipnoquant(X,br):
+    br = int(br)
+    quant = lambda X,L: uniquant(X,br,L) #bitrate does not change, no reason to pass it in each time
+    f = lambda X,X_q: _compute_frobenius(X,X_q)
+    L_star = _goldensearch(X,f,quant)
+    return torch.clamp(torch.Tensor(X), min=-1*L_star, max=L_star)
+
+def _goldensearch(X,f,quant,eps=1e-40,tol=0.1,L_max=10):
+    '''
+    Implements the golden section line search
+    Adaptively finds optimal range based on data
+    '''
+    phi = (1+np.sqrt(5))/2 # golden ratio
     #initialize line search iteration
     a = eps
     b = L_max
-    val_a = evaluate(X,quant(X,a))
-    val_b = evaluate(X,quant(X,b))
+    val_a = f(X,quant(X,a))
+    val_b = f(X,quant(X,b))
     c = b - (b-a)/phi
     d = a + (b-a)/phi
-    val_c = evaluate(X,quant(X,c))
-    val_d = evaluate(X,quant(X,d))
+    val_c = f(X,quant(X,c))
+    val_d = f(X,quant(X,d))
     #perform iterations
     while (b-a > tol):
         if val_c < val_d:
@@ -93,8 +101,11 @@ def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
             c = d
             val_c = val_d
             d = a + (b-a)/phi
-        val_c = evaluate(X,quant(X,c))
-        val_d = evaluate(X,quant(X,d))
+        val_c = f(X,quant(X,c))
+        val_d = f(X,quant(X,d))
     #on termination, return optimal range
-    L_star = c if val_c < val_d else d
-    return quant(X, L_star)
+    return c if val_c < val_d else d
+
+def _compute_frobenius(baseX,X_q):
+        '''Value we are minimizing -- Frobenius distance'''
+        return np.linalg.norm(baseX-X_q.data.numpy())
