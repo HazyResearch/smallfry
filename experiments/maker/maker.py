@@ -53,7 +53,7 @@ def main():
     logging.info('Finished making embeddings.'
                  'It took {} minutes'.format(maketime/60))
     config['maketime-secs'] = maketime
-    config['range'] = max(abs(embeds)) #add range 
+    config['range'] = str(np.max(np.abs(embeds))) #add range 
 
     # Save embeddings (text and numpy) and config
     to_file_txt(core_filename + '.txt', wordlist, embeds)
