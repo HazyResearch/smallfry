@@ -157,7 +157,7 @@ def make_embeddings(base_embeds, embed_dir, config):
         embeds = optranuni(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
         #TODO remove this from here
-        config['embed-frobenius-dist'] = np.linalg.norm(base_embeds - embeds)
+        config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
     else:
         raise ValueError('Method name invalid')
     return embeds
