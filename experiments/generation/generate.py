@@ -96,9 +96,10 @@ def generate_embeddings(config, embed_dir, embed_name):
                                     {config['numiters']} \
                                     {embed_name}")
         logging.info(output)
-        wc = perform_command_local(f"wc {embed_name}.txt")
+        wc = perform_command_local(f"wc -l {embed_name}.txt | cut f1 -d' '")
         print(wc)
         v = int(wc.strip()[0])
+        assert False #TODO FIX VOCAB FETCH AND DO NOT RUN UNTIL WE GET THEREcd
     else:
         raise ValueError(f"Method name invalid: {config['method']}")
     assert not v == None, f"Method {config['method']} does must return vocab size"
