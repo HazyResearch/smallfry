@@ -59,6 +59,9 @@ def get_all_data(d_list, base, vocab, method, x, y):
     '''
     res = dict()
     for d in d_list:
+        print(d['base'])
+        print(d['method'])
+        print(d['vocab'])
         if d['base'] == base and d['vocab'] == vocab and d['method'] == method and x in d.keys() and y in d.keys():
             if d[x] in res.keys():
                 res[d[x]].append(d[y])
@@ -213,6 +216,7 @@ def prep_codebook_free_bitrate_results(results):
 
 def prep_dca_br_correction_results(results):
     for res in results:
+        print(res)
         if res['method'] == 'dca':
             res['bitrate'] = (res['m'] * res['vocab'] * np.log2(res['k']) + 32 * res['m']*res['k']*res['dim'])/(res['vocab']*res['dim'])
     return results
@@ -233,14 +237,16 @@ def make_plots( x,
     for method in methods:
         if method in special_treatment_methods(): # some methods need special treatment
             if method == 'tuned-dca':
-                br_2_params = get_best_dca_params()
+                br_2_params = get_dca_best_params(agg('merged-experiment5-dca-hp-tune/*'), [0.1,0.25,0.5,1,2,4], source)
                 data_x = sorted(list(br_2_params.keys()))
-                data_y = [b_2_params[0] for x in data_x]
-                plt.plot(data_x, data_y, fmt=color_lookup(method), linewidth=3.0, label=method)
+                data_y = [br_2_params[x][0] for x in data_x]
+                plt.plot(data_x, data_y, color=color_lookup(method), linewidth=3.0, label=method)
             else:
                 raise ValueError('method identified as special treatment, but not supported in code')
+            continue
         print(method)
         data = get_all_data(results, source, vocab, method, x, y)
+        print(data)
         data_x,data_y = compute_avg_variable_len(data)
         errbars_low_abs, errbars_high_abs = compute_min_max_variable_len(data)
         errbars_low_rel = np.array(data_y) - np.array(errbars_low_abs)
@@ -257,15 +263,16 @@ def make_plots( x,
         print(y)
         print(source)
         vals = data[32.0]
-        data_x = [0.1,0.25,0.5,1,2,4]
-        data_y = [np.mean(np.array(vals))]*6
+        data_x = [0.1,0.25,0.5,1,2,4,6]
+        data_y = [np.mean(np.array(vals))]*7
         errbar = 0.5*(max(vals) - min(vals)) #TODO fix this weird error bar centering
         plt.errorbar(data_x, data_y, fmt=color_lookup('baseline'), yerr=errbar, label='baseline (32-bit)', linewidth=3.0, linestyle='--')
     plt.xlabel(nice_names_lookup(x), size=lbl_size)
     plt.ylabel(nice_names_lookup(y), size=lbl_size)
     plt.xscale(xscale)
     plt.yscale(yscale)
-    plt.xticks([0.1,0.25,0.5,1,2,4],['0.1','0.25','0.5','1','2','4'])
+    plt.xticks([0.1,0.25,0.5,1,2,4,6],['0.1','0.25','0.5','1','2','4','6'])
+    plt.yticks([1000,3000,5000],['1000','3000','5000'])
     plt.title('%s vs. %s for %s' % (nice_names_lookup(x),
                                     nice_names_lookup(y),
                                     nice_names_lookup(source)))
@@ -290,7 +297,7 @@ def color_lookup(method):
     return colors[method]
 
 def xy_dataset_qry_lookup(x,y,method=None):
-    qry = 'merged-experiment2-5X-seeds/*', 192
+    qry = 'merged-experiment2-5X-seeds/*', 198
     if 'maketime' in y: 
         qry = 'merged-experiment4-1X-seeds/*', 90
     return qry

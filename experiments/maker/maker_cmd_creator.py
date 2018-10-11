@@ -22,7 +22,7 @@ def launch(method, params):
         s = '%s --method kmeans --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --bitsperblock %s --blocklen %s --ibr %s' % ((python36_maker_cmd,)+params)
     elif method == 'dca':
         s = '%s --method dca --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s --ibr %s' % ((python36_maker_cmd,)+params)
-    elif method == 'baseline' or method == 'stochround' or method == 'midriser':
+    elif method == 'baseline' or method == 'stochround' or method == 'midriser' or method == 'optranuni':
         s = '%s --method %s --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --ibr %s' % ((python36_maker_cmd,)+(method,)+params)
     else:
         raise ValueError(f"bad method name in launch: {method}")
@@ -114,6 +114,25 @@ def sweep_configs(configs):
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 def make_optranuni_exp2_10_9_18(name):
+    rungroup = 'experiment2-5X-seeds'
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    params = dict()
+    ibrs = [1,2,4]
+    base_embeds = ['fasttext','glove']
+    base_path_ft = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'fasttext_k=400000'))
+    base_path_glove = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    base_embeds_path = [base_path_ft, base_path_glove]
+    seeds = [4974]
+    for seed in seeds:
+        for i in [0,1]: #loop over baselines: fasttext and glove
+            for ibr in ibrs:
+                log.append(launch('optranuni',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+    log_launch(maker.get_log_name(name, rungroup))
+
+
+
+def test_optranuni_exp2_10_9_18(name):
     rungroup = 'experiment2-5X-seeds-DBG'
     global qsub_log_path
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
@@ -127,7 +146,7 @@ def make_optranuni_exp2_10_9_18(name):
     for seed in seeds:
         for i in [0,1]: #loop over baselines: fasttext and glove
             for ibr in ibrs:
-                log.append(qsub_launch('optranuni',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
+                log.append(launch('optranuni',(base_embeds[i], base_embeds_path[i], seed, maker.get_base_outputdir(), rungroup, ibr)))
     log_launch(maker.get_log_name(name, rungroup))
 
 def launch_official_dca_sweep2_exp5_10_8_18(name):
@@ -966,7 +985,7 @@ def make_optranuni_exp6_10_9_18(name):
     log_launch(maker.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [make_optranuni_exp6_10_9_18]
+cmd = [make_optranuni_exp2_10_9_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
