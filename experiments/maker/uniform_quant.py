@@ -69,7 +69,8 @@ def clipnoquant(X,br):
     quant = lambda X,L: uniquant(X,br,L) #bitrate does not change, no reason to pass it in each time
     f = lambda X,X_q: _compute_frobenius(X,X_q)
     L_star = _goldensearch(X,f,quant)
-    return torch.clamp(torch.Tensor(X), min=-1*L_star, max=L_star)
+    X_clip = torch.clamp(torch.Tensor(X), min=-1*L_star, max=L_star)
+    return X_clip.data.numpy()
 
 def _goldensearch(X,f,quant,eps=1e-40,tol=0.1,L_max=10):
     '''
