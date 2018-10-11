@@ -40,7 +40,7 @@ def midriser(X,b):
     X = X*2*L
     return X
 
-def optranuni(X,br,eps=0.1,tol=0.1,L_max=10):
+def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
     '''
     Implements the golden section line search
     Adaptively finds optimal range based on data
@@ -51,9 +51,10 @@ def optranuni(X,br,eps=0.1,tol=0.1,L_max=10):
 
     def quant(X,L):
         '''Copies X, quantizes X, returns X'''
-        global br # never changes, so no reason to pass it in each time as a variable
-        X_q = np.copy(X)
-        X_q = torch.Tensor(X_q)
+        #br # never changes, so no reason to pass it in each time as a variable
+       # print(br)
+        #print(f"quantizing with {L}")
+        X_q = torch.Tensor(X)
         X_q = torch.clamp(X_q, min=-1*L, max=L)
         n = 2**br - 1
         X_q = (X_q+L)/(2*L)
@@ -61,11 +62,12 @@ def optranuni(X,br,eps=0.1,tol=0.1,L_max=10):
         X_q = torch.round(X_q)
         X_q = X_q/n #undo linear transform
         X_q = X_q*2*L - L #undo shift
+        #print(torch.unique(X_q))
         return X_q
 
     def evaluate(baseX,X_q):
         '''Value we are minimizing -- Frobenius distance'''
-        return np.linalg.norm(baseX-X_q)
+        return np.linalg.norm(baseX-X_q.data.numpy())
 
     #initialize line search iteration
     a = eps
@@ -84,14 +86,15 @@ def optranuni(X,br,eps=0.1,tol=0.1,L_max=10):
             d = c
             val_c = val_d
             c = b - (b-a)/phi
-            val_c = evaluate(X,quant(X,c))
+            
         else:
             a = c
             val_a = val_c
             c = d
             val_c = val_d
             d = a + (b-a)/phi
-            val_d = evaluate(X,quant(X,d))
+        val_c = evaluate(X,quant(X,c))
+        val_d = evaluate(X,quant(X,d))
     #on termination, return optimal range
     L_star = c if val_c < val_d else d
     return quant(X, L_star)
