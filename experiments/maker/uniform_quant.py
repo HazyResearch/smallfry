@@ -63,7 +63,7 @@ def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
     f = lambda X,X_q: _compute_frobenius(X,X_q)
     L_star = _goldensearch(X,f,quant,eps=eps,tol=tol,L_max=L_max)
     X_q = quant(X,L_star)
-    return X_q.data.numpy()
+    return X_q.numpy()
 
 def clipnoquant(X,br):
     br = int(br)
@@ -71,7 +71,7 @@ def clipnoquant(X,br):
     f = lambda X,X_q: _compute_frobenius(X,X_q)
     L_star = _goldensearch(X,f,quant)
     X_clip = torch.clamp(torch.Tensor(X), min=-1*L_star, max=L_star)
-    return X_clip.data.numpy()
+    return X_clip.numpy()
 
 def _goldensearch(X,f,quant,eps=1e-40,tol=0.1,L_max=10):
     '''
