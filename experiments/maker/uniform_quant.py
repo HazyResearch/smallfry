@@ -67,7 +67,7 @@ def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
 
     def evaluate(baseX,X_q):
         '''Value we are minimizing -- Frobenius distance'''
-        return np.linalg.norm(baseX-X_q.data.numpy())
+        return np.linalg.norm(baseX-X_q)
 
     #initialize line search iteration
     a = eps
