@@ -85,8 +85,28 @@ def generate_dim_reduction2_exp6_10_9_18(name):
     sweep_configs(configs)
     log_launch(generate.get_log_name(name, rungroup))
 
+def generate_dim_reduc_exp7_quant_ablation_10_11_18(name):
+    rungroup = 'experiment7-quant-ablation'
+    method = 'glove'
+    ibrs = [0.5,1,2,4,8]
+    global qsub_log_path
+    qsub_log_path = generate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    configs = []
+    for ibr in ibrs:
+        config = dict()
+        config['rungroup'] = rungroup
+        config['method'] = method
+        config['corpus'] = 'text8'
+        config['dim'] = ibr_2_dim(ibr)
+        config['outputdir'] = generate.get_base_outputdir()
+        config['seed'] = 1234
+        configs.append(config)
+    sweep_configs(configs)
+    log_launch(generate.get_log_name(name, rungroup))
+
+
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [generate_dim_reduction2_exp6_10_9_18]
+cmd = [generate_dim_reduc_exp7_quant_ablation_10_11_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
