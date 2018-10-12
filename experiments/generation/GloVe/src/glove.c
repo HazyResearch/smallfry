@@ -53,8 +53,6 @@ int model = 2; // For text file output only. 0: concatenate word and context vec
 int checkpoint_every = 0; // checkpoint the model for every checkpoint_every iterations. Do nothing if checkpoint_every <= 0
 real eta = 0.05; // Initial learning rate
 real alpha = 0.75, x_max = 100.0; // Weighting function parameters, not extremely sensitive to corpus, though may need adjustment for very small or very large corpora
-// Avner May 10/11/18: added clipping parameter
-real clip = -1.0; // Maximum absolute value for embedding entries.  If < 0, no clipping is done.
 real *W, *gradsq, *cost;
 long long num_lines, *lines_per_thread, vocab_size;
 char *vocab_file, *input_file, *save_W_file, *save_gradsq_file;
@@ -169,22 +167,6 @@ void *glove_thread(void *vid) {
         fdiff *= fdiff;
         gradsq[vector_size + l1] += fdiff;
         gradsq[vector_size + l2] += fdiff;
-
-        // Avner May 10/11/18: perform clipping
-        if (clip >= 0) {
-            for (b = 0; b <= vector_size; b++) {
-                if (W[b + l1] > clip) {
-                    W[b + l1] = clip;
-                } else if (W[b + l1] < -clip) {
-                    W[b + l1] = -clip;
-                }
-                if (W[b + l2] > clip) {
-                    W[b + l2] = clip;
-                } else if (W[b + l2] < -clip) {
-                    W[b + l2] = -clip;
-                }
-            }
-        }
     }
     free(W_updates1);
     free(W_updates2);
@@ -333,7 +315,6 @@ int train_glove() {
     if (verbose > 0) fprintf(stderr,"x_max: %lf\n", x_max);
     if (verbose > 0) fprintf(stderr,"alpha: %lf\n", alpha);
     if (verbose > 0) fprintf(stderr,"seed: %d\n", seed);
-    if (verbose > 0) fprintf(stderr,"clip: %lf\n", clip);
     pthread_t *pt = (pthread_t *)malloc(num_threads * sizeof(pthread_t));
     lines_per_thread = (long long *) malloc(num_threads * sizeof(long long));
     
@@ -417,9 +398,6 @@ int main(int argc, char **argv) {
         printf("\t\tParameter in exponent of weighting function; default 0.75\n");
         printf("\t-x-max <float>\n");
         printf("\t\tParameter specifying cutoff in weighting function; default 100.0\n");
-        // Avner May 10/11/18: Added clipping parameter
-        printf("\t-clip <float>\n");
-        printf("\t\tParameter specifying maximum absolute value for embedding entries (if < 0, no clipping is done); default -1\n");
         printf("\t-binary <int>\n");
         printf("\t\tSave output in binary format (0: text, 1: binary, 2: both); default 0\n");
         printf("\t-model <int>\n");
@@ -452,7 +430,6 @@ int main(int argc, char **argv) {
         cost = malloc(sizeof(real) * num_threads);
         if ((i = find_arg((char *)"-alpha", argc, argv)) > 0) alpha = atof(argv[i + 1]);
         if ((i = find_arg((char *)"-x-max", argc, argv)) > 0) x_max = atof(argv[i + 1]);
-        if ((i = find_arg((char *)"-clip", argc, argv)) > 0) clip = atof(argv[i + 1]);
         if ((i = find_arg((char *)"-eta", argc, argv)) > 0) eta = atof(argv[i + 1]);
         if ((i = find_arg((char *)"-binary", argc, argv)) > 0) use_binary = atoi(argv[i + 1]);
         if ((i = find_arg((char *)"-model", argc, argv)) > 0) model = atoi(argv[i + 1]);
