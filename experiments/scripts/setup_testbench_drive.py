@@ -6,6 +6,9 @@ from git import Repo
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
 
+
+#TODO add senwu sentiment out
+
 def setup_testbench_drive():
     dirs = [get_base_embed_path_head(),
             get_base_outputdir(),
