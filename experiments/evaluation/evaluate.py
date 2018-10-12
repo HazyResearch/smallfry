@@ -23,7 +23,7 @@ from experimental_utils import *
 
 #TODO: Change from argh to argparse?
 
-def eval_embeddings(embed_path, evaltype, seed=None, epochs=None):
+def eval_embeddings(embed_path, evaltype, seed=None, epochs=None, dataset=None):
     '''
     This is the front-end routine for experimental evaluation. 
     For each acceptable experiment type, denoted with 'evaltype', it dispatches
@@ -223,7 +223,7 @@ def eval_synthetics(embed_path):
     res_rtn['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
     return res_rtn
 
-def eval_sent(embed_txt_path, seed):
+def eval_sent(embed_txt_path, seed, dataset=None):
     #TODO: sent eval not operational yet
 
     def parse_senwu_outlogs(outlog):
@@ -233,6 +233,8 @@ def eval_sent(embed_txt_path, seed):
     logging.info('starting sentiment')
     models = ['lstm', 'cnn', 'la']
     datasets = ['mr', 'subj', 'cr', 'sst', 'trec', 'mpqa']
+    if dataset != None:
+        datasets = [dataset]
     res = dict()
     for model in models:
         for dataset in datasets:
