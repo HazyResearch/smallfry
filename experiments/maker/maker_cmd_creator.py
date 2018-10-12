@@ -1006,9 +1006,31 @@ def test_optranuni_and_clip_10_11_18(name):
     sweep_configs(configs)
     log_launch(maker.get_log_name(name, rungroup))
 
+def test_kmeans_10_11_18(name):
+    rungroup = 'test-clipnoquant-and-goldensearch'
+    methods = ['kmeans']
+    ibrs = [1,2,4]
+    global qsub_log_path
+    qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+    configs = []
+    for method in methods:
+        for i in range(len(ibrs)):
+            config = dict()
+            config['ibr'] = ibrs[i]
+            config['rungroup'] = rungroup
+            config['base'] = 'glove'
+            config['basepath'] = str(pathlib.PurePath(maker.get_base_embed_path_head(),
+             'corpus=text8,method=glove,maxvocab=100000,dim=300,memusage=128,seed=1234,date=2018-10-09,rungroup=experiment6-dim-reduc-mini.txt'))
+            config['method'] = method
+            config['outputdir'] = maker.get_base_outputdir()
+            config['seed'] = 1234
+            configs.append(config)
+    sweep_configs(configs)
+    log_launch(maker.get_log_name(name, rungroup))
+
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [test_optranuni_and_clip_10_11_18]
+cmd = [test_kmeans_10_11_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
