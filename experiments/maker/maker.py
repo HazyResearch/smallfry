@@ -146,10 +146,10 @@ def make_embeddings(base_embeds, embed_dir, config):
         assert config['ibr'] == 32.0, "Baselines use floating point precision"
         embeds = load_embeddings(config['basepath'])[0]
     elif config['method'] == 'clipnoquant':
-        start = time.time()
         embeds = load_embeddings(config['basepath'])[0]
-        config['embed-maketime-secs'] = time.time()-start
+        start = time.time()
         embeds = clipnoquant(embeds,config['ibr'])
+        config['embed-maketime-secs'] = time.time()-start
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
     elif config['method'] == 'midriser':
         embeds = load_embeddings(config['basepath'])[0]
