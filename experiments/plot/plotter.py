@@ -107,6 +107,8 @@ def plot_exp7():
                 result['method'] = 'dim-reduc'
             else:
                 result['method'] = 'baseline'
+        elif result['method'] == 'clipnoquant':
+            result['bitrate'] = result['ibr']
         
     vocabs = [71291]
     x = ['bitrate','bitrate']
@@ -118,7 +120,7 @@ def plot_exp7():
             for vocab in vocabs:
                 for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
                     make_plots(x[i],y[i],results,source,vocab,methods=methods,
-                        include_baseline=True,xscale=scales[0],yscale=scales[1])    
+                        include_baseline=True,xscale=scales[0],yscale=scales[1],xticks=[0.5,1,2,4,8])    
 
 
 
@@ -131,6 +133,7 @@ parser.add_commands([plot_embeddings_battery,
                     list_best_dca,
                     plot_frobenius,
                     plot_exp6,
+                    plot_exp7,
                     list_best_dca])
 
 if __name__ == '__main__':

@@ -77,8 +77,7 @@ def eval_print(message):
 
 def perform_command_local(command):
     ''' performs a command -- author: MAXLAM'''
-    logging.info('performing a local command: %s' % command)
-    out = check_output(command, stderr=subprocess.STDOUT, shell=True).decode("utf-8") 
+    out = check_output(command, stderr=subprocess.STDOUT, shell=True).decode('utf-8') 
     return out     
 
 def get_results_path(embed_path, results_type):
