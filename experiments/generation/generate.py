@@ -46,7 +46,8 @@ def main():
         assert not wordlist == None, f"Generate.py requires both embeds and wordlists to write to file! Offending method: {config['method']}"
         logging.info(f"For method {config['method']}, generate.py is responsible for writing embeddings to file...")
         to_file_txt(core_filename + '.txt', wordlist, embeds)
-        to_file_np(core_filename + '.npy', embeds)
+        if config['writenpy']:
+            to_file_np(core_filename + '.npy', embeds)
     save_dict_as_json(config, core_filename + '_config.json')
     logging.info(f"Write complete")
     logging.info('maker.py finished!')
@@ -76,6 +77,8 @@ def init_parser():
         help='Number of threads to spin up')
     parser.add_argument('--numiters', type=int, default=15,
         help='Number of iterations to optimize over')
+    parser.add_argument('--writenpy', type=bool, default=False,
+        help='Write embeddings matrix in npy format in addition to text')
     return parser
 
 def generate_embeddings(config, embed_dir, embed_name):

@@ -41,16 +41,16 @@ def midriser(X,b):
     return X
 
 def uniquant(X,br,L):
-        '''Copies X, quantizes X, returns X. Uses range L'''
-        X_q = torch.Tensor(X)
-        X_q = torch.clamp(X_q, min=-1*L, max=L)
-        n = 2**br - 1
-        X_q = (X_q+L)/(2*L)
-        X_q = n*X_q # apply linear transform to put each quanta at integer
-        X_q = torch.round(X_q)
-        X_q = X_q/n #undo linear transform
-        X_q = X_q*2*L - L #undo shift
-        return X_q
+    '''Copies X, quantizes X, returns X. Uses range L and bitrate br'''
+    X_q = torch.Tensor(X)
+    X_q = torch.clamp(X_q, min=-1*L, max=L)
+    n = 2**br - 1
+    X_q = (X_q+L)/(2*L)
+    X_q = n*X_q # apply linear transform to put each quanta at integer
+    X_q = torch.round(X_q)
+    X_q = X_q/n #undo linear transform
+    X_q = X_q*2*L - L #undo shift
+    return X_q
 
 def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
     '''
@@ -66,6 +66,9 @@ def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
     return X_q.numpy()
 
 def clipnoquant(X,br):
+    '''
+    Clips where it would clip with oprtanuni, but otherwise full-precision 
+    '''
     br = int(br)
     quant = lambda X,L: uniquant(X,br,L) #bitrate does not change, no reason to pass it in each time
     f = lambda X,X_q: _compute_frobenius(X,X_q)
@@ -96,7 +99,6 @@ def _goldensearch(X,f,quant,eps=1e-40,tol=0.1,L_max=10):
             d = c
             val_c = val_d
             c = b - (b-a)/phi
-            
         else:
             a = c
             val_a = val_c

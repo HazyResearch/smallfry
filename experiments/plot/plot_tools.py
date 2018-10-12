@@ -304,6 +304,14 @@ def xy_dataset_qry_lookup(x,y,method=None):
         qry = 'merged-experiment4-1X-seeds/*', 90
     return qry
 
+def xy_ticks_lookup(x,y):
+    xticks = None
+    yticks = None
+    if y == 'embed-fro-dist':
+        xticks = [0.1,0.25,0.5,1,2,4,8]
+        yticks = [100,500,2500,5000]
+    return xticks, yticks
+
 def special_treatment_methods():
     return ['tuned-dca']
 

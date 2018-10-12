@@ -43,7 +43,7 @@ def main():
     os.makedirs(embed_dir)
     init_logging(core_filename + '_maker.log')
     config['githash-maker'] = get_git_hash()
-    logging.info('Begining to make embeddings')
+    logging.info(f"Begining to make embeddings: {config}")
     logging.info('Datetime is %s' % datetime.datetime.now())
     start = time.time()
     embeds = make_embeddings(base_embeds, embed_dir, config)
@@ -57,7 +57,8 @@ def main():
 
     # Save embeddings (text and numpy) and config
     to_file_txt(core_filename + '.txt', wordlist, embeds)
-    to_file_np(core_filename + '.npy', embeds)
+    if config['writenpy']:
+        to_file_np(core_filename + '.npy', embeds)
     save_dict_as_json(config, core_filename + '_config.json')
     logging.info('maker.py finished!')
 
@@ -98,6 +99,8 @@ def init_parser():
     parser.add_argument('--solver', type=str, default='iterative',
         choices=['iterative','dynprog'],
         help='Solver used to solve k-means.')
+    parser.add_argument('--writenpy', type=bool, default=False,
+        help='Write embeddings matrix in npy format in addition to text')
     return parser
 
 def make_embeddings(base_embeds, embed_dir, config):
@@ -143,10 +146,10 @@ def make_embeddings(base_embeds, embed_dir, config):
         assert config['ibr'] == 32.0, "Baselines use floating point precision"
         embeds = load_embeddings(config['basepath'])[0]
     elif config['method'] == 'clipnoquant':
-        start = time.time()
         embeds = load_embeddings(config['basepath'])[0]
-        config['embed-maketime-secs'] = time.time()-start
+        start = time.time()
         embeds = clipnoquant(embeds,config['ibr'])
+        config['embed-maketime-secs'] = time.time()-start
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
     elif config['method'] == 'midriser':
         embeds = load_embeddings(config['basepath'])[0]
