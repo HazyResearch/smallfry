@@ -53,7 +53,7 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None, dataset=None):
         results = eval_synthetics(embed_path)
     elif evaltype == 'sentiment':
         seed = int(seed)
-        results = eval_sent(fetch_embeds_txt_path(embed_path), seed)
+        results = eval_sent(fetch_embeds_txt_path(embed_path), seed, dataset)
     else:
         assert False, 'bad evaltype given to eval()'
 

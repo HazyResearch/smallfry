@@ -16,7 +16,7 @@ qsub_log_path = str(pathlib.PurePath(evaluate.get_qsub_log_path(), 'eval'))
 
 def launch(params):
     eval_py_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'evaluate.py'))
-    s = f"python {eval_py_path} eval-embeddings {params[0]} {params[1]} --seed {params[2]} --epochs {params[3]}"
+    s = f"python {eval_py_path} eval-embeddings {params[0]} {params[1]} --seed {params[2]} --epochs {params[3]} --dataset {params[4]}"
     return s
 
 def qsub_launch(params):
@@ -30,7 +30,7 @@ def log_launch(name):
     with open(log_launch_path, 'w+') as llp:
         llp.write('\n'.join(log))
 
-def forall_in_rungroup(evaltype, rungroup, seeds, epochs=None, params=None, qsub=True):
+def forall_in_rungroup(evaltype, rungroup, seeds, epochs=None, dataset=None, params=None, qsub=True):
     '''a subroutine for complete 'sweeps' of params'''
     l = qsub_launch if qsub else launch
     for seed in seeds:
@@ -45,7 +45,8 @@ def forall_in_rungroup(evaltype, rungroup, seeds, epochs=None, params=None, qsub
                     cmd = l((emb,
                             evaltype,
                             seed,
-                            epochs))
+                            epochs,
+                            dataset))
                     log.append(cmd)
         assert rungroup_found, "rungroup requested in eval cmd creator not found"
 
@@ -258,9 +259,19 @@ def launch_ints_exp6_10_9_18(name):
             forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=50, qsub=False)
         log_launch(evaluate.get_log_name(name, rungroup))
 
+def launch_ints_sent_exp7_10_11_18(name):
+    rungroups = ['2018-10-11-experiment7-quant-ablation']
+    evaltypes = ['intrinsics','sentiment']
+    global qsub_log_path
+    for rungroup in rungroups:
+        qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+        for evaltype in evaltypes:
+            seeds = [1234]
+            forall_in_rungroup(evaltype, rungroup, seeds, epochs=50, dataset='mr', qsub=False)
+        log_launch(evaluate.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_ints_exp6_10_9_18]
+cmd = [launch_ints_sent_exp7_10_11_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
