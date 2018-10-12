@@ -332,6 +332,8 @@ int train_glove() {
     if (verbose > 0) fprintf(stderr,"vocab size: %lld\n", vocab_size);
     if (verbose > 0) fprintf(stderr,"x_max: %lf\n", x_max);
     if (verbose > 0) fprintf(stderr,"alpha: %lf\n", alpha);
+    if (verbose > 0) fprintf(stderr,"seed: %d\n", seed);
+    if (verbose > 0) fprintf(stderr,"clip: %lf\n", clip);
     pthread_t *pt = (pthread_t *)malloc(num_threads * sizeof(pthread_t));
     lines_per_thread = (long long *) malloc(num_threads * sizeof(long long));
     
