@@ -112,7 +112,7 @@ def plot_exp7():
         
     vocabs = [71291]
     x = ['bitrate','bitrate']
-    y = ['similarity-avg-score', 'analogy-avg-score']
+    y = ['sentiment-score-la-mr']
     sources = ['glove']
     methods = ['dim-reduc', 'kmeans', 'optranuni','clipnoquant']
     for i in range(len(x)):
@@ -121,7 +121,6 @@ def plot_exp7():
                 for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
                     make_plots(x[i],y[i],results,source,vocab,methods=methods,
                         include_baseline=True,xscale=scales[0],yscale=scales[1],xticks=[0.5,1,2,4,8])    
-
 
 
 parser = argh.ArghParser()
