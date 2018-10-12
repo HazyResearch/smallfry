@@ -214,8 +214,8 @@ def eval_synthetics(embed_path):
     base_embeds, base_wordlist = load_embeddings(fetch_base_embed_path(embed_path))
 
     res_rtn = dict()
-    res_rtn['embed-fro-dist'] = np.linalg.norm(base_embeds-embeds)
-    res_rtn['embed-fro-norm'] = np.linalg.norm(embeds)
+    res_rtn['embed-frob-dist'] = np.linalg.norm(base_embeds-embeds)
+    res_rtn['embed-frob-norm'] = np.linalg.norm(embeds)
     res_rtn['mean'] = np.mean(embeds)
     res_rtn['var'] = np.var(embeds)
     res_rtn['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))

@@ -245,24 +245,15 @@ def make_plots( x,
             else:
                 raise ValueError('method identified as special treatment, but not supported in code')
             continue
-        print(method)
         data = get_all_data(results, source, vocab, method, x, y)
-        print(data)
         data_x,data_y = compute_avg_variable_len(data)
         errbars_low_abs, errbars_high_abs = compute_min_max_variable_len(data)
         errbars_low_rel = np.array(data_y) - np.array(errbars_low_abs)
         errbars_high_rel =  np.array(errbars_high_abs) - np.array(data_y)
         errbars = np.array([errbars_low_rel, errbars_high_rel])
-        if method == 'stochround':
-            print(data_y)
-
         plt.errorbar(data_x, data_y, fmt=color_lookup(method), yerr=errbars, linewidth=3.0, label=method)
     if include_baseline: #hardcoded for now -- needs a fix
         data = get_all_data(results, source, vocab, 'baseline', x, y)
-        print(data)
-        print(x)
-        print(y)
-        print(source)
         vals = data[32.0]
         data_x = [0.1,0.25,0.5,1,2,4]
         data_y = [np.mean(np.array(vals))]*6
