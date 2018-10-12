@@ -230,7 +230,7 @@ def make_plots( x,
                 include_baseline=False, 
                 xscale='linear',
                 yscale='linear',
-                xticks=[0.1,0.25,0.5,1,2,4]
+                xticks=[0.1,0.25,0.5,1,2,4],
                 lbl_size=12):
     plt.figure(figsize=(14,8))
     plt.tick_params(axis='both', which='major', labelsize=lbl_size)

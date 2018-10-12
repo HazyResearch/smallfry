@@ -96,6 +96,32 @@ def plot_exp6():
                         include_baseline=True,xscale=scales[0],yscale=scales[1])    
 
 
+def plot_exp7():
+    results = agg('2018-10-11-experiment7-quant-ablation/*',expected_num_res=19)
+    for result in results:
+        if result['method'] == 'glove':
+            result['bitrate'] = result['dim']/300*32
+            result['base'] = 'glove'
+            result['vocab'] = 71291
+            if result['dim'] < 300:
+                result['method'] = 'dim-reduc'
+            else:
+                result['method'] = 'baseline'
+        
+    vocabs = [71291]
+    x = ['bitrate','bitrate']
+    y = ['similarity-avg-score', 'analogy-avg-score']
+    sources = ['glove']
+    methods = ['dim-reduc', 'kmeans', 'optranuni','clipnoquant']
+    for i in range(len(x)):
+        for source in sources:
+            for vocab in vocabs:
+                for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
+                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
+                        include_baseline=True,xscale=scales[0],yscale=scales[1])    
+
+
+
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_battery, 
                     plot_embeddings_sentiment,
