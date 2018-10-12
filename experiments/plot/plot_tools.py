@@ -255,7 +255,6 @@ def make_plots( x,
     if include_baseline: #hardcoded for now -- needs a fix
         print(results)
         data = get_all_data(results, source, vocab, 'baseline', x, y)
-        print(data)
         vals = data[32.0]
         data_x = xticks
         data_y = [np.mean(np.array(vals))]*len(xticks)
