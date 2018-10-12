@@ -38,9 +38,8 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None, dataset=None):
     init_logging(log_path)
     results = None
     logging.info('Evaltype confirmed: %s' % evaltype)
-    if do_results_already_exist(embed_path, evaltype):
-        logging.info("OOPS these results already are present -- ABORTING")
-
+    assert not do_results_already_exist(embed_path, evaltype), "OOPS these results already are present -- ABORTING"
+        
     # determine evaltype and send off to that subroutine -- SEE THIS LOGIC TREE FOR VALID EVALTYPES
     if evaltype == 'QA':
         seed = int(seed)
