@@ -241,7 +241,7 @@ def make_plots( x,
                 br_2_params = get_dca_best_params(agg('merged-experiment5-dca-hp-tune/*'), [0.1,0.25,0.5,1,2,4], source)
                 data_x = sorted(list(br_2_params.keys()))
                 data_y = [br_2_params[x][0] for x in data_x]
-                plt.plot(data_x, data_y, color=color_lookup(method), linewidth=3.0, label=method)
+                plt.plot(data_x, data_y, color=color_lookup(method), linewidth=3.0, label=nice_names_lookup(method))
             else:
                 raise ValueError('method identified as special treatment, but not supported in code')
             continue
@@ -251,7 +251,7 @@ def make_plots( x,
         errbars_low_rel = np.array(data_y) - np.array(errbars_low_abs)
         errbars_high_rel =  np.array(errbars_high_abs) - np.array(data_y)
         errbars = np.array([errbars_low_rel, errbars_high_rel])
-        plt.errorbar(data_x, data_y, fmt=color_lookup(method), yerr=errbars, linewidth=3.0, label=method)
+        plt.errorbar(data_x, data_y, fmt=color_lookup(method), yerr=errbars, linewidth=3.0, label=nice_names_lookup(method))
     if include_baseline: #hardcoded for now -- needs a fix
         print(results)
         data = get_all_data(results, source, vocab, 'baseline', x, y)
@@ -321,7 +321,7 @@ def nice_names_lookup(ugly_name):
     ugly_2_nice['avg-sentiment-lstm'] = 'Agg. Sentiment Analysis Accu. with LSTM'
     ugly_2_nice['avg-sentiment-cnn'] = 'Agg. Sentiment Analysis Accu. with CNN'
     ugly_2_nice['avg-sentiment-la'] = 'Agg. Sentiment Analysis Accu. with Perceptron'
-
+    ugly_2_nice['optranuni'] = 'AdaRange Uni.'
     if ugly_name in ugly_2_nice.keys():
         return ugly_2_nice[ugly_name]
     else:

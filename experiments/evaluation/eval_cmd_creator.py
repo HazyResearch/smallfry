@@ -270,8 +270,21 @@ def launch_ints_sent_exp7_10_11_18(name):
             forall_in_rungroup(evaltype, rungroup, seeds, epochs=50, dataset='mr', qsub=False)
         log_launch(evaluate.get_log_name(name, rungroup))
 
+def launch_synths_exp7_10_12_18(name):
+    rungroups = ['2018-10-11-experiment7-quant-ablation']
+    evaltypes = ['synthetics']
+    global qsub_log_path
+    for rungroup in rungroups:
+        qsub_log_path = evaluate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
+        for evaltype in evaltypes:
+            seeds = [1234]
+            forall_in_rungroup(evaltype, rungroup, seeds, epochs=50, dataset='mr', qsub=False)
+        log_launch(evaluate.get_log_name(name, rungroup))
+
+
+
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_ints_sent_exp7_10_11_18]
+cmd = [launch_synths_exp7_10_12_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

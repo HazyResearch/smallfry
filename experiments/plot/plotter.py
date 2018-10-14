@@ -98,6 +98,7 @@ def plot_exp6():
 
 def plot_exp7():
     results = agg('2018-10-11-experiment7-quant-ablation/*',expected_num_res=19)
+    newresults = []
     for result in results:
         if result['method'] == 'glove':
             result['bitrate'] = result['dim']/300*32
@@ -109,16 +110,20 @@ def plot_exp7():
                 result['method'] = 'baseline'
         elif result['method'] == 'clipnoquant':
             result['bitrate'] = result['ibr']
+            newresults.append(result)
+        else:
+            newresults.append(result)
         
     vocabs = [71291]
-    x = ['bitrate','bitrate']
-    y = ['sentiment-score-la-mr']
+    x = ['bitrate']
+    y = ['embed-frob-dist']
     sources = ['glove']
-    methods = ['dim-reduc', 'kmeans', 'optranuni','clipnoquant']
+    methods = ['kmeans', 'optranuni','clipnoquant']
     for i in range(len(x)):
         for source in sources:
             for vocab in vocabs:
                 for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
+                    results = prep_sentiment_results(results)
                     make_plots(x[i],y[i],results,source,vocab,methods=methods,
                         include_baseline=True,xscale=scales[0],yscale=scales[1],xticks=[0.5,1,2,4,8])    
 
