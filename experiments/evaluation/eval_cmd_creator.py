@@ -21,17 +21,6 @@ def launch(params):
 def qsub_launch(params):
     return 'qsub -V -b y -wd %s %s ' % (qsub_log_path, launch(params))
 
-def launch_config(config, qsub=False):
-    s = ''
-    maker_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'generate.py'))
-    python_maker_cmd = 'python %s' % maker_path
-    flags = [python_maker_cmd]
-    for key in config.keys():
-        flags.append(f"--{key} {config[key]}")
-    s = " ".join(flags)
-    s = f"{evaluate.get_qsub_preamble()} {qsub_log_path} {s}" if qsub else s
-    return s
-
 '''
 HELPER METHODS FOR COMMON SWEEP STYLES (and logging)
 '''
