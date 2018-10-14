@@ -90,12 +90,27 @@ def get_log_name(name, rungroup):
     ''' constructs standard launch log filename format'''
     return '%s:%s:%s' % (get_date_str(), rungroup, name)
 
+def get_qsub_preamble():
+    return "qsub -V -b y -wd"
+
 def prep_qsub_log_dir(qsub_log_path_generic, name, rungroup):
     ''' makes log dir for qsubs'''
     qsub_log_path_specific = str(pathlib.PurePath(qsub_log_path_generic,
                                                  get_log_name(name, rungroup)))
     os.mkdir(qsub_log_path_specific)
     return qsub_log_path_specific
+
+def launch_config(config, action, action_path, qsub=False):
+    s = ''
+    assert action in ['eval','gen','maker'], f"Invalid action in config launcher:{action}"
+    qsub_log_path = str(pathlib.PurePath(get_qsub_log_path(), action))
+    python_action_cmd = f"python {action_path} "
+    flags = [python_action_cmd]
+    for key in config.keys():
+        flags.append(f"--{key} {config[key]}")
+    s = " ".join(flags)
+    s = f"{get_qsub_preamble()} {qsub_log_path} {s}" if qsub else s
+    return s
 
 def do_results_already_exist(embed_path, results_type):
     ''' boolean function -- default behavior is to fail when results already exist'''
@@ -135,14 +150,18 @@ def fetch_embeds_4_eval(embed_path):
     assert len(embeds) == len(wordlist), 'Embeddings and wordlist have different lengths in eval.py'
     return embeds, wordlist
 
-def fetch_dim(embed_path):
-    ''' reads embedding dimension from maker config '''
+def fetch_maker_config(embed_path):
+    '''reads and returns the maker config'''
     embed_name = os.path.basename(embed_path)
     maker_config_path = str(pathlib.PurePath(embed_path, embed_name+'_config.json'))
     maker_config = dict()
     with open(maker_config_path, 'r') as maker_config_f:
         maker_config = json.loads(maker_config_f.read())
-    return maker_config['dim']
+    return maker_config
+
+def fetch_dim(embed_path): #TODO: deprecate this method in favor of above
+    '''reads embedding dimension from maker config '''
+    return fetch_maker_config(embed_path)['dim']
 
 def fetch_base_embed_path(embed_path):
     ''' reads path to base embeddings from maker config'''

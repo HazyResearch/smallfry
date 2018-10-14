@@ -13,7 +13,6 @@ log = []
 launch_path = str(pathlib.PurePath(evaluate.get_launch_path(), 'eval'))
 qsub_log_path = str(pathlib.PurePath(evaluate.get_qsub_log_path(), 'eval'))
 
-
 def launch(params):
     eval_py_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'evaluate.py'))
     s = f"python {eval_py_path} eval-embeddings {params[0]} {params[1]} --seed {params[2]} --epochs {params[3]} --dataset {params[4]}"
@@ -21,6 +20,17 @@ def launch(params):
 
 def qsub_launch(params):
     return 'qsub -V -b y -wd %s %s ' % (qsub_log_path, launch(params))
+
+def launch_config(config, qsub=False):
+    s = ''
+    maker_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'generate.py'))
+    python_maker_cmd = 'python %s' % maker_path
+    flags = [python_maker_cmd]
+    for key in config.keys():
+        flags.append(f"--{key} {config[key]}")
+    s = " ".join(flags)
+    s = f"{evaluate.get_qsub_preamble()} {qsub_log_path} {s}" if qsub else s
+    return s
 
 '''
 HELPER METHODS FOR COMMON SWEEP STYLES (and logging)
@@ -69,6 +79,27 @@ def forall_in_rungroup_with_seed(evaltype, rungroup, seeds, epochs=None, params=
                             epochs))
                     log.append(cmd)
         assert rungroup_found, "rungroup requested in eval cmd creator not found"
+
+def get_all_in_rg_with_seed(rungroup):
+    '''a subroutine for complete 'sweeps' of params'''
+    rungroup_qry = evaluate.get_base_outputdir()+'/*'
+    rungroup_found = False
+    emblist = []
+    seedlist = []
+    for rg in glob.glob(rungroup_qry):
+        if os.path.basename(rg) == rungroup:    
+            rungroup_found = True
+            rungroup_wildcard = rg +'/*'
+            for emb in glob.glob(rungroup_wildcard):
+                emblist.append(emb)
+                seedlist.append(evaluate.fetch_maker_config()['seed'])
+    assert rungroup_found, "rungroup requested in eval cmd creator not found"
+    return emblist, seedlist
+        
+def sweep_configs(configs,qsub):
+    action_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'evaluate.py'))
+    for config in configs:
+        log.append(evaluate.launch_config(config,'eval',action_path,qsub))
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
