@@ -10,7 +10,7 @@ import time
 import pathlib
 import os
 import subprocess
-import argh
+import argparse
 import logging
 import numpy as np
 from subprocess import check_output
@@ -21,9 +21,7 @@ from smallfry.utils import load_embeddings
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #hacky way to import experimental_utils
 from experimental_utils import *
 
-#TODO: Change from argh to argparse?
-
-def eval_embeddings(embed_path, evaltype, seed=None, epochs=None, dataset=None):
+def main(embed_path='', evaltype='', seed=None, epochs=None, dataset='all'):
     '''
     This is the front-end routine for experimental evaluation. 
     For each acceptable experiment type, denoted with 'evaltype', it dispatches
@@ -32,6 +30,14 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None, dataset=None):
     As of Sept. 16, valid 'evaltype' selections are: 'QA' OR 'intrinsics' OR 'synthetics'
     NOTE: 'embed_path' refers to the TOP-LEVEL embedding directory path, NOT the path to the .txt embeddings file
     '''
+    config = vars(init_parser().parse_args())
+    #parse out relevant vals from cmd line config
+    embed_path = config['embedpath']
+    seed = config['seed']
+    evaltype = config['evaltype']
+    epochs = config['epochs']
+
+    #initialize paths for eval -- make sure we don't dupe results
     embed_name = os.path.basename(embed_path)
     log_path_head = str(pathlib.PurePath(embed_path,embed_name))
     log_path = '%s_%s-eval.log' % (log_path_head, evaltype) 
@@ -45,7 +51,9 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None, dataset=None):
         seed = int(seed)
         if epochs == None:
             epochs = 50
-        results = eval_qa(fetch_embeds_txt_path(embed_path), fetch_dim(embed_path), seed, epochs, qa_log_path='%s-tmp'%log_path)
+        results = eval_qa(fetch_embeds_txt_path(embed_path), 
+                            fetch_maker_config(embed_path)['dim'], 
+                            seed, epochs, qa_log_path='%s-tmp'%log_path)
     elif evaltype == 'intrinsics':
         results = eval_intrinsics(embed_path)
     elif evaltype == 'synthetics':
@@ -54,13 +62,29 @@ def eval_embeddings(embed_path, evaltype, seed=None, epochs=None, dataset=None):
         seed = int(seed)
         results = eval_sent(fetch_embeds_txt_path(embed_path), seed, dataset)
     else:
-        assert False, 'bad evaltype given to eval()'
+        raise ValueError('bad evaltype given to eval()')
 
     #wrap up the results and document stuff
     results['githash-%s' % evaltype] = get_git_hash()
     results['seed-%s' % evaltype] = seed
     logging.info("Evaluation complete! Writing results to file... ")
     results_to_file(embed_path, evaltype, results)
+
+def init_parser():
+    """Initialize Cmd-line parser."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--evaltype', type=str, required=True,
+        choices=['QA','intrinsics','synthetics','sentiment'],
+        help='Evaluation type')
+    parser.add_argument('--embedpath', type=str, required=True,
+        help='Path to TOP-LEVEL embedding directory to evaluate')
+    parser.add_argument('--seed', type=int, required=True,
+        help='Random seed to use for experiment.')
+    parser.add_argument('--epochs', type=int, default=50,
+        help='# of epochs to run for')
+    parser.add_argument('--dataset', type=str, default='all',
+        help='Dataset to use for evaluation')
+    return parser
 
 '''
 CORE EVALUATION ROUTINES =======================
@@ -209,7 +233,6 @@ def eval_intrinsics(embed_path):
 
 def eval_synthetics(embed_path):
     '''Evaluates synthetics'''
-    #TODO: what synthetics will we put in here?
     embeds, wordlist = fetch_embeds_4_eval(embed_path)
     base_embeds, base_wordlist = load_embeddings(fetch_base_embed_path(embed_path))
 
@@ -223,17 +246,21 @@ def eval_synthetics(embed_path):
     return res_rtn
 
 def eval_sent(embed_txt_path, seed, dataset=None):
-    #TODO: sent eval not operational yet
-
+    '''
+    Sentiment analysis evaluation using Senwu's code -- supports perceptron, CNN, and LSTM models with various datasets
+    '''
     def parse_senwu_outlogs(outlog):
         lines = outlog.split('\n')
         return float(lines[-3].split(' ')[-1])
 
     logging.info('starting sentiment')
     models = ['lstm', 'cnn', 'la']
-    datasets = ['mr', 'subj', 'cr', 'sst', 'trec', 'mpqa']
-    if dataset != None:
-        datasets = [dataset]
+    datasets = ['mr',
+                'subj', 
+                'cr', 
+                'sst', 
+                'trec', 
+                'mpqa'] if dataset == 'all' else [dataset]
     res = dict()
     for model in models:
         for dataset in datasets:
@@ -255,4 +282,4 @@ parser = argh.ArghParser()
 parser.add_commands([eval_embeddings])
 
 if __name__ == '__main__':
-    parser.dispatch()
+    main()

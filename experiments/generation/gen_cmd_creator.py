@@ -39,9 +39,10 @@ def ibr_2_dim(ibr,dim=300):
     compratio = 32/ibr
     return int(np.round(dim/compratio))
 
-def sweep_configs(configs):
+def sweep_configs(configs,qsub):
+    action_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'generate.py'))
     for config in configs:
-        log.append(launch_config(config))
+        log.append(generate.launch_config(config,'gen',action_path,qsub))
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
@@ -103,6 +104,24 @@ def generate_dim_reduc_exp7_quant_ablation_10_11_18(name):
         configs.append(config)
     sweep_configs(configs)
     log_launch(generate.get_log_name(name, rungroup))
+
+def generate_test_10_13_18(name):
+    rungroup = 'test-refactor'
+    method = 'glove'
+    ibrs = [2,32,64]
+    configs = []
+    for ibr in ibrs:
+        config = dict()
+        config['rungroup'] = rungroup
+        config['method'] = method
+        config['corpus'] = 'text8'
+        config['dim'] = ibr_2_dim(ibr)
+        config['outputdir'] = generate.get_base_outputdir()
+        config['seed'] = 1234
+        configs.append(config)
+    sweep_configs(configs)
+    log_launch(generate.get_log_name(name, rungroup))
+
 
 
 #IMPORTANT!! this line determines which cmd will be run
