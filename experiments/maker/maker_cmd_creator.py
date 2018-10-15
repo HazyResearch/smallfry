@@ -101,6 +101,7 @@ def sweep_configs(configs,qsub):
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
+Naming convention: {type}-{date}-{mental-clarity}-{version#}
 '''
 
 def make_exp9_10_15_18(name):
@@ -113,7 +114,7 @@ def make_exp9_10_15_18(name):
         prec = 320/maker_config['dim']
         config = dict()
         config['base'] = 'glove'
-        config['basepath'] = emb
+        config['basepath'] = maker.fetch_embeds_txt_path(emb)
         config['rungroup'] = rungroup
         config['method'] = method
         config['ibr'] = prec
