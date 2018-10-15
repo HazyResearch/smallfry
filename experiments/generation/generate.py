@@ -104,8 +104,8 @@ def generate_embeddings(config, embed_dir, embed_name):
                         vocabmincount_{config['vocabmincount']}.\
                         memory_{config['memusage']}.\
                         cooccurrence.shuf.bin"
-        logging.info(f"Does cooc shuf exist? {coocshufpath}")
-        if os.path.isfile(coocshufpath):
+        cooc_exists_bool = os.path.isfile(coocshufpath)
+        if cooc_exists_bool:
             cooc_exists = 1 
             coocpath = None #command will directly use cooc-shuf
             vocabpath = f"{corpuspath}.vocab.txt"
@@ -115,6 +115,7 @@ def generate_embeddings(config, embed_dir, embed_name):
             coocpath = "cooccurrence.bin"
             vocabpath = "vocab.txt"
 
+        logging.info(f"Does co-oc exist? {cooc_exists_bool}")
         #check gen_glove.sh to get correct ORDER for these arguments
         output = perform_command_local(f"bash gen_glove.sh {cooc_exists} \
                                     {corpuspath} \
