@@ -119,10 +119,8 @@ def generate_test_10_13_18(name):
         config['outputdir'] = generate.get_base_outputdir()
         config['seed'] = 1234
         configs.append(config)
-    sweep_configs(configs)
+    sweep_configs(configs,False)
     log_launch(generate.get_log_name(name, rungroup))
-
-
 
 #IMPORTANT!! this line determines which cmd will be run
 cmd = [generate_dim_reduc_exp7_quant_ablation_10_11_18]
