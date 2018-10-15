@@ -97,13 +97,7 @@ def generate_embeddings(config, embed_dir, embed_name):
         os.chdir(embed_dir)
         #check to see if co-oc-shuf already exists:
         corpuspath = str(pathlib.PurePath( get_corpus_path(), config['corpus']))
-        coocshufpath = f"{corpuspath}.\
-                        maxvocab_{config['maxvocab']}.\
-                        windowsize_{config['windowsize']}.\
-                        seed_{config['seed']}.\
-                        vocabmincount_{config['vocabmincount']}.\
-                        memory_{config['memusage']}.\
-                        cooccurrence.shuf.bin"
+        coocshufpath = f"{corpuspath}.maxvocab_{config['maxvocab']}.windowsize_{config['windowsize']}.seed_{config['seed']}.vocabmincount_{config['vocabmincount']}.memory_{config['memusage']}.cooccurrence.shuf.bin"
         cooc_exists_bool = os.path.isfile(coocshufpath)
         if cooc_exists_bool:
             cooc_exists = 1 
