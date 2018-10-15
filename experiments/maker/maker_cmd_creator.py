@@ -104,7 +104,7 @@ LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
 
 def make_exp9_10_15_18(name):
-    rungroup = 'exp9-dim-vs-prec'
+    rungroup = 'exp9-dim-vs-prec-quantized'
     method = 'optranuni'
     embs = maker.get_all_embs_in_rg('2018-10-15-exp9-dim-vs-prec')
     configs = []
