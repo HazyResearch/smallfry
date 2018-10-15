@@ -19,7 +19,7 @@ def setup_testbench_drive():
         if 'launches' in directory or 'qsub' in directory:
             os.chdir(directory)
             for subdir in ['gen','maker','eval']:
-            os.mkdir(subdir)
+                os.mkdir(subdir)
 
     
     benchmarks_path = str(
