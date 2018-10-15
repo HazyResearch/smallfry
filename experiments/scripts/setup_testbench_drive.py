@@ -6,9 +6,6 @@ from git import Repo
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
 
-
-#TODO add senwu sentiment out
-
 def setup_testbench_drive():
     dirs = [get_base_embed_path_head(),
             get_base_outputdir(),
@@ -19,6 +16,11 @@ def setup_testbench_drive():
     for directory in dirs:
         print(f"making dir {directory}")
         os.makedirs(directory)
+        if 'launches' in directory or 'qsub' in directory:
+            os.chdir(directory)
+            for subdir in ['gen','maker','eval']:
+            os.mkdir(subdir)
+
     
     benchmarks_path = str(
         pathlib.PurePath(get_base_directory(),'embeddings_benchmark'))
