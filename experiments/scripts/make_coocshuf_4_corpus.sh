@@ -7,13 +7,13 @@ set -e
 make
 
 CORPUS=$1 #text8
-VOCAB_FILE=$1.vocab.txt
+VOCAB_FILE=${CORPUS}.vocab.txt
 BUILDDIR=build
 VERBOSE=2
 MEMORY=$2 #4
 VOCAB_MIN_COUNT=5 #5
 MAX_VOCAB=$3
-WINDOW_SIZE=$3 #15
+WINDOW_SIZE=$4 #15
 NUM_THREADS=$5 #32
 SEED=$6
 PATH=${CORPUS}.maxvocab_${MAX_VOCAB}.windowsize_${WINDOW_SIZE}.seed_${SEED}.vocabmincount_${VOCAB_MIN_COUNT}.memory_${MEMORY}
