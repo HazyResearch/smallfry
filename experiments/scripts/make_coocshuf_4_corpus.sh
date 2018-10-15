@@ -8,20 +8,17 @@ make
 
 CORPUS=$1 #text8
 VOCAB_FILE=$1.vocab.txt
-COOCCURRENCE_FILE=$1.cooccurrence.bin
-COOCCURRENCE_SHUF_FILE=$1.cooccurrence.shuf.bin
 BUILDDIR=build
 VERBOSE=2
-MEMORY=$5 #4
-VOCAB_MIN_COUNT=5
-VECTOR_SIZE=$2 #50
+MEMORY=$2 #4
+VOCAB_MIN_COUNT=5 #5
 MAX_VOCAB=$3
-MAX_ITER=$6
-WINDOW_SIZE=$7 #15
-BINARY=2
-NUM_THREADS=$4 #32
-X_MAX=10
-SEED=$8
+WINDOW_SIZE=$3 #15
+NUM_THREADS=$5 #32
+SEED=$6
+PATH=${CORPUS}.maxvocab_${MAX_VOCAB}.windowsize_${WINDOW_SIZE}.seed_${SEED}.vocabmincount_${VOCAB_MIN_COUNT}.memory_${MEMORY}
+COOCCURRENCE_FILE=${PATH}.cooccurrence.bin
+COOCCURRENCE_SHUF_FILE=${PATH}.cooccurrence.shuf.bin
 
 echo
 echo "$ $BUILDDIR/vocab_count -min-count $VOCAB_MIN_COUNT -verbose $VERBOSE < $CORPUS > $VOCAB_FILE"
