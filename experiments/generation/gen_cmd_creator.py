@@ -122,8 +122,26 @@ def generate_test_10_13_18(name):
     sweep_configs(configs, False)
     log_launch(generate.get_log_name(name, rungroup))
 
+def generate_exp8_10_14_18(name):
+    rungroup = 'exp8-wiki-trained'
+    method = 'glove'
+    ibrs = [32,1,2,4]
+    configs = []
+    for ibr in ibrs:
+        config = dict()
+        config['rungroup'] = rungroup
+        config['method'] = method
+        config['corpus'] = 'wiki.en.txt'
+        config['dim'] = ibr_2_dim(ibr,dim=320)
+        config['outputdir'] = generate.get_base_outputdir()
+        config['memusage'] = 450
+        config['seed'] = 1234
+        configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(generate.get_log_name(name, rungroup))
+
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [generate_test_10_13_18]
+cmd = [generate_exp8_10_14_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

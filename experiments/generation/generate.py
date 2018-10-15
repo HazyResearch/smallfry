@@ -69,13 +69,13 @@ def init_parser():
         help='Rungroup for organization')
     parser.add_argument('--dim', type=int, default=300,
         help='Dimension for generated embeddings')
-    parser.add_argument('--maxvocab', type=int, default=100000,
+    parser.add_argument('--maxvocab', type=int, default=400000,
         help='Maximum vocabulary size')
-    parser.add_argument('--memusage', type=int, default=128,
+    parser.add_argument('--memusage', type=int, default=256,
         help='Memory usage in GB')
-    parser.add_argument('--numthreads', type=int, default=50,
+    parser.add_argument('--numthreads', type=int, default=52,
         help='Number of threads to spin up')
-    parser.add_argument('--numiters', type=int, default=15,
+    parser.add_argument('--numiters', type=int, default=50,
         help='Number of iterations to optimize over')
     parser.add_argument('--writenpy', type=bool, default=False,
         help='Write embeddings matrix in npy format in addition to text')
