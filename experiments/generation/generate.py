@@ -112,7 +112,7 @@ def generate_embeddings(config, embed_dir, embed_name):
 
         logging.info(f"Does co-oc exist? {cooc_exists_bool}")
         #check gen_glove.sh to get correct ORDER for these arguments
-        output = perform_command_local(f"bash gen_glove.sh {cooc_exists} {corpuspath} {vocabpath} {coocpath} {coocshufpath} {config['memusage']} {config['dim']} {config['maxvocab']} {config['numiters']} {config['windowsize']} {config['numthreads']} {config['seed']} {embed_name}")
+        output = perform_command_local(f"bash gen_glove.sh {cooc_exists} {corpuspath} {vocabpath} {coocpath} {coocshufpath} {config['memusage']} {config['dim']} {config['maxvocab']} {config['numiters']} {config['windowsize']} {config['numthreads']} {config['seed']} {config['vocabmincount']} {embed_name}")
         logging.info(output)
         wc = perform_command_local(f"wc -l {embed_name}.txt")
         logging.info(wc)
