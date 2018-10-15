@@ -98,6 +98,7 @@ def generate_embeddings(config, embed_dir, embed_name):
         #check to see if co-oc-shuf already exists:
         corpuspath = str(pathlib.PurePath( get_corpus_path(), config['corpus']))
         coocshufpath = f"{corpuspath}.maxvocab_{config['maxvocab']}.windowsize_{config['windowsize']}.seed_{config['seed']}.vocabmincount_{config['vocabmincount']}.memory_{config['memusage']}.cooccurrence.shuf.bin"
+        logging.info(f"Co-oc shuf patg: {coocshufpath}")
         cooc_exists_bool = os.path.isfile(coocshufpath)
         if cooc_exists_bool:
             cooc_exists = 1 
@@ -111,19 +112,7 @@ def generate_embeddings(config, embed_dir, embed_name):
 
         logging.info(f"Does co-oc exist? {cooc_exists_bool}")
         #check gen_glove.sh to get correct ORDER for these arguments
-        output = perform_command_local(f"bash gen_glove.sh {cooc_exists} \
-                                    {corpuspath} \
-                                    {vocabpath} \
-                                    {coocpath} \
-                                    {coocshufpath} \
-                                    {config['memusage']} \
-                                    {config['dim']} \
-                                    {config['maxvocab']} \
-                                    {config['numiters']} \
-                                    {config['windowsize']} \
-                                    {config['numthreads']} \
-                                    {config['seed']} \
-                                    {embed_name}")
+        output = perform_command_local(f"bash gen_glove.sh {cooc_exists} {corpuspath} {vocabpath} {coocpath} {coocshufpath} {config['memusage']} {config['dim']} {config['maxvocab']} {config['numiters']} {config['windowsize']} {config['numthreads']} {config['seed']} {embed_name}")
         logging.info(output)
         wc = perform_command_local(f"wc -l {embed_name}.txt")
         logging.info(wc)

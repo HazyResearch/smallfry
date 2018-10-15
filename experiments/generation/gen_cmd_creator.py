@@ -134,7 +134,7 @@ def generate_exp8_10_14_18(name):
         config['corpus'] = 'wiki.en.txt'
         config['dim'] = ibr_2_dim(ibr,dim=320)
         config['outputdir'] = generate.get_base_outputdir()
-        config['memusage'] = 450
+        config['memusage'] = 256
         config['seed'] = 1234
         configs.append(config)
     sweep_configs(configs, False)
