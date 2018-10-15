@@ -28,6 +28,8 @@ def log_launch(name,batchsize=1):
                 log.insert(i,"wait")
             else:
                 log[i] = f"{log[i]} &"
+    else:
+        raise ValueError(f"batch size {batchsize} in cmd creator must be pos. int.")
     with open(log_launch_path, 'w+') as llp:
         llp.write('\n'.join(log))
 
