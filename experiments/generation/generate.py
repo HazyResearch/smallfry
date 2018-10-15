@@ -93,10 +93,16 @@ def generate_embeddings(config, embed_dir, embed_name):
         logging.info(cp_stuff_2_dir)
         os.system(cp_stuff_2_dir)
         os.chdir(embed_dir)
-        #check to see if co-oc or co-oc-shuf already exists:
+        #check to see if co-oc-shuf already exists:
         corpuspath = str(pathlib.PurePath( get_corpus_path(), config['corpus']))
-        coocpath = f"{corpuspath}.cooccurrence.bin"
         coocshufpath = f"{corpuspath}.cooccurrence.shuf.bin"
+        gen_cmd = None
+        if os.path.isfile(coocshufpath):
+            gen_cmd = "$BUILDDIR/glove -save-file $SAVE_FILE \
+                -threads $NUM_THREADS -input-file $COOCCURRENCE_SHUF_FILE \
+                -x-max $X_MAX -iter $MAX_ITER -vector-size $VECTOR_SIZE \
+                -binary $BINARY -vocab-file $VOCAB_FILE -verbose $VERBOSE
+
         #check gen_glove.sh to get correct ORDER for these arguments
         output = perform_command_local(f"bash gen_glove.sh {corpuspath} \
                                     {config['dim']} \

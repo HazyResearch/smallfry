@@ -11,7 +11,7 @@ VOCAB_FILE=vocab.txt
 COOCCURRENCE_FILE=cooccurrence.bin
 COOCCURRENCE_SHUF_FILE=cooccurrence.shuf.bin
 BUILDDIR=build
-SAVE_FILE=$8
+SAVE_FILE=$9
 VERBOSE=2
 MEMORY=$5 #4
 VOCAB_MIN_COUNT=5
@@ -22,6 +22,7 @@ WINDOW_SIZE=$7 #15
 BINARY=2
 NUM_THREADS=$4 #32
 X_MAX=10
+SEED=$8
 
 echo
 echo "$ $BUILDDIR/vocab_count -min-count $VOCAB_MIN_COUNT -verbose $VERBOSE < $CORPUS > $VOCAB_FILE"
