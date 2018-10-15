@@ -27,6 +27,7 @@
 
 #define MAX_STRING_LENGTH 1000
 
+
 static const long LRAND_MAX = ((long) RAND_MAX + 2) * (long)RAND_MAX;
 typedef double real;
 
@@ -36,6 +37,7 @@ typedef struct cooccur_rec {
     real val;
 } CREC;
 
+int seed = 1234;
 int verbose = 2; // 0, 1, or 2
 long long array_size = 2000000; // size of chunks to shuffle individually
 char *file_head; // temporary file string
@@ -50,6 +52,7 @@ int scmp( char *s1, char *s2 ) {
 
 /* Generate uniformly distributed random long ints */
 static long rand_long(long n) {
+    srand(seed); //tony line
     long limit = LRAND_MAX - LRAND_MAX % n;
     long rnd;
     do {
@@ -209,7 +212,8 @@ int main(int argc, char **argv) {
         printf("./shuffle -verbose 2 -memory 8.0 < cooccurrence.bin > cooccurrence.shuf.bin\n");
         return 0;
     }
-   
+
+    if ((i = find_arg((char *)"-seed", argc, argv)) > 0) seed = atoi(argv[i + 1]); //tony line
     if ((i = find_arg((char *)"-verbose", argc, argv)) > 0) verbose = atoi(argv[i + 1]);
     if ((i = find_arg((char *)"-temp-file", argc, argv)) > 0) strcpy(file_head, argv[i + 1]);
     else strcpy(file_head, (char *)"temp_shuffle");

@@ -89,10 +89,14 @@ def generate_embeddings(config, embed_dir, embed_name):
     v = None #this value must be populated by all method types
     if config['method'] == 'glove':
         gen_glove_qry = str(pathlib.PurePath(get_glove_generator_path(), '*' ))
-        print(f"cp {gen_glove_qry} {embed_dir}")
-        os.system(f"cp -r {gen_glove_qry} {embed_dir}")
+        cp_stuff_2_dir = f"cp -r {gen_glove_qry} {embed_dir}"
+        logging.info(cp_stuff_2_dir)
+        os.system(cp_stuff_2_dir)
         os.chdir(embed_dir)
+        #check to see if co-oc or co-oc-shuf already exists:
         corpuspath = str(pathlib.PurePath( get_corpus_path(), config['corpus']))
+        coocpath = f"{corpuspath}.cooccurrence.bin"
+        coocshufpath = f"{corpuspath}.cooccurrence.shuf.bin"
         #check gen_glove.sh to get correct ORDER for these arguments
         output = perform_command_local(f"bash gen_glove.sh {corpuspath} \
                                     {config['dim']} \
@@ -101,9 +105,11 @@ def generate_embeddings(config, embed_dir, embed_name):
                                     {config['memusage']} \
                                     {config['numiters']} \
                                     {config['windowsize']} \
+                                    {config['seed']} \
                                     {embed_name}")
         logging.info(output)
         wc = perform_command_local(f"wc -l {embed_name}.txt")
+        logging.info(wc)
         v = int(wc.split(' ')[0])
     else:
         raise ValueError(f"Method name invalid: {config['method']}")

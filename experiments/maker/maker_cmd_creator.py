@@ -1074,7 +1074,6 @@ def making_test0_10_14_18(name):
     rungroup = 'test0-DBG'
     methods = ['kmeans']
     ibrs = [32]
-    global qsub_log_path
     qsub_log_path = maker.prep_qsub_log_dir(qsub_log_path, name, rungroup)
     configs = []
     for method in methods:

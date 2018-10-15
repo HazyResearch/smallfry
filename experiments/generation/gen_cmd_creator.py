@@ -119,11 +119,7 @@ def generate_test_10_13_18(name):
         config['outputdir'] = generate.get_base_outputdir()
         config['seed'] = 1234
         configs.append(config)
-<<<<<<< HEAD
-    sweep_configs(configs,False)
-=======
     sweep_configs(configs, False)
->>>>>>> 21a685429da2f6c32f618b05db7bf33ce74928db
     log_launch(generate.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
