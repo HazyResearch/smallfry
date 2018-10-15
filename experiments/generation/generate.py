@@ -59,7 +59,7 @@ def init_parser():
         choices=['glove'],
         help='Name of embeddings training algorithm.')
     parser.add_argument('--corpus', type=str, required=True,
-        choices=['text8'],
+        choices=['text8','wiki.en.txt'],
         help='Natural language dataset used to train embeddings')
     parser.add_argument('--seed', type=int, required=True,
         help='Random seed to use for experiment.')
