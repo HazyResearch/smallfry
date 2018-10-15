@@ -81,6 +81,8 @@ def init_parser():
         help='Write embeddings matrix in npy format in addition to text')
     parser.add_argument('--windowsize', type=int, default=15,
         help='Window size for use in co-oc calculations')
+    parser.add_argument('--vocabmincount', type=int, default=5,
+        help='Minimum oc count for a vocab')
     return parser
 
 def generate_embeddings(config, embed_dir, embed_name):
@@ -95,22 +97,36 @@ def generate_embeddings(config, embed_dir, embed_name):
         os.chdir(embed_dir)
         #check to see if co-oc-shuf already exists:
         corpuspath = str(pathlib.PurePath( get_corpus_path(), config['corpus']))
-        coocshufpath = f"{corpuspath}.cooccurrence.shuf.bin"
-        gen_cmd = None
+        coocshufpath = f"{corpuspath}.\
+                        maxvocab_{config['maxvocab']}.\
+                        windowsize_{config['windowsize']}.\
+                        seed_{config['seed']}.\
+                        vocabmincount_{config['vocabmincount']}.\
+                        memory_{config['memusage']}.\
+                        cooccurrence.shuf.bin"
+        logging.info(f"Does cooc shuf exist? {coocshufpath}")
         if os.path.isfile(coocshufpath):
-            gen_cmd = "$BUILDDIR/glove -save-file $SAVE_FILE \
-                -threads $NUM_THREADS -input-file $COOCCURRENCE_SHUF_FILE \
-                -x-max $X_MAX -iter $MAX_ITER -vector-size $VECTOR_SIZE \
-                -binary $BINARY -vocab-file $VOCAB_FILE -verbose $VERBOSE
+            cooc_exists = 1 
+            coocpath = None #command will directly use cooc-shuf
+            vocabpath = f"{corpuspath}.vocab.txt"
+        else:
+            cooc_exists = 0
+            coocshufpath = "cooccurrence.shuf.bin"
+            coocpath = "cooccurrence.bin"
+            vocabpath = "vocab.txt"
 
         #check gen_glove.sh to get correct ORDER for these arguments
-        output = perform_command_local(f"bash gen_glove.sh {corpuspath} \
+        output = perform_command_local(f"bash gen_glove.sh {cooc_exists} \
+                                    {corpuspath} \
+                                    {vocabpath} \
+                                    {coocpath} \
+                                    {coocshufpath} \
+                                    {config['memusage']} \
                                     {config['dim']} \
                                     {config['maxvocab']} \
-                                    {config['numthreads']} \
-                                    {config['memusage']} \
                                     {config['numiters']} \
                                     {config['windowsize']} \
+                                    {config['numthreads']} \
                                     {config['seed']} \
                                     {embed_name}")
         logging.info(output)
