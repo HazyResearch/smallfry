@@ -79,6 +79,8 @@ def init_parser():
         help='Number of iterations to optimize over')
     parser.add_argument('--writenpy', type=bool, default=False,
         help='Write embeddings matrix in npy format in addition to text')
+    parser.add_argument('--windowsize', type=int, default=15,
+        help='Window size for use in co-oc calculations')
     return parser
 
 def generate_embeddings(config, embed_dir, embed_name):
@@ -91,12 +93,14 @@ def generate_embeddings(config, embed_dir, embed_name):
         os.system(f"cp -r {gen_glove_qry} {embed_dir}")
         os.chdir(embed_dir)
         corpuspath = str(pathlib.PurePath( get_corpus_path(), config['corpus']))
-        output = os.system(f"bash gen_glove.sh {corpuspath} \
+        #check gen_glove.sh to get correct ORDER for these arguments
+        output = perform_command_local(f"bash gen_glove.sh {corpuspath} \
                                     {config['dim']} \
                                     {config['maxvocab']} \
                                     {config['numthreads']} \
                                     {config['memusage']} \
                                     {config['numiters']} \
+                                    {config['windowsize']} \
                                     {embed_name}")
         logging.info(output)
         wc = perform_command_local(f"wc -l {embed_name}.txt")
