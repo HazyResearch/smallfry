@@ -6,6 +6,7 @@ import pathlib
 import subprocess
 import sys
 import time
+import glob
 import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
@@ -110,7 +111,20 @@ def launch_config(config, action, action_path, qsub=False):
         flags.append(f"--{key} {config[key]}")
     s = " ".join(flags)
     s = f"{get_qsub_preamble()} {qsub_log_path} {s}" if qsub else s
-    return s
+    return s 
+ 
+def get_all_embs_in_rg(rungroup):
+    rungroup_qry = f"{get_base_outputdir()}/*"
+    rungroup_found = False
+    embs = []
+    for rg in glob.glob(rungroup_qry):
+        if os.path.basename(rg) == rungroup:    
+            rungroup_found = True
+            rungroup_wildcard = rg +'/*'
+            for emb in glob.glob(rungroup_wildcard):
+                embs.append(emb)
+    assert rungroup_found, f"rungroup requested {rungroup} not found"
+    return embs
 
 def do_results_already_exist(embed_path, results_type):
     ''' boolean function -- default behavior is to fail when results already exist'''

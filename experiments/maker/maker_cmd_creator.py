@@ -94,9 +94,10 @@ def sweep(method, rungroup, base_embeds, base_embeds_path, seeds, params, qsub=T
                         p[2]))
                 log.append(cmd)
 
-def sweep_configs(configs):
+def sweep_configs(configs,qsub):
+    action_path = str(pathlib.PurePath(os.path.dirname(os.path.realpath(__file__)),'maker.py'))
     for config in configs:
-        log.append(launch_config(config))
+        log.append(maker.launch_config(config,'maker',action_path,qsub))
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
@@ -104,24 +105,26 @@ LAUNCH ROUTINES BELOW THIS LINE =========================
 
 def make_exp9_10_15_18(name):
     rungroup = 'exp9-dim-vs-prec'
-    method = 'glove'
-    dims = [320,160,80,40,10]
+    method = 'optranuni'
+    embs = maker.get_all_embs_in_rg('2018-10-15-exp9-dim-vs-prec')
     configs = []
-    for dim in dims:
+    for emb in embs:
+        maker_config = maker.fetch_maker_config(emb)
+        prec = 320/maker_config['dim']
         config = dict()
+        config['base'] = 'glove'
+        config['basepath'] = emb
         config['rungroup'] = rungroup
         config['method'] = method
-        config['corpus'] = 'text8'
-        config['dim'] = dim
-        config['outputdir'] = generate.get_base_outputdir()
-        config['memusage'] = 256
+        config['ibr'] = prec
+        config['outputdir'] = maker.get_base_outputdir()
         config['seed'] = 1234
         configs.append(config)
     sweep_configs(configs, False)
-    log_launch(generate.get_log_name(name, rungroup))
+    log_launch(maker.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [make_baseline_exp7_10_11_18]
+cmd = [make_exp9_10_15_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
