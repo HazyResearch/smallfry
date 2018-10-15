@@ -46,82 +46,8 @@ def sweep_configs(configs,qsub):
 
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
+Naming convention: {type}-{date}-{mental-clarity}-{version#}
 '''
-
-def generate_dim_reduction_exp6_10_9_18(name):
-    rungroup = 'experiment6-dim-reduc-mini'
-    method = 'glove'
-    ibrs = [0.1,0.25,0.5,1,2,4]
-    global qsub_log_path
-    qsub_log_path = generate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
-    configs = []
-    for ibr in ibrs:
-        config = dict()
-        config['rungroup'] = rungroup
-        config['method'] = method
-        config['corpus'] = 'text8'
-        config['dim'] = ibr_2_dim(ibr)
-        config['outputdir'] = generate.get_base_outputdir()
-        config['seed'] = 1234
-        configs.append(config)
-    sweep_configs(configs)
-    log_launch(generate.get_log_name(name, rungroup))
-
-def generate_dim_reduction2_exp6_10_9_18(name):
-    rungroup = 'experiment6-dim-reduc-mini'
-    method = 'glove'
-    ibrs = [6, 32]
-    global qsub_log_path
-    qsub_log_path = generate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
-    configs = []
-    for ibr in ibrs:
-        config = dict()
-        config['rungroup'] = rungroup
-        config['method'] = method
-        config['corpus'] = 'text8'
-        config['dim'] = ibr_2_dim(ibr)
-        config['outputdir'] = generate.get_base_outputdir()
-        config['seed'] = 1234
-        configs.append(config)
-    sweep_configs(configs)
-    log_launch(generate.get_log_name(name, rungroup))
-
-def generate_dim_reduc_exp7_quant_ablation_10_11_18(name):
-    rungroup = 'experiment7-quant-ablation'
-    method = 'glove'
-    ibrs = [0.5,1,2,4,8]
-    global qsub_log_path
-    qsub_log_path = generate.prep_qsub_log_dir(qsub_log_path, name, rungroup)
-    configs = []
-    for ibr in ibrs:
-        config = dict()
-        config['rungroup'] = rungroup
-        config['method'] = method
-        config['corpus'] = 'text8'
-        config['dim'] = ibr_2_dim(ibr)
-        config['outputdir'] = generate.get_base_outputdir()
-        config['seed'] = 1234
-        configs.append(config)
-    sweep_configs(configs)
-    log_launch(generate.get_log_name(name, rungroup))
-
-def generate_test_10_13_18(name):
-    rungroup = 'test-refactor'
-    method = 'glove'
-    ibrs = [2,32,64]
-    configs = []
-    for ibr in ibrs:
-        config = dict()
-        config['rungroup'] = rungroup
-        config['method'] = method
-        config['corpus'] = 'text8'
-        config['dim'] = ibr_2_dim(ibr)
-        config['outputdir'] = generate.get_base_outputdir()
-        config['seed'] = 1234
-        configs.append(config)
-    sweep_configs(configs, False)
-    log_launch(generate.get_log_name(name, rungroup))
-
 def generate_exp8_10_14_18(name):
     rungroup = 'exp8-wiki-trained'
     method = 'glove'
@@ -133,6 +59,24 @@ def generate_exp8_10_14_18(name):
         config['method'] = method
         config['corpus'] = 'wiki.en.txt'
         config['dim'] = ibr_2_dim(ibr,dim=320)
+        config['outputdir'] = generate.get_base_outputdir()
+        config['memusage'] = 256
+        config['seed'] = 1234
+        configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(generate.get_log_name(name, rungroup))
+
+def generate_exp9_10_15_18(name):
+    rungroup = 'exp9-dim-vs-prec'
+    method = 'glove'
+    dims = [320,160,80,40,10]
+    configs = []
+    for dim in dims:
+        config = dict()
+        config['rungroup'] = rungroup
+        config['method'] = method
+        config['corpus'] = 'text8'
+        config['dim'] = dim
         config['outputdir'] = generate.get_base_outputdir()
         config['memusage'] = 256
         config['seed'] = 1234
