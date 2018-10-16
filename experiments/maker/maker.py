@@ -9,7 +9,7 @@ import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
 from smallfry.utils import load_embeddings
-from uniform_quant import stochround, midriser, optranuni, clipnoquant
+from uniform_quant import stochround, midriser, optranuni, clipnoquant, stochoptranuni
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
 from neuralcompressor.nncompress import EmbeddingCompressor
@@ -167,6 +167,12 @@ def make_embeddings(base_embeds, embed_dir, config):
         embeds = optranuni(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
+    elif config['method'] == 'stochoptrauni':
+        embeds = load_embeddings(config['basepath'])[0]
+        start = time.time()
+        embeds = stochoptranuni(base_embeds,config['ibr'])
+        config['embed-maketime-secs'] = time.time()-start
+        config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
         #TODO remove this from here
     else:
         raise ValueError('Method name invalid')
@@ -177,7 +183,7 @@ def get_embeddings_dir_and_name(config):
         params = ['base','method','vocab','dim','ibr','bitsperblock','blocklen','seed','date','rungroup','solver']
     elif config['method'] == 'dca':
         params = ['base','method','vocab','dim','ibr','m','k','seed','date','rungroup','lr','gradclip','batchsize','tau']
-    elif config['method'] in ['baseline', 'stochround', 'midriser','optranuni','clipnoquant']:
+    elif config['method'] in ['baseline', 'stochround', 'midriser','optranuni','clipnoquant','stochoptranuni']:
         params = ['base','method','vocab','dim','ibr','seed','date','rungroup']
     else:
         raise ValueError('Method name invalid')
@@ -206,7 +212,7 @@ def get_memory(config):
         mem = v * m * np.log2(k) + 32 * d * m * k
     elif config['method'] in ['baseline','clipnoquant']:
         return v*d*32
-    elif config['method'] in ['stochround', 'midriser','optranuni'] :
+    elif config['method'] in ['stochround', 'midriser','optranuni','stochoptranuni'] :
         return config['ibr']*d*v + 32
     else:
         raise ValueError('Method name invalid (must be dca or kmeans)')
