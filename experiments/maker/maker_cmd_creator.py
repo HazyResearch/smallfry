@@ -77,6 +77,81 @@ def make_exp9_10_15_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
+def make_exp9_10_15_18(name):
+    rungroup = 'exp9-dim-vs-prec-quantized'
+    method = 'optranuni'
+    embs = maker.get_all_embs_in_rg('2018-10-15-exp9-dim-vs-prec')
+    configs = []
+    for emb in embs:
+        maker_config = maker.fetch_maker_config(emb)
+        prec = 320/maker_config['dim']
+        config = dict()
+        config['base'] = 'glove'
+        config['basepath'] = maker.fetch_embeds_txt_path(emb)
+        config['rungroup'] = rungroup
+        config['method'] = method
+        config['ibr'] = prec
+        config['outputdir'] = maker.get_base_outputdir()
+        config['seed'] = 1234
+        configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(maker.get_log_name(name, rungroup))
+
+def make_exp5_10_15_18(name):
+    rungroup = 'experiment5-dca-hp-tune'
+    method = 'dca'
+    base = 'glove'
+    basepath = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+    seed = 1234
+    outputdir = maker.get_base_outputdir()
+    configs = []
+    m = 573
+    k = 4
+    ibr = 4.0
+    lrs = [1e-1,1e-2,1e-6,1e-7]
+    for lr in lrs:
+        config = dict()
+        config['base'] = base
+        config['method'] = method
+        config['basepath'] = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+        config['rungroup'] = rungroup
+        config['method'] = method
+        config['ibr'] = ibr
+        config['outputdir'] = maker.get_base_outputdir()
+        config['seed'] = seed
+        config['m'] = m
+        config['k'] = k
+        config['lr'] = lr
+        configs.append(config)
+
+    lrs = [1e-3,1e-4,1e-5]
+    batchsizes = [64,32]
+    gradclips = [0.01,0.1,1000]
+    taus = [0.5,0.25]
+    for lr in lrs:
+        for bs in batchsizes:
+            for gradclip in gradclips:
+                for tau in taus:
+                    config = dict()
+                    config['base'] = base
+                    config['method'] = method
+                    config['basepath'] = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
+                    config['rungroup'] = rungroup
+                    config['method'] = method
+                    config['ibr'] = ibr
+                    config['outputdir'] = maker.get_base_outputdir()
+                    config['seed'] = seed
+                    config['m'] = m
+                    config['k'] = k
+                    config['lr'] = lr
+                    config['batchsize'] = bs
+                    config['gradclip'] = gradclip
+                    config['tau'] = tau
+                    configs.append(config)
+
+    sweep_configs(configs, False)
+    log_launch(maker.get_log_name(name, rungroup))
+
 #IMPORTANT!! this line determines which cmd will be run
 cmd = [make_exp9_10_15_18]
 
