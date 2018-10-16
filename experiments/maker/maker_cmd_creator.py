@@ -77,26 +77,6 @@ def make_exp9_10_15_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
-def make_exp9_10_15_18(name):
-    rungroup = 'exp9-dim-vs-prec-quantized'
-    method = 'optranuni'
-    embs = maker.get_all_embs_in_rg('2018-10-15-exp9-dim-vs-prec')
-    configs = []
-    for emb in embs:
-        maker_config = maker.fetch_maker_config(emb)
-        prec = 320/maker_config['dim']
-        config = dict()
-        config['base'] = 'glove'
-        config['basepath'] = maker.fetch_embeds_txt_path(emb)
-        config['rungroup'] = rungroup
-        config['method'] = method
-        config['ibr'] = prec
-        config['outputdir'] = maker.get_base_outputdir()
-        config['seed'] = 1234
-        configs.append(config)
-    sweep_configs(configs, False)
-    log_launch(maker.get_log_name(name, rungroup))
-
 def make_exp5_10_15_18(name):
     rungroup = 'experiment5-dca-hp-tune'
     method = 'dca'
@@ -148,6 +128,38 @@ def make_exp5_10_15_18(name):
                     config['gradclip'] = gradclip
                     config['tau'] = tau
                     configs.append(config)
+
+    sweep_configs(configs, False)
+    log_launch(maker.get_log_name(name, rungroup))
+
+    def make_exp11_10_16_18(name):
+    rungroup = 'exp11-stoch-benchmarks'
+    methods = ['stochoptranuni','optranuni','kmeans','clipnoquant']
+    brs = [1,2,4]
+    emb = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000')))
+    configs = []
+    for br in brs:
+        for method in methods:
+            config = dict()
+            config['base'] = 'glove'
+            config['basepath'] = emb
+            config['rungroup'] = rungroup
+            config['method'] = method
+            config['ibr'] = br
+            config['blocklen'] = 1
+            config['bitsperblock'] = br
+            config['outputdir'] = maker.get_base_outputdir()
+            config['seed'] = 1234
+            configs.append(config)
+    #add baseline
+    config = dict()
+    config['base'] = 'glove'
+    config['basepath'] = embs[0]
+    config['rungroup'] = rungroup
+    config['method'] = 'baseline'
+    config['ibr'] = 32
+    config['outputdir'] = maker.get_base_outputdir()
+    config['seed'] = 1234
 
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
