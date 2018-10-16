@@ -66,7 +66,7 @@ def init_parser():
     """Initialize Cmd-line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, required=True,
-        choices=['kmeans','dca','baseline','stochround','midriser','optranuni','clipnoquant'],
+        choices=['kmeans','dca','baseline','stochround','midriser','optranuni','clipnoquant','stochoptranuni'],
         help='Name of compression method to use (kmeans or dca or stochastic rounding).')
     parser.add_argument('--base', type=str, required=True,
         help='Name of base embeddings')
@@ -167,15 +167,15 @@ def make_embeddings(base_embeds, embed_dir, config):
         embeds = optranuni(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
-    elif config['method'] == 'stochoptrauni':
+    elif config['method'] == 'stochoptranuni':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = stochoptranuni(base_embeds,config['ibr'])
+        embeds = stochoptranuni(base_embeds,config['ibr'],config['seed'])
         config['embed-maketime-secs'] = time.time()-start
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
         #TODO remove this from here
     else:
-        raise ValueError('Method name invalid')
+        raise ValueError(f"Method name invalid {config['method']}")
     return embeds
 
 def get_embeddings_dir_and_name(config):
@@ -186,7 +186,7 @@ def get_embeddings_dir_and_name(config):
     elif config['method'] in ['baseline', 'stochround', 'midriser','optranuni','clipnoquant','stochoptranuni']:
         params = ['base','method','vocab','dim','ibr','seed','date','rungroup']
     else:
-        raise ValueError('Method name invalid')
+        raise ValueError(f"Method name invalid {config['method']}")
 
     embed_name_parts = ['{}={}'.format(param, config[param]) for param in params]
     embed_name = ','.join(embed_name_parts)

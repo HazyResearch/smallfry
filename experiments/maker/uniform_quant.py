@@ -66,7 +66,7 @@ def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
     X_q = quant(X,L_star)
     return X_q.numpy()
 
-    def stochoptranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
+def stochoptranuni(X,br,seed=1234,eps=1e-40,tol=0.1,L_max=10):
     '''
     Implements the golden section line search
     Adaptively finds optimal range based on data
@@ -76,8 +76,8 @@ def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
     quant = lambda X,L: uniquant(X,br,L) #bitrate does not change, no reason to pass it in each time
     f = lambda X,X_q: _compute_frobenius(X,X_q)
     L_star = _goldensearch(X,f,quant,eps=eps,tol=tol,L_max=L_max)
-    X_c = torch.clamp(X, min=-1*L_star, max=L_star)
-    X_q = stochround(X_c,L_star)
+    X_c = torch.clamp(torch.Tensor(X), min=-1*L_star, max=L_star)
+    X_q = stochround(X_c,L_star,seed)
     return X_q.numpy()
 
 def clipnoquant(X,br):
