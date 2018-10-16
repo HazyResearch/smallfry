@@ -153,7 +153,7 @@ def make_exp5_10_15_18(name):
     log_launch(maker.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [make_exp9_10_15_18]
+cmd = [make_exp5_10_15_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

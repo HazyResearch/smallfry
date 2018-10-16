@@ -203,7 +203,7 @@ def whoami():
 '''HARDCODED PATHS BELOW'''
 
 def get_base_directory():
-    path = '/proj/proj/smallfry'
+    path = '/proj/smallfry'
     if get_environment() == 'DAWN':
         path = '/lfs/1/%s%s' % (whoami(),path) 
     return path
