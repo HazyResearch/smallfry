@@ -66,7 +66,7 @@ def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
     X_q = quant(X,L_star)
     return X_q.numpy()
 
-    def stochoptranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
+def stochoptranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
     '''
     Implements the golden section line search
     Adaptively finds optimal range based on data
