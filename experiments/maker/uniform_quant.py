@@ -60,6 +60,8 @@ def optranuni(X,br,eps=1e-40,tol=0.1,L_max=10):
     Deterministic uniform rounding over optimal range
     '''
     br = int(br)
+    if br == 32:
+        return X
     quant = lambda X,L: uniquant(X,br,L) #bitrate does not change, no reason to pass it in each time
     f = lambda X,X_q: _compute_frobenius(X,X_q)
     L_star = _goldensearch(X,f,quant,eps=eps,tol=tol,L_max=L_max)

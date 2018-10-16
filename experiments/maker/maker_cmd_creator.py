@@ -165,6 +165,35 @@ def make_exp11_10_16_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
+def make_exp9_v2_10_15_18(name):
+    rungroup = 'exp9-dim-vs-prec-quantized'
+    method = 'optranuni'
+    embs = maker.get_all_embs_in_rg('merged-exp9-dim-vs-prec')
+    dim_2_prec = dict()
+    dim_2_prec[640] = [1]
+    dim_2_prec[320] = [1,2]
+    dim_2_prec[160] = [1,2,4]
+    dim_2_prec[80] = [2,4,8]
+    dim_2_prec[40] = [4,8]
+    dim_2_prec[20] = [8,32]
+    dim_2_prec[10] = [32]
+    dim_2_prec[5] = [32]
+    configs = []
+    for emb in embs:
+        maker_config = maker.fetch_maker_config(emb)
+        for prec in dim_2_prec[maker_config['dim']]:
+            config = dict()
+            config['base'] = 'glove'
+            config['basepath'] = maker.fetch_embeds_txt_path(emb)
+            config['rungroup'] = rungroup
+            config['method'] = method
+            config['ibr'] = prec
+            config['outputdir'] = maker.get_base_outputdir()
+            config['seed'] = 1234
+            configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(maker.get_log_name(name, rungroup))
+
 #IMPORTANT!! this line determines which cmd will be run
 cmd = [make_exp11_10_16_18]
 
