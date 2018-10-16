@@ -12,7 +12,7 @@ VOCAB_FILE=$3
 COOCCURRENCE_FILE=$4
 COOCCURRENCE_SHUF_FILE=$5
 BUILDDIR=build
-SAVE_FILE=${14}
+SAVE_FILE=${15}
 VERBOSE=2
 MEMORY=$6 #4
 VOCAB_MIN_COUNT=${13} #5
@@ -24,6 +24,7 @@ BINARY=2
 NUM_THREADS=${11} #32
 X_MAX=10
 SEED=${12}
+ETA=${14}
 
 echo
 if [ $COOC_EXISTS = "0" ]; then 
@@ -35,4 +36,4 @@ if [ $COOC_EXISTS = "0" ]; then
     $BUILDDIR/shuffle -memory $MEMORY -verbose $VERBOSE -seed $SEED < $COOCCURRENCE_FILE > $COOCCURRENCE_SHUF_FILE
 fi
 echo "$ $BUILDDIR/glove -save-file $SAVE_FILE -threads $NUM_THREADS -input-file $COOCCURRENCE_SHUF_FILE -x-max $X_MAX -iter $MAX_ITER -vector-size $VECTOR_SIZE -binary $BINARY -vocab-file $VOCAB_FILE -verbose $VERBOSE"
-$BUILDDIR/glove -save-file $SAVE_FILE -threads $NUM_THREADS -input-file $COOCCURRENCE_SHUF_FILE -x-max $X_MAX -iter $MAX_ITER -vector-size $VECTOR_SIZE -binary $BINARY -vocab-file $VOCAB_FILE -verbose $VERBOSE -seed $SEED
+$BUILDDIR/glove -save-file $SAVE_FILE -threads $NUM_THREADS -input-file $COOCCURRENCE_SHUF_FILE -x-max $X_MAX -iter $MAX_ITER -vector-size $VECTOR_SIZE -binary $BINARY -vocab-file $VOCAB_FILE -verbose $VERBOSE -seed $SEED -eta $ETA

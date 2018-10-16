@@ -83,6 +83,8 @@ def init_parser():
         help='Window size for use in co-oc calculations')
     parser.add_argument('--vocabmincount', type=int, default=5,
         help='Minimum oc count for a vocab')
+    parser.add_argument('--lr', type=float, default=0.05,
+        help='Learning rate eta')
     return parser
 
 def generate_embeddings(config, embed_dir, embed_name):
@@ -112,7 +114,7 @@ def generate_embeddings(config, embed_dir, embed_name):
 
         logging.info(f"Does co-oc exist? {cooc_exists_bool}")
         #check gen_glove.sh to get correct ORDER for these arguments
-        output = perform_command_local(f"bash gen_glove.sh {cooc_exists} {corpuspath} {vocabpath} {coocpath} {coocshufpath} {config['memusage']} {config['dim']} {config['maxvocab']} {config['numiters']} {config['windowsize']} {config['numthreads']} {config['seed']} {config['vocabmincount']} {embed_name} &> {embed_name}_glove.log")
+        output = perform_command_local(f"bash gen_glove.sh {cooc_exists} {corpuspath} {vocabpath} {coocpath} {coocshufpath} {config['memusage']} {config['dim']} {config['maxvocab']} {config['numiters']} {config['windowsize']} {config['numthreads']} {config['seed']} {config['vocabmincount']} {config['lr']} {embed_name} &> {embed_name}_glove.log")
         logging.info(output)
         wc = perform_command_local(f"wc -l {embed_name}.txt")
         logging.info(wc)
@@ -124,7 +126,7 @@ def generate_embeddings(config, embed_dir, embed_name):
 
 def get_embeddings_dir_and_name(config):
     if config['method'] == 'glove':
-        params = ['corpus','method','maxvocab','dim','memusage','seed','numiters','windowsize','vocabmincount','date','rungroup']
+        params = ['corpus','method','maxvocab','dim','memusage','seed','numiters','windowsize','vocabmincount','lr','date','rungroup']
     else:
         raise ValueError('Method name invalid')
 
