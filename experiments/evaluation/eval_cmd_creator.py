@@ -266,7 +266,7 @@ def launch_eval_exp11_10_16_18(name):
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_synths_exp7_10_12_18]
+cmd = [launch_eval_exp11_10_16_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

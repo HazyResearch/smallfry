@@ -155,7 +155,7 @@ def make_exp11_10_16_18(name):
     #add baseline
     config = dict()
     config['base'] = 'glove'
-    config['basepath'] = embs[0]
+    config['basepath'] = emb
     config['rungroup'] = rungroup
     config['method'] = 'baseline'
     config['ibr'] = 32
