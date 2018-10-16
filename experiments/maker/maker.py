@@ -170,7 +170,7 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'stochoptranuni':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = stochoptranuni(base_embeds,config['ibr'])
+        embeds = stochoptranuni(base_embeds,config['ibr'],config['seed'])
         config['embed-maketime-secs'] = time.time()-start
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
         #TODO remove this from here
