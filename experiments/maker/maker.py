@@ -66,7 +66,7 @@ def init_parser():
     """Initialize Cmd-line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, required=True,
-        choices=['kmeans','dca','baseline','stochround','midriser','optranuni','clipnoquant'],
+        choices=['kmeans','dca','baseline','stochround','midriser','optranuni','clipnoquant','stochoptranuni'],
         help='Name of compression method to use (kmeans or dca or stochastic rounding).')
     parser.add_argument('--base', type=str, required=True,
         help='Name of base embeddings')
