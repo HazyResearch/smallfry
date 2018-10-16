@@ -136,7 +136,7 @@ def make_exp11_10_16_18(name):
     rungroup = 'exp11-stoch-benchmarks'
     methods = ['stochoptranuni','optranuni','kmeans','clipnoquant']
     brs = [1,2,4]
-    emb = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000')))
+    emb = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove_k=400000'))
     configs = []
     for br in brs:
         for method in methods:
@@ -151,6 +151,7 @@ def make_exp11_10_16_18(name):
             config['outputdir'] = maker.get_base_outputdir()
             config['seed'] = 1234
             configs.append(config)
+
     #add baseline
     config = dict()
     config['base'] = 'glove'
@@ -160,12 +161,12 @@ def make_exp11_10_16_18(name):
     config['ibr'] = 32
     config['outputdir'] = maker.get_base_outputdir()
     config['seed'] = 1234
-
+    configs.append(config)
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [make_exp5_10_15_18]
+cmd = [make_exp11_10_16_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
