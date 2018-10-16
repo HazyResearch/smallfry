@@ -59,7 +59,7 @@ def init_parser():
         choices=['glove'],
         help='Name of embeddings training algorithm.')
     parser.add_argument('--corpus', type=str, required=True,
-        choices=['text8'],
+        choices=['text8','wiki.en.txt'],
         help='Natural language dataset used to train embeddings')
     parser.add_argument('--seed', type=int, required=True,
         help='Random seed to use for experiment.')
@@ -69,18 +69,20 @@ def init_parser():
         help='Rungroup for organization')
     parser.add_argument('--dim', type=int, default=300,
         help='Dimension for generated embeddings')
-    parser.add_argument('--maxvocab', type=int, default=100000,
+    parser.add_argument('--maxvocab', type=int, default=400000,
         help='Maximum vocabulary size')
-    parser.add_argument('--memusage', type=int, default=128,
+    parser.add_argument('--memusage', type=int, default=256,
         help='Memory usage in GB')
-    parser.add_argument('--numthreads', type=int, default=50,
+    parser.add_argument('--numthreads', type=int, default=52,
         help='Number of threads to spin up')
-    parser.add_argument('--numiters', type=int, default=15,
+    parser.add_argument('--numiters', type=int, default=50,
         help='Number of iterations to optimize over')
     parser.add_argument('--writenpy', type=bool, default=False,
         help='Write embeddings matrix in npy format in addition to text')
     parser.add_argument('--windowsize', type=int, default=15,
         help='Window size for use in co-oc calculations')
+    parser.add_argument('--vocabmincount', type=int, default=5,
+        help='Minimum oc count for a vocab')
     return parser
 
 def generate_embeddings(config, embed_dir, embed_name):
@@ -95,24 +97,22 @@ def generate_embeddings(config, embed_dir, embed_name):
         os.chdir(embed_dir)
         #check to see if co-oc-shuf already exists:
         corpuspath = str(pathlib.PurePath( get_corpus_path(), config['corpus']))
-        coocshufpath = f"{corpuspath}.cooccurrence.shuf.bin"
-        gen_cmd = None
-        if os.path.isfile(coocshufpath):
-            gen_cmd = "$BUILDDIR/glove -save-file $SAVE_FILE \
-                -threads $NUM_THREADS -input-file $COOCCURRENCE_SHUF_FILE \
-                -x-max $X_MAX -iter $MAX_ITER -vector-size $VECTOR_SIZE \
-                -binary $BINARY -vocab-file $VOCAB_FILE -verbose $VERBOSE
+        coocshufpath = f"{corpuspath}.maxvocab_{config['maxvocab']}.windowsize_{config['windowsize']}.seed_{config['seed']}.vocabmincount_{config['vocabmincount']}.memory_{config['memusage']}.cooccurrence.shuf.bin"
+        logging.info(f"Co-oc shuf path: {coocshufpath}")
+        cooc_exists_bool = os.path.isfile(coocshufpath)
+        if cooc_exists_bool:
+            cooc_exists = 1 
+            coocpath = None #command will directly use cooc-shuf
+            vocabpath = f"{corpuspath}.vocab.txt"
+        else:
+            cooc_exists = 0
+            coocshufpath = "cooccurrence.shuf.bin"
+            coocpath = "cooccurrence.bin"
+            vocabpath = "vocab.txt"
 
+        logging.info(f"Does co-oc exist? {cooc_exists_bool}")
         #check gen_glove.sh to get correct ORDER for these arguments
-        output = perform_command_local(f"bash gen_glove.sh {corpuspath} \
-                                    {config['dim']} \
-                                    {config['maxvocab']} \
-                                    {config['numthreads']} \
-                                    {config['memusage']} \
-                                    {config['numiters']} \
-                                    {config['windowsize']} \
-                                    {config['seed']} \
-                                    {embed_name}")
+        output = perform_command_local(f"bash gen_glove.sh {cooc_exists} {corpuspath} {vocabpath} {coocpath} {coocshufpath} {config['memusage']} {config['dim']} {config['maxvocab']} {config['numiters']} {config['windowsize']} {config['numthreads']} {config['seed']} {config['vocabmincount']} {embed_name} &> {embed_name}_glove.log")
         logging.info(output)
         wc = perform_command_local(f"wc -l {embed_name}.txt")
         logging.info(wc)
@@ -124,7 +124,7 @@ def generate_embeddings(config, embed_dir, embed_name):
 
 def get_embeddings_dir_and_name(config):
     if config['method'] == 'glove':
-        params = ['corpus','method','maxvocab','dim','memusage','seed','date','rungroup']
+        params = ['corpus','method','maxvocab','dim','memusage','seed','numiters','windowsize','vocabmincount','date','rungroup']
     else:
         raise ValueError('Method name invalid')
 
