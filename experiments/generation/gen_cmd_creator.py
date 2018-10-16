@@ -84,8 +84,27 @@ def generate_exp9_10_15_18(name):
     sweep_configs(configs, False)
     log_launch(generate.get_log_name(name, rungroup))
 
+def generate_exp9_2_10_16_18(name):
+    rungroup = 'exp9-dim-vs-prec'
+    method = 'glove'
+    dims = [640,20,5]
+    configs = []
+    for dim in dims:
+        config = dict()
+        config['rungroup'] = rungroup
+        config['method'] = method
+        config['corpus'] = 'text8'
+        config['dim'] = dim
+        config['outputdir'] = generate.get_base_outputdir()
+        config['memusage'] = 256
+        config['seed'] = 1234
+        configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(generate.get_log_name(name, rungroup))
+
+
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [generate_exp8_10_14_18]
+cmd = [generate_exp9_2_10_16_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

@@ -77,26 +77,6 @@ def make_exp9_10_15_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
-def make_exp9_10_15_18(name):
-    rungroup = 'exp9-dim-vs-prec-quantized'
-    method = 'optranuni'
-    embs = maker.get_all_embs_in_rg('2018-10-15-exp9-dim-vs-prec')
-    configs = []
-    for emb in embs:
-        maker_config = maker.fetch_maker_config(emb)
-        prec = 320/maker_config['dim']
-        config = dict()
-        config['base'] = 'glove'
-        config['basepath'] = maker.fetch_embeds_txt_path(emb)
-        config['rungroup'] = rungroup
-        config['method'] = method
-        config['ibr'] = prec
-        config['outputdir'] = maker.get_base_outputdir()
-        config['seed'] = 1234
-        configs.append(config)
-    sweep_configs(configs, False)
-    log_launch(maker.get_log_name(name, rungroup))
-
 def make_exp5_10_15_18(name):
     rungroup = 'experiment5-dca-hp-tune'
     method = 'dca'
@@ -149,6 +129,26 @@ def make_exp5_10_15_18(name):
                     config['tau'] = tau
                     configs.append(config)
 
+    sweep_configs(configs, False)
+    log_launch(maker.get_log_name(name, rungroup))
+
+def make_exp9_10_16_18(name):
+    rungroup = 'exp9-dim-vs-prec-quantized'
+    method = 'optranuni'
+    embs = maker.get_all_embs_in_rg('2018-10-15-exp9-dim-vs-prec')
+    configs = []
+    for emb in embs:
+        maker_config = maker.fetch_maker_config(emb)
+        prec = 320/maker_config['dim']
+        config = dict()
+        config['base'] = 'glove'
+        config['basepath'] = maker.fetch_embeds_txt_path(emb)
+        config['rungroup'] = rungroup
+        config['method'] = method
+        config['ibr'] = prec
+        config['outputdir'] = maker.get_base_outputdir()
+        config['seed'] = 1234
+        configs.append(config)
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
