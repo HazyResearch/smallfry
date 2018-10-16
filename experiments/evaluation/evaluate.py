@@ -278,8 +278,5 @@ def eval_sent(embed_txt_path, seed, dataset=None):
     logging.info('done with sentiment evals')
     return res
 
-parser = argh.ArghParser()
-parser.add_commands([eval_embeddings])
-
 if __name__ == '__main__':
     main()
