@@ -25,7 +25,7 @@ def log_launch(name,batchsize=1):
         assert not 'qsub' in log[0],"Do NOT use batching with qsub"
         log_launch_path = str(pathlib.PurePath( launch_path, name ))
         for i in range(len(log)):
-            if i % 3 == 2:
+            if i % (batchsize+1) == batchsize:
                 log.insert(i,"wait")
             else:
                 log[i] = f"{log[i]} &"
@@ -52,6 +52,7 @@ def launch_eval_exp11_10_16_18(name):
             config = dict()
             config['evaltype'] = evaltype
             config['embedpath'] = emb
+            config['seed'] = 1234
             configs.append(config)
     sweep_configs(configs, False)
     log_launch(name,batchsize=3)
