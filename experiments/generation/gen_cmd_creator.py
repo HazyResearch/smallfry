@@ -89,6 +89,24 @@ def generate_exp9_2_10_16_18(name):
     sweep_configs(configs, False)
     log_launch(generate.get_log_name(name, rungroup))
 
+def generate_exp8_v2_10_16_18(name):
+    rungroup = 'exp8-wiki-trained'
+    method = 'glove'
+    ibrs = [32,1,2,4]
+    configs = []
+    for ibr in ibrs:
+        config = dict()
+        config['rungroup'] = rungroup
+        config['method'] = method
+        config['corpus'] = 'wiki.en.txt'
+        config['dim'] = ibr_2_dim(ibr,dim=320)
+        config['outputdir'] = generate.get_base_outputdir()
+        config['memusage'] = 256
+        config['seed'] = 1234
+        config['lr'] = 0.005
+        configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(generate.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
 cmd = [generate_exp9_2_10_16_18]
