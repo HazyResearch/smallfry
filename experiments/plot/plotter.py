@@ -129,13 +129,16 @@ def plot_exp7():
 
 def plot_exp9():
     results = agg('2018-10-16-exp9-dim-vs-prec-quantized/*',expected_num_res=15)
-    for result in results:
-        if result['memory'] > 22813153:
-            result['method'] = 'high-mem'
-        elif result['memory'] < 22813151:
-            result['method'] = 'low-mem'
-        else:
-            result['method'] = 'mid-mem'
+    
+    def prep_exp9_results(results):
+        for result in results:
+            if result['memory'] > 22813153:
+                result['method'] = 'high-mem'
+            elif result['memory'] < 22813151:
+                result['method'] = 'low-mem'
+            else:
+                result['method'] = 'mid-mem'
+        return results
 
     vocab = 71291
     x = ['bitrate','bitrate']
@@ -145,7 +148,7 @@ def plot_exp9():
     for i in range(len(x)):
         for method in methods:
             for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
-                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
+                    make_plots(x[i],y[i],prep_exp9_results(results),source,vocab,methods=methods,
                         include_baseline=False,xscale=scales[0],yscale=scales[1],xticks=[1,2,4,8,32]) 
 
 
