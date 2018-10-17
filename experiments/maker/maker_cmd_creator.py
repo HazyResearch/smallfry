@@ -165,7 +165,7 @@ def make_exp11_10_16_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
-def make_exp9_v2_10_15_18(name):
+def make_exp9_v2_10_16_18(name):
     rungroup = 'exp9-dim-vs-prec-quantized'
     method = 'optranuni'
     embs = maker.get_all_embs_in_rg('merged-exp9-dim-vs-prec')
@@ -195,7 +195,7 @@ def make_exp9_v2_10_15_18(name):
     log_launch(maker.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [make_exp11_10_16_18]
+cmd = [make_exp9_v2_10_16_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
