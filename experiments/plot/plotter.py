@@ -1,10 +1,16 @@
 import sys
 import os
 import argh
+import pathlib
 import numpy as np
 from plot_tools import *
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import *
+
+def results_aggregator(rungroup,expected_num_res):
+    results = agg(f"{rungroup}/*",expected_num_res=expected_num_res)
+    respath = str(pathlib.PurePath(get_agg_results_path(),rungroup))
+    save_dict_as_json(results, respath)
 
 def core_plotter(x,y,sources,vocabs,methods,results_prep):
     for i in range(len(x)):
@@ -129,13 +135,15 @@ def plot_exp7():
 
 def plot_exp9():
     results = agg('2018-10-16-exp9-dim-vs-prec-quantized/*',expected_num_res=15)
-    for result in results:
-        if result['memory'] > 22813153:
-            result['method'] = 'high-mem'
-        elif result['memory'] < 22813151:
-            result['method'] = 'low-mem'
-        else:
-            result['method'] = 'mid-mem'
+    def prep_exp9_results(results):
+        for result in results:
+            if result['memory'] > 22813153:
+                result['method'] = 'high-mem'
+            elif result['memory'] < 22813151:
+                result['method'] = 'low-mem'
+            else:
+                result['method'] = 'mid-mem'
+        return results
 
     vocab = 71291
     x = ['bitrate','bitrate']
@@ -145,11 +153,11 @@ def plot_exp9():
     for i in range(len(x)):
         for method in methods:
             for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
-                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
+                    make_plots(x[i],y[i],prep_exp9_results(results),source,vocab,methods=methods,
                         include_baseline=False,xscale=scales[0],yscale=scales[1],xticks=[1,2,4,8,32]) 
 
-
-
+def exp5_dca_hp_results_aggregator():
+    results_aggregator('merged-experiment5-dca-hp-tune/*',expected_num_res=1296)
 
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_battery, 
@@ -161,6 +169,7 @@ parser.add_commands([plot_embeddings_battery,
                     plot_frobenius,
                     plot_exp6,
                     plot_exp7,
+                    exp5_dca_hp_results_aggregator,
                     plot_exp9])
 
 if __name__ == '__main__':
