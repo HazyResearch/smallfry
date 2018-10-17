@@ -161,7 +161,7 @@ parser.add_commands([plot_embeddings_battery,
                     plot_frobenius,
                     plot_exp6,
                     plot_exp7,
-                    list_best_dca])
+                    plot_exp9])
 
 if __name__ == '__main__':
     parser.dispatch()
