@@ -153,7 +153,7 @@ def clamp_and_quantize(X, bit_rate=32, range_limit=np.inf, use_midriser=False, s
         # while 'not midriser' chooses the 2**bit_rate quantization values between
         # [-range_limit,+range_limit].
         range_limit -= range_limit / 2**bit_rate
-    X_q = torch.tensor(X) # creates a copy of X
+    X_q = X.clone() # creates a copy of X
     if use_midriser or do_clamp:
         # When using mid-riser, always need to clamp.
         # If not using mid-riser, only need to clamp if user specified a range_limit.
