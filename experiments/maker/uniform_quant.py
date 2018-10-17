@@ -80,7 +80,9 @@ def stochoptranuni(X,br,seed=1234,eps=1e-40,tol=0.1,L_max=10):
     quant = lambda X,L: uniquant(X,br,L) #bitrate does not change, no reason to pass it in each time
     f = lambda X,X_q: _compute_frobenius(X,X_q)
     L_star = _goldensearch(X,f,quant,eps=eps,tol=tol,L_max=L_max)
-    X_q = clamp_and_quantize(torch.from_numpy(X), br, range_limit=L_star, stochastic_round=True)
+    X_c = np.clip(X,-1*(L_star+eps),L_star+eps)
+    X_q = stochround(X_c,br,seed)
+    #X_q = clamp_and_quantize(torch.from_numpy(X), br, range_limit=L_star, stochastic_round=True)
     return X_q.numpy()
 
 def clipnoquant(X,br):
@@ -206,7 +208,7 @@ def quantize_with_scipy(X, bit_rate, range_limit, stochastic_round=False):
     return X_q
 
 def get_max_abs(X):
-    return torch.max(torch.abs(X)).item()
+    return torch.max(torch.abs(X))
 
 # TESTS
 def test1():

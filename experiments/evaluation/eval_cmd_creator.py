@@ -42,9 +42,9 @@ def sweep_configs(configs,qsub):
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
-def launch_eval_exp11_10_16_18(name):
-    rungroup = '2018-10-16-exp11-stoch-benchmarks'
-    evaltypes = ['intrinsics','QA']
+def launch_eval_exp11_10_17_18(name):
+    rungroup = '2018-10-17-exp11-stoch-benchmarks'
+    evaltypes = ['intrinsics']
     embs = evaluate.get_all_embs_in_rg(rungroup)
     configs = []
     for evaltype in evaltypes:
@@ -104,7 +104,7 @@ def launch_eval_test1_10_17_18(name):
     log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_eval_exp8_10_17_18]
+cmd = [launch_eval_exp11_10_17_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
