@@ -287,6 +287,9 @@ def color_lookup(method):
     colors['midriser'] = 'g'
     colors['optranuni'] = 'g'
     colors['dim-reduc'] = 'm'
+    colors['high-mem'] = 'r'
+    colors['mid-mem'] = 'b'
+    colors['low-mem'] = 'c'
     assert method in colors.keys(), "A color has not been designated for the requested method"
     return colors[method]
 

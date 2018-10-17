@@ -55,7 +55,7 @@ def launch_eval_exp11_10_16_18(name):
             config['seed'] = 1234
             configs.append(config)
     sweep_configs(configs, False)
-    log_launch(name,batchsize=3)
+    log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)
 
 def launch_eval_exp9_10_16_18(name):
     rungroup = '2018-10-16-exp9-dim-vs-prec-quantized'
@@ -70,7 +70,7 @@ def launch_eval_exp9_10_16_18(name):
             config['seed'] = 1234
             configs.append(config)
     sweep_configs(configs, False)
-    log_launch(name,batchsize=3)
+    log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)
 
 #IMPORTANT!! this line determines which cmd will be run
 cmd = [launch_eval_exp9_10_16_18]
