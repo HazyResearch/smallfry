@@ -59,7 +59,7 @@ def launch_eval_exp11_10_16_18(name):
 
 def launch_eval_exp9_10_16_18(name):
     rungroup = '2018-10-16-exp9-dim-vs-prec-quantized'
-    evaltypes = ['intrinsics','QA']
+    evaltypes = ['intrinsics']
     embs = evaluate.get_all_embs_in_rg(rungroup)
     configs = []
     for evaltype in evaltypes:
