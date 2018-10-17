@@ -194,6 +194,29 @@ def make_exp9_v2_10_15_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
+def make_exp8_10_16_18(name):
+    rungroup = 'exp8-wiki-trained'
+    methods = ['optranuni','kmeans']
+    base_emb_name = 'corpus=wiki.en.txt,method=glove,maxvocab=400000,dim=320,memusage=256,seed=90,date=2018-10-16,rungroup=exp8-wiki-trained.txt'
+    base_emb = str(pathlib.PurePath(maker.get_base_embed_path_head(), base_emb_name))
+    ibrs = [1,2,4]
+    configs = []
+    for method in methods:
+        for ibr in ibrs:
+            config = dict()
+            config['base'] = 'glove'
+            config['basepath'] = base_emb
+            config['rungroup'] = rungroup
+            config['method'] = method
+            config['ibr'] = ibr
+            config['bitsperblock'] = ibr
+            config['blocklen'] = 1
+            config['outputdir'] = maker.get_base_outputdir()
+            config['seed'] = 1234
+            configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(maker.get_log_name(name, rungroup))
+
 #IMPORTANT!! this line determines which cmd will be run
 cmd = [make_exp11_10_16_18]
 
