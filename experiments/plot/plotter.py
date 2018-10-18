@@ -158,8 +158,8 @@ def plot_exp9():
 
 def plot_exp11():
     results = agg('2018-10-17-exp11-stoch-benchmarks/*',expected_num_res=13)
-    x = ['ibr','ibr']
-    y = ['similarity-avg-score','analogy-avg-score']
+    x = ['ibr','ibr','ibr']
+    y = ['similarity-avg-score','analogy-avg-score','embed-frob-dist']
     source = 'glove'
     vocab = 400000
     methods = ['clipnoquant','stochoptranuni','optranuni','kmeans']
