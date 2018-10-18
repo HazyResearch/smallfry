@@ -158,12 +158,16 @@ def plot_exp9():
 
 def plot_exp11():
     results = agg('2018-10-17-exp11-stoch-benchmarks/*',expected_num_res=13)
-    x = ['bitrate']
+    x = ['bitrate','bitrate']
     y = ['similarity-avg-score','analogy-avg-score']
-    sources = ['glove']
-    vocabs = [400000]
+    source = 'glove'
+    vocab = 400000
     methods = ['clipnoquant','stochoptranuni','optranuni','kmeans']
-    core_plotter(x,y,sources,vocabs,methods,lambda x: x)
+    for i in range(len(x)):
+        for method in methods:
+            for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
+                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
+                        include_baseline=True,xscale=scales[0],yscale=scales[1],xticks=[1,2,4]) 
 
 def exp5_dca_hp_results_aggregator():
     results_aggregator('merged-experiment5-dca-hp-tune/*',expected_num_res=1296)
@@ -178,6 +182,7 @@ parser.add_commands([plot_embeddings_battery,
                     plot_frobenius,
                     plot_exp6,
                     plot_exp7,
+                    plot_exp11,
                     exp5_dca_hp_results_aggregator,
                     plot_exp9])
 
