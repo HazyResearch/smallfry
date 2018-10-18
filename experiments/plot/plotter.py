@@ -208,6 +208,23 @@ def plot_exp5_lr():
                     make_plots(x,y,prep_dca_lr_sweep_results(results),source,vocab,methods=methods,
                         include_baseline=False,xscale=scales[0],yscale=scales[1],xticks=[1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1])
 
+def plot_exp5_tune_metrics():
+    rg = 'merged-experiment5-dca-hp-tune'
+    results = import_results(rg)
+    results.extend(agg(f"{rg}/*"))
+    def prep_dca_stats_results(results):
+        scores = []
+        for result in results:
+            if result['ibr'] = 4:
+                scores.append(np.sqrt(result['embed-frob-err']))
+        return scores
+    scores = prep_dca_stats_results(results)
+    print(len(scores))
+    print(np.mean(scores))
+    print(np.var(scores))
+    print(np.max(scores))
+    print(np.min(scores))
+    
 
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_battery, 
