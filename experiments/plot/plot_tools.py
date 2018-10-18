@@ -282,6 +282,7 @@ def color_lookup(method):
     colors['kmeans'] = 'b'
     colors['baseline'] = 'c'
     colors['stochround'] = 'm'
+    colors['stochoptranuni'] = 'm'
     colors['tuned-dca'] = 'm'
     colors['clipnoquant'] = 'y'
     colors['midriser'] = 'g'
