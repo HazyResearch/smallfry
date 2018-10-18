@@ -175,7 +175,8 @@ def exp5_dca_hp_results_aggregator():
 def plot_exp5_lr():
     rg = 'merged-experiment5-dca-hp-tune'
     results = import_results(rg)
-    results.extend(agg(rg))
+    print(agg(rg))
+    results.extend(agg(f"{rg}/*"))
     #define defaults
     defaults = dict()
     defaults['tau'] = 1
@@ -188,7 +189,10 @@ def plot_exp5_lr():
         for result in results:
             matchup = True
             for default in defaults.keys():
-                if default[default] != result[default]:
+                if not result: 
+                    matchup = False
+                    break
+                if defaults[default] != result[default]:
                     matchup = False
             if matchup:
                 result['Frobenius-Distance'] = np.sqrt(result['embed-frob-err'])
@@ -202,7 +206,7 @@ def plot_exp5_lr():
     vocab = 400000
     for scales in [ ('log','linear'),('log','log') ]:
                     make_plots(x,y,prep_dca_lr_sweep_results(results),source,vocab,methods=methods,
-                        include_baseline=False,xscale=scales[0],yscale=scales[1])
+                        include_baseline=False,xscale=scales[0],yscale=scales[1],xticks=[1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1])
 
 
 parser = argh.ArghParser()
@@ -216,6 +220,7 @@ parser.add_commands([plot_embeddings_battery,
                     plot_exp6,
                     plot_exp7,
                     plot_exp11,
+                    plot_exp5_lr,
                     exp5_dca_hp_results_aggregator,
                     plot_exp9])
 
