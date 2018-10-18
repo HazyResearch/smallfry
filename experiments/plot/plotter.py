@@ -172,6 +172,39 @@ def plot_exp11():
 def exp5_dca_hp_results_aggregator():
     results_aggregator('merged-experiment5-dca-hp-tune/*',expected_num_res=1296)
 
+def plot_exp5_lr():
+    rg = 'merged-experiment5-dca-hp-tune'
+    results = import_results(rg)
+    results.extend(agg(rg))
+    #define defaults
+    defaults = dict()
+    defaults['tau'] = 1
+    defaults['gradclip'] = 0.001
+    defaults['m'] = 573
+    defaults['k'] = 4
+    defaults['batchsize'] = 64
+    def prep_dca_lr_sweep_results(results):
+        matchup_results = []
+        for result in results:
+            matchup = True
+            for default in defaults.keys():
+                if default[default] != result[default]:
+                    matchup = False
+            if matchup:
+                result['Frobenius-Distance'] = np.sqrt(result['embed-frob-err'])
+                matchup_results.append(result)
+        return matchup_results
+    
+    x = 'lr'
+    y = 'Frobenius-Distance'
+    source = 'glove'
+    methods = ['dca']
+    vocab = 400000
+    for scales in [ ('log','linear'),('log','log') ]:
+                    make_plots(x,y,prep_dca_lr_sweep_results(results),source,vocab,methods=methods,
+                        include_baseline=False,xscale=scales[0],yscale=scales[1])
+
+
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_battery, 
                     plot_embeddings_sentiment,
