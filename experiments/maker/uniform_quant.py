@@ -41,6 +41,10 @@ def midriser(X,b):
     X = X*2*L
     return X
 
+def naiveuni(X,br):
+    L = np.max(np.abs(X))
+    return uniquant(X,br,L)
+    
 def uniquant(X,br,L):
     '''Copies X, quantizes X, returns X. Uses range L and bitrate br'''
     X_q = torch.Tensor(X)

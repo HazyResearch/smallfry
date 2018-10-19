@@ -229,6 +229,7 @@ def plot_exp5_tune_metrics():
 
 def plot_exp8():
     results = agg('merged-exp8-wiki-trained/*',expected_num_res=10)
+    print(results)
     def prep_exp8_results(results):
         for result in results:
             if result['method'] == 'glove':
@@ -251,9 +252,6 @@ def plot_exp8():
                     make_plots(x[i],y[i],prep_exp8_results(results),source,vocab,methods=methods,
                         include_baseline=False,xscale=scales[0],yscale=scales[1],xticks=[1,2,4]) 
         
-
-
-    
 
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_battery, 
