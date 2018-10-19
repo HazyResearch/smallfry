@@ -224,6 +224,28 @@ def plot_exp5_tune_metrics():
     print(np.var(scores))
     print(np.max(scores))
     print(np.min(scores))
+
+def plot_exp8():
+    results = agg('merged-exp8-wiki-trained/*',expected_num_res=10)
+    def prep_exp8_results(results):
+        for result in results:
+            if result['method'] == 'glove':
+                result['method'] = 'dim-reduc' if result['bitrate'] < 30 else 'baseline'
+        return results
+
+    x = ['bitrate','bitrate','bitrate']
+    y = ['similarity-avg-score','analogy-avg-score','max-f1']
+    source = 'glove'
+    vocab = 400000
+    methods = ['dim-reduc','optranuni','kmeans']
+    for i in range(len(x)):
+        for method in methods:
+            for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
+                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
+                        include_baseline=True,xscale=scales[0],yscale=scales[1],xticks=[1,2,4]) 
+        
+
+
     
 
 parser = argh.ArghParser()
