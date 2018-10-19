@@ -9,7 +9,7 @@ import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
 from smallfry.utils import load_embeddings
-from uniform_quant import stochround, midriser, optranuni, clipnoquant, stochoptranuni
+from uniform_quant import stochround, midriser, naiveuni, optranuni, clipnoquant, stochoptranuni
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
 from neuralcompressor.nncompress import EmbeddingCompressor
@@ -66,7 +66,7 @@ def init_parser():
     """Initialize Cmd-line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, required=True,
-        choices=['kmeans','dca','baseline','stochround','midriser','optranuni','clipnoquant','stochoptranuni'],
+        choices=['kmeans','dca','baseline','stochround','midriser','optranuni','clipnoquant','stochoptranuni','naiveuni'],
         help='Name of compression method to use (kmeans or dca or stochastic rounding).')
     parser.add_argument('--base', type=str, required=True,
         help='Name of base embeddings')
@@ -156,6 +156,11 @@ def make_embeddings(base_embeds, embed_dir, config):
         start = time.time()
         embeds = midriser(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
+    elif config['method'] == 'naiveuni':
+        embeds = load_embeddings(config['basepath'])[0]
+        start = time.time()
+        embeds = naiveuni(base_embeds,config['ibr'])
+        config['embed-maketime-secs'] = time.time()-start
     elif config['method'] == 'stochround':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
@@ -183,7 +188,7 @@ def get_embeddings_dir_and_name(config):
         params = ['base','method','vocab','dim','ibr','bitsperblock','blocklen','seed','date','rungroup','solver']
     elif config['method'] == 'dca':
         params = ['base','method','vocab','dim','ibr','m','k','seed','date','rungroup','lr','gradclip','batchsize','tau']
-    elif config['method'] in ['baseline', 'stochround', 'midriser','optranuni','clipnoquant','stochoptranuni']:
+    elif config['method'] in ['baseline', 'stochround', 'naiveuni', 'midriser','optranuni','clipnoquant','stochoptranuni']:
         params = ['base','method','vocab','dim','ibr','seed','date','rungroup']
     else:
         raise ValueError(f"Method name invalid {config['method']}")
@@ -212,7 +217,7 @@ def get_memory(config):
         mem = v * m * np.log2(k) + 32 * d * m * k
     elif config['method'] in ['baseline','clipnoquant']:
         return v*d*32
-    elif config['method'] in ['stochround', 'midriser','optranuni','stochoptranuni'] :
+    elif config['method'] in ['stochround', 'naiveuni', 'midriser','optranuni','stochoptranuni'] :
         return config['ibr']*d*v + 32
     else:
         raise ValueError('Method name invalid (must be dca or kmeans)')

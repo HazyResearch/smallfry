@@ -250,9 +250,6 @@ def plot_exp8():
                         include_baseline=True,xscale=scales[0],yscale=scales[1],xticks=[1,2,4]) 
         
 
-
-    
-
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_battery, 
                     plot_embeddings_sentiment,
