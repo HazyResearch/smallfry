@@ -185,7 +185,18 @@ def histogram(embpath,name):
     plt.savefig(str(pathlib.PurePath(get_plots_path(),
         f"{get_date_str()}:embeddings-histogram:{name}")))
     plt.close()
-    
+
+def quant_viz(br2q_list,name):
+    x = []
+    y = []
+    for br in br2q_list.keys():
+        for q in br2q_list[br]:
+            y.append(br)
+            x.append(q)
+    plt.scatter(x,y)
+    plt.savefig(str(pathlib.PurePath(get_plots_path(),
+        f"{get_date_str()}:quant-viz:{name}")))
+    plt.close()  
 
 def prep_sentiment_results(results):
     '''
