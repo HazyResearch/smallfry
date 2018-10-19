@@ -65,9 +65,6 @@ def get_all_data(d_list, base, vocab, method, x, y):
     '''
     res = dict()
     for d in d_list:
-        print(d['base'])
-        print(d['method'])
-        print(d['vocab'])
         if d['base'] == base and d['vocab'] == vocab and d['method'] == method and x in d.keys() and y in d.keys():
             if d[x] in res.keys():
                 res[d[x]].append(d[y])
@@ -252,7 +249,10 @@ def make_plots( x,
                 raise ValueError('method identified as special treatment, but not supported in code')
             continue
         data = get_all_data(results, source, vocab, method, x, y)
+        print(data)
         data_x,data_y = compute_avg_variable_len(data)
+        print(data_x)
+        print(data_y)
         errbars_low_abs, errbars_high_abs = compute_min_max_variable_len(data)
         errbars_low_rel = np.array(data_y) - np.array(errbars_low_abs)
         errbars_high_rel =  np.array(errbars_high_abs) - np.array(data_y)
