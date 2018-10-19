@@ -104,7 +104,7 @@ def launch_eval_test1_10_17_18(name):
     log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_eval_exp8_10_17_18]
+cmd = [launch_eval_test1_10_17_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

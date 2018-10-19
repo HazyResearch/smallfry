@@ -220,7 +220,7 @@ def make_exp8_10_16_18(name):
 def make_test1_10_17_18(name):
     rungroup = 'test-1-DBG'
     methods = ['optranuni']
-    base_emb_name = 'corpus=wiki.en.txt,method=glove,maxvocab=400000,dim=320,memusage=256,seed=90,date=2018-10-16,rungroup=exp8-wiki-trained.txt'
+    base_emb_name = 'corpus=wiki.en.txt,method=glove,maxvocab=400000,dim=320,memusage=256,seed=90,date=2018-10-16,rungroup=exp8-wiki-trained.txt.chopped_top_400000'
     base_emb = str(pathlib.PurePath(maker.get_base_embed_path_head(), base_emb_name))
     ibrs = [1]
     configs = []

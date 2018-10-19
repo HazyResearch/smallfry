@@ -129,6 +129,7 @@ def get_all_embs_in_rg(rungroup):
 def do_results_already_exist(embed_path, results_type):
     ''' boolean function -- default behavior is to fail when results already exist'''
     results_path = get_results_path(embed_path, results_type)
+    print(results_path)
     return os.path.isfile(results_path)
 
 def results_to_file(embed_path, results_type, results):
