@@ -181,7 +181,7 @@ def get_dca_best_params(results, bitrates, base):
 def histogram(embpath,name):
     '''plots histogram of npy embeddings'''
     X,v = load_embeddings(embpath)
-    plt.hist(X.flatten(),bins=100)
+    plt.hist(X.flatten(),bins=1000)
     plt.savefig(str(pathlib.PurePath(get_plots_path(),
         f"{get_date_str()}:embeddings-histogram:{name}")))
     plt.close()
