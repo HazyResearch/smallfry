@@ -228,7 +228,7 @@ def plot_exp5_tune_metrics():
     print(np.min(scores))
 
 def plot_exp8():
-    results = agg('merged-exp8-wiki-trained/*',expected_num_res=10)
+    results = agg('merged-exp8-wiki-trained/*',expected_num_res=13)
     print(results)
     def prep_exp8_results(results):
         for result in results:
@@ -242,7 +242,7 @@ def plot_exp8():
     y = ['similarity-avg-score','analogy-avg-score','max-f1']
     source = 'glove'
     vocab = 3801686
-    methods = ['dim-reduc','optranuni','kmeans']
+    methods = ['dim-reduc','optranuni','kmeans','naiveuni']
     for i in range(len(x)):
         for method in methods:
             for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:

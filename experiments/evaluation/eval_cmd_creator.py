@@ -118,7 +118,7 @@ def launch_eval_synth_exp11_10_17_18(name):
     sweep_configs(configs, False)
     log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)
 
-    def launch_eval_exp8_naive_10_19_18(name):
+def launch_eval_exp8_naive_10_19_18(name):
     rungroup = 'merged-exp8-wiki-trained'
     evaltypes = ['QA','intrinsics']
     embs = evaluate.get_all_embs_in_rg(rungroup)

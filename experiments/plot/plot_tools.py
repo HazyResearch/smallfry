@@ -293,6 +293,7 @@ def color_lookup(method):
     colors['tuned-dca'] = 'm'
     colors['clipnoquant'] = 'y'
     colors['midriser'] = 'g'
+    colors['naiveuni'] = 'r'
     colors['optranuni'] = 'g'
     colors['dim-reduc'] = 'm'
     colors['high-mem'] = 'r'
