@@ -228,7 +228,7 @@ def plot_exp5_tune_metrics():
     print(np.min(scores))
 
 def plot_exp8():
-    results = agg('merged-exp8-wiki-trained/*',expected_num_res=13)
+    results = agg('merged-exp8-wiki-trained/*',expected_num_res=10)
     print(results)
     def prep_exp8_results(results):
         for result in results:
@@ -242,7 +242,7 @@ def plot_exp8():
     y = ['similarity-avg-score','analogy-avg-score','max-f1']
     source = 'glove'
     vocab = 3801686
-    methods = ['dim-reduc','optranuni','kmeans','naiveuni']
+    methods = ['dim-reduc','optranuni','kmeans']
     for i in range(len(x)):
         for method in methods:
             for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
@@ -270,8 +270,10 @@ def viz_exp8():
             for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
                     make_plots(x[i],y[i],prep_exp8_results(results),source,vocab,methods=methods,
                         include_baseline=True,xscale=scales[0],yscale=scales[1],xticks=[1,2,4]) 
-        
 
+def plot_histograms_exp8():
+    path = str(pathlib.PurePath(get_base_embed_path_head(),'corpus=wiki.en.txt,method=glove,maxvocab=400000,dim=320,memusage=256,seed=90,date=2018-10-16,rungroup=exp8-wiki-trained.txt'))
+    histogram(path,'wiki_glove_320')
 
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_battery, 
@@ -286,6 +288,7 @@ parser.add_commands([plot_embeddings_battery,
                     plot_exp11,
                     plot_exp8,
                     plot_exp5_lr,
+                    plot_histograms_exp8,
                     exp5_dca_hp_results_aggregator,
                     plot_exp5_tune_metrics,
                     plot_exp9])
