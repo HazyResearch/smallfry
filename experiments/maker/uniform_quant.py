@@ -43,7 +43,7 @@ def midriser(X,b):
 
 def naiveuni(X,br):
     L = np.max(np.abs(X))
-    return uniquant(X,br,L)
+    return uniquant(X,br,L).numpy()
     
 def uniquant(X,br,L):
     '''Copies X, quantizes X, returns X. Uses range L and bitrate br'''

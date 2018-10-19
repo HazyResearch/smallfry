@@ -263,7 +263,7 @@ def make_exp8_kmeans_bigun_10_17_18(name):
 
 def make_exp8_naive_10_18_18(name):
     rungroup = 'exp8-wiki-trained'
-    methods = ['midriser']
+    methods = ['naiveuni']
     base_emb_name = 'corpus=wiki.en.txt,method=glove,maxvocab=400000,dim=320,memusage=256,seed=90,date=2018-10-16,rungroup=exp8-wiki-trained.txt'
     base_emb = str(pathlib.PurePath(maker.get_base_embed_path_head(), base_emb_name))
     ibrs = [1,2,4]
