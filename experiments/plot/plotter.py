@@ -215,7 +215,9 @@ def plot_exp5_tune_metrics():
     def prep_dca_stats_results(results):
         scores = []
         for result in results:
-            if result['ibr'] = 4:
+            if 'ibr' in result.keys() and result['ibr'] == 4 and result['base'] == 'glove':
+                if np.sqrt(result['embed-frob-err']) < 1100:
+                    print(result)
                 scores.append(np.sqrt(result['embed-frob-err']))
         return scores
     scores = prep_dca_stats_results(results)
@@ -261,6 +263,7 @@ parser.add_commands([plot_embeddings_battery,
                     plot_exp11,
                     plot_exp5_lr,
                     exp5_dca_hp_results_aggregator,
+                    plot_exp5_tune_metrics,
                     plot_exp9])
 
 if __name__ == '__main__':
