@@ -259,8 +259,9 @@ def make_plots( x,
         errbars = np.array([errbars_low_rel, errbars_high_rel])
         plt.errorbar(data_x, data_y, fmt=color_lookup(method), yerr=errbars, linewidth=3.0, label=nice_names_lookup(method))
     if include_baseline: #hardcoded for now -- needs a fix
-        print(results)
+        #print(results)
         data = get_all_data(results, source, vocab, 'baseline', x, y)
+        print(data)
         vals = data[32.0]
         data_x = xticks
         data_y = [np.mean(np.array(vals))]*len(xticks)

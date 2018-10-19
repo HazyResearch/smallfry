@@ -233,7 +233,11 @@ def plot_exp8():
         for result in results:
             if result['method'] == 'glove':
                 result['bitrate'] = result['dim']/320*32
+                result['base'] = 'glove'
                 result['method'] = 'dim-reduc' if result['bitrate'] < 30 else 'baseline'
+                if result['method'] == 'baseline':
+                    print('baseline')
+                    print(result)
         return results
 
     x = ['bitrate','bitrate','bitrate']
@@ -244,8 +248,8 @@ def plot_exp8():
     for i in range(len(x)):
         for method in methods:
             for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
-                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
-                        include_baseline=True,xscale=scales[0],yscale=scales[1],xticks=[1,2,4]) 
+                    make_plots(x[i],y[i],prep_exp8_results(results),source,vocab,methods=methods,
+                        include_baseline=False,xscale=scales[0],yscale=scales[1],xticks=[1,2,4]) 
         
 
 
@@ -262,6 +266,7 @@ parser.add_commands([plot_embeddings_battery,
                     plot_exp6,
                     plot_exp7,
                     plot_exp11,
+                    plot_exp8,
                     plot_exp5_lr,
                     exp5_dca_hp_results_aggregator,
                     plot_exp5_tune_metrics,
