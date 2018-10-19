@@ -232,6 +232,7 @@ def plot_exp8():
     def prep_exp8_results(results):
         for result in results:
             if result['method'] == 'glove':
+                result['bitrate'] = result['dim']/320*32
                 result['method'] = 'dim-reduc' if result['bitrate'] < 30 else 'baseline'
         return results
 
