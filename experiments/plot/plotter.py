@@ -1,10 +1,16 @@
 import sys
 import os
 import argh
+import pathlib
 import numpy as np
 from plot_tools import *
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import *
+
+def results_aggregator(rungroup,expected_num_res):
+    results = agg(f"{rungroup}/*",expected_num_res=expected_num_res)
+    respath = str(pathlib.PurePath(get_agg_results_path(),rungroup))
+    save_dict_as_json(results, respath)
 
 def core_plotter(x,y,sources,vocabs,methods,results_prep):
     for i in range(len(x)):
@@ -129,13 +135,15 @@ def plot_exp7():
 
 def plot_exp9():
     results = agg('2018-10-16-exp9-dim-vs-prec-quantized/*',expected_num_res=15)
-    for result in results:
-        if result['memory'] > 22813153:
-            result['method'] = 'high-mem'
-        elif result['memory'] < 22813151:
-            result['method'] = 'low-mem'
-        else:
-            result['method'] = 'mid-mem'
+    def prep_exp9_results(results):
+        for result in results:
+            if result['memory'] > 22813153:
+                result['method'] = 'high-mem'
+            elif result['memory'] < 22813151:
+                result['method'] = 'low-mem'
+            else:
+                result['method'] = 'mid-mem'
+        return results
 
     vocab = 71291
     x = ['bitrate','bitrate']
@@ -145,11 +153,103 @@ def plot_exp9():
     for i in range(len(x)):
         for method in methods:
             for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
-                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
+                    make_plots(x[i],y[i],prep_exp9_results(results),source,vocab,methods=methods,
                         include_baseline=False,xscale=scales[0],yscale=scales[1],xticks=[1,2,4,8,32]) 
 
+def plot_exp11():
+    results = agg('2018-10-17-exp11-stoch-benchmarks/*',expected_num_res=13)
+    x = ['ibr','ibr','ibr']
+    y = ['similarity-avg-score','analogy-avg-score','embed-frob-dist']
+    source = 'glove'
+    vocab = 400000
+    methods = ['clipnoquant','stochoptranuni','optranuni','kmeans']
+    for i in range(len(x)):
+        for method in methods:
+            for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
+                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
+                        include_baseline=True,xscale=scales[0],yscale=scales[1],xticks=[1,2,4]) 
+
+def exp5_dca_hp_results_aggregator():
+    results_aggregator('merged-experiment5-dca-hp-tune/*',expected_num_res=1296)
+
+def plot_exp5_lr():
+    rg = 'merged-experiment5-dca-hp-tune'
+    results = import_results(rg)
+    print(agg(rg))
+    results.extend(agg(f"{rg}/*"))
+    #define defaults
+    defaults = dict()
+    defaults['tau'] = 1
+    defaults['gradclip'] = 0.001
+    defaults['m'] = 573
+    defaults['k'] = 4
+    defaults['batchsize'] = 64
+    def prep_dca_lr_sweep_results(results):
+        matchup_results = []
+        for result in results:
+            matchup = True
+            for default in defaults.keys():
+                if not result: 
+                    matchup = False
+                    break
+                if defaults[default] != result[default]:
+                    matchup = False
+            if matchup:
+                result['Frobenius-Distance'] = np.sqrt(result['embed-frob-err'])
+                matchup_results.append(result)
+        return matchup_results
+    
+    x = 'lr'
+    y = 'Frobenius-Distance'
+    source = 'glove'
+    methods = ['dca']
+    vocab = 400000
+    for scales in [ ('log','linear'),('log','log') ]:
+                    make_plots(x,y,prep_dca_lr_sweep_results(results),source,vocab,methods=methods,
+                        include_baseline=False,xscale=scales[0],yscale=scales[1],xticks=[1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,1e-1])
+
+def plot_exp5_tune_metrics():
+    rg = 'merged-experiment5-dca-hp-tune'
+    results = import_results(rg)
+    results.extend(agg(f"{rg}/*"))
+    def prep_dca_stats_results(results):
+        scores = []
+        for result in results:
+            if 'ibr' in result.keys() and result['ibr'] == 4 and result['base'] == 'glove':
+                if np.sqrt(result['embed-frob-err']) < 1100:
+                    print(result)
+                scores.append(np.sqrt(result['embed-frob-err']))
+        return scores
+    scores = prep_dca_stats_results(results)
+    print(len(scores))
+    print(np.mean(scores))
+    print(np.var(scores))
+    print(np.max(scores))
+    print(np.min(scores))
+
+def plot_exp8():
+    results = agg('merged-exp8-wiki-trained/*',expected_num_res=10)
+    def prep_exp8_results(results):
+        for result in results:
+            if result['method'] == 'glove':
+                result['bitrate'] = result['dim']/320*32
+                result['method'] = 'dim-reduc' if result['bitrate'] < 30 else 'baseline'
+        return results
+
+    x = ['bitrate','bitrate','bitrate']
+    y = ['similarity-avg-score','analogy-avg-score','max-f1']
+    source = 'glove'
+    vocab = 400000
+    methods = ['dim-reduc','optranuni','kmeans']
+    for i in range(len(x)):
+        for method in methods:
+            for scales in [ ('linear','linear'),('log','linear'),('linear','log'),('log','log') ]:
+                    make_plots(x[i],y[i],results,source,vocab,methods=methods,
+                        include_baseline=True,xscale=scales[0],yscale=scales[1],xticks=[1,2,4]) 
+        
 
 
+    
 
 parser = argh.ArghParser()
 parser.add_commands([plot_embeddings_battery, 
@@ -161,7 +261,11 @@ parser.add_commands([plot_embeddings_battery,
                     plot_frobenius,
                     plot_exp6,
                     plot_exp7,
-                    list_best_dca])
+                    plot_exp11,
+                    plot_exp5_lr,
+                    exp5_dca_hp_results_aggregator,
+                    plot_exp5_tune_metrics,
+                    plot_exp9])
 
 if __name__ == '__main__':
     parser.dispatch()

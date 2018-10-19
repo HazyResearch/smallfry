@@ -165,7 +165,7 @@ def make_exp11_10_16_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
-def make_exp9_v2_10_15_18(name):
+def make_exp9_v2_10_16_18(name):
     rungroup = 'exp9-dim-vs-prec-quantized'
     method = 'optranuni'
     embs = maker.get_all_embs_in_rg('merged-exp9-dim-vs-prec')
@@ -237,6 +237,27 @@ def make_test1_10_17_18(name):
             config['outputdir'] = maker.get_base_outputdir()
             config['seed'] = 1234
             configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(maker.get_log_name(name, rungroup))
+
+def make_exp8_kmeans_bigun_10_17_18(name):
+    rungroup = 'exp8-wiki-trained'
+    method = 'kmeans'
+    base_emb_name = 'corpus=wiki.en.txt,method=glove,maxvocab=400000,dim=320,memusage=256,seed=90,date=2018-10-16,rungroup=exp8-wiki-trained.txt'
+    base_emb = str(pathlib.PurePath(maker.get_base_embed_path_head(), base_emb_name))
+    configs = []
+    config = dict()
+    config['base'] = 'glove'
+    config['basepath'] = base_emb
+    config['rungroup'] = rungroup
+    config['method'] = method
+    config['ibr'] = 4
+    config['bitsperblock'] = 4
+    config['blocklen'] = 1
+    config['solver'] = 'dynprog'
+    config['outputdir'] = maker.get_base_outputdir()
+    config['seed'] = 1234
+    configs.append(config)
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 

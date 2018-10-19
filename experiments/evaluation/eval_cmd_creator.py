@@ -42,9 +42,9 @@ def sweep_configs(configs,qsub):
 '''
 LAUNCH ROUTINES BELOW THIS LINE =========================
 '''
-def launch_eval_exp11_10_16_18(name):
-    rungroup = '2018-10-16-exp11-stoch-benchmarks'
-    evaltypes = ['intrinsics','QA']
+def launch_eval_exp11_10_17_18(name):
+    rungroup = '2018-10-17-exp11-stoch-benchmarks'
+    evaltypes = ['intrinsics']
     embs = evaluate.get_all_embs_in_rg(rungroup)
     configs = []
     for evaltype in evaltypes:
@@ -59,7 +59,7 @@ def launch_eval_exp11_10_16_18(name):
 
 def launch_eval_exp9_10_16_18(name):
     rungroup = '2018-10-16-exp9-dim-vs-prec-quantized'
-    evaltypes = ['intrinsics','QA']
+    evaltypes = ['intrinsics']
     embs = evaluate.get_all_embs_in_rg(rungroup)
     configs = []
     for evaltype in evaltypes:
@@ -99,6 +99,21 @@ def launch_eval_test1_10_17_18(name):
             config['embedpath'] = emb
             config['seed'] = 1234
             config['epochs'] = 1
+            configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)
+
+def launch_eval_synth_exp11_10_17_18(name):
+    rungroup = '2018-10-17-exp11-stoch-benchmarks'
+    evaltypes = ['synthetics']
+    embs = evaluate.get_all_embs_in_rg(rungroup)
+    configs = []
+    for evaltype in evaltypes:
+        for emb in embs:
+            config = dict()
+            config['evaltype'] = evaltype
+            config['embedpath'] = emb
+            config['seed'] = 1234
             configs.append(config)
     sweep_configs(configs, False)
     log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)

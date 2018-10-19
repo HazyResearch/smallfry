@@ -39,6 +39,12 @@ def agg(query, basedir=get_base_outputdir(), expected_num_res=None):
         % (len(d_list),expected_num_res,qry)
     return d_list
 
+def import_results(rungroup):
+    path = str(pathlib.PurePath(get_agg_results_path(),f"{rungroup}-results"))
+    with open(path, 'r') as res_f:
+        res = json.loads(res_f.read())
+        return res
+
 def get_all_seeds(d_list, base, vocab, method):
     '''
     Extracts all the seeds present for a given base embeddings, vocab, and method
@@ -282,6 +288,7 @@ def color_lookup(method):
     colors['kmeans'] = 'b'
     colors['baseline'] = 'c'
     colors['stochround'] = 'm'
+    colors['stochoptranuni'] = 'm'
     colors['tuned-dca'] = 'm'
     colors['clipnoquant'] = 'y'
     colors['midriser'] = 'g'
