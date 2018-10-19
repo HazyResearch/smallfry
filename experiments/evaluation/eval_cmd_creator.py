@@ -118,8 +118,25 @@ def launch_eval_synth_exp11_10_17_18(name):
     sweep_configs(configs, False)
     log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)
 
+    def launch_eval_exp8_naive_10_19_18(name):
+    rungroup = 'merged-exp8-wiki-trained'
+    evaltypes = ['QA','intrinsics']
+    embs = evaluate.get_all_embs_in_rg(rungroup)
+    configs = []
+    for evaltype in evaltypes:
+        for emb in embs:
+            if not 'naive' in emb:
+                continue
+            config = dict()
+            config['evaltype'] = evaltype
+            config['embedpath'] = emb
+            config['seed'] = 1234
+            configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)
+
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_eval_test1_10_17_18]
+cmd = [launch_eval_exp8_naive_10_19_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
