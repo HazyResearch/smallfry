@@ -6,6 +6,7 @@ import numpy as np
 from plot_tools import *
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import *
+from smallfry.utils import load_embeddings
 
 def results_aggregator(rungroup,expected_num_res):
     results = agg(f"{rungroup}/*",expected_num_res=expected_num_res)
@@ -274,13 +275,15 @@ def viz_exp8():
 def plot_histograms_exp8():
     path = str(pathlib.PurePath(get_base_embed_path_head(),'corpus=wiki.en.txt,method=glove,maxvocab=400000,dim=320,memusage=256,seed=90,date=2018-10-16,rungroup=exp8-wiki-trained.txt'))
     histogram(path,'wiki_glove_320')
-
+'''
 def plot_kmeans_quanta_exp():
     br2q = dict()
     for emb in get_all_embs_in_rg('merged-exp8-wiki-trained'):
         config = fetch_maker_config(emb)
         if config['method'] == 'kmeans':
-            
+            X,v = load_embeddings(
+            br2q[int(config['ibr'])] = 
+'''         
 
 
 
