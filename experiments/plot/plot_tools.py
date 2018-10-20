@@ -181,7 +181,7 @@ def get_dca_best_params(results, bitrates, base):
 def histogram(embpath,name):
     '''plots histogram of npy embeddings'''
     X,v = load_embeddings(embpath)
-    plt.hist(X.flatten(),bins=1000)
+    plt.hist(X.flatten(),bins=100)
     plt.savefig(str(pathlib.PurePath(get_plots_path(),
         f"{get_date_str()}:embeddings-histogram:{name}")))
     plt.close()
@@ -234,7 +234,7 @@ def prep_dca_br_correction_results(results):
         if res['method'] == 'dca':
             res['bitrate'] = (res['m'] * res['vocab'] * np.log2(res['k']) + 32 * res['m']*res['k']*res['dim'])/(res['vocab']*res['dim'])
     return results
-
+    
 def make_plots( x,
                 y,
                 results,
@@ -260,24 +260,19 @@ def make_plots( x,
                 raise ValueError('method identified as special treatment, but not supported in code')
             continue
         data = get_all_data(results, source, vocab, method, x, y)
-        print(data)
         data_x,data_y = compute_avg_variable_len(data)
-        print(data_x)
-        print(data_y)
         errbars_low_abs, errbars_high_abs = compute_min_max_variable_len(data)
         errbars_low_rel = np.array(data_y) - np.array(errbars_low_abs)
         errbars_high_rel =  np.array(errbars_high_abs) - np.array(data_y)
         errbars = np.array([errbars_low_rel, errbars_high_rel])
         plt.errorbar(data_x, data_y, fmt=color_lookup(method), yerr=errbars, linewidth=3.0, label=nice_names_lookup(method))
-    if include_baseline: #hardcoded for now -- needs a fix
-        #print(results)
+    if include_baseline:
         data = get_all_data(results, source, vocab, 'baseline', x, y)
-        print(data)
         vals = data[32.0]
         data_x = xticks
         data_y = [np.mean(np.array(vals))]*len(xticks)
         errbar = 0.5*(max(vals) - min(vals)) #TODO fix this weird error bar centering
-        plt.errorbar(data_x, data_y, fmt=color_lookup('baseline'), yerr=errbar, label='baseline (32-bit)', linewidth=3.0, linestyle='--')
+        plt.errorbar(data_x, data_y, fmt=color_lookup('baseline'), yerr=errbar, label=, linewidth=3.0, linestyle='--')
     plt.xlabel(nice_names_lookup(x), size=lbl_size)
     plt.ylabel(nice_names_lookup(y), size=lbl_size)
     plt.xscale(xscale)
@@ -344,7 +339,9 @@ def nice_names_lookup(ugly_name):
     ugly_2_nice['avg-sentiment-lstm'] = 'Agg. Sentiment Analysis Accu. with LSTM'
     ugly_2_nice['avg-sentiment-cnn'] = 'Agg. Sentiment Analysis Accu. with CNN'
     ugly_2_nice['avg-sentiment-la'] = 'Agg. Sentiment Analysis Accu. with Perceptron'
-    ugly_2_nice['optranuni'] = 'AdaRange Uni.'
+    ugly_2_nice['optranuni'] = 'Adarange'
+    ugly_2_nice['baseline'] = 'baseline (32-bit)'
+    ugly_2_nice['lr'] = 'Learning rate'
     if ugly_name in ugly_2_nice.keys():
         return ugly_2_nice[ugly_name]
     else:

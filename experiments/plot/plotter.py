@@ -56,7 +56,7 @@ def plot_embeddings_bitrate_codes_only():
     methods = ['dca','kmeans']
     core_plotter(x,y,sources,vocabs,methods,prep_codebook_free_bitrate_results)
 
-def plot_histograms():
+def plot_histograms_pretrained():
     ft_path = str(pathlib.PurePath(get_base_embed_path_head(),'fasttext_k=400000'))
     histogram(ft_path,'fasttext')
     glove_path = str(pathlib.PurePath(get_base_embed_path_head(),'glove_k=400000'))
@@ -135,6 +135,7 @@ def plot_exp7():
 
 def plot_exp9():
     results = agg('2018-10-16-exp9-dim-vs-prec-quantized/*',expected_num_res=15)
+    
     def prep_exp9_results(results):
         for result in results:
             if result['memory'] > 22813153:
@@ -280,8 +281,7 @@ def plot_kmeans_quanta_exp():
     for emb in get_all_embs_in_rg('merged-exp8-wiki-trained'):
         config = fetch_maker_config(emb)
         if config['method'] == 'kmeans':
-            
-
+            i'
 
 
 parser = argh.ArghParser()
