@@ -284,8 +284,34 @@ def make_exp8_naive_10_18_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
+def make_exp12_10_21_18(name):
+    rungroup = 'exp12-large-scale-dca-trial'
+    method = 'dca'
+    base = 'glove'
+    basepath = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'corpus=wiki.en.txt,method=glove,maxvocab=400000,dim=320,memusage=256,seed=90,date=2018-10-16,rungroup=exp8-wiki-trained.txt'))
+    seed = 1234
+    outputdir = maker.get_base_outputdir()
+    configs = []
+    m = 149
+    k = 4
+    ibr = 1.0
+    config = dict()
+    config['base'] = base
+    config['method'] = method
+    config['basepath'] = basepath
+    config['rungroup'] = rungroup
+    config['method'] = method
+    config['ibr'] = ibr
+    config['outputdir'] = maker.get_base_outputdir()
+    config['seed'] = seed
+    config['m'] = m
+    config['k'] = k
+    configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(maker.get_log_name(name, rungroup))
+
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [make_exp8_naive_10_18_18]
+cmd = [make_exp12_10_21_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)

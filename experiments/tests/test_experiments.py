@@ -33,7 +33,29 @@ def test_stochround():
                         if abs(X_q[i,j].data.numpy() - q) < eps:
                             entry_is_on_point = True
                     assert entry_is_on_point, "Invalid quantization"
-                    
+
+def test_stochround_bias_simple():
+    data = np.array([0.3]*10000 + [0.1]*10000)
+    seeds = [1,2,3]
+    bias_tol = 0.01
+    for seed in seeds:
+        data_q = stochround(data,1,seed).numpy()
+        #data has mean of exact mean of 0.2
+        bias = np.abs(np.mean(data_q) - 0.2) 
+        assert bias < bias_tol, f"Stochround is potentially biased -- seed {seed} has bias of {bias}"
+
+def test_stochround_bias_gaussian():
+    bias = [-0.25,0,0.25]
+    bitrates = [1,2,4]
+    seeds = [1,2,3]
+    bias_tol = 0.01
+    for b in bias:
+        for br in bitrates:
+            for seed in seeds:
+                data = np.random.normal(b,1,1000000)
+                data_q = stochround(data,br,seed).numpy()
+                bias = np.abs(np.mean(data) - np.mean(data_q)) 
+                assert bias < bias_tol, f"Stochround is potentially biased -- seed {seed} has a bias of {bias}"
 
 def test_maker():
     str_tup = ('dca','glove', '/proj/smallfry/git/smallfry/examples/data/glove.head.txt', '1234', '/proj/smallfry/embeddings', 'more_tests', '3', '8')
@@ -53,7 +75,7 @@ def test_codes_2_vec():
     assert np.array_equal(dcc_mat, dcc_mat_check)
 
 parser = argh.ArghParser()
-parser.add_commands([test_maker, test_stochround])
+parser.add_commands([test_maker, test_stochround, test_stochround_bias_simple, test_stochround_bias_gaussian])
 
 if __name__ == '__main__':
     parser.dispatch()
