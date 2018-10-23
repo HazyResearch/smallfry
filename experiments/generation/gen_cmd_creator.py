@@ -111,14 +111,14 @@ def generate_exp8_v2_10_16_18(name):
 def generate_exp14_10_22_18(name):
     rungroup = 'exp14-dim-vs-prec-large-scale'
     method = 'glove'
-    ibrs = [320,160,80,40,10,640,20,5]
+    dims = [320,160,80,40,10,640,20,5]
     configs = []
-    for ibr in ibrs:
+    for dim in ibrs:
         config = dict()
         config['rungroup'] = rungroup
         config['method'] = method
         config['corpus'] = 'wiki.en.txt'
-        config['dim'] = ibr_2_dim(ibr,dim=320)
+        config['dim'] = dim
         config['outputdir'] = generate.get_base_outputdir()
         config['memusage'] = 256
         config['seed'] = 1234
