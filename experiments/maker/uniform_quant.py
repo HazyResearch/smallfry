@@ -26,24 +26,16 @@ def uniform_quantizer(X, b, q_range, quantize):
     b = int(b)
     X = torch.Tensor(X)
     L = q_range(X, b)
-    X_c = _clip(X,L) 
     forward_map = lambda Y: _affine_transform(Y,L,b)
     backward_map = lambda Y: _affine_transform(Y,L,b,invert=True)
-    return backward_map(quantize(forward_map(X_c))).numpy()
+    return backward_map(quantize(forward_map(_clip(X,L)))).numpy()
 
 '''
 Range solvers
 '''
-def _adarange(X,b):
-
-    def const_range(L):
-        return lambda Y : L
-
-    def loss(L):
-        X_q = uniform_quantizer(X, b, const_range(L), _round)
-        return np.linalg.norm(X-X_q)
-
-    return _goldensearch(loss)
+def _adarange(X,b):    
+    return _goldensearch(lambda L : np.linalg.norm(X.numpy() - uniform_quantizer(
+        X, b, lambda Y,z : L, _round)))
 
 def _brute_force(X,b):
     pass

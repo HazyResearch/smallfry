@@ -15,7 +15,7 @@ def test_stochround():
         for i in range(10):
             L_prime = 1/torch.rand([1]) 
             X = torch.rand([10,10])*2*L_prime - L_prime
-            X_q = stochround(X,b,1)
+            X_q = torch.Tensor(stochround(X,b))
             assert len(torch.unique(X_q)) <= 2**b, "More centroids than codes!"
             quanta = [] # compute quanta
             n = 2**b - 1
@@ -39,7 +39,8 @@ def test_stochround_bias_simple():
     seeds = [1,2,3]
     bias_tol = 0.01
     for seed in seeds:
-        data_q = stochround(data,1,seed).numpy()
+        set_seeds(seed)
+        data_q = stochround(data,1)
         #data has mean of exact mean of 0.2
         bias = np.abs(np.mean(data_q) - 0.2) 
         assert bias < bias_tol, f"Stochround is potentially biased -- seed {seed} has bias of {bias}"
@@ -52,10 +53,12 @@ def test_stochround_bias_gaussian():
     for b in bias:
         for br in bitrates:
             for seed in seeds:
+                set_seeds(seed)
                 data = np.random.normal(b,1,1000000)
-                data_q = stochround(data,br,seed).numpy()
+                data_q = stochround(data,br)
                 bias = np.abs(np.mean(data) - np.mean(data_q)) 
                 assert bias < bias_tol, f"Stochround is potentially biased -- seed {seed} has a bias of {bias}"
+
 
 def test_maker():
     str_tup = ('dca','glove', '/proj/smallfry/git/smallfry/examples/data/glove.head.txt', '1234', '/proj/smallfry/embeddings', 'more_tests', '3', '8')
