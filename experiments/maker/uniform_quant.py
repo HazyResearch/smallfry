@@ -38,7 +38,7 @@ def _adarange(X,b):
         X, b, lambda Y,z : L, _round)))
 
 def _brute_force(X,b):
-    pass
+    return 
 
 def _fullrange(X,b):
     return torch.max(torch.abs(X))
