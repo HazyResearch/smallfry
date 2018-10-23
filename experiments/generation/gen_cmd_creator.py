@@ -113,7 +113,7 @@ def generate_exp14_10_22_18(name):
     method = 'glove'
     dims = [320,160,80,40,10,640,20,5]
     configs = []
-    for dim in ibrs:
+    for dim in dims:
         config = dict()
         config['rungroup'] = rungroup
         config['method'] = method
