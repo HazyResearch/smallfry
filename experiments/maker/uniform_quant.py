@@ -88,7 +88,7 @@ def _goldensearch(f,eps=1e-10,tol=0.1,L_max=10):
             b = d
             val_b = val_d
             d = c
-            val_c = val_d
+            val_d = val_c
             c = b - (b-a)/phi
         else:
             a = c
