@@ -401,7 +401,7 @@ def golden_section_search(f, x_min, x_max, tol=1e-2):
 def get_max_abs(X):
     return torch.max(torch.abs(X)).item()
 
-
+# HERE IS ANOTHER VERSION OF EVERYTHING, CLOSER TO YOUR VERSION
 '''
 CORE QUANTIZER
 '''
@@ -410,7 +410,7 @@ def uniform_quantize_v2(X, bit_rate, range_limit_finder, quantize_func):
     X_q = X.tensor(X) # create copy
     if get_max_abs(X) > range_limit:
         torch.clamp(X_q, min=-range_limit, max=range_limit)
-    if bit_rate < 32 and range_limit != 0:
+    if bit_rate < 32 and range_limit != 0 and quantize_func != _no_round:
         # affine transform to put X in [0,2**bit_rate - 1]
         X_q = (2**bit_rate - 1) * (X_q + range_limit) / (2 * range_limit)
         X_q = quantize_func(X,bit_rate)
@@ -422,7 +422,7 @@ def uniform_quantize_v2(X, bit_rate, range_limit_finder, quantize_func):
 Range solvers
 '''
 def _adaptive_range(X, bit_rate):
-    return find_optimal_range(X, bit_rate)
+    return find_optimal_range_v2(X, bit_rate)
 
 def _full_range(X, bit_rate):
     return torch.max(torch.abs(X))
