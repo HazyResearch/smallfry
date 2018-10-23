@@ -3,26 +3,67 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 
+'''
+HIGH-LEVEL QUANTIZATION CALLS
+'''
+def stochround(X,b):
+    return uniform_quantizer(X, b, _fullrange, _stochround)
+def naiveuni(X,b):
+    return uniform_quantizer(X, b, _fullrange, _round)
+def optranuni(X,b):
+    return uniform_quantizer(X, b, _adarange, _round)
+def stochoptranuni(X,b):
+    return uniform_quantizer(X, b, _adarange, _stochround)
+def clipnoquant(X,b):
+    return uniform_quantizer(X, b, _adarange, lambda Y: Y)
+def midriser(X,b):
+    raise ValueError("Midriser is no longer supported")
 
-class UniformQuantizer:
-    def __init__(self, X, b, q_range, quantizer):
-        self.b = int(b)
-        self.X = torch.Tensor(X)
-        
-        self.quantizer
-
-
-
+'''
+CORE QUANTIZER
+'''
 def uniform_quantizer(X, b, q_range, quantize):
     b = int(b)
     X = torch.Tensor(X)
-    L = q_range(X)
+    L = q_range(X, b)
     X_c = _clip(X,L) 
-    forward_map = lambda Y : _affine_transform(Y,L.b)
+    forward_map = lambda Y: _affine_transform(Y,L,b)
     backward_map = lambda Y: _affine_transform(Y,L,b,invert=True)
-    quantizer =   
-    return __affine_transform(rounder(_affine_transform(X_c,L,b),b),L,b,invert=True)
+    return backward_map(quantize(forward_map(X_c))).numpy()
 
+'''
+Range solvers
+'''
+def _adarange(X,b):
+
+    def const_range(L):
+        return lambda Y : L
+
+    def loss(L):
+        X_q = uniform_quantizer(X, b, const_range(L), _round)
+        return np.linalg.norm(X-X_q)
+
+    return _goldensearch(loss)
+
+def _brute_force(X,b):
+    pass
+
+def _fullrange(X,b):
+    return torch.max(torch.abs(X))
+
+'''
+Rounding schemes
+'''
+
+def _stochround(X):
+    return torch.ceil(X - torch.rand(X.shape))
+
+def _round(X):
+    return torch.round(X)
+
+'''
+HELPERS
+'''
 def _affine_transform(X,L,b,invert=False):
     n = 2**b-1
     interval = 2*L
@@ -30,22 +71,45 @@ def _affine_transform(X,L,b,invert=False):
     return (X/n - shift)*interval if invert else  n*(X/interval + shift)
 
 def _clip(X,L):
-    eps = 1e-20
+    eps = 1e-10
     L -= eps
     return torch.clamp(X, min=-1*L, max=L)
 
-def _adarange(X,b):
-    def f(L):
-    _a
+def _goldensearch(f,eps=1e-10,tol=0.1,L_max=10):
+    '''
+    Implements the golden section line search
+    Adaptively finds optimal range based on data
+    '''
+    phi = (1+np.sqrt(5))/2 # golden ratio
+    #initialize line search iteration
+    a = eps
+    b = L_max
+    val_a = f(a)
+    val_b = f(b)
+    c = b - (b-a)/phi
+    d = a + (b-a)/phi
+    val_c = f(c)
+    val_d = f(d)
+    #perform iterations
+    while (b-a > tol):
+        if val_c < val_d:
+            b = d
+            val_b = val_d
+            d = c
+            val_c = val_d
+            c = b - (b-a)/phi
+        else:
+            a = c
+            val_a = val_c
+            c = d
+            val_c = val_d
+            d = a + (b-a)/phi
+        val_c = f(c)
+        val_d = f(d)
+    #on termination, return optimal range
+    return c if val_c < val_d else d
 
-def _brute_force
-
-def _stochround(X):
-    return torch.ceil(X - torch.rand(X.shape))
-
-def _round(X);
-    return torch.round(X)
-
+"""
 def stochround(X,b,seed):
     '''
     Implements random uniform rounding over entire range [-L,L]
@@ -144,39 +208,7 @@ def clipnoquant(X,br):
     X_clip = torch.clamp(torch.from_numpy(X), min=-1*L_star, max=L_star)
     return X_clip.numpy()
 
-def _goldensearch(f,quant,eps=1e-40,tol=0.1,L_max=10):
-    '''
-    Implements the golden section line search
-    Adaptively finds optimal range based on data
-    '''
-    phi = (1+np.sqrt(5))/2 # golden ratio
-    #initialize line search iteration
-    a = eps
-    b = L_max
-    val_a = f(a)
-    val_b = f(b)
-    c = b - (b-a)/phi
-    d = a + (b-a)/phi
-    val_c = f(c)
-    val_d = f(d)
-    #perform iterations
-    while (b-a > tol):
-        if val_c < val_d:
-            b = d
-            val_b = val_d
-            d = c
-            val_c = val_d
-            c = b - (b-a)/phi
-        else:
-            a = c
-            val_a = val_c
-            c = d
-            val_c = val_d
-            d = a + (b-a)/phi
-        val_c = f(c)
-        val_d = f(d)
-    #on termination, return optimal range
-    return c if val_c < val_d else d
+
 
 def _compute_frobenius(baseX,X_q):
         '''Value we are minimizing -- Frobenius distance'''
@@ -235,10 +267,7 @@ def quantize(X, bit_rate, range_limit, stochastic_round=False):
     X_q = (X_q * 2 * range_limit) / (2**bit_rate - 1) - range_limit 
     return X_q
 
-''' 
-Quantize X just like the above method, but using scipy.interpolate.interp1d.
-QUESTION: DO WE WANT TO CHANGE X IN-PLACE?
-***NOT TESTED***
+
 '''
 def quantize_with_scipy(X, bit_rate, range_limit, stochastic_round=False):
     assert range_limit != np.inf, 'range_limit must be finite.'
@@ -276,3 +305,4 @@ def test3():
     X_expect = X
     Xq = clamp_and_quantize(X,bit_rate=2,range_limit=2,use_midriser=True)
     assert torch.all(torch.eq(Xq, X_expect)).item() == 1
+"""

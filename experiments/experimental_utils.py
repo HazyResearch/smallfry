@@ -7,6 +7,7 @@ import subprocess
 import sys
 import time
 import glob
+import torch
 import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
@@ -34,6 +35,10 @@ def codes_2_vec(codes, codebook, m ,k ,v,d):
 
 def compute_m_dca(k, v, d, br):
     return int(np.round(0.125*br*v*d/(0.125*v*np.log2(k) + 4*d*k)))
+
+def set_seeds(seed):
+    np.random.seed(seed)
+    torch.manual_seed(seed)
 
 def save_dict_as_json(dict_to_write, path):
     ''' pydict to json --> this method is fairly pointless and not really used '''

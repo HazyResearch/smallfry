@@ -28,6 +28,9 @@ def main():
     (v,d) = base_embeds.shape
     assert len(wordlist) == v, 'Embedding dim must match wordlist length.'
 
+    # set random seed
+    set_seeds(config['seed'])
+
     # update config
     config['vocab'] = v
     config['dim'] = d

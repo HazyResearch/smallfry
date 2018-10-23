@@ -1,4 +1,4 @@
-import sys
+gtgit import sys
 import os
 import argh
 import pathlib
