@@ -2,6 +2,50 @@ import torch
 import numpy as np
 from scipy.interpolate import interp1d
 
+
+
+class UniformQuantizer:
+    def __init__(self, X, b, q_range, quantizer):
+        self.b = int(b)
+        self.X = torch.Tensor(X)
+        
+        self.quantizer
+
+
+
+def uniform_quantizer(X, b, q_range, quantize):
+    b = int(b)
+    X = torch.Tensor(X)
+    L = q_range(X)
+    X_c = _clip(X,L) 
+    forward_map = lambda Y : _affine_transform(Y,L.b)
+    backward_map = lambda Y: _affine_transform(Y,L,b,invert=True)
+    quantizer =   
+    return __affine_transform(rounder(_affine_transform(X_c,L,b),b),L,b,invert=True)
+
+def _affine_transform(X,L,b,invert=False):
+    n = 2**b-1
+    interval = 2*L
+    shift = 0.5
+    return (X/n - shift)*interval if invert else  n*(X/interval + shift)
+
+def _clip(X,L):
+    eps = 1e-20
+    L -= eps
+    return torch.clamp(X, min=-1*L, max=L)
+
+def _adarange(X,b):
+    def f(L):
+    _a
+
+def _brute_force
+
+def _stochround(X):
+    return torch.ceil(X - torch.rand(X.shape))
+
+def _round(X);
+    return torch.round(X)
+
 def stochround(X,b,seed):
     '''
     Implements random uniform rounding over entire range [-L,L]
@@ -100,7 +144,7 @@ def clipnoquant(X,br):
     X_clip = torch.clamp(torch.from_numpy(X), min=-1*L_star, max=L_star)
     return X_clip.numpy()
 
-def _goldensearch(X,f,quant,eps=1e-40,tol=0.1,L_max=10):
+def _goldensearch(f,quant,eps=1e-40,tol=0.1,L_max=10):
     '''
     Implements the golden section line search
     Adaptively finds optimal range based on data
@@ -109,12 +153,12 @@ def _goldensearch(X,f,quant,eps=1e-40,tol=0.1,L_max=10):
     #initialize line search iteration
     a = eps
     b = L_max
-    val_a = f(X,quant(X,a))
-    val_b = f(X,quant(X,b))
+    val_a = f(a)
+    val_b = f(b)
     c = b - (b-a)/phi
     d = a + (b-a)/phi
-    val_c = f(X,quant(X,c))
-    val_d = f(X,quant(X,d))
+    val_c = f(c)
+    val_d = f(d)
     #perform iterations
     while (b-a > tol):
         if val_c < val_d:
@@ -129,8 +173,8 @@ def _goldensearch(X,f,quant,eps=1e-40,tol=0.1,L_max=10):
             c = d
             val_c = val_d
             d = a + (b-a)/phi
-        val_c = f(X,quant(X,c))
-        val_d = f(X,quant(X,d))
+        val_c = f(c)
+        val_d = f(d)
     #on termination, return optimal range
     return c if val_c < val_d else d
 
@@ -146,7 +190,7 @@ If bit_rate == 32, no quantization is done.
 If range_limit == np.inf, no clamping is done.
 QUESTION: DO WE WANT TO CHANGE X IN-PLACE?
 '''
-def clamp_and_quantize(X, bit_rate=32, range_limit=np.inf, use_midriser=False, stochastic_round=False):
+def clamp_and_quantize(X, bit_rate=32, range_limit=np.inf, stochastic_round=False):
     assert range_limit >= 0, 'range_limit must be non-negative.'
     do_clamp = range_limit != np.inf
     do_quantize = bit_rate < 32
