@@ -316,22 +316,13 @@ def uniform_quantize(X, bit_rate, adaptive_range=False, stochastic_round=False, 
         # affine transform to put X in [0,2**bit_rate - 1]
         X_q = (2**bit_rate - 1) * (X_q + range_limit) / (2 * range_limit)
         if stochastic_round:
-            X_q = X_q - torch.rand(X_q.shape)
             # each entry will round down if noise > fraction part
-            X_q = torch.ceil(X_q)
+            X_q = torch.ceil(X_q - torch.rand(X_q.shape))
         else:
             X_q = torch.round(X_q)
         # undo affine transformation
         X_q = (X_q * 2 * range_limit) / (2**bit_rate - 1) - range_limit 
     return X_q
-
-def quantize_and_compute_frob_error(X, bit_rate, range_limit, stochastic_round=False):
-    '''
-    Function which computes Frob error after quantizing (ADD MORE DESCRIPTION).
-    '''
-    X_q = uniform_quantize(X, bit_rate, 
-            range_limit=range_limit, stochastic_round=stochastic_round)
-    return torch.norm(X - X_q)
 
 def find_optimal_range(X, bit_rate, tol=1e-2):
     '''
@@ -344,6 +335,13 @@ def find_optimal_range(X, bit_rate, tol=1e-2):
 
     return golden_section_search(f, 0, get_max_abs(X), tol=tol)
 
+def quantize_and_compute_frob_error(X, bit_rate, range_limit, stochastic_round=False):
+    '''
+    Function which computes Frob error after quantizing (ADD MORE DESCRIPTION).
+    '''
+    X_q = uniform_quantize(X, bit_rate, 
+            range_limit=range_limit, stochastic_round=stochastic_round)
+    return torch.norm(X - X_q)
 
 def golden_section_search(f, x_min, x_max, tol=1e-2):
     '''
@@ -402,3 +400,76 @@ def golden_section_search(f, x_min, x_max, tol=1e-2):
 
 def get_max_abs(X):
     return torch.max(torch.abs(X)).item()
+
+
+'''
+CORE QUANTIZER
+'''
+def uniform_quantize_v2(X, bit_rate, range_limit_finder, quantize_func):
+    range_limit = range_limit_finder(X, bit_rate)
+    X_q = X.tensor(X) # create copy
+    if get_max_abs(X) > range_limit:
+        torch.clamp(X_q, min=-range_limit, max=range_limit)
+    if bit_rate < 32 and range_limit != 0:
+        # affine transform to put X in [0,2**bit_rate - 1]
+        X_q = (2**bit_rate - 1) * (X_q + range_limit) / (2 * range_limit)
+        X_q = quantize_func(X,bit_rate)
+        # undo affine transformation
+        X_q = (X_q * 2 * range_limit) / (2**bit_rate - 1) - range_limit 
+    return X_q
+
+'''
+Range solvers
+'''
+def _adaptive_range(X, bit_rate):
+    return find_optimal_range(X, bit_rate)
+
+def _full_range(X, bit_rate):
+    return torch.max(torch.abs(X))
+
+'''
+Rounding schemes
+'''
+def _stochastic_round(X):
+    return torch.ceil(X - torch.rand(X.shape))
+
+def _deterministic_round(X):
+    return torch.round(X)
+
+def _no_round(X):
+    return X
+
+'''
+HIGH-LEVEL QUANTIZATION CALLS
+'''
+def full_range_deterministic(X, bit_rate):
+    return uniform_quantize_v2(X, bit_rate, _full_range, _deterministic_round)
+def full_range_stochastic(X, bit_rate):
+    return uniform_quantize_v2(X, bit_rate, _full_range, _stochastic_round)
+def adaptive_range_deterministic(X, bit_rate):
+    return uniform_quantize_v2(X, bit_rate, _adaptive_range, _deterministic_round)
+def adaptive_range_stochastic(X, bit_rate):
+    return uniform_quantize_v2(X, bit_rate, _adaptive_range, _stochastic_round)
+def adaptive_range_no_quantize(X, bit_rate):
+    return uniform_quantize_v2(X, bit_rate, _adaptive_range, _no_round)
+
+def find_optimal_range_v2(X, bit_rate, tol=1e-2):
+    '''
+    Find the best value to use to clip the embeddings before using uniform quantization.
+    '''
+    # TODO: DO WE WANT TO USE STOCHASTIC ROUNDING IN THIS SEARCH WHEN 
+    # STOCHASTIC ROUNDING IS BEING USED FOR THE QUANTIZATION?
+    f = lambda range_limit : quantize_and_compute_frob_error(
+        X, bit_rate, range_limit, stochastic_round=False)
+
+    return golden_section_search(f, 0, get_max_abs(X), tol=tol)
+
+def quantize_and_compute_frob_error_v2(X, bit_rate, range_limit, stochastic_round=False):
+    '''
+    Function which computes Frob error after quantizing (ADD MORE DESCRIPTION).
+    '''
+    # This range limit finder always returns the specified range_limit
+    range_limit_finder = lambda X_,bit_rate_ : range_limit
+    quantize_func = _stochastic_round if stochastic_round else _deterministic_round
+    X_q = uniform_quantize_v2(X, bit_rate, range_limit_finder, quantize_func)
+    return torch.norm(X - X_q)
