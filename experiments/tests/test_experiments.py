@@ -59,7 +59,6 @@ def test_stochround_bias_gaussian():
                 bias = np.abs(np.mean(data) - np.mean(data_q)) 
                 assert bias < bias_tol, f"Stochround is potentially biased -- seed {seed} has a bias of {bias}"
 
-
 def test_maker():
     str_tup = ('dca','glove', '/proj/smallfry/git/smallfry/examples/data/glove.head.txt', '1234', '/proj/smallfry/embeddings', 'more_tests', '3', '8')
     os.system("python maker.py --method %s --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s" % str_tup)
