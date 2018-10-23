@@ -350,24 +350,24 @@ def make_exp13_rest_10_22_18(name):
     ibrs = [1,2,4]
     for method in methods:
         for ibr in ibrs:
-        config = dict()
-        config['base'] = base
-        config['method'] = method
-        config['basepath'] = basepath
-        config['rungroup'] = rungroup
-        config['method'] = method
-        config['ibr'] = ibr
-        config['outputdir'] = outputdir
-        config['seed'] = seed
-        config['bitsperblock'] = ibr
-        config['blocklen'] = 1
-        configs.append(config)
+            config = dict()
+            config['base'] = base
+            config['method'] = method
+            config['basepath'] = basepath
+            config['rungroup'] = rungroup
+            config['method'] = method
+            config['ibr'] = ibr
+            config['outputdir'] = outputdir
+            config['seed'] = seed
+            config['bitsperblock'] = ibr
+            config['blocklen'] = 1
+            configs.append(config)
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [make_exp13_dca_10_22_18]
+cmd = [make_exp13_rest_10_22_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
