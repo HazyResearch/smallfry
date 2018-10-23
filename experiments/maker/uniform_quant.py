@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import math
 from scipy.interpolate import interp1d
 
 
@@ -298,3 +299,106 @@ def test3():
     Xq = clamp_and_quantize(X,bit_rate=2,range_limit=2,use_midriser=True)
     assert torch.all(torch.eq(Xq, X_expect)).item() == 1
 """
+
+
+def uniform_quantize(X, bit_rate, adaptive_range=False, stochastic_round=False, range_limit=np.inf):
+    '''
+    Uniform quantization function (ADD MORE DESCRIPTION)
+    '''
+    assert range_limit >= 0, 'range_limit must be non-negative.'
+    if adaptive_range:
+        range_limit = find_optimal_range(X, bit_rate)
+    elif range_limit == np.inf:
+        range_limit = get_max_abs(X)
+    if get_max_abs(X) > range_limit:
+        X_q = torch.clamp(X_q, min=-range_limit, max=range_limit)
+    if bit_rate < 32 and range_limit != 0:
+        # affine transform to put X in [0,2**bit_rate - 1]
+        X_q = (2**bit_rate - 1) * (X_q + range_limit) / (2 * range_limit)
+        if stochastic_round:
+            X_q = X_q - torch.rand(X_q.shape)
+            # each entry will round down if noise > fraction part
+            X_q = torch.ceil(X_q)
+        else:
+            X_q = torch.round(X_q)
+        # undo affine transformation
+        X_q = (X_q * 2 * range_limit) / (2**bit_rate - 1) - range_limit 
+    return X_q
+
+def quantize_and_compute_frob_error(X, bit_rate, range_limit, stochastic_round=False):
+    '''
+    Function which computes Frob error after quantizing (ADD MORE DESCRIPTION).
+    '''
+    X_q = uniform_quantize(X, bit_rate, 
+            range_limit=range_limit, stochastic_round=stochastic_round)
+    return torch.norm(X - X_q)
+
+def find_optimal_range(X, bit_rate, tol=1e-2):
+    '''
+    Find the best value to use to clip the embeddings before using uniform quantization.
+    '''
+    # TODO: DO WE WANT TO USE STOCHASTIC ROUNDING IN THIS SEARCH WHEN 
+    # STOCHASTIC ROUNDING IS BEING USED FOR THE QUANTIZATION?
+    f = lambda range_limit : quantize_and_compute_frob_error(
+        X, bit_rate, range_limit, stochastic_round=False)
+
+    return golden_section_search(f, 0, get_max_abs(X), tol=tol)
+
+
+def golden_section_search(f, x_min, x_max, tol=1e-2):
+    '''
+    Find argmin of f between x_min and x_max (for f uni-modal).
+    
+    This function uses the golden-section search algorithm.
+    It always maintains a list of four points [x1,x2,x3,x4],
+    which are always spaced as: [a,a+(c^2)h,a+ch,a+h].
+    for c = (math.sqrt(5) - 1) / 2 = 0.618...
+    The algorithm progressively reduces the size of the interval being
+    considered by checking whether f(x2) < f(x3), and eliminating one of the
+    endpoints accordingly; x4 is eliminated if f(x2) < f(x3), and x1 
+    is eliminated otherwise.
+    
+    If f(a+(c^2)h) < f(a+ch), the new interval becomes
+    >>> [a,a+(c^3)h,a+(c^2)h,a+ch] = [a,a+(c^2)(ch),a+c(ch),a+ch]
+    (So h' = ch, a' = a)
+    Otherwise, the interval becomes
+    >>> [a',a'+(c^2)h',a'+ch', a'+h'], for a' = a+(c^2)h and h'=(h-(c^2)h)
+    It is easy to check that a'+(c^2)h' = a + ch, and that a'+h' = a+h,
+    So this interval is equal to [a+(c^2)h, a+ch, X, a+h], for X=a'+ch'
+
+    The algorithm terminates when it has been narrowed
+    down that the argmin must be in an interval of size < tol.
+    '''
+    #initialize points
+    c = (math.sqrt(5) - 1) / 2
+    x1 = x_min
+    x4 = x_max
+    f_x1 = f(x1)
+    f_x4 = f(x4)
+    x2 = x1 + (x4-x1) * c**2
+    x3 = x1 + (x4-x1) * c
+    f_x2 = f(x2)
+    f_x3 = f(x3)
+    while (x4-x1 > tol):
+        assert (math.isclose(x2, x1 + (x4 - x1) * c**2) and 
+                math.isclose(x3, x1 + (x4 - x1) * c))
+        if f_x2 < f_x3:
+            # The new points become [x1, NEW, x2, x3]
+            x4,f_x4 = x3,f_x3
+            x3,f_x3 = x2,f_x2
+            x2 = x1 + (x4-x1) * c**2
+            f_x2 = f(x2)
+        else:
+            # The new points become [x2, x3, NEW, x4]
+            x1,f_x1 = x2,f_x2
+            x2,f_x2 = x3,f_x3
+            x3 = x1 + (x4-x1) * c
+            f_x3 = f(x3)
+        
+    # Return x-value with minimum f(x) which was found.
+    i = np.argmin([f_x1,f_x2,f_x3,f_x4])
+    x = [x1,x2,x3,x4]
+    return x[i]
+
+def get_max_abs(X):
+    return torch.max(torch.abs(X)).item()
