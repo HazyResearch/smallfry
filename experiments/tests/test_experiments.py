@@ -6,7 +6,7 @@ import smallfry
 import torch
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
-from maker.uniform_quant import stochround, midriser
+from maker.uniform_quant import *
 
 demo_work_dir = ''
 
@@ -58,6 +58,15 @@ def test_stochround_bias_gaussian():
                 data_q = stochround(data,br)
                 bias = np.abs(np.mean(data) - np.mean(data_q)) 
                 assert bias < bias_tol, f"Stochround is potentially biased -- seed {seed} has a bias of {bias}"
+
+def test_goldensearch_randquad():
+    for i in range(100):
+        x_min = np.random.normal()
+        scale = np.random.random()
+        shift = np.random.normal()
+        f = lambda x : scale*(x - x_min)**2 + shift
+        x_star = golden_section_search(f,x_min-10,x_min+10)
+        assert np.abs(x_star - x_min) < 1e-1, f"Search procedure failure: found {x_star} with value {f(x_star)}, compared to {x_min} with value {f(x_min)}"
 
 def test_maker():
     str_tup = ('dca','glove', '/proj/smallfry/git/smallfry/examples/data/glove.head.txt', '1234', '/proj/smallfry/embeddings', 'more_tests', '3', '8')

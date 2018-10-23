@@ -68,7 +68,7 @@ def _clip(X,L):
     L -= eps
     return torch.clamp(X, min=-1*L, max=L)
 
-def _goldensearch(f,eps=1e-10,tol=0.1,L_max=10):
+def goldensearch(f,eps=1e-10,tol=0.1,L_max=10):
     '''
     Implements the golden section line search
     Adaptively finds optimal range based on data
