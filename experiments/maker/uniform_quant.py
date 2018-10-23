@@ -300,19 +300,26 @@ def test3():
     assert torch.all(torch.eq(Xq, X_expect)).item() == 1
 """
 
-
-def uniform_quantize(X, bit_rate, adaptive_range=False, stochastic_round=False, range_limit=np.inf):
-    '''
-    Uniform quantization function (ADD MORE DESCRIPTION)
-    '''
-    assert range_limit >= 0, 'range_limit must be non-negative.'
+def uniform_quantize(X, bit_rate, adaptive_range=False, stochastic_round=False, 
+        skip_quantize=False):
     if adaptive_range:
         range_limit = find_optimal_range(X, bit_rate)
-    elif range_limit == np.inf:
+    else:
         range_limit = get_max_abs(X)
+
+    return _uniform_quantize(X, bit_rate, range_limit, 
+        stochastic_round=stochastic_round, skip_quantize=skip_quantize)
+
+# Internal function.  This one expects an explicit range_limit.
+def _uniform_quantize(X, bit_rate, range_limit, stochastic_round=False, 
+        skip_quantize=False):
+    '''
+    Internal uniform quantization function (ADD MORE DESCRIPTION)
+    '''
+    assert range_limit >= 0, 'range_limit must be non-negative.'
     if get_max_abs(X) > range_limit:
         X_q = torch.clamp(X_q, min=-range_limit, max=range_limit)
-    if bit_rate < 32 and range_limit != 0:
+    if bit_rate < 32 and range_limit != 0 and not skip_quantize:
         # affine transform to put X in [0,2**bit_rate - 1]
         X_q = (2**bit_rate - 1) * (X_q + range_limit) / (2 * range_limit)
         if stochastic_round:
@@ -331,16 +338,15 @@ def find_optimal_range(X, bit_rate, tol=1e-2):
     # TODO: DO WE WANT TO USE STOCHASTIC ROUNDING IN THIS SEARCH WHEN 
     # STOCHASTIC ROUNDING IS BEING USED FOR THE QUANTIZATION?
     f = lambda range_limit : quantize_and_compute_frob_error(
-        X, bit_rate, range_limit, stochastic_round=False)
+        X, bit_rate, range_limit)
 
     return golden_section_search(f, 0, get_max_abs(X), tol=tol)
 
-def quantize_and_compute_frob_error(X, bit_rate, range_limit, stochastic_round=False):
+def quantize_and_compute_frob_error(X, bit_rate, range_limit):
     '''
     Function which computes Frob error after quantizing (ADD MORE DESCRIPTION).
     '''
-    X_q = uniform_quantize(X, bit_rate, 
-            range_limit=range_limit, stochastic_round=stochastic_round)
+    X_q = _uniform_quantize(X, bit_rate, range_limit)
     return torch.norm(X - X_q)
 
 def golden_section_search(f, x_min, x_max, tol=1e-2):
