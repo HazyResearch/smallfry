@@ -77,6 +77,23 @@ def test_goldensearch_randnonconvex():
         x_star = golden_section_search(f,x_min-10,x_min+10)
         assert np.abs(x_star - x_min) < 1e-1, f"Search procedure failure: found {x_star} with value {f(x_star)}, compared to {x_min} with value {f(x_min)}"
 
+def test_goldensearch_edge():
+    for i in range(10):
+        x_min = np.random.normal()
+        scale = np.random.random()
+        shift = np.random.normal()
+        f = lambda x : scale*(x - x_min)**2 + shift
+        x_star = golden_section_search(f,x_min=x_min,x_max=x_min+10)
+        assert np.abs(x_star - x_min) < 1e-1, f"Search procedure failure: found {x_star} with value {f(x_star)}, compared to {x_min} with value {f(x_min)}"
+
+    for i in range(10):
+        x_min = np.random.normal()
+        scale = np.random.random()
+        shift = np.random.normal()
+        f = lambda x : scale*(x - x_min)**2 + shift
+        x_star = golden_section_search(f,x_min=x_min-10,x_max=x_min)
+        assert np.abs(x_star - x_min) < 1e-1, f"Search procedure failure: found {x_star} with value {f(x_star)}, compared to {x_min} with value {f(x_min)}"
+
 def test_adarange():
     data = np.arange(-1,1,0.0001)
     q1 = np.sort(np.unique(adarange(data,1)))
