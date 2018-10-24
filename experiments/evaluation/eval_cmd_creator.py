@@ -142,7 +142,6 @@ def launch_eval_exp14(name):
     configs = []
     for evaltype in evaltypes:
         for emb in embs:
-            if not 'naive' in emb:
             config = dict()
             config['evaltype'] = evaltype
             config['embedpath'] = emb
