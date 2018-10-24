@@ -365,6 +365,28 @@ def make_exp13_rest_10_22_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
+def make_exp13_baseline_10_22_18(name):
+    rungroup = 'exp13-large-scale-glove6B'
+    method = 'baseline'
+    base = 'glove'
+    basepath = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove.6B.300d.txt'))
+    seed = 1234
+    outputdir = maker.get_base_outputdir()
+    configs = []
+    ibr = 32
+    config = dict()
+    config['base'] = base
+    config['method'] = method
+    config['basepath'] = basepath
+    config['rungroup'] = rungroup
+    config['method'] = method
+    config['ibr'] = ibr
+    config['outputdir'] = outputdir
+    config['seed'] = seed
+    configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(maker.get_log_name(name, rungroup))
+
 #IMPORTANT!! this line determines which cmd will be run
 cmd = [make_exp13_rest_10_22_18]
 
