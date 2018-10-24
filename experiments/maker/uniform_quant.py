@@ -37,7 +37,7 @@ Range solvers
 '''
 def _adarange(X,b,stochastic=False):    
     return golden_section_search(lambda L : np.linalg.norm(X.numpy() - uniform_quantizer(
-        X, b, lambda Y,z : L, _adarange_rand if stochastic else _round)))
+        X, b, lambda Y,z : L, _stochround if stochastic else _round)))
 
 def _adarange_rand(X,b):
     return _adarange(X,b,stochastic=True)
