@@ -28,8 +28,8 @@ def uniform_quantizer(X, b, q_range, quantize):
     b = int(b)
     X = torch.Tensor(X)
     L = q_range(X, b)
-    forward_map = lambda Y: _affine_transform(Y,L,b)
-    backward_map = lambda Y: _affine_transform(Y,L,b,invert=True)
+    forward_map = lambda Y: affine_transform(Y,L,b)
+    backward_map = lambda Y: affine_transform(Y,L,b,invert=True)
     return backward_map(quantize(forward_map(_clip(X,L)))).numpy()
 
 '''
@@ -57,7 +57,7 @@ def _round(X):
 '''
 HELPERS
 '''
-def _affine_transform(X,L,b,invert=False):
+def affine_transform(X,L,b,invert=False):
     n = 2**b-1
     interval = 2*L
     shift = 0.5

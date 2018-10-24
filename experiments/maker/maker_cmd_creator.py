@@ -365,7 +365,6 @@ def make_exp13_rest_10_22_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
-
 #IMPORTANT!! this line determines which cmd will be run
 cmd = [make_exp13_rest_10_22_18]
 

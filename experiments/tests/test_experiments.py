@@ -77,21 +77,42 @@ def test_goldensearch_randnonconvex():
         x_star = golden_section_search(f,x_min-10,x_min+10)
         assert np.abs(x_star - x_min) < 1e-1, f"Search procedure failure: found {x_star} with value {f(x_star)}, compared to {x_min} with value {f(x_min)}"
 
+def test_adarange():
+    data = 2*(np.random.random(10000)-0.5)
+    q1 = np.sort(np.unique(adarange(data,1)))
+    assert np.abs(q1[0] + 0.5) < 0.01
+    assert np.abs(q1[1] - 0.5) < 0.01
+    q2 = np.sort(np.unique(adarange(data,2)))
+    assert np.abs(q2[0] + 0.75) < 0.01
+    assert np.abs(q2[1] + 0.25) < 0.01
+    assert np.abs(q2[2] - 0.25) < 0.01
+    assert np.abs(q2[3] - 0.75) < 0.01
 
-def test_naiveuni():
-    data = np.random.random(1000)
+def test_naiverange():
+    data = 2*(np.random.random(10000)-0.5)
     q1 = np.sort(np.unique(naiveuni(data,1)))
-    assert (q1[0] - 0.25) < 0.01
-    assert (q1[1] - 0.75) < 0.01
+    assert (q1[0] + 1) < 0.01
+    assert (q1[1] - 1) < 0.01
     q2 = np.sort(np.unique(naiveuni(data,2)))
-    assert (q2[0] - 0.125) < 0.01
-    assert (q2[1] - 0.375) < 0.01
-    assert (q2[0] - 0.625) < 0.01
-    assert (q2[1] - 0.875) < 0.01
+    assert (q2[0] + 1) < 0.01
+    assert (q2[1] + 1/3) < 0.01
+    assert (q2[2] - 1/3) < 0.01
+    assert (q2[3] - 1) < 0.01
 
-#def test_fullrange():
+def test_clipnoquant():
+    eps = 0.01
+    data = 2*(np.random.random(10000)-0.5)
+    for d in clip_no_quant(data,1):
+        assert d > -0.5-eps and d < 0.5+eps 
+    for d in clip_no_quant(data,2):
+        assert d > -0.75-eps and d < 0.75+eps
 
-
+def test_affine_transform():
+    data = np.array([-1,1])
+    for L in [10*np.random.random() for i in range(100)]:
+        for b in [1,2,3,4,5]:
+            affine_data = affine_transform(L*data,L,b)
+            assert np.isclose(affine_data, [0,2**b-1], 0.01).all() 
 
 def test_maker():
     str_tup = ('dca','glove', '/proj/smallfry/git/smallfry/examples/data/glove.head.txt', '1234', '/proj/smallfry/embeddings', 'more_tests', '3', '8')
@@ -111,7 +132,7 @@ def test_codes_2_vec():
     assert np.array_equal(dcc_mat, dcc_mat_check)
 
 parser = argh.ArghParser()
-parser.add_commands([test_maker, test_stochround, test_stochround_bias_simple, test_stochround_bias_gaussian, test_uniform_quanta])
+parser.add_commands([test_maker, test_stochround, test_stochround_bias_simple, test_stochround_bias_gaussian])
 
 if __name__ == '__main__':
     parser.dispatch()
