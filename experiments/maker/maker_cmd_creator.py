@@ -388,7 +388,7 @@ def make_exp13_baseline_10_22_18(name):
     log_launch(maker.get_log_name(name, rungroup))
 
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [make_exp13_rest_10_22_18]
+cmd = [make_exp13_baseline_10_22_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
