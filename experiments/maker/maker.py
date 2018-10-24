@@ -9,7 +9,7 @@ import numpy as np
 from subprocess import check_output
 from smallfry.smallfry import Smallfry
 from smallfry.utils import load_embeddings
-from uniform_quant import uniform_quantize
+from uniform_quant import *
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
 from experimental_utils import * 
 from neuralcompressor.nncompress import EmbeddingCompressor
@@ -151,31 +151,34 @@ def make_embeddings(base_embeds, embed_dir, config):
     elif config['method'] == 'clipnoquant':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = uniform_quantize(embeds,config['ibr'], skip_quantize=True)
+        embeds = clip_no_quant(embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
     elif config['method'] == 'midriser':
-        raise ValueError('midriser currently unsupported')
+        embeds = load_embeddings(config['basepath'])[0]
+        start = time.time()
+        embeds = midriser(base_embeds,config['ibr'])
+        config['embed-maketime-secs'] = time.time()-start
     elif config['method'] == 'naiveuni':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = uniform_quantize(base_embeds,config['ibr'])
+        embeds = naiveuni(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
     elif config['method'] == 'stochround':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = uniform_quantize(base_embeds,config['ibr'], stochastic_round=True)
+        embeds = stochround(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
     elif config['method'] == 'optranuni':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = uniform_quantize(base_embeds,config['ibr'], adaptive_range=True)
+        embeds = adarange(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
     elif config['method'] == 'stochoptranuni':
         embeds = load_embeddings(config['basepath'])[0]
         start = time.time()
-        embeds = uniform_quantize(base_embeds,config['ibr'], adaptive_range=True, stochastic_round=True)
+        embeds = stoch_adarange(base_embeds,config['ibr'])
         config['embed-maketime-secs'] = time.time()-start
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
         #TODO remove this from here
