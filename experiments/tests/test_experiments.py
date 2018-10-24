@@ -11,6 +11,7 @@ from maker.uniform_quant import *
 demo_work_dir = ''
 
 def test_stochround():
+    stochround = lambda X, b : uniform_quantize(X, b, stochastic_round=True)
     for b in [1,2,4]:
         for i in range(10):
             L_prime = 1/torch.rand([1]) 
@@ -35,6 +36,7 @@ def test_stochround():
                     assert entry_is_on_point, "Invalid quantization"
 
 def test_stochround_bias_simple():
+    stochround = lambda X, b : uniform_quantize(X, b, stochastic_round=True)
     data = np.array([0.3]*10000 + [0.1]*10000)
     seeds = [1,2,3]
     bias_tol = 0.01
@@ -46,6 +48,7 @@ def test_stochround_bias_simple():
         assert bias < bias_tol, f"Stochround is potentially biased -- seed {seed} has bias of {bias}"
 
 def test_stochround_bias_gaussian():
+    stochround = lambda X, b : uniform_quantize(X, b, stochastic_round=True)
     bias = [-0.25,0,0.25]
     bitrates = [1,2,4]
     seeds = [1,2,3]
@@ -68,6 +71,19 @@ def test_goldensearch_randquad():
         x_star = golden_section_search(f,x_min-10,x_min+10)
         assert np.abs(x_star - x_min) < 1e-1, f"Search procedure failure: found {x_star} with value {f(x_star)}, compared to {x_min} with value {f(x_min)}"
 
+def test_uniform_quanta():
+    uniquant = lambda X, b : uniform_quantize(X, b, adaptive_range=True)
+    data = np.random.random(1000)
+    q1 = np.sort(np.unique(uniquant(data,1)))
+    assert (q1[0] - 0.25) < 0.01
+    assert (q1[1] - 0.75) < 0.01
+    q2 = np.sort(np.unique(uniquant(data,2)))
+    assert (q2[0] - 0.125) < 0.01
+    assert (q2[1] - 0.375) < 0.01
+    assert (q2[0] - 0.625) < 0.01
+    assert (q2[1] - 0.875) < 0.01
+
+
 def test_maker():
     str_tup = ('dca','glove', '/proj/smallfry/git/smallfry/examples/data/glove.head.txt', '1234', '/proj/smallfry/embeddings', 'more_tests', '3', '8')
     os.system("python maker.py --method %s --base %s --basepath %s --seed %s --outputdir %s --rungroup %s --m %s --k %s" % str_tup)
@@ -86,7 +102,7 @@ def test_codes_2_vec():
     assert np.array_equal(dcc_mat, dcc_mat_check)
 
 parser = argh.ArghParser()
-parser.add_commands([test_maker, test_stochround, test_stochround_bias_simple, test_stochround_bias_gaussian])
+parser.add_commands([test_maker, test_stochround, test_stochround_bias_simple, test_stochround_bias_gaussian, test_uniform_quanta])
 
 if __name__ == '__main__':
     parser.dispatch()

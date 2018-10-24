@@ -19,7 +19,8 @@ def clipnoquant(X,b):
     return uniform_quantizer(X, b, _adarange, lambda Y: Y)
 def midriser(X,b):
     raise ValueError("Midriser is no longer supported")
-
+def stochoptranuni2(X,b):
+    return uniform_quantizer(X, b, _stoch_adarange, _stochround)
 '''
 CORE QUANTIZER
 '''
@@ -35,11 +36,12 @@ def uniform_quantizer(X, b, q_range, quantize):
 Range solvers
 '''
 def _adarange(X,b):    
-    return _goldensearch(lambda L : np.linalg.norm(X.numpy() - uniform_quantizer(
-        X, b, lambda Y,z : L, _round)))
+    return golden_section_search(lambda L : np.linalg.norm(X.numpy() - uniform_quantizer(
+        X, b, lambda Y,z : L, _round)),1e-10,20)
 
-def _brute_force(X,b):
-    return 
+def _stoch_adarange(X,b):
+    return golden_section_search(lambda L : np.linalg.norm(X.numpy() - uniform_quantizer(
+        X, b, lambda Y,z : L, _stochround)),1e-10,20)
 
 def _fullrange(X,b):
     return torch.max(torch.abs(X))
@@ -47,7 +49,6 @@ def _fullrange(X,b):
 '''
 Rounding schemes
 '''
-
 def _stochround(X):
     return torch.ceil(X - torch.rand(X.shape))
 
@@ -302,13 +303,14 @@ def test3():
 
 def uniform_quantize(X, bit_rate, adaptive_range=False, stochastic_round=False, 
         skip_quantize=False):
+    X = torch.Tensor(X)
     if adaptive_range:
         range_limit = find_optimal_range(X, bit_rate)
     else:
         range_limit = get_max_abs(X)
 
     return _uniform_quantize(X, bit_rate, range_limit, 
-        stochastic_round=stochastic_round, skip_quantize=skip_quantize)
+        stochastic_round=stochastic_round, skip_quantize=skip_quantize).numpy()
 
 # Internal function.  This one expects an explicit range_limit.
 def _uniform_quantize(X, bit_rate, range_limit, stochastic_round=False, 
@@ -318,10 +320,10 @@ def _uniform_quantize(X, bit_rate, range_limit, stochastic_round=False,
     '''
     assert range_limit >= 0, 'range_limit must be non-negative.'
     if get_max_abs(X) > range_limit:
-        X_q = torch.clamp(X_q, min=-range_limit, max=range_limit)
+        X_q = torch.clamp(X, min=-range_limit, max=range_limit)
     if bit_rate < 32 and range_limit != 0 and not skip_quantize:
         # affine transform to put X in [0,2**bit_rate - 1]
-        X_q = (2**bit_rate - 1) * (X_q + range_limit) / (2 * range_limit)
+        X_q = (2**bit_rate - 1) * (X + range_limit) / (2 * range_limit)
         if stochastic_round:
             # each entry will round down if noise > fraction part
             X_q = torch.ceil(X_q - torch.rand(X_q.shape))
@@ -335,8 +337,6 @@ def find_optimal_range(X, bit_rate, tol=1e-2):
     '''
     Find the best value to use to clip the embeddings before using uniform quantization.
     '''
-    # TODO: DO WE WANT TO USE STOCHASTIC ROUNDING IN THIS SEARCH WHEN 
-    # STOCHASTIC ROUNDING IS BEING USED FOR THE QUANTIZATION?
     f = lambda range_limit : quantize_and_compute_frob_error(
         X, bit_rate, range_limit)
 
