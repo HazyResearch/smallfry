@@ -55,8 +55,8 @@ def test_stochround_bias_gaussian():
             for seed in seeds:
                 set_seeds(seed)
                 data = np.random.normal(b,1,1000000)
-                data_q = stochround(data,br)
-                bias = np.abs(np.mean(data) - np.mean(data_q)) 
+                data_q = stochround(data,br)                
+                bias = np.abs(np.mean(data) - np.mean(data_q))
                 assert bias < bias_tol, f"Stochround is potentially biased -- seed {seed} has a bias of {bias}"
 
 def test_goldensearch_randquadratic():
@@ -173,7 +173,7 @@ def test_codes_2_vec():
     assert np.array_equal(dcc_mat, dcc_mat_check)
 
 parser = argh.ArghParser()
-parser.add_commands([test_maker, test_stochround, test_stochround_bias_simple, test_stochround_bias_gaussian])
+parser.add_commands([test_maker, test_stochround, test_stochround_bias_simple, test_stochround_bias_gaussian, test_naiveuni_bias_gaussian])
 
 if __name__ == '__main__':
     parser.dispatch()

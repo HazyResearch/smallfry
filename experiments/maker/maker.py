@@ -69,7 +69,7 @@ def init_parser():
     """Initialize Cmd-line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--method', type=str, required=True,
-        choices=['kmeans','dca','baseline','stochround','midriser','optranuni','clipnoquant','stochoptranuni','naiveuni'],
+        choices=['kmeans','dca','baseline','stochround','midriser','optranuni','clipnoquant','stochoptranuni','naiveuni','stoch_range_2'],
         help='Name of compression method to use (kmeans or dca or stochastic rounding).')
     parser.add_argument('--base', type=str, required=True,
         help='Name of base embeddings')
@@ -182,6 +182,13 @@ def make_embeddings(base_embeds, embed_dir, config):
         config['embed-maketime-secs'] = time.time()-start
         config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
         #TODO remove this from here
+    elif config['method'] == 'stoch_range_2':
+        embeds = load_embeddings(config['basepath'])[0]
+        start = time.time()
+        embeds = stoch_adarange_2(base_embeds,config['ibr'])
+        config['embed-maketime-secs'] = time.time()-start
+        config['embed-fro-dist'] = np.linalg.norm(base_embeds - embeds)
+        #TODO remove this from here
     else:
         raise ValueError(f"Method name invalid {config['method']}")
     return embeds
@@ -191,7 +198,7 @@ def get_embeddings_dir_and_name(config):
         params = ['base','method','vocab','dim','ibr','bitsperblock','blocklen','seed','date','rungroup','solver']
     elif config['method'] == 'dca':
         params = ['base','method','vocab','dim','ibr','m','k','seed','date','rungroup','lr','gradclip','batchsize','tau']
-    elif config['method'] in ['baseline', 'stochround', 'naiveuni', 'midriser','optranuni','clipnoquant','stochoptranuni']:
+    elif config['method'] in ['baseline', 'stochround', 'naiveuni', 'midriser','optranuni','clipnoquant','stochoptranuni','stoch_range_2']:
         params = ['base','method','vocab','dim','ibr','seed','date','rungroup']
     else:
         raise ValueError(f"Method name invalid {config['method']}")
@@ -220,7 +227,7 @@ def get_memory(config):
         mem = v * m * np.log2(k) + 32 * d * m * k
     elif config['method'] in ['baseline','clipnoquant']:
         return v*d*32
-    elif config['method'] in ['stochround', 'naiveuni', 'midriser','optranuni','stochoptranuni'] :
+    elif config['method'] in ['stochround', 'naiveuni', 'midriser','optranuni','stochoptranuni','stoch_range_2'] :
         return config['ibr']*d*v + 32
     else:
         raise ValueError('Method name invalid (must be dca or kmeans)')
