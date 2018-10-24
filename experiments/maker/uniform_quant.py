@@ -68,7 +68,7 @@ def _clip(X,L):
     L -= eps
     return torch.clamp(X, min=-1*L, max=L)
 
-def golden_section_search(f, x_min=1e-5, x_max=10, tol=1e-2):
+def golden_section_search(f, x_min=1e-10, x_max=10, tol=1e-2):
     '''
     Find argmin of f between x_min and x_max (for f uni-modal).
     
