@@ -25,6 +25,31 @@ def stoch_adarange_2(X,b):
 CORE QUANTIZER
 '''
 def uniform_quantizer(X, b, q_range, quantize):
+    '''
+    Input: 
+        X: matrix in numpy
+        b: int bitrate
+        q_range: Routine that takes in (X,b) and computes range L
+        quantize: Routine that quantizes X in (0,2**b-1)
+        NOTE: q_range and quantize, unlike uniform_quantizer, should accept and return torch NOT numpy
+
+    This method performs the core quantization routine in modular fashion.
+    All uniform quantization has 2 indepedent subroutines:
+    1) Range -- what interval should the quanta be space uniformly over?
+    2) Rounding -- how should analog data get mapped to discrete quanta?
+
+    This core quantization method takes in a range subroutine and a rounding routine,
+    and applies them along with an appropriate affine transformation which overlays the 
+    quanta with the non-negative integers.
+
+    The method breaks down as follows:
+
+    Step 0: Compute range to be used in quantization with q_range
+    Step 1: Clip embeddings to desired range
+    Step 2: Forward affine mapping to (0,2**b-1)
+    Step 3: Apply quantize
+    Step 4: Apply  
+    '''
     b = int(b)
     X = torch.Tensor(X)
     L = q_range(X, b)

@@ -367,22 +367,24 @@ def make_exp13_rest_10_22_18(name):
 
 def make_exp13_baseline_10_22_18(name):
     rungroup = 'exp13-large-scale-glove6B'
-    method = 'baseline'
+    method = ['kmeans', 'naiveuni','optranuni','stochoptranuni','clipnoquant','baseline']
     base = 'glove'
-    basepath = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove.6B.300d.txt'))
+    basepath = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove.6B.300d.txt.chopped_top_10000'))
     seed = 1234
     outputdir = maker.get_base_outputdir()
     configs = []
-    ibr = 32
+    ibrs = [1,2,4]
     config = dict()
     config['base'] = base
     config['method'] = method
     config['basepath'] = basepath
     config['rungroup'] = rungroup
     config['method'] = method
-    config['ibr'] = ibr
+    config['ibr'] = 32 if method == 'baseline'
     config['outputdir'] = outputdir
     config['seed'] = seed
+    config['bitsperblock'] = ibr
+    config['blocklen'] = 1
     configs.append(config)
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
@@ -409,8 +411,35 @@ def make_exp13_stoch2_10_24_18(name):
     sweep_configs(configs, False)
     log_launch(maker.get_log_name(name, rungroup))
 
+def make_exp15_stoch_vs_det_10_24_18(name):
+    rungroup = 'exp13-stoch-vs-det-round'
+    methods = ['kmeans', 'naiveuni','optranuni','stochoptranuni','clipnoquant','baseline']
+    base = 'glove'
+    basepath = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove.6B.300d.txt'))
+    seed = 1234
+    outputdir = maker.get_base_outputdir()
+    configs = []
+    ibrs = [1,2,4]
+    for ibr in ibrs:
+        for method in methods:
+            if method == 'baseline' and ibr != 1: continue
+            config = dict()
+            config['base'] = base
+            config['method'] = method
+            config['basepath'] = basepath
+            config['rungroup'] = rungroup
+            config['method'] = method
+            config['ibr'] = 32 if method == 'baseline' else ibr
+            config['outputdir'] = outputdir
+            config['seed'] = seed
+            config['bitsperblock'] = ibr
+            config['blocklen'] = 1
+            configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(maker.get_log_name(name, rungroup))
+
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [make_exp13_baseline_10_22_18]
+cmd = [make_exp15_stoch_vs_det_10_24_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
