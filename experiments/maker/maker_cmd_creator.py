@@ -369,7 +369,7 @@ def make_exp13_baseline_10_22_18(name):
     rungroup = 'exp13-large-scale-glove6B'
     method = ['kmeans', 'naiveuni','optranuni','stochoptranuni','clipnoquant','baseline']
     base = 'glove'
-    basepath = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove.6B.300d.txt.chopped_top_10000'))
+    basepath = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove.6B.300d.txt'))
     seed = 1234
     outputdir = maker.get_base_outputdir()
     configs = []
@@ -380,7 +380,7 @@ def make_exp13_baseline_10_22_18(name):
     config['basepath'] = basepath
     config['rungroup'] = rungroup
     config['method'] = method
-    config['ibr'] = 32 if method == 'baseline'
+    config['ibr'] = ibr
     config['outputdir'] = outputdir
     config['seed'] = seed
     config['bitsperblock'] = ibr
@@ -415,14 +415,15 @@ def make_exp15_stoch_vs_det_10_24_18(name):
     rungroup = 'exp13-stoch-vs-det-round'
     methods = ['kmeans', 'naiveuni','optranuni','stochoptranuni','clipnoquant','baseline']
     base = 'glove'
-    basepath = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove.6B.300d.txt'))
+    basepath = str(pathlib.PurePath(maker.get_base_embed_path_head(), 'glove.6B.300d.txt.chopped_top_10000'))
     seed = 1234
     outputdir = maker.get_base_outputdir()
     configs = []
     ibrs = [1,2,4]
     for ibr in ibrs:
         for method in methods:
-            if method == 'baseline' and ibr != 1: continue
+            if method == 'baseline' and ibr != 1:
+                continue
             config = dict()
             config['base'] = base
             config['method'] = method
