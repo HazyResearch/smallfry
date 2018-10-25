@@ -61,6 +61,8 @@ def main(embed_path='', evaltype='', seed=None, epochs=None, dataset='all'):
     elif evaltype == 'sentiment':
         seed = int(seed)
         results = eval_sent(fetch_embeds_txt_path(embed_path), seed, dataset)
+    elif evaltype == 'gramian':
+        results = eval_gramian(embed_path)
     else:
         raise ValueError('bad evaltype given to eval()')
 
@@ -74,7 +76,7 @@ def init_parser():
     """Initialize Cmd-line parser."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--evaltype', type=str, required=True,
-        choices=['QA','intrinsics','synthetics','sentiment'],
+        choices=['QA','intrinsics','synthetics','sentiment','gramian'],
         help='Evaluation type')
     parser.add_argument('--embedpath', type=str, required=True,
         help='Path to TOP-LEVEL embedding directory to evaluate')
@@ -244,6 +246,22 @@ def eval_synthetics(embed_path):
     res_rtn['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
     res_rtn['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
     return res_rtn
+
+def eval_gramian(embed_path):
+    '''Eval gram'''
+    embeds, wordlist = fetch_embeds_4_eval(embed_path)
+    base_embeds, base_wordlist = load_embeddings(fetch_base_embed_path(embed_path))
+    
+    base_gram = gram = np.matmul(base_embeds,np.transpose(base_embeds))
+    gram = np.matmul(embeds,np.transpose(embeds))
+
+    res_rtn = dict()
+    res_rtn['gramian-frob-dist'] = np.linalg.norm(base_gram - gram)
+    res_rtn['gramian-bias'] = np.mean(base_gram - gram)
+    res_rtn['gramian-frob-norm'] = np.linalg.norm(gram)
+
+    return res_rtn
+
 
 def eval_sent(embed_txt_path, seed, dataset=None):
     '''

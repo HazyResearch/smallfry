@@ -165,8 +165,24 @@ def launch_eval_exp13_10_24_18(name):
     sweep_configs(configs, False)
     log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)
 
+def launch_eval_exp13_stoch_vs_det_10_25_18(name):
+    rungroup = '2018-10-24-exp13-stoch-vs-det-round'
+    evaltypes = ['gramian','synthetics']
+    embs = evaluate.get_all_embs_in_rg(rungroup)
+    configs = []
+    for evaltype in evaltypes:
+        for emb in embs:
+            config = dict()
+            config['evaltype'] = evaltype
+            config['embedpath'] = emb
+            config['seed'] = 1234
+            configs.append(config)
+    sweep_configs(configs, False)
+    log_launch(evaluate.get_log_name(name,rungroup),batchsize=3)
+
+
 #IMPORTANT!! this line determines which cmd will be run
-cmd = [launch_eval_exp13_10_24_18]
+cmd = [launch_eval_exp13_stoch_vs_det_10_25_18]
 
 parser = argh.ArghParser()
 parser.add_commands(cmd)
