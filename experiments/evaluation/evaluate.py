@@ -257,8 +257,9 @@ def eval_gramian(embed_path):
 
     res_rtn = dict()
     res_rtn['gramian-frob-dist'] = np.linalg.norm(base_gram - gram)
-    res_rtn['gramian-bias'] = np.mean(base_gram - gram)
+    res_rtn['gramian-bias'] = np.mean((base_gram - gram)**2)
     res_rtn['gramian-frob-norm'] = np.linalg.norm(gram)
+    res_rtn['gramian-shape'] = gram.shape
 
     return res_rtn
 
