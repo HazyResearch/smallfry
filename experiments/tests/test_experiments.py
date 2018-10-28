@@ -173,7 +173,7 @@ def test_codes_2_vec():
     assert np.array_equal(dcc_mat, dcc_mat_check)
 
 parser = argh.ArghParser()
-parser.add_commands([test_maker, test_stochround, test_stochround_bias_simple, test_stochround_bias_gaussian, test_naiveuni_bias_gaussian])
+parser.add_commands([test_maker, test_stochround, test_stochround_bias_simple, test_stochround_bias_gaussian])
 
 if __name__ == '__main__':
     parser.dispatch()
