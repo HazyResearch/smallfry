@@ -10,8 +10,9 @@ import glob
 import torch
 import numpy as np
 from subprocess import check_output
-from smallfry.smallfry import Smallfry
-from smallfry.utils import *
+#from smallfry.smallfry import Smallfry
+#from smallfry.utils import *
+#import marisa_trie as marisa
 
 def get_git_hash():
     ''' returns githash of current directory. NOTE: not safe before init_logging'''
@@ -255,3 +256,41 @@ def get_agg_results_path():
 
 def get_glove_generator_path():
     return str(pathlib.PurePath(get_base_directory(),'smallfry/experiments/generation/GloVe'))
+
+def load_embeddings(embeds_txt_filepath):
+    """
+    Loads a GloVe embedding at 'filename'. Returns a vector of strings that 
+    represents the vocabulary and a 2-D numpy matrix that is the embeddings. 
+    """
+    with open(embeds_txt_filepath, 'r') as embeds_file:
+        lines = embeds_file.readlines()
+        wordlist = []
+        embeddings = []
+        for line in lines:
+            row = line.strip("\n").split(" ")
+            wordlist.append(row.pop(0))
+            embeddings.append([float(i) for i in row])
+        embeddings = np.array(embeddings)
+    return embeddings, wordlist
+
+# LOAD EMBEDDINGS WITH WORD TRIE
+# def load_embeddings_trie(embeds_txt_filepath):
+#     """
+#     Loads a GloVe embedding at 'filename'. Returns a vector of strings that 
+#     represents the vocabulary and a 2-D numpy matrix that is the embeddings. 
+#     """
+#     with open(embeds_txt_filepath, 'r') as embeds_file:
+#         lines = embeds_file.readlines()
+#         wordlist = []
+#         embeddings = []
+#         for line in lines:
+#             row = line.strip("\n").split(" ")
+#             wordlist.append(row.pop(0))
+#             embeddings.append([float(i) for i in row])
+#         embeddings = np.array(embeddings)
+#         wordtrie = marisa.Trie(wordlist)
+#         trie_order_embeds = np.zeros(embeddings.shape)
+#         for i in range(len(wordlist)):
+#             i_prime = wordtrie[wordlist[i]]
+#             trie_order_embeds[i_prime,:] = embeddings[i,:]
+#     return wordtrie, trie_order_embeds

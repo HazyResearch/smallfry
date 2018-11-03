@@ -5,7 +5,6 @@ import torch
 import torch.nn as nn
 from sklearn.cluster import KMeans
 from functools import reduce
-from .ckmeans_wrapper import Ckmeans 
 
 class Smallfry(nn.Module):
 
