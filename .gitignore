@@ -4,4 +4,6 @@
 !*/
 # And all the file types you're interested in.
 !*.py
+!*.txt
 !.gitignore
+!*.md
