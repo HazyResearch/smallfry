@@ -233,5 +233,63 @@ def get_memory(config):
         raise ValueError('Method name invalid (must be dca or kmeans)')
     return mem
 
+
+def golden_section_search(f, x_min=1e-10, x_max=10, tol=1e-2):
+    '''
+    Find argmin of f between x_min and x_max (for f uni-modal).
+    
+    This function uses the golden-section search algorithm.
+    It always maintains a list of four points [x1,x2,x3,x4],
+    which are always spaced as: [a,a+(c^2)h,a+ch,a+h].
+    for c = (math.sqrt(5) - 1) / 2 = 0.618...
+    The algorithm progressively reduces the size of the interval being
+    considered by checking whether f(x2) < f(x3), and eliminating one of the
+    endpoints accordingly; x4 is eliminated if f(x2) < f(x3), and x1 
+    is eliminated otherwise.
+    
+    If f(a+(c^2)h) < f(a+ch), the new interval becomes
+    >>> [a,a+(c^3)h,a+(c^2)h,a+ch] = [a,a+(c^2)(ch),a+c(ch),a+ch]
+    (So h' = ch, a' = a)
+    Otherwise, the interval becomes
+    >>> [a',a'+(c^2)h',a'+ch', a'+h'], for a' = a+(c^2)h and h'=(h-(c^2)h)
+    It is easy to check that a'+(c^2)h' = a + ch, and that a'+h' = a+h,
+    So this interval is equal to [a+(c^2)h, a+ch, X, a+h], for X=a'+ch'
+
+    The algorithm terminates when it has been narrowed
+    down that the argmin must be in an interval of size < tol.
+    '''
+    #initialize points
+    phi = (math.sqrt(5) - 1) / 2
+    x1 = x_min
+    x4 = x_max
+    f_x1 = f(x1)
+    f_x4 = f(x4)
+    x2 = x1 + (x4-x1) * phi**2
+    x3 = x1 + (x4-x1) * phi
+    f_x2 = f(x2)
+    f_x3 = f(x3)
+    while (x4-x1 > tol):
+        assert (math.isclose(x2, x1 + (x4 - x1) * phi**2) and 
+                math.isclose(x3, x1 + (x4 - x1) * phi))
+        if f_x2 < f_x3:
+            # The new points become [x1, NEW, x2, x3]
+            x4,f_x4 = x3,f_x3
+            x3,f_x3 = x2,f_x2
+            x2 = x1 + (x4-x1) * phi**2
+            f_x2 = f(x2)
+        else:
+            # The new points become [x2, x3, NEW, x4]
+            x1,f_x1 = x2,f_x2
+            x2,f_x2 = x3,f_x3
+            x3 = x1 + (x4-x1) * phi
+            f_x3 = f(x3)
+        
+    # Return x-value with minimum f(x) which was found.
+    i = np.argmin([f_x1,f_x2,f_x3,f_x4])
+    x = [x1,x2,x3,x4]
+    return x[i]
+
+
+
 if __name__ == '__main__':
     main()
