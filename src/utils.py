@@ -1,33 +1,27 @@
+import os
+import sys
+import socket
 import json
 import datetime
 import logging
-import os
 import pathlib
-import subprocess
-import sys
 import time
 import random
-import argparse
-import glob
-import torch
-import numpy as np
 from subprocess import check_output
+import argparse
+import numpy as np
+import torch
 
 config = {}
 
-def init_train():
-    parser = init_train_parser()
-    init_train_config(parser)
-    init_random_seeds()
-
-def init_compress():
-    parser = init_compress_parser()
-    init_compress_config(parser)
-    init_random_seeds()
-
-def init_evalaute():
-    parser = init_evaluate_parser()
-    init_evaluate_config(parser)
+def init(runtype):
+    if runtype == 'train':
+        parser = init_train_parser()
+    elif runtype == 'compress':
+        parser = init_compress_parser()
+    elif runtype == 'evaluate':
+        parser = init_evaluate_parser()
+    init_config(parser, runtype)
     init_random_seeds()
 
 def init_train_parser():
@@ -71,6 +65,8 @@ def init_compress_parser():
     parser.add_argument('--embedtype', type=str, required=True,
         choices=['glove400k'], # TODO: Add more options
         help='Name of embedding to compress')
+    parser.add_argument('--embeddim', type=int, default=300,
+        help='Dimension of embeddings to use.')
     parser.add_argument('--compresstype', type=str, required=True,
         choices=['uniform','kmeans','dca','nocompress'],
         help='Name of compression method to use (uniform, kmeans, dca, nocompress).')
@@ -80,6 +76,14 @@ def init_compress_parser():
         help='Intended bitrate.')
     parser.add_argument('--seed', type=int, required=True,
         help='Random seed to use for experiment.')
+    # Begin uniform quantization hyperparameters
+    parser.add_argument('--stoch', action='store_true', 
+        help='Specifies whether stochastic quantization should be used.')
+    parser.add_argument('--adaptive', action='store_true', 
+        help='Specifies whether range for uniform quantization should be optimized.')
+    parser.add_argument('--skipquant', action='store_true', 
+        help='Specifies whether clipping should be performed without quantization (for ablation).')
+    # End uniform quantization hyperparameters
     # Begin DCA hyperparameters
     parser.add_argument('--k', type=int, default=-1,
         help='Codebook size for DCA, must be a power of 2.')
@@ -112,44 +116,88 @@ def init_evaluate_parser():
         help='Number of epochs to run for DrQA training.')
     return parser
 
-def init_compress_config(parser):
+def init_config(parser, runtype):
     global config
     config = vars(parser.parse_args())
-    validate_compress_config(config)
+    validate_config(runtype)
     orig_config = config.copy()
-    config['runname'] = get_compress_runname(parser)
+    config['runname'] = get_runname(parser, runtype)
     config['datestr'] = get_date_str()
     config['rungroup'] =  '{}-{}'.format(config['datestr'], config['rungroup'])
-    config['full-runname'] = \
-        'embedtype,{}_compresstype,{}_rungroup,{}_{}'.format( 
-        config['embedtype'], config['compresstype'], 
-        config['rungroup'], config['runname'])
+    config['full-runname'] = get_full_runname(runtype)
     windows_dir = str(pathlib.PurePath(get_windows_home_dir(), 'Babel_Files'))
-    config['basedir'] = (windows_dir if is_windows() else 
-                      '/proj/smallfry')
-    config['rundir'] = str(pathlib.PurePath(
-        config['basedir'], 'embeddings', config['embedtype'], 
-        config['rungroup'], config['runname']))
-    ensure_dir(config['rundir'])
+    config['basedir'] = windows_dir if is_windows() else '/proj/smallfry'
+    config['rundir'] = get_and_make_run_dir(runtype)    
     init_logging()
     config['githash'], config['gitdiff'] = get_git_hash_and_diff() # might fail
     logging.info('Command line arguments: {}'.format(' '.join(sys.argv[1:])))
-    save_dict_as_json(config, get_filename('_config.json'))
+    initialize_further(runtype)
     save_dict_as_json(orig_config, get_filename('_orig_config.json'))
+    save_current_config()
 
-def validate_compress_config(cfg):
-    if cfg['compresstype'] == 'dca':
-        assert config['k'] == -1, 'Must specify k for DCA training.'
-        assert np.log2(config['k']) == np.ceil(np.log2(config['k'])), \
-               'k must be a power of 2.'
+def save_current_config():
+    save_dict_as_json(config, get_filename('_config.json'))
 
-def get_compress_runname(parser):
+def initialize_further(runtype):
+    global config
+    if runtype == 'train':
+        pass # TODO
+    elif runtype == 'compress':
+        pass # TODO
+    elif runtype == 'evaluate':
+        pass # TODO
+
+def validate_config(runtype):
+    assert '_' not in config['rungroup'], 'rungroups should not have underscores'
+    if runtype == 'train':
+        pass # TODO
+    elif runtype == 'compress':
+        if config['compresstype'] == 'dca':
+            assert config['k'] == -1, 'Must specify k for DCA training.'
+            assert np.log2(config['k']) == np.ceil(np.log2(config['k'])), \
+                'k must be a power of 2.'
+        if config['embedtype'] == 'glove400k':
+            assert config['embeddim'] in (50,100,200,300)
+    elif runtype == 'evaluate':
+        pass # TODO
+
+def get_runname(parser, runtype):
     runname = ''
-    for key,val in non_default_args(parser,config):
-        if key not in ('embedtype','compresstype','rungroup'):
+    if runtype == 'train':
+        pass # TODO
+    elif runtype == 'compress':    
+        to_skip = ('embedtype','compresstype','rungroup')
+    elif runtype == 'evaluate':
+        pass # TODO
+
+    for key,val in non_default_args(parser, config):
+        if key not in to_skip:
             runname += '{},{}_'.format(key,val)
     # remove the final '_' from runname
-    return runname[0:-1]
+    return runname[0:-1] if runname[-1] == '_' else runname
+
+def get_full_runname(runtype):
+    if runtype == 'train':
+        pass # TODO
+    elif runtype == 'compress':
+        return 'embedtype,{}_compresstype,{}_rungroup,{}_{}'.format( 
+            config['embedtype'], config['compresstype'], 
+            config['rungroup'], config['runname'])
+    elif runtype == 'evaluate':
+        pass # TODO
+
+def get_and_make_run_dir(runtype):
+    rundir = ''
+    if runtype == 'train':
+        pass # TODO
+    elif runtype == 'compress':
+        rundir = str(pathlib.PurePath(
+            config['basedir'], 'embeddings', config['embedtype'], 
+            config['rungroup'], config['runname']))
+        ensure_dir(rundir)
+    elif runtype == 'evaluate':
+        pass # TODO
+    return rundir
 
 def init_random_seeds():
     """Initialize random seeds."""
@@ -233,6 +281,33 @@ def get_windows_home_dir():
     return (r'C:\Users\Avner' if
             socket.gethostname() == 'Avner-X1Carbon' else
             r'C:\Users\avnermay')
+
+def load_embeddings(path):
+    """
+    Loads a GloVe embedding at specified path. Returns a vector of strings that 
+    represents the vocabulary and a 2-D numpy matrix that is the embeddings. 
+    """
+    with open(path, 'r') as f:
+        lines = f.readlines()
+        wordlist = []
+        embeddings = []
+        for line in lines:
+            row = line.strip("\n").split(" ")
+            wordlist.append(row.pop(0))
+            embeddings.append([float(i) for i in row])
+        embeddings = np.array(embeddings)
+    assert len(wordlist) == embeddings.shape[0], 'Embedding dim must match wordlist length.'
+    return embeddings, wordlist
+
+def save_embeddings(path, embeds, wordlist):
+    ''' save embeddings in text file format'''
+    with open(path, "w+") as file:
+        for i in range(len(wordlist)):
+            file.write(wordlist[i] + " ")
+            row = embeds[i, :]
+            strrow = [str(r) for r in row]
+            file.write(" ".join(strrow))
+            file.write("\n")
 
 #==================================================================
 # TONY'S CODE ====================================================
