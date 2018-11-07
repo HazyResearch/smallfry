@@ -7,15 +7,11 @@ import sys
 import datetime
 import numpy as np
 from subprocess import check_output
-from smallfry.smallfry import Smallfry
-from smallfry.utils import load_embeddings
-from uniform_quant import *
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
-from experimental_utils import * 
-from neuralcompressor.nncompress import EmbeddingCompressor
-
+#sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #FOR LOCAL IMPORTS
+import utils
 
 def main():
+    utils.init()
     config = vars(init_parser().parse_args())
     assert int(np.log2(config['k'])) == np.log2(config['k']),\
         'k must be a power of two.'
