@@ -11,6 +11,7 @@ from subprocess import check_output
 import argparse
 import numpy as np
 import torch
+import tf
 
 config = {}
 
@@ -72,34 +73,34 @@ def init_compress_parser():
         help='Name of compression method to use (uniform, kmeans, dca, nocompress).')
     parser.add_argument('--rungroup', type=str, required=True,
         help='Name of rungroup')
-    parser.add_argument('--ibr', type=int, required=True,
-        help='Intended bitrate.')
+    parser.add_argument('--bitrate', type=int, required=True,
+        help='Bitrate.  Note not exact for some methods, but as close as possible.')
     parser.add_argument('--seed', type=int, required=True,
         help='Random seed to use for experiment.')
-    # Begin uniform quantization hyperparameters
+    parser.add_argument('--debug', action='store_true',
+        help='If set to false, can have local git changes when running this.')
+    ### Begin uniform quantization hyperparameters
     parser.add_argument('--stoch', action='store_true', 
         help='Specifies whether stochastic quantization should be used.')
     parser.add_argument('--adaptive', action='store_true', 
         help='Specifies whether range for uniform quantization should be optimized.')
     parser.add_argument('--skipquant', action='store_true', 
         help='Specifies whether clipping should be performed without quantization (for ablation).')
-    # End uniform quantization hyperparameters
-    # Begin DCA hyperparameters
+    ### End uniform quantization hyperparameters
+    ### Begin DCA hyperparameters
+    # The number of DCA codebooks 'm' is determined from k and bitrate
+    # k is a required argument for DCA training.
     parser.add_argument('--k', type=int, default=-1,
         help='Codebook size for DCA, must be a power of 2.')
-    parser.add_argument('--debug', action='store_true',
-        help='If set to false, can have local git changes when running this.')
-    # The number of DCA codebooks 'm' is determined from k and ibr.
-    # k is a required argument for DCA training.
-    parser.add_argument('--temp', type=float, default=1.0,
-        help='Temperature parameter for DCA training.')
-    parser.add_argument('--batchsize', type=int, default=64,
-        help='Batch size for DCA training.')
-    parser.add_argument('--gradclip', type=float, default=0.001,
-        help='Clipping of gradient norm for DCA training.')
     parser.add_argument('--lr', type=float, default=0.0001,
         help='Learning rate for DCA training.')
-    # End DCA hyperparameters
+    parser.add_argument('--batchsize', type=int, default=64,
+        help='Batch size for DCA training.')
+    parser.add_argument('--temp', type=float, default=1.0,
+        help='Temperature parameter for DCA training.')
+    parser.add_argument('--gradclip', type=float, default=0.001,
+        help='Clipping of gradient norm for DCA training.')
+    ### End DCA hyperparameters
     return parser
 
 def init_evaluate_parser():
@@ -125,7 +126,7 @@ def init_config(parser, runtype):
     config['datestr'] = get_date_str()
     config['rungroup'] =  '{}-{}'.format(config['datestr'], config['rungroup'])
     config['full-runname'] = get_full_runname(runtype)
-    windows_dir = str(pathlib.PurePath(get_windows_home_dir(), 'Babel_Files'))
+    windows_dir = str(pathlib.PurePath(get_windows_home_dir(), 'Babel_Files','smallfry'))
     config['basedir'] = windows_dir if is_windows() else '/proj/smallfry'
     config['rundir'] = get_and_make_run_dir(runtype)    
     init_logging()
@@ -202,6 +203,7 @@ def get_and_make_run_dir(runtype):
 def init_random_seeds():
     """Initialize random seeds."""
     torch.manual_seed(config['seed'])
+    tf.set_random_seed(config['seed'])
     np.random.seed(config['seed'])
     random.seed(config['seed'])
     if config['cuda']:
@@ -308,287 +310,3 @@ def save_embeddings(path, embeds, wordlist):
             strrow = [str(r) for r in row]
             file.write(" ".join(strrow))
             file.write("\n")
-
-#==================================================================
-# TONY'S CODE ====================================================
-#==================================================================
-# def get_git_hash():
-#     ''' returns githash of current directory. NOTE: not safe before init_logging'''
-#     git_hash = None
-#     try:
-#         this_dir = os.path.dirname(os.path.realpath(__file__))
-#         git_hash = check_output(['git','rev-parse','--short','HEAD'],cwd=this_dir).strip()
-#         logging.info('Git hash {}'.format(git_hash))
-#     except FileNotFoundError:
-#         logging.info('Unable to get git hash.')
-#     return str(git_hash)
-
-# def codes_2_vec(codes, codebook, m ,k ,v,d):
-#     ''' reshapes inflates DCA output embeddings -- assumes input is properly formatted and flattened'''
-#     codes = codes.reshape(int(len(codes)/m),m)
-#     dcc_mat = np.zeros([v,d])
-#     for i in range(v):
-#         for j in range(m):
-#             dcc_mat[i,:] += codebook[j*k+codes[i,j],:]
-#     return dcc_mat
-
-# def compute_m_dca(k, v, d, br):
-#     return int(np.round(0.125*br*v*d/(0.125*v*np.log2(k) + 4*d*k)))
-
-# def set_seeds(seed):
-#     np.random.seed(seed)
-#     torch.manual_seed(seed)
-
-# def save_dict_as_json(dict_to_write, path):
-#     ''' pydict to json --> this method is fairly pointless and not really used '''
-#     with open(path, 'w') as f: json.dump(dict_to_write, f, indent=2)
-
-# def get_date_str():
-#     ''' gets datetime '''
-#     return '{:%Y-%m-%d}'.format(datetime.date.today())
-
-# def to_file_np(path, embeds):
-#     ''' saves np file '''
-#     np.save(path, embeds)
-
-# def to_file_txt(path, wordlist, embeds):
-#     ''' save embeddings in text file format'''
-#     with open(path, "w+") as file:
-#         for i in range(len(wordlist)):
-#             file.write(wordlist[i] + " ")
-#             row = embeds[i, :]
-#             strrow = [str(r) for r in row]
-#             file.write(" ".join(strrow))
-#             file.write("\n")
-
-# def init_logging(log_filename):
-#     """Initialize logfile to be used for experiment."""
-#     logging.basicConfig(filename=log_filename,
-#                         format='%(asctime)s %(message)s',
-#                         datefmt='[%m/%d/%Y %H:%M:%S]: ',
-#                         filemode='w', # this will overwrite existing log file.
-#                         level=logging.DEBUG)
-#     console = logging.StreamHandler(sys.stdout)
-#     console.setLevel(logging.DEBUG)
-#     logging.getLogger('').addHandler(console)
-#     logging.info('Begin logging.')
-
-# def eval_print(message):
-#     ''' fancy print out stuff -- author: MAXLAM'''
-#     callername = sys._getframe().f_back.f_code.co_name
-#     tsstring = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-#     print("%s-%s : %s" % (tsstring, callername, message))
-#     sys.stdout.flush()
-
-# def perform_command_local(command):
-#     ''' performs a command -- author: MAXLAM'''
-#     out = check_output(command, stderr=subprocess.STDOUT, shell=True).decode('utf-8') 
-#     return out     
-
-# def get_results_path(embed_path, results_type):
-#     ''' gets path to a certain results-type given embeddings path'''
-#     embed_name = os.path.basename(embed_path)
-#     results_file = '%s_results-%s.json' % (embed_name, results_type)
-#     return str(pathlib.PurePath(embed_path, results_file))
-
-# def get_log_name(name, rungroup):
-#     ''' constructs standard launch log filename format'''
-#     return '%s:%s:%s' % (get_date_str(), rungroup, name)
-
-# def get_qsub_preamble():
-#     return "qsub -V -b y -wd"
-
-# def prep_qsub_log_dir(qsub_log_path_generic, name, rungroup):
-#     ''' makes log dir for qsubs'''
-#     qsub_log_path_specific = str(pathlib.PurePath(qsub_log_path_generic,
-#                                                  get_log_name(name, rungroup)))
-#     os.mkdir(qsub_log_path_specific)
-#     return qsub_log_path_specific
-
-# def launch_config(config, action, action_path, qsub=False):
-#     s = ''
-#     assert action in ['eval','gen','maker'], f"Invalid action in config launcher:{action}"
-#     qsub_log_path = str(pathlib.PurePath(get_qsub_log_path(), action))
-#     python_action_cmd = f"python {action_path} "
-#     flags = [python_action_cmd]
-#     for key in config.keys():
-#         flags.append(f"--{key} {config[key]}")
-#     s = " ".join(flags)
-#     s = f"{get_qsub_preamble()} {qsub_log_path} {s}" if qsub else s
-#     return s 
- 
-# def get_all_embs_in_rg(rungroup):
-#     rungroup_qry = f"{get_base_outputdir()}/*"
-#     rungroup_found = False
-#     embs = []
-#     for rg in glob.glob(rungroup_qry):
-#         if os.path.basename(rg) == rungroup:    
-#             rungroup_found = True
-#             rungroup_wildcard = rg +'/*'
-#             for emb in glob.glob(rungroup_wildcard):
-#                 embs.append(emb)
-#     assert rungroup_found, f"rungroup requested {rungroup} not found"
-#     return embs
-
-# def do_results_already_exist(embed_path, results_type):
-#     ''' boolean function -- default behavior is to fail when results already exist'''
-#     results_path = get_results_path(embed_path, results_type)
-#     print(results_path)
-#     return os.path.isfile(results_path)
-
-# def results_to_file(embed_path, results_type, results):
-#     ''' writes json results to file'''
-#     results_path = get_results_path(embed_path, results_type)
-#     with open(results_path, 'w+') as results_f:
-#             results_f.write(json.dumps(results)) 
-
-# def fetch_embeds_txt_path(embed_path):
-#     ''' returns path to text embeddings representation given embeddings dir path'''
-#     embed_name = os.path.basename(embed_path)
-#     return str(pathlib.PurePath(embed_path, embed_name+'.txt'))
-
-# def fetch_embeds_npy_path(embed_path):
-#     ''' returns path to npy embeddings representation given embeddings dir path'''
-#     embed_name = os.path.basename(embed_path)
-#     return str(pathlib.PurePath(embed_path, embed_name+'.npy')) 
-
-# def fetch_embeds_config_path(embed_path):
-#     ''' returns path to npy embeddings representation given embeddings dir path'''
-#     embed_name = os.path.basename(embed_path)
-#     return str(pathlib.PurePath(embed_path, embed_name+'_config.json'))
-
-# def fetch_embeds_makelog_path(embed_path):
-#     ''' returns path to npy embeddings representation given embeddings dir path'''
-#     embed_name = os.path.basename(embed_path)
-#     return str(pathlib.PurePath(embed_path, embed_name+'_maker.log'))
-
-# def fetch_embeds_4_eval(embed_path):
-#     ''' returns numpy embeddings and wordlist using smallfry load embeddings'''
-#     embed_txt_path = fetch_embeds_txt_path(embed_path)
-#     embeds, wordlist = load_embeddings(embed_txt_path) #clarify what load_embeddings returns
-#     assert len(embeds) == len(wordlist), 'Embeddings and wordlist have different lengths in eval.py'
-#     return embeds, wordlist
-
-# def fetch_maker_config(embed_path):
-#     '''reads and returns the maker config'''
-#     embed_name = os.path.basename(embed_path)
-#     maker_config_path = str(pathlib.PurePath(embed_path, embed_name+'_config.json'))
-#     maker_config = dict()
-#     with open(maker_config_path, 'r') as maker_config_f:
-#         maker_config = json.loads(maker_config_f.read())
-#     return maker_config
-
-# def fetch_dim(embed_path): #TODO: deprecate this method in favor of above
-#     '''reads embedding dimension from maker config '''
-#     return fetch_maker_config(embed_path)['dim']
-
-# def fetch_base_embed_path(embed_path):
-#     ''' reads path to base embeddings from maker config'''
-#     embed_name = os.path.basename(embed_path)
-#     maker_config_path = str(pathlib.PurePath(embed_path, embed_name+'_config.json'))
-#     maker_config = dict()
-#     with open(maker_config_path, 'r') as maker_config_f:
-#         maker_config = json.loads(maker_config_f.read())
-#     return maker_config['basepath']
-
-# def get_environment():
-#     ''' Use this routine to determine your compute environment'''
-#     host = perform_command_local('hostname')
-#     if 'smallfry' in host: # In Avner's smallfry AWS image
-#         return 'AWS'
-#     elif 'dawn' in host: #On the DAWN cluster
-#         return 'DAWN'
-#     elif 'ThinkPad-X270' in host: #on Tony's laptop
-#         return 'TONY'
-
-# def whoami():
-#     '''Wraps bash whoami'''
-#     return perform_command_local('whoami')[:-1] # last char is newline, so drop it
-
-# '''HARDCODED PATHS BELOW'''
-
-# def get_base_directory():
-#     path = '/proj/smallfry'
-#     if get_environment() == 'DAWN':
-#         path = '/lfs/1/%s%s' % (whoami(),path) 
-#     return path
-
-# def get_drqa_directory():
-#     return str(pathlib.PurePath(get_base_directory(), "embeddings_benchmark/DrQA/"))
-
-# def get_relation_directory():
-#     return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/tacred-relation/"))
-
-# def get_senwu_sentiment_directory():
-#     return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/sentence_classification"))
-
-# def get_harvardnlp_sentiment_data_directory():
-#     return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/sent-conv-torch/data"))
-
-# def get_senwu_sentiment_out_directory():
-#     return str(pathlib.PurePath(get_base_directory(), "senwu_sentiment_out"))
-
-# def get_sentiment_directory():
-#     return str(pathlib.PurePath(get_base_directory(),"embeddings_benchmark/compositional_code_learning/"))
-
-# def get_base_embed_path_head():
-#     return str(pathlib.PurePath(get_base_directory(),'base_embeddings'))
-
-# def get_base_outputdir():
-#     return str(pathlib.PurePath(get_base_directory(),'embeddings'))
-
-# def get_launch_path():
-#     return str(pathlib.PurePath(get_base_directory(),'launches'))
-
-# def get_qsub_log_path():
-#     return str(pathlib.PurePath(get_base_directory(),'qsub_logs'))
-
-# def get_plots_path():
-#     return str(pathlib.PurePath(get_base_directory(),'plots'))
-
-# def get_corpus_path():
-#     return str(pathlib.PurePath(get_base_directory(),'corpus'))
-
-# def get_agg_results_path():
-#     return str(pathlib.PurePath(get_base_directory(),'results'))
-
-# def get_glove_generator_path():
-#     return str(pathlib.PurePath(get_base_directory(),'smallfry/experiments/generation/GloVe'))
-
-# def load_embeddings(embeds_txt_filepath):
-#     """
-#     Loads a GloVe embedding at 'filename'. Returns a vector of strings that 
-#     represents the vocabulary and a 2-D numpy matrix that is the embeddings. 
-#     """
-#     with open(embeds_txt_filepath, 'r') as embeds_file:
-#         lines = embeds_file.readlines()
-#         wordlist = []
-#         embeddings = []
-#         for line in lines:
-#             row = line.strip("\n").split(" ")
-#             wordlist.append(row.pop(0))
-#             embeddings.append([float(i) for i in row])
-#         embeddings = np.array(embeddings)
-#     return embeddings, wordlist
-
-# # LOAD EMBEDDINGS WITH WORD TRIE
-# # def load_embeddings_trie(embeds_txt_filepath):
-# #     """
-# #     Loads a GloVe embedding at 'filename'. Returns a vector of strings that 
-# #     represents the vocabulary and a 2-D numpy matrix that is the embeddings. 
-# #     """
-# #     with open(embeds_txt_filepath, 'r') as embeds_file:
-# #         lines = embeds_file.readlines()
-# #         wordlist = []
-# #         embeddings = []
-# #         for line in lines:
-# #             row = line.strip("\n").split(" ")
-# #             wordlist.append(row.pop(0))
-# #             embeddings.append([float(i) for i in row])
-# #         embeddings = np.array(embeddings)
-# #         wordtrie = marisa.Trie(wordlist)
-# #         trie_order_embeds = np.zeros(embeddings.shape)
-# #         for i in range(len(wordlist)):
-# #             i_prime = wordtrie[wordlist[i]]
-# #             trie_order_embeds[i_prime,:] = embeddings[i,:]
-# #     return wordtrie, trie_order_embeds
