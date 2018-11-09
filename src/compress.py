@@ -3,7 +3,10 @@ import math
 import time
 import pathlib
 import numpy as np
-from sklearn.cluster import KMeans
+try:
+    from sklearn.cluster import KMeans
+except ImportError:
+    pass
 import utils
 from third_party.neuralcompressor.nncompress.embed_compress import EmbeddingCompressor
 
