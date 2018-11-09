@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/HazyResearch/smallfry.svg?branch=master)](https://travis-ci.com/HazyResearch/smallfry)
+[![Build Status](https://travis-ci.com/HazyResearch/smallfry.svg?token=DY2tqn6MMHmNqLqricH4&branch=master)](https://travis-ci.com/HazyResearch/smallfry)
 
 # SmallFry
 We provide an implementation of the SmallFry algorithm for compressing
