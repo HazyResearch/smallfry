@@ -6,4 +6,6 @@
 !*.py
 !*.txt
 !.gitignore
+!.gitmodule
+!.travis.yml
 !*.md
