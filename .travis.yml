@@ -1,5 +1,8 @@
 language: python
 python:
   - "3.6"
+install:
+  - travis_wait 5 mvn install
+  - pip install -r requirements.txt
 script:
   - pytest
