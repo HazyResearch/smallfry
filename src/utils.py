@@ -11,7 +11,7 @@ from subprocess import check_output
 import argparse
 import numpy as np
 import torch
-import tf
+import tensorflow as tf
 
 config = {}
 
