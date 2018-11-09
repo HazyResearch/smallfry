@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/HazyResearch/smallfry.png?branch=master)](https://travis-ci.com/HazyResearch/smallfry)
+
 We provide an implementation of the SmallFry algorithm for compressing
 and evaluating embeddings.  We also implement a number of baselines,
 including k-means quantization and deep compositional autoencoders (DCA).
