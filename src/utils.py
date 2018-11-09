@@ -10,8 +10,12 @@ import random
 from subprocess import check_output
 import argparse
 import numpy as np
-import torch
-import tensorflow as tf
+try:
+    import torch
+    import tensorflow as tf
+except ImportError:
+    pass
+
 
 config = {}
 
@@ -202,12 +206,14 @@ def get_and_make_run_dir(runtype):
 
 def init_random_seeds():
     """Initialize random seeds."""
-    torch.manual_seed(config['seed'])
-    tf.set_random_seed(config['seed'])
+    if 'torch' in sys.modules:
+        torch.manual_seed(config['seed'])
+        if config['cuda']:
+            torch.cuda.manual_seed(config['seed'])
+    if 'tensorflow' in sys.modules:
+        tf.set_random_seed(config['seed'])
     np.random.seed(config['seed'])
     random.seed(config['seed'])
-    if config['cuda']:
-        torch.cuda.manual_seed(config['seed'])
 
 def args_set_at_cmdline():
     args_set = [s[2:] for s in sys.argv[1:] if (len(s) > 2 and s[0:2] == '--')]
