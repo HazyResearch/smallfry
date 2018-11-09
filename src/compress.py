@@ -5,10 +5,10 @@ import pathlib
 import numpy as np
 try:
     from sklearn.cluster import KMeans
+    from third_party.neuralcompressor.nncompress.embed_compress import EmbeddingCompressor
 except ImportError:
     pass
 import utils
-from third_party.neuralcompressor.nncompress.embed_compress import EmbeddingCompressor
 
 def main():
     utils.init('compress')
