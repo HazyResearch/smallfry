@@ -1,6 +1,0 @@
-scipy
-sklearn
-numpy
-pytest
-torch
-tensorflow
