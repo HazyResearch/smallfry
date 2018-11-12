@@ -68,7 +68,7 @@ def compress_kmeans(X, bit_rate, random_seed=None, n_init=1):
     # default k-means params: max_iter=300, n_init=10, tol=1e-4
     kmeans = KMeans(n_clusters=2**bit_rate, random_state=random_seed, n_init=n_init)
     start = time.time()
-    kmeans = kmeans.fit(X.reshape(X.shape[0] * X.shape[1],1))
+    kmeans = kmeans.fit(X.reshape(X.size,1))
     elapsed = time.time() - start
     # map each element of X to the nearest centroid
     Xq = kmeans.cluster_centers_[kmeans.labels_].reshape(X.shape)
@@ -97,7 +97,8 @@ def compress_uniform(X, bit_rate, adaptive_range=False, stochastic_round=False,
         skip_quantize=False):
     start = time.time()
     if adaptive_range:
-        range_limit = find_optimal_range(X, bit_rate)
+        # TODO: Should we pass through stochastic_round here?
+        range_limit = find_optimal_range(X, bit_rate, stochastic_round=False)
     else:
         range_limit = get_max_abs(X)
 
@@ -114,6 +115,8 @@ def _compress_uniform(X, bit_rate, range_limit, stochastic_round=False,
     Internal uniform quantization function (ADD MORE DESCRIPTION)
     '''
     assert range_limit >= 0, 'range_limit must be non-negative.'
+    assert X.dtype == np.float or X.dtype == np.float64,\
+                'Only floating point inputs allowed.'
     Xq = np.copy(X)
     if get_max_abs(Xq) > range_limit:
         np.clip(Xq, -range_limit, range_limit, out=Xq)
@@ -141,17 +144,19 @@ def find_optimal_range(X, bit_rate, stochastic_round=False, tol=1e-2):
     '''
     Find the best value to use to clip the embeddings before using uniform quantization.
     '''
-    f = lambda range_limit : compress_and_compute_frob_error(
+    f = lambda range_limit : compress_and_compute_frob_squared_error(
         X, bit_rate, range_limit, stochastic_round=stochastic_round)
 
     return golden_section_search(f, 0, get_max_abs(X), tol=tol)
 
-def compress_and_compute_frob_error(X, bit_rate, range_limit, stochastic_round=False):
+def compress_and_compute_frob_squared_error(X, bit_rate, range_limit, stochastic_round=False):
     '''
-    Function which computes Frob error after quantizing (ADD MORE DESCRIPTION).
+    Function which computes frob squared error after compression.  This function
+    is used in the find_optimal_range function to find best clip value for
+    adaptive range uniform compression.
     '''
-    X_q = _compress_uniform(X, bit_rate, range_limit, stochastic_round=stochastic_round)
-    return np.linalg.norm(X - X_q) # frob norm
+    Xq = _compress_uniform(X, bit_rate, range_limit, stochastic_round=stochastic_round)
+    return np.linalg.norm(X - Xq)**2
 
 # TESTED
 def golden_section_search(f, x_min, x_max, tol=1e-2):

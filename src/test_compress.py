@@ -90,7 +90,7 @@ class CompressTest(unittest.TestCase):
         # absolute value.  We include two options to allow for
         # "quantization ties" to go either way.  In particular, 0 is always
         # exactly in the middle of the two centroids on either side of it.
-        for L in  [0.5,1,2]:
+        for L in  [0.5,1.0,2.0]:
             # Data evenly spaced between -L and +L
             X = np.linspace(-L,L,21)
             X_b1_det_true = compress._compress_uniform(X,1,L,stochastic_round=False,skip_quantize=False)
@@ -113,7 +113,7 @@ class CompressTest(unittest.TestCase):
         # bit-rates, and for range_limits above and below the actual maximum
         # absolute value of the matrix.
         X_dims = [(1000,1),(1000,100,1)]
-        for L in  [0.5,1,2]:
+        for L in  [0.5,1.0,2.0]:
             for r in [0.5*L, L, 2*L]:
                 for b in [1,2,4,8]:
                     centroid_dims = [(1,2**b),(1,1,2**b)]
@@ -172,7 +172,7 @@ class CompressTest(unittest.TestCase):
         # (3) Test that if skip_quantize is true, the compression function only
         # performs clipping, and does not perform quantization, regardless of
         # stochastic_round or bit_rate.
-        for L in  [0.5,1,2]:
+        for L in  [0.5,1.0,2.0]:
             for r in [0.5*L, L, 2*L]:
                 for b in [0,1,2,4,8,32]:
                     for X_dim in X_dims:
@@ -186,7 +186,7 @@ class CompressTest(unittest.TestCase):
 
         # (4) Test that bitrate 0 always gives a matrix of zeros
         # when skip_quantize is False (regardless of stochastic round).
-        for L in  [0.5,1,2]:
+        for L in  [0.5,1.0,2.0]:
             for r in [0.5*L, L, 2*L]:
                 for X_dim in X_dims:
                     for stochastic_round in [True,False]:
@@ -199,7 +199,7 @@ class CompressTest(unittest.TestCase):
 
         # (5) Test that when bitrate is 32, only the clipping is performed
         # (no quantizing), regardless of skip_quantize or stochastic_round.
-        for L in  [0.5,1,2]:
+        for L in  [0.5,1.0,2.0]:
             for r in [0.5*L, L, 2*L]:
                 for X_dim in X_dims:
                     for stochastic_round in [True,False]:                        
@@ -215,7 +215,7 @@ class CompressTest(unittest.TestCase):
         # (6) Test that when range_limit is 0, compression always returns a 
         # matrix of zeros, regardless of bit_rate, stochastic_round, or 
         # skip_quantize.
-        for L in  [0.5,1,2]:
+        for L in  [0.5,1.0,2.0]:
             for r in [0.5*L, L, 2*L]:
                 for b in [0,1,2,4,8,32]:
                     for X_dim in X_dims:
@@ -230,7 +230,7 @@ class CompressTest(unittest.TestCase):
 
         # (7) Test that quantization is unbiased for stochastic rounding.
         # We do this by constructing a random matrix 
-        for L in  [0.5,1,2]:
+        for L in  [0.5,1.0,2.0]:
             for b in [1,2,4,8]:
                 for X_dim in X_dims:
                     # val is uniformly random in [-L,+L]
@@ -258,6 +258,123 @@ class CompressTest(unittest.TestCase):
                     # with high probability, z is less than 4 standard
                     # deviations away from its mean.
                     self.assertTrue(np.abs(z) <= 4)
+
+    # compress_and_compute_frob_squared_error(X, bit_rate, range_limit, stochastic_round=False)
+    def test_compress_and_compute_frob_squared_error(self):
+        for L in  [1.0,2.0]:
+            for b in [1,2,4,8]:
+                for stochastic_round in [True,False]:
+                    # Test that points on boundary are not changed.
+                    X = np.array(4 * [-L] + 4 * [L])
+                    error = compress.compress_and_compute_frob_squared_error(
+                        X, b, L, stochastic_round=stochastic_round)
+                    self.assertAlmostEqual(0,error)
+
+                    # Now test case where we clip at [-L/2,L/2].
+                    error = compress.compress_and_compute_frob_squared_error(
+                        X, b, L/2, stochastic_round=stochastic_round)
+                    self.assertAlmostEqual(X.size * (L/2)**2, error)
+
+                    # Now test case where points are exactly in between the two
+                    # nearest centroids.
+                    c = 2 * L / (2**b - 1)
+                    X = np.array(4 * [-L+c/2] + 4 * [L-c/2])
+                    error = compress.compress_and_compute_frob_squared_error(
+                        X, b, L, stochastic_round=stochastic_round)
+                    self.assertAlmostEqual(X.size * (c/2)**2, error)
+
+    def test_find_optimal_range(self):
+        '''Test that find_optimal_range picks the optimal range-limit,
+        for data distributed evenly between -L and +L.
+        '''
+        tol = 1e-3
+        # Data evenly spaced between -L and +L. The optimal clip value
+        # corresponds to the position of the furthest out centroid in the
+        # case where mid-riser quantization is used --- mid-riser quantization
+        # divides [-L,+L] into 2^b sub-intervals of equal size, and places the
+        # centroid at the center of each interval.  Thus, the furthest out
+        # centroid is at L - (1/2) * (2L)/(2^b) = L - L/2^b = L*(1-2^(-b)).
+        for L in  [0.5,1.0,2.0]:
+            for b in [1,2,4,8]:
+                X = np.linspace(-L,L,100001)
+                pred_opt = compress.find_optimal_range(X, b,
+                    stochastic_round=False, tol=tol)
+                true_opt = L * (1 - 2**(-b))
+                self.assertTrue(np.abs(true_opt - pred_opt) <= tol)
+
+        # Data at -L and +L, so the clipping + compression will simply
+        # do the clipping.  Thus, the optimal clip value should be +L,
+        # corresponding to no clipping.
+        for L in  [0.5,1.0,2.0]:
+            for b in [1,2,4,8]:
+                for stochastic_round in [True,False]:
+                    X = np.array(5000 * [-L] + 5000 * [L])
+                    pred_opt = compress.find_optimal_range(X, b,
+                        stochastic_round=stochastic_round, tol=tol)
+                    true_opt = L
+                    self.assertTrue(np.abs(true_opt - pred_opt) <= tol)
+
+    # compress_uniform(X, bit_rate, adaptive_range=False, stochastic_round=False, skip_quantize=False):
+    def test_compress_uniform(self):
+        # Data evenly spaced between -L and +L. The optimal clip value
+        # corresponds to the position of the furthest out centroid in the
+        # case where mid-riser quantization is used --- mid-riser quantization
+        # divides [-L,+L] into 2^b sub-intervals of equal size, and places the
+        # centroid at the center of each interval.  Thus, the furthest out
+        # centroid is at L - (1/2) * (2L)/(2^b) = L - L/2^b = L*(1-2^(-b)).
+        tol = 2e-3
+        n = 100001
+        for L in  [0.5,1.0,2.0]:
+            for b in [1,2,4,8]:
+                X = np.linspace(-L,L,n)
+                Xq,frob_squared_error,elapsed = compress.compress_uniform(X, b, 
+                    adaptive_range=True, stochastic_round=False, skip_quantize=False)
+                pred_centroids = np.sort(np.unique(Xq))
+                true_limit = L * (1 - 2**(-b))
+                c = 2*L/2**b
+                true_centroids = np.linspace(-true_limit, true_limit, 2**b)
+                self.assertTrue(np.allclose(pred_centroids,true_centroids,atol=tol))
+                # self.assertTrue(frob_squared_error <= n * (c/2)**2)
+                print('{},{}'.format(frob_squared_error, n * (1/3) * (c/2)**2))
+                self.assertTrue(frob_squared_error <= 1.01 * n * (1/3) * (c/2)**2)
+                self.assertTrue(frob_squared_error >= 0.99 * n * (1/3) * (c/2)**2)
+
+    def test_compress_kmeans(self):
+        n = 1000
+        # Test that if there are only 2^b unique values in X, that kmeans
+        # recovers these values.
+        for b in [1,2,4,8]:
+            true_centroids = np.logspace(0,2,2**b)
+            X = np.zeros((n, 2**b))
+            X[:,:] = true_centroids
+            Xq,frob_squared_error,elapsed = compress.compress_kmeans(X, b)
+            pred_centroids = np.sort(np.unique(Xq))
+            self.assertEqual(pred_centroids.size, 2**b)
+            self.assertTrue(np.allclose(pred_centroids, true_centroids))
+            self.assertTrue(np.allclose(X, Xq))
+            self.assertAlmostEqual(frob_squared_error,0)
+            self.assertTrue(elapsed >= 0)
+
+        # test that if X is uniformly spaced between -L,+L that kmeans spaces
+        # the centroids quite evenly.
+        for L in  [0.5,1.0,2.0]:
+            for b in [1,2,4]:
+                X = np.linspace(-L,L,100001)
+                Xq,frob_squared_error,elapsed = compress.compress_kmeans(X, b)
+                pred_centroids = np.sort(np.unique(Xq))
+                # r = L * (1 - 2**(-b))
+                # true_centroids = np.linspace(-r,r,2**b)
+                # self.assertTrue(np.max(np.abs(pred_centroids - true_centroids)) <= tol)
+                true_adj_dist = 2 * L / 2**b
+                max_adj_dist = np.max(pred_centroids[1:] - pred_centroids[:-1])
+                # adjacent centroids should be around 'true_adj_dist' apart.
+                self.assertTrue(max_adj_dist >= true_adj_dist/2 and
+                                max_adj_dist <= 2 * true_adj_dist)
+                self.assertEqual(pred_centroids.size, 2**b)
+                self.assertTrue(elapsed >= 0)
+
+    def test_compress_dca(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()
