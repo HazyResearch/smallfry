@@ -334,8 +334,6 @@ class CompressTest(unittest.TestCase):
                 c = 2*L/2**b
                 true_centroids = np.linspace(-true_limit, true_limit, 2**b)
                 self.assertTrue(np.allclose(pred_centroids,true_centroids,atol=tol))
-                # self.assertTrue(frob_squared_error <= n * (c/2)**2)
-                print('{},{}'.format(frob_squared_error, n * (1/3) * (c/2)**2))
                 self.assertTrue(frob_squared_error <= 1.01 * n * (1/3) * (c/2)**2)
                 self.assertTrue(frob_squared_error >= 0.99 * n * (1/3) * (c/2)**2)
 
@@ -374,7 +372,23 @@ class CompressTest(unittest.TestCase):
                 self.assertTrue(elapsed >= 0)
 
     def test_compress_dca(self):
-        pass
+        n = 1000
+        # Test that if there are only 2^b unique values in X, that kmeans
+        # recovers these values.
+        work_dir = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\test_work_dir'
+        for b in [1,2,4,8]:
+            true_centroids = np.logspace(0,2,2**b)
+            X = np.zeros((n, 2**b))
+            X[:,:] = true_centroids
+            X = X.astype('float32')
+            Xq,frob_squared_error,elapsed,results_per_epoch = \
+                compress.compress_dca(X,b,work_dir=work_dir)
+            # pred_centroids = np.sort(np.unique(Xq))
+            # self.assertEqual(pred_centroids.size, 2**b)
+            # self.assertTrue(np.allclose(pred_centroids, true_centroids))
+            # self.assertTrue(np.allclose(X, Xq))
+            # self.assertAlmostEqual(frob_squared_error,0)
+            # self.assertTrue(elapsed >= 0)
 
 if __name__ == "__main__":
     unittest.main()

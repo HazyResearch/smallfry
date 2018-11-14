@@ -1,3 +1,4 @@
+import os
 import logging
 import math
 import time
@@ -54,10 +55,15 @@ def compress_embeddings(X, bit_rate):
         Xq, frob_squared_error, elapsed = compress_kmeans(X, bit_rate,
             random_seed=utils.config['seed'], n_init=1)
     elif utils.config['compresstype'] == 'dca':
-        Xq, frob_squared_error, elapsed = compress_dca(X, bit_rate,
-            utils.config['k'], utils.config['lr'],  utils.config['batchsize'],
-            utils.config['temp'], utils.config['gradclip'],
-            utils.config['rundir'])
+        work_dir = str(pathlib.PurePath(utils.config['rundir'],'dca_tmp'))
+        Xq, frob_squared_error, elapsed, results_per_epoch = compress_dca(
+            X, bit_rate, k=utils.config['k'], work_dir=work_dir,
+            learning_rate=utils.config['lr'], batch_size=utils.config['batchsize'],
+            grad_clip=utils.config['gradclip'], tau=utils.config['tau']
+        )
+        utils.save_dict_as_json(results_per_epoch, str(pathlib.PurePath(
+            work_dir, utils.config['full-runname'] + '_dca_train_log.json')))
+
     utils.config['frob-squared-error'] = frob_squared_error
     utils.config['compress-time'] = elapsed
     logging.info('Finished making embeddings. It took {} min.'.format(elapsed/60))
@@ -75,23 +81,28 @@ def compress_kmeans(X, bit_rate, random_seed=None, n_init=1):
     frob_squared_error = kmeans.inertia_
     return Xq, frob_squared_error, elapsed
 
-def compress_dca(X, bit_rate, k, lr, batch_size, temp, grad_clip, rundir):
+
+# def __init__(self, n_codebooks, n_centroids, model_path,
+#         learning_rate=0.0001, batch_size=64, grad_clip=0.001, tau=1.0): # Avner change
+
+def compress_dca(X, bit_rate, k=2, work_dir=os.getcwd(),
+        learning_rate=0.0001, batch_size=64, grad_clip=0.001, tau=1.0):
     # TODO: Test inflate_dca_embeddings
-    work_dir = str(pathlib.PurePath(rundir,'dca_tmp'))
     (v,d) = X.shape
     m = compute_m_dca(k, v, d, bit_rate)
     start = time.time()
-    compressor = EmbeddingCompressor(m, k, work_dir, temp, batch_size, lr, grad_clip)
-    dca_train_log = compressor.train(X)
+    compressor = EmbeddingCompressor(m, k, work_dir,
+        learning_rate=learning_rate, batch_size=batch_size,
+        grad_clip=grad_clip, tau=tau)
+    results_per_epoch = compressor.train(X)
     elapsed = time.time() - start
     _,frob_squared_error = compressor.evaluate(X)
     codes, codebook = compressor.export(X, work_dir)
-    codes = np.array(codes).flatten()
-    codebook = np.array(codebook)
+    codes = np.array(codes)
+    # reshape codebook as (m,k,d), representing m codebooks, each of size k x d.
+    codebook = np.array(codebook).reshape(m,k,d)
     Xq = inflate_dca_embeddings(codes, codebook, m, k, v, d)
-    utils.save_dict_as_json(dca_train_log, str(pathlib.PurePath(
-        work_dir, utils.config['full-runname'] + '_dca_train_log.json')))
-    return Xq, frob_squared_error, elapsed
+    return Xq, frob_squared_error, elapsed, results_per_epoch
 
 def compress_uniform(X, bit_rate, adaptive_range=False, stochastic_round=False,
         skip_quantize=False):
@@ -219,13 +230,19 @@ def golden_section_search(f, x_min, x_max, tol=1e-2):
 def get_max_abs(X):
     return np.max(np.abs(X))
 
-def inflate_dca_embeddings(codes, codebook, m, k , v, d):
-    ''' reshapes inflates DCA output embeddings -- assumes input is properly formatted and flattened'''
-    codes = codes.reshape(int(len(codes)/m),m)
+def inflate_dca_embeddings(codes, codebook, m, k, v, d):
+    '''Inflates DCA output embeddings.
+    'codes' is a v x m numpy array, where entry i,j corresponds to the index
+    of the entry in the j'th codebook used by word i.
+    'codebook' is a m x k x d numpy array, where codebook[i,:,:] represents
+    the i'th codebook (of dimension k x d).
+    To inflate the embeddings, we add up the m d-dimensional vectors
+    (one from each codebook) used by each word.
+    '''
     embeds = np.zeros([v,d])
     for i in range(v):
         for j in range(m):
-            embeds[i,:] += codebook[j*k+codes[i,j],:]
+            embeds[i,:] += codebook[j, codes[i,j], :]
     return embeds
 
 def compute_m_dca(k, v, d, bit_rate):

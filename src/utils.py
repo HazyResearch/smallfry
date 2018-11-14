@@ -100,7 +100,7 @@ def init_compress_parser():
         help='Learning rate for DCA training.')
     parser.add_argument('--batchsize', type=int, default=64,
         help='Batch size for DCA training.')
-    parser.add_argument('--temp', type=float, default=1.0,
+    parser.add_argument('--tau', type=float, default=1.0,
         help='Temperature parameter for DCA training.')
     parser.add_argument('--gradclip', type=float, default=0.001,
         help='Clipping of gradient norm for DCA training.')
