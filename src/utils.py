@@ -130,8 +130,7 @@ def init_config(parser, runtype):
     config['datestr'] = get_date_str()
     config['rungroup'] =  '{}-{}'.format(config['datestr'], config['rungroup'])
     config['full-runname'] = get_full_runname(runtype)
-    windows_dir = str(pathlib.PurePath(get_windows_home_dir(), 'Babel_Files','smallfry'))
-    config['basedir'] = windows_dir if is_windows() else '/proj/smallfry'
+    config['basedir'] = get_base_dir()
     config['rundir'] = get_and_make_run_dir(runtype)    
     init_logging()
     config['githash'], config['gitdiff'] = get_git_hash_and_diff() # might fail
@@ -235,20 +234,21 @@ def non_default_args(parser, args):
 def get_git_hash_and_diff():
     git_hash = None
     git_diff = None
-    try:
-        wd = os.getcwd()
-        git_repo_dir = '/proj/mlnlp/avnermay/Babel/Git/smallfry'
-        os.chdir(git_repo_dir)
-        git_hash = str(check_output(['git','rev-parse','--short','HEAD']).strip())[:9]
-        git_diff = str(check_output(['git','diff']).strip())
-        if not config['debug']:
-            # if not in debug mode, local repo changes are not allowed.
-            assert git_diff == '', 'Cannot have any local changes'
-        os.chdir(wd)
-        logging.info('Git hash {}'.format(git_hash))
-        logging.info('Git diff {}'.format(git_diff))
-    except FileNotFoundError:
-        logging.info('Unable to get git hash.')
+    if not is_windows():
+        try:
+            wd = os.getcwd()
+            git_repo_dir = '/proj/smallfry/git/smallfry'
+            os.chdir(git_repo_dir)
+            git_hash = str(check_output(['git','rev-parse','--short','HEAD']).strip())[:9]
+            git_diff = str(check_output(['git','diff']).strip())
+            if not config['debug']:
+                # if not in debug mode, local repo changes are not allowed.
+                assert git_diff == '', 'Cannot have any local changes'
+            os.chdir(wd)
+            logging.info('Git hash {}'.format(git_hash))
+            logging.info('Git diff {}'.format(git_diff))
+        except FileNotFoundError:
+            logging.info('Unable to get git hash.')
     return git_hash, git_diff
 
 def get_date_str():
@@ -285,10 +285,14 @@ def is_windows():
     """Determine if running on windows OS."""
     return os.name == 'nt'
 
-def get_windows_home_dir():
-    return (r'C:\Users\Avner' if
-            socket.gethostname() == 'Avner-X1Carbon' else
-            r'C:\Users\avnermay')
+def get_base_dir():
+    if is_windows():
+        username = ('Avner' if (socket.gethostname() == 'Avner-X1Carbon')
+                    else 'avnermay')
+        path = 'C:\\Users\\{}\\Babel_Files\\smallfry'.format(username)
+    else:
+        path = '/proj/smallfry'
+    return path
 
 def load_embeddings(path):
     """

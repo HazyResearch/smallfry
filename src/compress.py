@@ -239,6 +239,8 @@ def inflate_dca_embeddings(codes, codebook, m, k, v, d):
     To inflate the embeddings, we add up the m d-dimensional vectors
     (one from each codebook) used by each word.
     '''
+    assert codes.shape == (v,m)
+    assert codebook.shape == (m,k,d)
     embeds = np.zeros([v,d])
     for i in range(v):
         for j in range(m):

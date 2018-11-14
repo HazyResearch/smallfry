@@ -1,4 +1,5 @@
 import unittest
+import pathlib
 import numpy as np
 import utils
 import compress
@@ -372,23 +373,42 @@ class CompressTest(unittest.TestCase):
                 self.assertTrue(elapsed >= 0)
 
     def test_compress_dca(self):
+        work_dir =  str(pathlib.PurePath(utils.get_base_dir(), 'test_work_dir'))
         n = 1000
-        # Test that if there are only 2^b unique values in X, that kmeans
-        # recovers these values.
-        work_dir = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\test_work_dir'
-        for b in [1,2,4,8]:
-            true_centroids = np.logspace(0,2,2**b)
-            X = np.zeros((n, 2**b))
-            X[:,:] = true_centroids
-            X = X.astype('float32')
-            Xq,frob_squared_error,elapsed,results_per_epoch = \
-                compress.compress_dca(X,b,work_dir=work_dir)
+        X = np.vstack([-np.ones((n,3)), np.ones((n,3))])
+        X = X.astype('float32')
+        Xq,frob_squared_error,elapsed,results_per_epoch = \
+            compress.compress_dca(X,2,work_dir=work_dir)
+        self.assertTrue(np.isclose(frob_squared_error, np.linalg.norm(X-Xq)**2, rtol=1e-3))
+        self.assertTrue(np.linalg.norm(X-Xq)/np.linalg.norm(X) <= .05)
+
+        # for b in [1,2,4,8]:
+        #     true_centroids = np.logspace(0,2,2**b)
+        #     X = np.zeros((n, 2**b))
+        #     X[:,:] = true_centroids
+        #     X = X.astype('float32')
+        #     Xq,frob_squared_error,elapsed,results_per_epoch = \
+        #         compress.compress_dca(X,b,work_dir=work_dir)
             # pred_centroids = np.sort(np.unique(Xq))
             # self.assertEqual(pred_centroids.size, 2**b)
             # self.assertTrue(np.allclose(pred_centroids, true_centroids))
             # self.assertTrue(np.allclose(X, Xq))
             # self.assertAlmostEqual(frob_squared_error,0)
             # self.assertTrue(elapsed >= 0)
+
+    def test_inflate_dca_embeddings(self):
+        # Inputs to inflate_dca_embeddings: (codes, codebook, m, k, v, d)
+        codes = np.array([[0,0],[1,0],[0,1],[1,1],[1,1]])
+        codebook = np.array([  [[1,2,3,4], [5,6,7,8]], [[10,20,30,40], [50,60,70,80]]  ])
+        expected = np.array([[11,22,33,44],[15,26,37,48],[51,62,73,84],[55,66,77,88],[55,66,77,88]])
+        Xq = compress.inflate_dca_embeddings(codes, codebook, 2, 2, 5, 4)
+        self.assertTrue(np.allclose(Xq,expected))
+
+        codes = np.array([[0,0,0],[0,0,1],[0,1,0],[0,1,1],[1,0,0],[1,0,1],[1,1,0],[1,1,1]])
+        codebook = np.array([  [[0,0],[4,4]], [[0,0],[2,2]], [[0,0],[1,1]]  ])
+        expected = np.array([[0,0], [1,1], [2,2], [3,3], [4,4], [5,5], [6,6], [7,7]])
+        Xq = compress.inflate_dca_embeddings(codes, codebook, 3, 2, 8, 2)
+        self.assertTrue(np.allclose(Xq,expected))
 
 if __name__ == "__main__":
     unittest.main()
