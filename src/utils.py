@@ -68,7 +68,7 @@ def init_compress_parser():
     """Initialize cmd-line parser for embedding compression."""
     parser = argparse.ArgumentParser()
     parser.add_argument('--embedtype', type=str, required=True,
-        choices=['glove400k'], # TODO: Add more options
+        choices=['glove400k','glove10k'], # TODO: Add more options
         help='Name of embedding to compress')
     parser.add_argument('--embeddim', type=int, default=300,
         help='Dimension of embeddings to use.')
@@ -126,30 +126,35 @@ def init_config(parser, runtype):
     config = vars(parser.parse_args())
     validate_config(runtype)
     orig_config = config.copy()
+    if runtype == 'evaluate':
+        config_path = config['embedpath'].replace('_compressed_embeds.txt','_config.json')
+        config['compressed-config'] = load_dict_from_json(config_path)
+        config['rungroup'] = 'eval-' + config['compressed-config']['rungroup']
     config['runname'] = get_runname(parser, runtype)
     config['datestr'] = get_date_str()
     config['rungroup'] =  '{}-{}'.format(config['datestr'], config['rungroup'])
     config['full-runname'] = get_full_runname(runtype)
     config['basedir'] = get_base_dir()
-    config['rundir'] = get_and_make_run_dir(runtype)    
+    config['rundir'] = get_and_make_run_dir(runtype)
+    config['runtype'] = runtype
     init_logging()
     config['githash'], config['gitdiff'] = get_git_hash_and_diff() # might fail
     logging.info('Command line arguments: {}'.format(' '.join(sys.argv[1:])))
-    initialize_further(runtype)
+    # initialize_further(runtype)
     save_dict_as_json(orig_config, get_filename('_orig_config.json'))
     save_current_config()
 
 def save_current_config():
     save_dict_as_json(config, get_filename('_config.json'))
 
-def initialize_further(runtype):
-    global config
-    if runtype == 'train':
-        pass # TODO
-    elif runtype == 'compress':
-        pass # TODO
-    elif runtype == 'evaluate':
-        pass # TODO
+# def initialize_further(runtype):
+#     global config
+#     if runtype == 'train':
+#         pass # TODO
+#     elif runtype == 'compress':
+#         pass # TODO
+#     elif runtype == 'evaluate':
+#         pass # TODO
 
 def validate_config(runtype):
     assert '_' not in config['rungroup'], 'rungroups should not have underscores'
@@ -160,10 +165,10 @@ def validate_config(runtype):
             assert config['k'] == -1, 'Must specify k for DCA training.'
             assert np.log2(config['k']) == np.ceil(np.log2(config['k'])), \
                 'k must be a power of 2.'
-        if config['embedtype'] == 'glove400k':
+        if config['embedtype'] == 'glove400k' or config['embedtype'] == 'glove10k':
             assert config['embeddim'] in (50,100,200,300)
     elif runtype == 'evaluate':
-        pass # TODO
+        assert '_compressed_embeds.txt' in config['embedpath']
 
 def get_runname(parser, runtype):
     runname = ''
@@ -172,7 +177,7 @@ def get_runname(parser, runtype):
     elif runtype == 'compress':    
         to_skip = ('embedtype','compresstype','rungroup')
     elif runtype == 'evaluate':
-        pass # TODO
+        to_skip = ('embedpath')
 
     for key,val in non_default_args(parser, config):
         if key not in to_skip:
@@ -188,7 +193,8 @@ def get_full_runname(runtype):
             config['embedtype'], config['compresstype'], 
             config['rungroup'], config['runname'])
     elif runtype == 'evaluate':
-        pass # TODO
+        return 'rungroup,{}_{}'.format(
+            config['rungroup'], config['runname'])
 
 def get_and_make_run_dir(runtype):
     rundir = ''
@@ -198,9 +204,9 @@ def get_and_make_run_dir(runtype):
         rundir = str(pathlib.PurePath(
             config['basedir'], 'embeddings', config['embedtype'], 
             config['rungroup'], config['runname']))
-        ensure_dir(rundir)
     elif runtype == 'evaluate':
-        pass # TODO
+        rundir = config['compressed-config']['rundir']
+    ensure_dir(rundir)
     return rundir
 
 def init_random_seeds():

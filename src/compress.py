@@ -16,11 +16,9 @@ def main():
     utils.config['base-embed-path'], utils.config['vocab'] = get_embed_info()
     base_embeds,wordlist = utils.load_embeddings(utils.config['base-embed-path'])
     store_embed_memory_info(*base_embeds.shape)
-    compressed_embeds = compress_embeddings(base_embeds, utils.config['bitrate'])
-    utils.config['compressed-embed-path'] = utils.get_filename('_compressed_embeds.txt')
-    utils.save_embeddings(utils.config['compressed-embed-path'], compressed_embeds, wordlist)
-    utils.save_current_config() # override current config
-    logging.info('Compression complete.  Exiting compress.py main method.')
+    compress_and_save_embeddings(base_embeds, wordlist, utils.config['bitrate'])
+    utils.save_dict_as_json(utils.config, utils.get_filename('_final.json'))
+    logging.info('Run complete. Exiting compress.py main method.')
 
 def store_embed_memory_info(v,d):
     assert d == utils.config['embeddim'], 'Embed dims do not match.'
@@ -46,8 +44,9 @@ def get_embed_info():
         vocab = 10000
     return path,vocab
 
-def compress_embeddings(X, bit_rate):
+def compress_and_save_embeddings(X, wordlist, bit_rate):
     logging.info('Beggining to make embeddings')
+    results = {}
     if utils.config['compresstype'] == 'uniform':
         Xq, frob_squared_error, elapsed = compress_uniform(X, bit_rate,
             adaptive_range=False, stochastic_round=False, skip_quantize=False)
@@ -61,13 +60,17 @@ def compress_embeddings(X, bit_rate):
             learning_rate=utils.config['lr'], batch_size=utils.config['batchsize'],
             grad_clip=utils.config['gradclip'], tau=utils.config['tau']
         )
-        utils.save_dict_as_json(results_per_epoch, str(pathlib.PurePath(
-            work_dir, utils.config['full-runname'] + '_dca_train_log.json')))
-
-    utils.config['frob-squared-error'] = frob_squared_error
-    utils.config['compress-time'] = elapsed
+        results['dca-results-per-epoch'] = results_per_epoch
+    elif utils.config['compresstype'] == 'nocompress':
+        Xq = X
+        frob_squared_error = 0
+        elapsed = 0
+    results['frob-squared-error'] = frob_squared_error
+    results['elapsed'] = elapsed
+    utils.config['results'] = results
+    utils.config['compressed-embed-path'] = utils.get_filename('_compressed_embeds.txt')
+    utils.save_embeddings(utils.config['compressed-embed-path'], Xq, wordlist)
     logging.info('Finished making embeddings. It took {} min.'.format(elapsed/60))
-    return Xq
 
 def compress_kmeans(X, bit_rate, random_seed=None, n_init=1):
     # Tony's params for k-means: max_iter=70, n_init=1, tol=0.01.
@@ -80,7 +83,6 @@ def compress_kmeans(X, bit_rate, random_seed=None, n_init=1):
     Xq = kmeans.cluster_centers_[kmeans.labels_].reshape(X.shape)
     frob_squared_error = kmeans.inertia_
     return Xq, frob_squared_error, elapsed
-
 
 # def __init__(self, n_codebooks, n_centroids, model_path,
 #         learning_rate=0.0001, batch_size=64, grad_clip=0.001, tau=1.0): # Avner change

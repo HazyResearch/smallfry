@@ -1,150 +1,85 @@
 '''
 GENERAL PURPOSE EMBEDDINGS EVALUATION SCRIPT
 '''
-import re
-import uuid
-import json
-import sys
-import datetime
-import time
-import pathlib
 import os
-import subprocess
-import argparse
+import re
+import time
 import logging
 import numpy as np
-from subprocess import check_output
+import subprocess
 from scipy.spatial import distance
-from hyperwords import ws_eval, analogy_eval
-from hyperwords.representations.embedding import *
-from smallfry.utils import load_embeddings
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..')) #hacky way to import experimental_utils
-from experimental_utils import *
+from third_party.hyperwords import ws_eval, analogy_eval
+from third_party.hyperwords.representations.embedding import BootstrapEmbeddings
+import utils
 
-def main(embed_path='', evaltype='', seed=None, epochs=None, dataset='all'):
-    '''
-    This is the front-end routine for experimental evaluation. 
-    For each acceptable experiment type, denoted with 'evaltype', it dispatches
-    the appropriate evaluation subroutine.
-    Finally, results are written to file.
-    As of Sept. 16, valid 'evaltype' selections are: 'QA' OR 'intrinsics' OR 'synthetics'
-    NOTE: 'embed_path' refers to the TOP-LEVEL embedding directory path, NOT the path to the .txt embeddings file
-    '''
-    config = vars(init_parser().parse_args())
-    #parse out relevant vals from cmd line config
-    embed_path = config['embedpath']
-    seed = config['seed']
-    evaltype = config['evaltype']
-    epochs = config['epochs']
+def main():
+    utils.init('evaluate')
+    logging.info('Beginning evaluation.')
+    evaluate_embeds()
+    utils.save_dict_as_json(utils.config, utils.get_filename('_final.json'))
+    logging.info('Run complete. Exiting evaluate.py main method')
 
-    #initialize paths for eval -- make sure we don't dupe results
-    embed_name = os.path.basename(embed_path)
-    log_path_head = str(pathlib.PurePath(embed_path,embed_name))
-    log_path = '%s_%s-eval.log' % (log_path_head, evaltype) 
-    init_logging(log_path)
-    results = None
-    logging.info('Evaltype confirmed: %s' % evaltype)
-    assert not do_results_already_exist(embed_path, evaltype), "OOPS these results already are present -- ABORTING"
-        
-    # determine evaltype and send off to that subroutine -- SEE THIS LOGIC TREE FOR VALID EVALTYPES
-    if evaltype == 'QA':
-        seed = int(seed)
-        if epochs == None:
-            epochs = 50
-        results = eval_qa(fetch_embeds_txt_path(embed_path), 
-                            fetch_maker_config(embed_path)['dim'], 
-                            seed, epochs, qa_log_path='%s-tmp'%log_path)
-    elif evaltype == 'intrinsics':
-        results = eval_intrinsics(embed_path)
-    elif evaltype == 'synthetics':
-        results = eval_synthetics(embed_path)
-    elif evaltype == 'sentiment':
-        seed = int(seed)
-        results = eval_sent(fetch_embeds_txt_path(embed_path), seed, dataset)
-    elif evaltype == 'gramian':
-        results = eval_gramian(embed_path)
-    else:
-        raise ValueError('bad evaltype given to eval()')
+def evaluate_embeds():
+    logging.info('Beginning evaluation')
+    start = time.time()
+    if utils.config['evaltype'] == 'QA':
+        results = evaluate_qa(utils.config['embedpath'],
+            utils.config['compressed-config']['embeddim'],
+            utils.config['epochs'], utils.config['seed'],
+            utils.get_filename('_eval-drqa-train-output.log')
+        )
+    elif utils.config['evaltype'] == 'intrinsics':
+        results = evaluate_intrinsics(utils.config['embedpath'])
+    elif utils.config['evaltype'] == 'synthetics':
+        results = evaluate_synthetics(utils.config['embedpath'])
+    elapsed = time.time() - start
+    logging.info('Finished evaluating embeddings. It took {} min.'.format(elapsed/60))
+    results['elapsed'] = elapsed
+    utils.config['results'] = results
 
-    #wrap up the results and document stuff
-    results['githash-%s' % evaltype] = get_git_hash()
-    results['seed-%s' % evaltype] = seed
-    logging.info("Evaluation complete! Writing results to file... ")
-    results_to_file(embed_path, evaltype, results)
+def evaluate_qa(embed_path, embed_dim, epochs, seed, log_path):
+    # TODO: what is going on with embed-dir being empty?
+    # Where is tune-partial initialized in train.py?
+    # What does tee do?
+    # How do we set path to train.py correctly here?
+    command = ('python third_party/DrQA/scripts/reader/train.py '
+        '--embed-dir=  --embedding-file %s  --embedding-dim %d  --num-epochs %s '
+        '--random-seed %d --tune-partial %d 2>&1 | tee %s').format(
+            embed_path, embed_dim, epochs, seed, 0, log_path)
+    logging.info('Executing: {}'.format(command))
+    drqa_output = perform_command_local(command)
+    logging.info('======= Begin output of DrQA run ======')
+    logging.info(drqa_output)
+    logging.info('======== End output of DrQA run =======')
+    return parse_drqa_output(drqa_output)
 
-def init_parser():
-    """Initialize Cmd-line parser."""
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--evaltype', type=str, required=True,
-        choices=['QA','intrinsics','synthetics','sentiment','gramian'],
-        help='Evaluation type')
-    parser.add_argument('--embedpath', type=str, required=True,
-        help='Path to TOP-LEVEL embedding directory to evaluate')
-    parser.add_argument('--seed', type=int, required=True,
-        help='Random seed to use for experiment.')
-    parser.add_argument('--epochs', type=int, default=50,
-        help='# of epochs to run for')
-    parser.add_argument('--dataset', type=str, default='all',
-        help='Dataset to use for evaluation')
-    return parser
+'''Transforms QA output into dictionary'''
+def parse_drqa_output(text):
+    result = {}
+    f1_scores = []
+    ems = []
+    for line in text.splitlines():
+        matches = re.findall("F1 = ([0-9]+.[0-9]+)", line)
+        if len(matches) != 0:
+            f1_scores.append(float(matches[0]))
+    for line in text.splitlines():
+        matches = re.findall("EM = ([0-9]+.[0-9]+)", line)
+        if len(matches) != 0:
+            ems.append(float(matches[0]))
 
-'''
-CORE EVALUATION ROUTINES =======================
-a new routine must be added for each evaltype!
-'''
+    result["all-f1s"] = f1_scores
+    result["all-ems"] = ems
+    result["max-em"] = max(ems)
+    result["max-f1"] = max(f1_scores)
+    return result
 
-def eval_qa(word_vectors_path, dim, seed, epochs, qa_log_path="", finetune_top_k=0, extra_args=""):
-    '''Calls DrQA's training routine'''
+def perform_command_local(command):
+    ''' performs a command -- author: MAXLAM'''
+    out = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode('utf-8') 
+    return out
 
-    #to_dict: transforms QA output into results-style json dict
-    def to_dict(text):
-        result = {}    
-        f1_scores = []
-        ems = []
-        for line in text.splitlines():
-            matches = re.findall("F1 = ([0-9]+.[0-9]+)", line)
-            if len(matches) != 0:
-                f1_scores.append(float(matches[0]))
-        for line in text.splitlines():
-            matches = re.findall("EM = ([0-9]+.[0-9]+)", line)
-            if len(matches) != 0:
-                ems.append(float(matches[0]))
-
-        result["all-f1s"] = f1_scores
-        result["all-ems"] = ems
-        result["max-em"] = max(ems)
-        result["max-f1"] = max(f1_scores)
-        return result
-
-    # Evaluate on the word vectors
-    cd_dir = "cd %s" % get_drqa_directory()
-    eval_print("Writing intermediate training to output path: %s" % qa_log_path)
-    
-    # WARNING: REALLY DANGEROUS SINCE MAKES ASSUMPTIONS ABOUT 
-    # FILEPATHS AND THEIR EXISTENCE
-    #TODO WARNING FIX EPOCHS HERE
-    python_command = "python scripts/reader/train.py --random-seed %d --embedding-dim %d  --embed-dir=  --embedding-file %s  --num-epochs %s --tune-partial %d %s 2>&1 | tee %s" % (seed, dim, word_vectors_path, epochs, finetune_top_k, extra_args, qa_log_path)
-    full_command = " && ".join([cd_dir, python_command])
-    logging.info("Executing: %s" % full_command)
-    text = perform_command_local(full_command)
-    #eval_print("==============================") 
-    logging.info("==============================")
-    #eval_print("Output of DrQA run:")
-    logging.info("Output of DrQA run:")
-    #eval_print("==============================")
-    logging.info("==============================")
-    #eval_print(text)
-    logging.info(text)
-    #eval_print("==============================")
-    logging.info("==============================")
-    #eval_print("End output of DrQA run")
-    logging.info("End output of DrQA run")
-    #eval_print("==============================")
-    logging.info("==============================")
-    return to_dict(text)
-
-def eval_intrinsics(embed_path):
-    '''Evaluates intrinsics benchmarks given embed_path'''
+def evaluate_intrinsics(embed_path):
+    '''Evaluates intrinsics benchmarks'''
 
     # Evaluate analogy -- ROUTINE WRITTEN BY MAXLAM
     # -----------------------------------------
@@ -173,7 +108,7 @@ def eval_intrinsics(embed_path):
         return ws_eval.evaluate(representation, data)
 
     #load embeddings and make into dict for intrinsic routines
-    embeds, wordlist = fetch_embeds_4_eval(embed_path)
+    embeds, wordlist = utils.load_embeddings(embed_path)
     word_vectors = { wordlist[i] : embeds[i] for i in range(len(embeds)) }
 
     # Get intrinsic tasks to evaluate on        
@@ -205,10 +140,10 @@ def eval_intrinsics(embed_path):
         elif os.path.basename(task_path) in similarity_tasks:
             output = evaluate_similarity(word_vectors, task_path)
         else:
-            eval_print("%s not in list of similarity or analogy tasks." % os.path.basename(task_path))
+            logging.info("%s not in list of similarity or analogy tasks." % os.path.basename(task_path))
         partial_result = "%s - %s\n" % (os.path.basename(task_path), str(output))
         results += partial_result
-        eval_print(partial_result)
+        logging.info(partial_result)
 
         task_name = os.path.basename(task_path).replace(".txt", "")
         task_name = task_name.replace("_", "-")
@@ -223,79 +158,59 @@ def eval_intrinsics(embed_path):
 
     results_dict['analogy-avg-score'] = ana_score_sum/4 #four analogy tasks avg together
     results_dict['similarity-avg-score'] = sim_score_sum/5 #five sim tasks avg together        
-    #eval_print("Results:")
-    logging.info("Results:")
-    #eval_print("------------------------------")
-    logging.info("------------------------------")        
-    #eval_print(results)
+    logging.info('======= Begin intrinsic results ========')
     logging.info(results)
-    #eval_print("------------------------------")
-    logging.info("------------------------------")
+    logging.info('======== End intrinsic results =========')
     return results_dict
 
-def eval_synthetics(embed_path):
+def evaluate_synthetics(embed_path):
     '''Evaluates synthetics'''
-    embeds, wordlist = fetch_embeds_4_eval(embed_path)
-    base_embeds, base_wordlist = load_embeddings(fetch_base_embed_path(embed_path))
+    embeds,_ = utils.load_embeddings(embed_path)
+    base_embeds,_ = utils.load_embeddings(
+        utils.config['compressed-config']['base-embed-path'])
 
-    res_rtn = dict()
-    res_rtn['embed-frob-dist'] = np.linalg.norm(base_embeds-embeds)
-    res_rtn['embed-frob-norm'] = np.linalg.norm(embeds)
-    res_rtn['mean'] = np.mean(embeds)
-    res_rtn['var'] = np.var(embeds)
-    res_rtn['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
-    res_rtn['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
-    return res_rtn
+    # TODO FILL THIS IN
+    results = {}
+    results['embed-frob-dist'] = np.linalg.norm(base_embeds-embeds)
+    results['embed-frob-norm'] = np.linalg.norm(embeds)
+    results['mean'] = np.mean(embeds)
+    results['var'] = np.var(embeds)
+    results['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
+    results['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
+    return results
 
-def eval_gramian(embed_path):
-    '''Eval gram'''
-    embeds, wordlist = fetch_embeds_4_eval(embed_path)
-    base_embeds, base_wordlist = load_embeddings(fetch_base_embed_path(embed_path))
-    
-    base_gram = gram = np.matmul(base_embeds,np.transpose(base_embeds))
-    gram = np.matmul(embeds,np.transpose(embeds))
+# def eval_sent(embed_txt_path, seed, dataset=None):
+#     '''
+#     Sentiment analysis evaluation using Senwu's code -- supports perceptron, CNN, and LSTM models with various datasets
+#     '''
+#     def parse_senwu_outlogs(outlog):
+#         lines = outlog.split('\n')
+#         return float(lines[-3].split(' ')[-1])
 
-    res_rtn = dict()
-    res_rtn['gramian-frob-dist'] = np.linalg.norm(base_gram - gram)
-    res_rtn['gramian-bias'] = np.mean((base_gram - gram)**2)
-    res_rtn['gramian-frob-norm'] = np.linalg.norm(gram)
-    res_rtn['gramian-shape'] = gram.shape
-
-    return res_rtn
-
-
-def eval_sent(embed_txt_path, seed, dataset=None):
-    '''
-    Sentiment analysis evaluation using Senwu's code -- supports perceptron, CNN, and LSTM models with various datasets
-    '''
-    def parse_senwu_outlogs(outlog):
-        lines = outlog.split('\n')
-        return float(lines[-3].split(' ')[-1])
-
-    logging.info('starting sentiment')
-    models = ['lstm', 'cnn', 'la']
-    datasets = ['mr',
-                'subj', 
-                'cr', 
-                'sst', 
-                'trec', 
-                'mpqa'] if dataset == 'all' else [dataset]
-    res = dict()
-    for model in models:
-        for dataset in datasets:
-            command = "python2  %s --dataset %s --path %s --embedding %s --cv 0 --%s --out %s" % (
-                str(pathlib.PurePath(get_senwu_sentiment_directory(),'train_classifier.py')),
-                dataset,
-                get_harvardnlp_sentiment_data_directory(),
-                embed_txt_path,
-                model,
-                get_senwu_sentiment_out_directory()
-            ) 
-            cmd_output_txt = perform_command_local(command)
-            logging.info(cmd_output_txt)
-            res['sentiment-score-%s-%s'%(model,dataset)] = parse_senwu_outlogs(cmd_output_txt)
-    logging.info('done with sentiment evals')
-    return res
+#     logging.info('starting sentiment')
+#     models = ['lstm', 'cnn', 'la']
+#     datasets = ['mr',
+#                 'subj', 
+#                 'cr', 
+#                 'sst', 
+#                 'trec', 
+#                 'mpqa'] if dataset == 'all' else [dataset]
+#     res = dict()
+#     for model in models:
+#         for dataset in datasets:
+#             command = "python2  %s --dataset %s --path %s --embedding %s --cv 0 --%s --out %s" % (
+#                 str(pathlib.PurePath(get_senwu_sentiment_directory(),'train_classifier.py')),
+#                 dataset,
+#                 get_harvardnlp_sentiment_data_directory(),
+#                 embed_txt_path,
+#                 model,
+#                 get_senwu_sentiment_out_directory()
+#             ) 
+#             cmd_output_txt = perform_command_local(command)
+#             logging.info(cmd_output_txt)
+#             res['sentiment-score-%s-%s'%(model,dataset)] = parse_senwu_outlogs(cmd_output_txt)
+#     logging.info('done with sentiment evals')
+#     return res
 
 if __name__ == '__main__':
     main()
