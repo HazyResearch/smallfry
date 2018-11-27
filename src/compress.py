@@ -24,10 +24,10 @@ def store_embed_memory_info(v,d):
     assert d == utils.config['embeddim'], 'Embed dims do not match.'
     assert v == utils.config['vocab'], 'Vocab sizes do not match.'
     utils.config['exact-memory'] = get_exact_memory()
-    utils.config['exact-compression-ratio'] = 32 * v * d / utils.config['memory']
-    utils.config['exact-bitrate'] = utils.config['memory'] / (v * d)
+    utils.config['exact-compression-ratio'] = 32 * v * d / utils.config['exact-memory']
+    utils.config['exact-bitrate'] = utils.config['exact-memory'] / (v * d)
     assert np.abs(utils.config['exact-bitrate'] - utils.config['bitrate']) < .01, \
-           'Discrepency between exact and intended bitrates.'
+           'Discrepency between exact and intended bitrates is >= 0.01.'
 
 def get_embed_info():
     '''Get path to embedding, and size of vocab for embedding'''
@@ -258,10 +258,10 @@ def get_exact_memory():
     v = utils.config['vocab']
     d = utils.config['embeddim']
     bit_rate = utils.config['bitrate']
-    if utils.config['method'] == 'kmeans':
+    if utils.config['compresstype'] == 'kmeans':
         num_centroids = 2**bit_rate
         mem = v * d * bit_rate + num_centroids * 32
-    elif utils.config['method'] == 'dca':
+    elif utils.config['compresstype'] == 'dca':
         k = utils.config['k']
         m = compute_m_dca(k, v, d, bit_rate)
         # For each word in vocab (v), for each codebook (m), store log2(k) bits
@@ -269,11 +269,13 @@ def get_exact_memory():
         # Must also store the m codebooks, each of which stores k codes,
         # where each code is a d-dimensional full-precision vector.
         mem = v * m * int(np.log2(k)) + m * k * d * 32
-    elif utils.config['method'] == 'uniform' and utils.config['skipquant']:
+    elif utils.config['compresstype'] == 'uniform' and utils.config['skipquant']:
         mem = v * d * 32
-    elif utils.config['method'] == 'uniform' and not utils.config['skipquant']:
+    elif utils.config['compresstype'] == 'uniform' and not utils.config['skipquant']:
         # we add 32 because range must be stored
         mem = v * d * bit_rate + 32
+    elif utils.config['compresstype'] == 'nocompress':
+        mem = v * d * 32
     else:
         raise ValueError('Method name invalid')
     return mem

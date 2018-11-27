@@ -180,7 +180,7 @@ def get_runname(parser, runtype):
     if runtype == 'train':
         pass # TODO
     elif runtype == 'compress':    
-        to_skip = ('embedtype','compresstype','rungroup')
+        to_skip = ('embedtype','rungroup')
     elif runtype == 'evaluate':
         to_skip = ('embedpath')
 
@@ -194,9 +194,8 @@ def get_full_runname(runtype):
     if runtype == 'train':
         pass # TODO
     elif runtype == 'compress':
-        return 'embedtype,{}_compresstype,{}_rungroup,{}_{}'.format( 
-            config['embedtype'], config['compresstype'], 
-            config['rungroup'], config['runname'])
+        return 'embedtype,{}_rungroup,{}_{}'.format(
+            config['embedtype'], config['rungroup'], config['runname'])
     elif runtype == 'evaluate':
         return 'rungroup,{}_{}'.format(
             config['rungroup'], config['runname'])
@@ -207,8 +206,8 @@ def get_and_make_run_dir(runtype):
         pass # TODO
     elif runtype == 'compress':
         rundir = str(pathlib.PurePath(
-            config['basedir'], 'embeddings', config['embedtype'], 
-            config['rungroup'], config['runname']))
+            config['basedir'], 'embeddings',
+            config['embedtype'], config['rungroup'], config['runname']))
     elif runtype == 'evaluate':
         rundir = config['compressed-config']['rundir']
     ensure_dir(rundir)
@@ -310,7 +309,7 @@ def load_embeddings(path):
     Loads a GloVe embedding at specified path. Returns a vector of strings that 
     represents the vocabulary and a 2-D numpy matrix that is the embeddings. 
     """
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf8') as f:
         lines = f.readlines()
         wordlist = []
         embeddings = []
