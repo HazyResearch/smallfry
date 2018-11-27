@@ -52,9 +52,11 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
             adaptive_range=utils.config['adaptive'],
             stochastic_round=utils.config['stoch'],
             skip_quantize=utils.config['skipquant'])
+        results['centroids'] = np.unique(Xq).tolist()
     elif utils.config['compresstype'] == 'kmeans':
         Xq, frob_squared_error, elapsed = compress_kmeans(X, bit_rate,
             random_seed=utils.config['seed'])
+        results['centroids'] = np.unique(Xq).tolist()
     elif utils.config['compresstype'] == 'dca':
         work_dir = str(pathlib.PurePath(utils.config['rundir'],'dca_tmp'))
         Xq, frob_squared_error, elapsed, results_per_epoch = compress_dca(
@@ -173,7 +175,6 @@ def compress_and_compute_frob_squared_error(X, bit_rate, range_limit, stochastic
     Xq = _compress_uniform(X, bit_rate, range_limit, stochastic_round=stochastic_round)
     return np.linalg.norm(X - Xq)**2
 
-# TESTED
 def golden_section_search(f, x_min, x_max, tol=1e-2):
     '''
     Find argmin of f between x_min and x_max (for f uni-modal).
@@ -230,7 +231,6 @@ def golden_section_search(f, x_min, x_max, tol=1e-2):
     x = [x1,x2,x3,x4]
     return x[i]
 
-# TESTED
 def get_max_abs(X):
     return np.max(np.abs(X))
 
