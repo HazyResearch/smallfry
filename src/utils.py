@@ -32,14 +32,13 @@ def init(runtype):
 def init_train_parser():
     """Initialize cmd-line parser for embedding training."""
     parser = argparse.ArgumentParser()
+    add_shared_args(parser)
     parser.add_argument('--method', type=str, required=True,
         choices=['glove'],
         help='Name of embeddings training algorithm.')
     parser.add_argument('--corpus', type=str, required=True,
         choices=['text8','wiki.en.txt'],
         help='Natural language dataset used to train embeddings')
-    parser.add_argument('--seed', type=int, required=True,
-        help='Random seed to use for experiment.')
     parser.add_argument('--outputdir', type=str, required=True,
         help='Head output directory')
     parser.add_argument('--rungroup', type=str, required=True,
@@ -67,6 +66,7 @@ def init_train_parser():
 def init_compress_parser():
     """Initialize cmd-line parser for embedding compression."""
     parser = argparse.ArgumentParser()
+    add_shared_args(parser)
     parser.add_argument('--embedtype', type=str, required=True,
         choices=['glove400k','glove10k'], # TODO: Add more options
         help='Name of embedding to compress')
@@ -79,8 +79,6 @@ def init_compress_parser():
         help='Name of rungroup')
     parser.add_argument('--bitrate', type=int, required=True,
         help='Bitrate.  Note not exact for some methods, but as close as possible.')
-    parser.add_argument('--seed', type=int, required=True,
-        help='Random seed to use for experiment.')
     parser.add_argument('--debug', action='store_true',
         help='If true, can have local git changes when running this.')
     ### Begin uniform quantization hyperparameters
@@ -110,16 +108,21 @@ def init_compress_parser():
 def init_evaluate_parser():
     """Initialize cmd-line parser for embedding evaluation."""
     parser = argparse.ArgumentParser()
+    add_shared_args(parser)
     parser.add_argument('--evaltype', type=str, required=True,
         choices=['QA','intrinsics','synthetics'],
         help='Evaluation type.')
     parser.add_argument('--embedpath', type=str, required=True,
         help='Path to embedding to evaluate.')
-    parser.add_argument('--seed', type=int, required=True,
-        help='Random seed to use for experiment.')
     parser.add_argument('--epochs', type=int, default=50,
         help='Number of epochs to run for DrQA training.')
     return parser
+
+def add_shared_args(parser):
+    parser.add_argument('--cuda', action='store_true',
+        help='Specifies whether GPU should be used.')
+    parser.add_argument('--seed', type=int, required=True,
+        help='Random seed to use for experiment.')
 
 def init_config(parser, runtype):
     global config
