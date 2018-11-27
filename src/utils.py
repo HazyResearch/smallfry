@@ -247,8 +247,8 @@ def get_git_hash_and_diff():
             wd = os.getcwd()
             git_repo_dir = '/proj/smallfry/git/smallfry'
             os.chdir(git_repo_dir)
-            git_hash = str(check_output(['git','rev-parse','--short','HEAD']).strip())[:9]
-            git_diff = str(check_output(['git','diff']).strip())
+            git_hash = str(check_output(['git','rev-parse','--short','HEAD']).strip())[2:9]
+            git_diff = str(check_output(['git','diff']).strip())[3:]
             if not config['debug']:
                 # if not in debug mode, local repo changes are not allowed.
                 assert git_diff == '', 'Cannot have any local changes'
