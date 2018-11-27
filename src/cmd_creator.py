@@ -1,8 +1,8 @@
 def cmds_11_26_18_compress_round1():
-    filename = 'C:\\Users\\avnermay\\Desktop\\Compiled_apps\\11_26_18_compress_round1_cmds'
-    prefix = ('qsub -V -b y -wd /proj/mlnlp/avnermay/Babel/wd '
-              '/proj/mlnlp/avnermay/Babel/Git/smallfry/src/smallfry_env.sh '
-              '\\"python /proj/mlnlp/avnermay/Babel/Git/smallfry/src/compress.py')
+    filename = 'C:\\Users\\Avner\\Desktop\\Compiled_apps\\11_26_18_compress_round1_cmds'
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
     rungroup = 'round1'
     embedtype = 'glove400k'
     seed = 1
@@ -58,10 +58,10 @@ def cmds_11_26_18_compress_round1():
 
 def cmds_11_26_18_compress_tuneDCA():
     # dca
-    filename = 'C:\\Users\\avnermay\\Desktop\\Compiled_apps\\11_26_18_compress_tuneDCA_cmds'
-    prefix = ('qsub -V -b y -wd /proj/mlnlp/avnermay/Babel/wd '
-              '/proj/mlnlp/avnermay/Babel/Git/smallfry/src/smallfry_env.sh '
-              '\\"python /proj/mlnlp/avnermay/Babel/Git/smallfry/src/compress.py')
+    filename = 'C:\\Users\\Avner\\Desktop\\Compiled_apps\\11_26_18_compress_tuneDCA_cmds'
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
 
     rungroup = 'tuneDCA'
     compresstype = 'dca'

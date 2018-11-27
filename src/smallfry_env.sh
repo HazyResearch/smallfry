@@ -5,9 +5,9 @@
 # Make sure conda is in path
 export PATH="/proj/anaconda3/bin:$PATH"
 
-# Activate PyKernels env
+# Activate smallfry env
 printf "source activate smallfry\n"
-source activate PyKernels
+source activate smallfry
 
 printf "\nconda env list\n"
 conda env list
