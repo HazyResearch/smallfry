@@ -24,6 +24,12 @@ modinfo nvidia | grep "^version:" | sed 's/^version: *//;'
 printf "source activate smallfry\n"
 source activate smallfry
 
+printf "\nnvcc --version (AFTER2)\n"
+nvcc --version
+
+printf "\nmodinfo nvidia (AFTER2)\n"
+modinfo nvidia | grep "^version:" | sed 's/^version: *//;'
+
 printf "\nconda env list\n"
 conda env list
 
