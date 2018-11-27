@@ -9,3 +9,5 @@
 !.gitmodule
 !.travis.yml
 !*.md
+!src/smallfry_env.sh
+!src/third_party/hyperwords/*

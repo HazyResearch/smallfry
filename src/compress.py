@@ -49,10 +49,12 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
     results = {}
     if utils.config['compresstype'] == 'uniform':
         Xq, frob_squared_error, elapsed = compress_uniform(X, bit_rate,
-            adaptive_range=False, stochastic_round=False, skip_quantize=False)
+            adaptive_range=utils.config['adaptive'],
+            stochastic_round=utils.config['stoch'],
+            skip_quantize=utils.config['skipquant'])
     elif utils.config['compresstype'] == 'kmeans':
         Xq, frob_squared_error, elapsed = compress_kmeans(X, bit_rate,
-            random_seed=utils.config['seed'], n_init=1)
+            random_seed=utils.config['seed'])
     elif utils.config['compresstype'] == 'dca':
         work_dir = str(pathlib.PurePath(utils.config['rundir'],'dca_tmp'))
         Xq, frob_squared_error, elapsed, results_per_epoch = compress_dca(

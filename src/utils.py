@@ -82,7 +82,7 @@ def init_compress_parser():
     parser.add_argument('--seed', type=int, required=True,
         help='Random seed to use for experiment.')
     parser.add_argument('--debug', action='store_true',
-        help='If set to false, can have local git changes when running this.')
+        help='If true, can have local git changes when running this.')
     ### Begin uniform quantization hyperparameters
     parser.add_argument('--stoch', action='store_true', 
         help='Specifies whether stochastic quantization should be used.')
@@ -165,6 +165,8 @@ def validate_config(runtype):
             assert config['k'] == -1, 'Must specify k for DCA training.'
             assert np.log2(config['k']) == np.ceil(np.log2(config['k'])), \
                 'k must be a power of 2.'
+        elif config['compresstype'] == 'nocompress':
+            assert config['bitrate'] == 32
         if config['embedtype'] == 'glove400k' or config['embedtype'] == 'glove10k':
             assert config['embeddim'] in (50,100,200,300)
     elif runtype == 'evaluate':
