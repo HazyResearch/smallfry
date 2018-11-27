@@ -2,8 +2,9 @@
 
 # NOTE: This only works if called from base conda environment!
 
-# Make sure conda is in path
-export PATH="/proj/anaconda3/bin:$PATH"
+# Make sure conda and cuda are in path
+export PATH=/usr/local/cuda/bin:/proj/anaconda3/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 # Activate smallfry env
 printf "source activate smallfry\n"
