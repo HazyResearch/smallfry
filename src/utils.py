@@ -165,7 +165,7 @@ def validate_config(runtype):
         pass # TODO
     elif runtype == 'compress':
         if config['compresstype'] == 'dca':
-            assert config['k'] == -1, 'Must specify k for DCA training.'
+            assert config['k'] != -1, 'Must specify k for DCA training.'
             assert np.log2(config['k']) == np.ceil(np.log2(config['k'])), \
                 'k must be a power of 2.'
         elif config['compresstype'] == 'nocompress':

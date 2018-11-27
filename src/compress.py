@@ -52,11 +52,9 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
             adaptive_range=utils.config['adaptive'],
             stochastic_round=utils.config['stoch'],
             skip_quantize=utils.config['skipquant'])
-        results['centroids'] = np.unique(Xq).tolist()
     elif utils.config['compresstype'] == 'kmeans':
         Xq, frob_squared_error, elapsed = compress_kmeans(X, bit_rate,
             random_seed=utils.config['seed'])
-        results['centroids'] = np.unique(Xq).tolist()
     elif utils.config['compresstype'] == 'dca':
         work_dir = str(pathlib.PurePath(utils.config['rundir'],'dca_tmp'))
         Xq, frob_squared_error, elapsed, results_per_epoch = compress_dca(
@@ -69,6 +67,9 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
         Xq = X
         frob_squared_error = 0
         elapsed = 0
+    if utils.config['compresstype'] in ('kmeans','uniform'):
+        results['centroids'] = np.unique(Xq).tolist()
+        assert len(results['centroids']) == 2**bit_rate
     results['frob-squared-error'] = frob_squared_error
     results['elapsed'] = elapsed
     utils.config['results'] = results
@@ -93,7 +94,8 @@ def compress_kmeans(X, bit_rate, random_seed=None, n_init=1):
 
 def compress_dca(X, bit_rate, k=2, work_dir=os.getcwd(),
         learning_rate=0.0001, batch_size=64, grad_clip=0.001, tau=1.0):
-    # TODO: Test inflate_dca_embeddings
+    # DCA code expects 32-bit floats as input
+    X = X.astype('float32')
     (v,d) = X.shape
     m = compute_m_dca(k, v, d, bit_rate)
     start = time.time()
