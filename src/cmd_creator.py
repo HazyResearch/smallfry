@@ -72,7 +72,7 @@ def cmds_11_26_18_compress_tuneDCA():
     # 60 total configurations
     bitrates = [1,2,4] # 3
     ks = [2,4,8,16] # 4
-    lrs = [0.00001, 0.00003, 0.0001, 0.0003, 0.001] # 5
+    lrs = ['0.00001', '0.00003', '0.0001', '0.0003', '0.001'] # 5
 
     with open(filename,'w+') as f:
         for bitrate in bitrates:
