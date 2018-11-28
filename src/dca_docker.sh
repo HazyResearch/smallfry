@@ -6,6 +6,6 @@ apt-get --assume-yes update
 apt-get --assume-yes install git-core
 
 # Execute the command that was passed in as a string to this script.
-cmd="sudo docker run --runtime=nvidia -v /proj:/proj -it --rm tensorflow/tensorflow:latest-gpu-py3 $1"
+cmd="sudo docker run --runtime=nvidia -v /proj:/proj -it --rm tensorflow/tensorflow:latest-gpu-py3 apt-get --assume-yes update; apt-get --assume-yes install git-core; $1"
 printf "\nExecute command: '$cmd'\n"
 eval $cmd

@@ -6,6 +6,9 @@ import pathlib
 import numpy as np
 try:
     from sklearn.cluster import KMeans
+except ImportError:
+    pass
+try:
     from third_party.neuralcompressor.nncompress.embed_compress import EmbeddingCompressor
 except ImportError:
     pass
