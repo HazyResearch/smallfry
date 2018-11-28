@@ -325,7 +325,7 @@ def load_embeddings(path):
 
 def save_embeddings(path, embeds, wordlist):
     ''' save embeddings in text file format'''
-    with open(path, "w+") as file:
+    with open(path, "w+", encoding='utf8') as file:
         for i in range(len(wordlist)):
             file.write(wordlist[i] + " ")
             row = embeds[i, :]
