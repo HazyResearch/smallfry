@@ -11,11 +11,13 @@ from subprocess import check_output
 import argparse
 import numpy as np
 try:
-    import torch
     import tensorflow as tf
 except ImportError:
     pass
-
+try:
+    import torch
+except ImportError:
+    pass
 
 config = {}
 
