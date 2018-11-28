@@ -6,8 +6,8 @@
 export PATH="/proj/anaconda3/bin:$PATH"
 
 # Activate smallfry env
-printf "source activate smallfry\n"
-source activate smallfry
+printf "conda activate smallfry\n"
+conda activate smallfry
 
 printf "\nconda env list\n"
 conda env list
