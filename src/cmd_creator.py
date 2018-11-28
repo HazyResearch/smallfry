@@ -66,7 +66,7 @@ def cmds_11_27_18_compress_tuneDCA():
     # dca
     filename = get_cmdfile_path('11_27_18_compress_tuneDCA_cmds')
     prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
-              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '/proj/smallfry/git/smallfry/src/dca_docker.sh '
               '\\"python /proj/smallfry/git/smallfry/src/compress.py')
     rungroup = 'tuneDCA'
     compresstype = 'dca'
