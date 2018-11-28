@@ -4,8 +4,8 @@ import pathlib
 def get_cmdfile_path(filename):
     return str(pathlib.PurePath(utils.get_base_dir(), 'scripts', filename))
 
-def cmds_11_27_18_compress_round1():
-    filename = get_cmdfile_path('11_27_18_compress_round1_cmds')
+def cmds_11_28_18_compress_round1():
+    filename = get_cmdfile_path('11_28_18_compress_round1_cmds')
     prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
               '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
               '\\"python /proj/smallfry/git/smallfry/src/compress.py')
@@ -62,9 +62,9 @@ def cmds_11_27_18_compress_round1():
                 embeddim, seed)
         )
 
-def cmds_11_27_18_compress_tuneDCA():
+def cmds_11_28_18_compress_tuneDCA():
     # dca
-    filename = get_cmdfile_path('11_27_18_compress_tuneDCA_cmds')
+    filename = get_cmdfile_path('11_28_18_compress_tuneDCA_cmds')
     prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
               '/proj/smallfry/git/smallfry/src/dca_docker.sh '
               '\\"python /proj/smallfry/git/smallfry/src/compress.py')
@@ -90,5 +90,5 @@ def cmds_11_27_18_compress_tuneDCA():
                     )
 
 if __name__ == '__main__':
-    cmds_11_27_18_compress_round1()
-    cmds_11_27_18_compress_tuneDCA()
+    cmds_11_28_18_compress_round1()
+    cmds_11_28_18_compress_tuneDCA()
