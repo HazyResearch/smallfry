@@ -81,8 +81,6 @@ def init_compress_parser():
         help='Name of rungroup')
     parser.add_argument('--bitrate', type=int, required=True,
         help='Bitrate.  Note not exact for some methods, but as close as possible.')
-    parser.add_argument('--debug', action='store_true',
-        help='If true, can have local git changes when running this.')
     ### Begin uniform quantization hyperparameters
     parser.add_argument('--stoch', action='store_true', 
         help='Specifies whether stochastic quantization should be used.')
@@ -125,6 +123,8 @@ def add_shared_args(parser):
         help='Specifies whether GPU should be used.')
     parser.add_argument('--seed', type=int, required=True,
         help='Random seed to use for experiment.')
+    parser.add_argument('--debug', action='store_true',
+        help='If true, can have local git changes when running this.')
 
 def init_config(parser, runtype):
     global config
