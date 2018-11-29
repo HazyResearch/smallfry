@@ -73,7 +73,8 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
         Xq = X
         frob_squared_error = 0
         elapsed = 0
-    if utils.config['compresstype'] in ('kmeans','uniform'):
+    if (utils.config['compresstype'] in ('kmeans','uniform') and
+            not utils.config['skipquant']):
         results['centroids'] = np.unique(Xq).tolist()
         logging.info('Number of centroids used: {} out of {}'.format(
             len(results['centroids']), 2**bit_rate))
