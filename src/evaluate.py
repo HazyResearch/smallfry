@@ -8,8 +8,9 @@ import logging
 import numpy as np
 import subprocess
 from scipy.spatial import distance
-from third_party.hyperwords import ws_eval, analogy_eval
-from third_party.hyperwords.representations.embedding import BootstrapEmbeddings
+# from third_party.hyperwords.hyperwords import ws_eval, analogy_eval
+# from third_party.hyperwords.hyperwords.representations.embedding import BootstrapEmbeddings
+from third_party.DrQA.scripts.reader.train import train_drqa
 import utils
 
 def main():
@@ -22,12 +23,10 @@ def main():
 def evaluate_embeds():
     logging.info('Beginning evaluation')
     start = time.time()
-    if utils.config['evaltype'] == 'QA':
+    if utils.config['evaltype'] == 'qa':
         results = evaluate_qa(utils.config['embedpath'],
             utils.config['compressed-config']['embeddim'],
-            utils.config['epochs'], utils.config['seed'],
-            utils.get_filename('_eval-drqa-train-output.log')
-        )
+            utils.config['epochs'], utils.config['seed'])
     elif utils.config['evaltype'] == 'intrinsics':
         results = evaluate_intrinsics(utils.config['embedpath'])
     elif utils.config['evaltype'] == 'synthetics':
@@ -37,46 +36,17 @@ def evaluate_embeds():
     results['elapsed'] = elapsed
     utils.config['results'] = results
 
-def evaluate_qa(embed_path, embed_dim, epochs, seed, log_path):
-    # TODO: what is going on with embed-dir being empty?
-    # Where is tune-partial initialized in train.py?
-    # What does tee do?
-    # How do we set path to train.py correctly here?
-    command = ('python third_party/DrQA/scripts/reader/train.py '
-        '--embed-dir=  --embedding-file %s  --embedding-dim %d  --num-epochs %s '
-        '--random-seed %d --tune-partial %d 2>&1 | tee %s').format(
-            embed_path, embed_dim, epochs, seed, 0, log_path)
-    logging.info('Executing: {}'.format(command))
-    drqa_output = perform_command_local(command)
-    logging.info('======= Begin output of DrQA run ======')
-    logging.info(drqa_output)
-    logging.info('======== End output of DrQA run =======')
-    return parse_drqa_output(drqa_output)
-
-'''Transforms QA output into dictionary'''
-def parse_drqa_output(text):
-    result = {}
-    f1_scores = []
-    ems = []
-    for line in text.splitlines():
-        matches = re.findall("F1 = ([0-9]+.[0-9]+)", line)
-        if len(matches) != 0:
-            f1_scores.append(float(matches[0]))
-    for line in text.splitlines():
-        matches = re.findall("EM = ([0-9]+.[0-9]+)", line)
-        if len(matches) != 0:
-            ems.append(float(matches[0]))
-
-    result["all-f1s"] = f1_scores
-    result["all-ems"] = ems
-    result["max-em"] = max(ems)
-    result["max-f1"] = max(f1_scores)
-    return result
-
-def perform_command_local(command):
-    ''' performs a command -- author: MAXLAM'''
-    out = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode('utf-8') 
-    return out
+def evaluate_qa(embed_path, embed_dim, epochs, seed):
+    qa_args = ['--embed-dir=', '--embedding-file', embed_path,
+               '--embedding-dim', str(embed_dim), '--num-epochs', str(epochs),
+               '--random-seed', str(seed), '--tune-partial', '0']
+    f1_scores,exact_match_scores = train_drqa(qa_args, use_cuda=utils.config['cuda'])
+    results = {}
+    results['f1-scores'] = f1_scores
+    results['exact-match-scores'] = exact_match_scores
+    results['best-f1'] = max(f1_scores)
+    results['best-exact-match'] = max(exact_match_scores)
+    return results
 
 def evaluate_intrinsics(embed_path):
     '''Evaluates intrinsics benchmarks'''
@@ -178,6 +148,11 @@ def evaluate_synthetics(embed_path):
     results['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
     results['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
     return results
+
+# def perform_command_local(command):
+#     ''' performs a command -- author: MAXLAM'''
+#     out = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode('utf-8')
+#     return out
 
 # def eval_sent(embed_txt_path, seed, dataset=None):
 #     '''

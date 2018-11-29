@@ -1,4 +1,5 @@
 import glob
+import pathlib
 import numpy as np
 from matplotlib import pyplot as plt
 import utils
@@ -86,7 +87,9 @@ def get_x_y_values(line_subset, x_metric, y_metric):
     return x[ind], y[ind]
 
 def plot_frob_squared_vs_bitrate():
-    all_results = gather_results('C:\\Users\\avnermay\\Babel_Files\\smallfry\\embeddings\\glove400k\\all_results\\*final.json')
+    path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
+                     'glove400k', 'round1_tuneDCA_results', '*final.json'))
+    all_results = gather_results(path_regex)
     plt.figure(1)
     plot_driver(all_results, {'compresstype':['kmeans','uniform','dca']},
         {'kmeans':
@@ -136,7 +139,9 @@ def plot_frob_squared_vs_bitrate():
 
 
 def plot_dca_frob_squared_vs_lr():
-    all_results = gather_results('C:\\Users\\avnermay\\Babel_Files\\smallfry\\embeddings\\glove400k\\all_results\\*final.json')
+    path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
+                     'glove400k', 'round1_tuneDCA_results', '*final.json'))
+    all_results = gather_results(path_regex)
     bitrates = [1,2,4] # 3
     ks = [2,4,8,16] # 4
     # lrs = ['0.00001', '0.00003', '0.0001', '0.0003', '0.001'] # 5
@@ -157,7 +162,9 @@ def plot_dca_frob_squared_vs_lr():
     plt.show()
 
 def dca_get_best_k_lr_per_bitrate():
-    all_results = gather_results('C:\\Users\\avnermay\\Babel_Files\\smallfry\\embeddings\\glove400k\\all_results\\*final.json')
+    path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
+                    'glove400k', 'round1_tuneDCA_results', '*final.json'))
+    all_results = gather_results(path_regex)
     bitrates = [1,2,4] # 3
     # ks = [2,4,8,16] # 4
     # lrs = ['0.00001', '0.00003', '0.0001', '0.0003', '0.001'] # 5
@@ -172,6 +179,6 @@ def dca_get_best_k_lr_per_bitrate():
     return best_k_lr_per_bitrate
 
 if __name__ == '__main__':
-    # plot_frob_squared_vs_bitrate()
+    plot_frob_squared_vs_bitrate()
     #plot_dca_frob_squared_vs_lr()
-    print(dca_get_best_k_lr_per_bitrate())
+    #print(dca_get_best_k_lr_per_bitrate())
