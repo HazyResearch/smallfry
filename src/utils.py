@@ -162,7 +162,6 @@ def save_current_config():
 #         pass # TODO
 
 def validate_config(runtype):
-    assert '_' not in config['rungroup'], 'rungroups should not have underscores'
     if runtype == 'train':
         pass # TODO
     elif runtype == 'compress':
@@ -176,6 +175,8 @@ def validate_config(runtype):
             assert config['embeddim'] in (50,100,200,300)
     elif runtype == 'evaluate':
         assert '_compressed_embeds.txt' in config['embedpath']
+    if runtype in ['train','compress']: # evaluate doesn't have rungroup arg.
+        assert '_' not in config['rungroup'], 'rungroups should not have underscores'
 
 def get_runname(parser, runtype):
     runname = ''
