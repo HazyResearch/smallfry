@@ -5,6 +5,9 @@
 # Make sure conda is in path
 export PATH="/proj/anaconda3/bin:$PATH"
 
+# This is necessary for conda activate to work properly
+. /proj/anaconda3/etc/profile.d/conda.sh
+
 # Activate smallfry env
 printf "conda activate smallfry\n"
 conda activate smallfry

@@ -3,6 +3,7 @@ import logging
 import math
 import time
 import pathlib
+import traceback
 import numpy as np
 try:
     from sklearn.cluster import KMeans
@@ -290,4 +291,8 @@ def get_exact_memory():
     return mem
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as e:
+        tb = traceback.format_exc()
+        logging.error('Run failed! Error information below:\n{}'.format(tb))

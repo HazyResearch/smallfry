@@ -50,17 +50,16 @@ def cmds_11_28_18_compress_round1():
                             prefix, rungroup, embedtype, compresstype, bitrate,
                             embeddim, seed, adapt_str, stoch_str)
                     )
-
-        # ** Ablation for uniform quantization: clipping without quantizing. **
-        # This corresponds to adapt=True, stoch=False, skipquant=True.
-        # We choose this combo because skipquant with adapt=False is simply
-        # 'nocompress', and when skipquant is True it doesn't matter if stoch
-        # is True or False.
-        f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+            # ** Ablation for uniform quantization: clipping without quantizing. **
+            # For each bitrate, we only consider adapt=True, stoch=False, skipquant=True.
+            # We choose this combo because skipquant with adapt=False is simply
+            # 'nocompress', and when skipquant is True it doesn't matter if stoch
+            # is True or False.
+            f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
                 '--embeddim {} --seed {} --adaptive --skipquant\\"\n').format(
                 prefix, rungroup, embedtype, compresstype, bitrate,
                 embeddim, seed)
-        )
+            )
 
 def cmds_11_28_18_compress_tuneDCA():
     # dca
