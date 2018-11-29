@@ -93,6 +93,9 @@ def cmds_11_28_18_compress_fiveSeeds():
     prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
               '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
               '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    dca_prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/dca_docker.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
     rungroup = 'fiveSeeds'
     embedtype = 'glove400k'
     seeds = [1,2,3,4,5]
@@ -161,7 +164,7 @@ def cmds_11_28_18_compress_fiveSeeds():
                 lr = bitrate_k_lr[bitrate]['lr']
                 f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
                         '--embeddim {} --seed {} --k {} --lr {}\\"\n').format(
-                        prefix, rungroup, embedtype, compresstype, bitrate,
+                        dca_prefix, rungroup, embedtype, compresstype, bitrate,
                         embeddim, seed, k, lr)
                 )
 
