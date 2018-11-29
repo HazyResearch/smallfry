@@ -29,8 +29,9 @@ def store_embed_memory_info(v,d):
     utils.config['exact-memory'] = get_exact_memory()
     utils.config['exact-compression-ratio'] = 32 * v * d / utils.config['exact-memory']
     utils.config['exact-bitrate'] = utils.config['exact-memory'] / (v * d)
-    assert np.abs(utils.config['exact-bitrate'] - utils.config['bitrate']) < .01, \
-           'Discrepency between exact and intended bitrates is >= 0.01.'
+    if not utils.config['skipquant']:
+        assert np.abs(utils.config['exact-bitrate'] - utils.config['bitrate']) < .01, \
+            'Discrepency between exact and intended bitrates is >= 0.01.'
 
 def get_embed_info():
     '''Get path to embedding, and size of vocab for embedding'''
@@ -73,7 +74,9 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
         elapsed = 0
     if utils.config['compresstype'] in ('kmeans','uniform'):
         results['centroids'] = np.unique(Xq).tolist()
-        assert len(results['centroids']) == 2**bit_rate
+        logging.info('Number of centroids used: {} out of {}'.format(
+            len(results['centroids']), 2**bit_rate))
+        assert len(results['centroids']) <= 2**bit_rate
     results['frob-squared-error'] = frob_squared_error
     results['elapsed'] = elapsed
     utils.config['results'] = results
