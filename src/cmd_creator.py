@@ -24,7 +24,7 @@ def cmds_11_28_18_compress_round1():
             )
 
         # bitrates and embeddim for k-means and uniform
-        bitrates = [1,2,4,8]
+        bitrates = [1,2,4] # kmeans failed on bitrate 8
         embeddim = 300
 
         # kmeans
