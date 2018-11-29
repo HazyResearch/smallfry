@@ -45,7 +45,7 @@ def init_train_parser():
         help='Head output directory')
     parser.add_argument('--rungroup', type=str, required=True,
         help='Rungroup for organization')
-    parser.add_argument('--dim', type=int, default=300,
+    parser.add_argument('--dim', type=int, required=True,
         help='Dimension for generated embeddings')
     parser.add_argument('--maxvocab', type=int, default=400000,
         help='Maximum vocabulary size')
@@ -72,7 +72,7 @@ def init_compress_parser():
     parser.add_argument('--embedtype', type=str, required=True,
         choices=['glove400k','glove10k'], # TODO: Add more options
         help='Name of embedding to compress')
-    parser.add_argument('--embeddim', type=int, default=300,
+    parser.add_argument('--embeddim', type=int, required=True,
         help='Dimension of embeddings to use.')
     parser.add_argument('--compresstype', type=str, required=True,
         choices=['uniform','kmeans','dca','nocompress'],
