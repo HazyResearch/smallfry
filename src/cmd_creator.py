@@ -168,7 +168,23 @@ def cmds_11_28_18_compress_fiveSeeds():
                         embeddim, seed, k, lr)
                 )
 
+def cmds_11_29_18_eval_fiveSeeds():
+    cmd_file = get_cmdfile_path('11_29_18_eval_fiveSeeds_cmds')
+    if utils.is_windows():
+        embed_list_file = get_cmdfile_path('embedding_list_fiveSeeds.txt')
+    else:
+        embed_list_file = '/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/embedding_list_fiveSeeds.txt'
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --cuda --evaltype qa --embedpath {}\\"\n')
+
+    with open(embed_list_file,'r') as f:
+        embed_file_paths = f.readlines()
+    with open(cmd_file,'w+') as f:
+        for path in embed_file_paths:
+            f.write(cmd_format_str.format(path.strip()))
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
-    cmds_11_28_18_compress_fiveSeeds()
+    # cmds_11_28_18_compress_fiveSeeds()
+    cmds_11_29_18_eval_fiveSeeds()
