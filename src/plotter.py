@@ -9,17 +9,17 @@ default_var_info = ['embedtype',['glove400k']]
 # Returns a list of result dictionaries whose filenames match the path_regex.
 def gather_results(path_regex):
     file_list = glob.glob(path_regex)
-    all_results = []
-    for f in file_list:
-        result = flatten_dict(utils.load_from_json(f))
-        all_results.append(result)
-    return all_results
+    return [utils.load_from_json(f) for f in file_list]
 
-def fix_nocompress_bitrate(results):
+def clean_results(results):
+    cleaned = []
     for result in results:
+        result = flatten_dict(result)
         if result['compresstype'] == 'nocompress':
             result['bitrate'] = (32.0/300.0) * result['embeddim']
         result['compression-ratio'] = 32.0/result['bitrate']
+        cleaned.append(result)
+    return cleaned
 
 # Note: this only flattens one layer down
 def flatten_dict(to_flatten):
