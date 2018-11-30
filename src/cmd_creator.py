@@ -175,7 +175,7 @@ def cmds_11_29_18_eval_fiveSeeds():
     else:
         embed_list_file = '/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/embedding_list_fiveSeeds.txt'
     cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
-              '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --cuda --evaltype qa --embedpath {}\\"\n')
+              '\\"sudo python /proj/smallfry/git/smallfry/src/evaluate.py --cuda --evaltype qa --embedpath {}\\"\n')
 
     with open(embed_list_file,'r') as f:
         embed_file_paths = f.readlines()
