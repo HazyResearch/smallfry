@@ -183,8 +183,21 @@ def cmds_11_29_18_eval_fiveSeeds():
         for path in embed_file_paths:
             f.write(cmd_format_str.format(path.strip()))
 
+def cmds_11_29_18_eval_fiveSeeds_fixFailedEvals():
+    cmd_file = get_cmdfile_path('11_29_18_eval_fiveSeeds_fixFailedEvals_cmds')
+    embed_file_paths = [
+        '/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/seed,3_embeddim,300_compresstype,uniform_bitrate,4_stoch,True_adaptive,True/embedtype,glove400k_rungroup,2018-11-29-fiveSeeds_seed,3_embeddim,300_compresstype,uniform_bitrate,4_stoch,True_adaptive,True_compressed_embeds.txt',
+        '/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/seed,4_embeddim,300_compresstype,uniform_bitrate,2_adaptive,True/embedtype,glove400k_rungroup,2018-11-29-fiveSeeds_seed,4_embeddim,300_compresstype,uniform_bitrate,2_adaptive,True_compressed_embeds.txt'
+    ]
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --cuda --evaltype qa --embedpath {}\\"\n')
+    with open(cmd_file,'w+') as f:
+        for path in embed_file_paths:
+            f.write(cmd_format_str.format(path.strip()))
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
     # cmds_11_28_18_compress_fiveSeeds()
-    cmds_11_29_18_eval_fiveSeeds()
+    # cmds_11_29_18_eval_fiveSeeds()
+    cmds_11_29_18_eval_fiveSeeds_fixFailedEvals()
