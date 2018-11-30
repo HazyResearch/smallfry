@@ -48,7 +48,7 @@ def main():
         to_file_txt(core_filename + '.txt', wordlist, embeds)
         if config['writenpy']:
             to_file_np(core_filename + '.npy', embeds)
-    save_dict_as_json(config, core_filename + '_config.json')
+    save_to_json(config, core_filename + '_config.json')
     logging.info(f"Write complete")
     logging.info('maker.py finished!')
 

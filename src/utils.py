@@ -133,7 +133,7 @@ def init_config(parser, runtype):
     orig_config = config.copy()
     if runtype == 'evaluate':
         config_path = config['embedpath'].replace('_compressed_embeds.txt','_config.json')
-        config['compress-config'] = load_dict_from_json(config_path)
+        config['compress-config'] = load_from_json(config_path)
         config['rungroup'] = 'eval-' + config['compress-config']['rungroup']
         config['seed'] = config['compress-config']['seed']
     config['runname'] = get_runname(parser, runtype)
@@ -147,11 +147,11 @@ def init_config(parser, runtype):
     config['githash'], config['gitdiff'] = get_git_hash_and_diff() # might fail
     logging.info('Command line arguments: {}'.format(' '.join(sys.argv[1:])))
     # initialize_further(runtype)
-    save_dict_as_json(orig_config, get_filename('_orig_config.json'))
+    save_to_json(orig_config, get_filename('_orig_config.json'))
     save_current_config()
 
 def save_current_config():
-    save_dict_as_json(config, get_filename('_config.json'))
+    save_to_json(config, get_filename('_config.json'))
 
 # def initialize_further(runtype):
 #     global config
@@ -289,10 +289,10 @@ def init_logging():
     logging.getLogger('').addHandler(console)
     logging.info('Begin logging.')
 
-def save_dict_as_json(dict_to_write, path):
+def save_to_json(dict_to_write, path):
     with open(path, 'w') as f: json.dump(dict_to_write, f, indent=2)
 
-def load_dict_from_json(path):
+def load_from_json(path):
     with open(path) as f: return json.load(f)
 
 def is_windows():

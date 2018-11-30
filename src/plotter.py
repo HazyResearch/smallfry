@@ -4,14 +4,22 @@ import numpy as np
 from matplotlib import pyplot as plt
 import utils
 
+default_var_info = ['embedtype',['glove400k']]
+
 # Returns a list of result dictionaries whose filenames match the path_regex.
 def gather_results(path_regex):
     file_list = glob.glob(path_regex)
     all_results = []
     for f in file_list:
-        result = utils.load_dict_from_json(f)
-        all_results.append(flatten_dict(result))
+        result = flatten_dict(utils.load_from_json(f))
+        all_results.append(result)
     return all_results
+
+def fix_nocompress_bitrate(results):
+    for result in results:
+        if result['compresstype'] == 'nocompress':
+            result['bitrate'] = (32.0/300.0) * result['embeddim']
+        result['compression-ratio'] = 32.0/result['bitrate']
 
 # Note: this only flattens one layer down
 def flatten_dict(to_flatten):
@@ -41,18 +49,35 @@ def matches_all_key_values(result, key_values_to_match):
 
 # TODO: add error bar support
 def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_metric,
-                logx=False, logy=False, title=None):
+                logx=False, logy=False, title=None, var_info=default_var_info,
+                csv_file=None):
     subset = extract_result_subset(all_results, key_values_to_match)
-    lines = extract_x_y_foreach_line(subset, info_per_line, x_metric, y_metric)
-    plot_lines(lines, x_metric, y_metric, logx=logx, logy=logy, title=title)
+    lines = extract_x_y_foreach_line(subset, info_per_line, x_metric, y_metric, var_info=var_info)
+    plot_lines(lines, x_metric, y_metric, logx=logx, logy=logy, title=title, csv_file=csv_file)
 
 # lines is a dictionary of {line_name:(x,y)} pairs, where x and y are numpy
 # arrays with the x and y values to be plotted.
-def plot_lines(lines, x_metric, y_metric, logx=False, logy=False, title=None):
+def plot_lines(lines, x_metric, y_metric, logx=False, logy=False, title=None, csv_file=None):
+    f = None
+    if csv_file:
+        f = open(csv_file,'w+')
     legend = []
     for line_name,xy in lines.items():
         legend.append(line_name)
-        plt.plot(xy[0],xy[1],'o--')
+        # plt.plot(xy[0],xy[1],'o--')
+        sorted_x = xy[0]
+        y_array = xy[1]
+        y_avg = np.average(y_array,axis=0)
+        y_std = np.std(y_array,axis=0)
+        plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o')
+        if f:
+            f.write('{}\n'.format(line_name))
+            f.write(x_metric + ',' + ','.join([str(a) for a in sorted_x.tolist()]) + '\n')
+            f.write(y_metric + ' (avg.),' + ','.join([str(a) for a in y_avg.tolist()]) + '\n')
+            f.write(y_metric + ' (st. dev.),' + ','.join([str(a) for a in y_std.tolist()]) + '\n')
+    if f:
+        f.close()
+
     plt.legend(legend)
     plt.xlabel(x_metric)
     plt.ylabel(y_metric)
@@ -67,24 +92,40 @@ def plot_lines(lines, x_metric, y_metric, logx=False, logy=False, title=None):
 # Specifically, for each line, extracts the subset of results corresponding
 # to that line (based on key-value pairs matching the dict specified in
 # info_per_line), and then extracts x,y arrays from these results.
-def extract_x_y_foreach_line(results, info_per_line, x_metric, y_metric):
+def extract_x_y_foreach_line(results, info_per_line, x_metric, y_metric, var_info=default_var_info):
     lines = {}
     for line_name,key_values in info_per_line.items():
         line_subset = extract_result_subset(results, key_values)
-        lines[line_name] = get_x_y_values(line_subset, x_metric, y_metric)
+        lines[line_name] = get_x_y_values(line_subset, x_metric, y_metric, var_info=var_info)
     return lines
 
 # extracts x,y arrays for a specific line_subset
-def get_x_y_values(line_subset, x_metric, y_metric):
-    x = []
-    y = []
+def get_x_y_values(line_subset, x_metric, y_metric, var_info=default_var_info):
+    var_key = var_info[0]
+    var_values = var_info[1]
+    x = {}
+    y = {}
+    for val in var_values:
+        x[val] = []
+        y[val] = []
     for result in line_subset:
-        x.append(result[x_metric])
-        y.append(result[y_metric])
-    # convert to numpy and sort results by their x values
-    x,y = np.array(x), np.array(y)
-    ind = np.argsort(x)
-    return x[ind], y[ind]
+        val = result[var_key]
+        if val in var_values:
+            x[val].append(result[x_metric])
+            y[val].append(result[y_metric])
+    for val in var_values:
+        x[val] = np.array(x[val])
+        y[val] = np.array(y[val])
+        ind = np.argsort(x[val])
+        x[val] = x[val][ind]
+        y[val] = y[val][ind]
+    sorted_x = x[var_values[0]]
+    for val in var_values:
+        assert np.array_equal(sorted_x, x[val])
+    y_array = np.zeros((len(var_values), len(sorted_x)))
+    for i,val in enumerate(var_values):
+        y_array[i,:] = y[val]
+    return sorted_x, y_array
 
 def plot_frob_squared_vs_bitrate():
     path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
@@ -137,7 +178,6 @@ def plot_frob_squared_vs_bitrate():
     )
     plt.show()
 
-
 def plot_dca_frob_squared_vs_lr():
     path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
                      'glove400k', 'round1_tuneDCA_results', '*final.json'))
@@ -178,7 +218,77 @@ def dca_get_best_k_lr_per_bitrate():
                 best_k_lr_per_bitrate[b] = {'k':result['k'], 'lr':result['lr'], }
     return best_k_lr_per_bitrate
 
+def plot_2018_11_29_fiveSeeds_QA_vs_bitrate():
+    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                       '2018-11-29-fiveSeeds_QA_results.json'))
+    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                       'avner_drqa_results.csv'))
+    all_results = utils.load_from_json(results_file)
+    fix_nocompress_bitrate(all_results)
+
+    var_info = ['seed',[1,2,5]]
+    plt.figure(1)
+    # for seed in [1,2,3,4,5]:
+    #     plt.subplot(150 + seed)
+    plot_driver(all_results, {'compresstype':['kmeans','uniform','dca','nocompress'], 'seed':[1,2,5]},
+        {
+        # 'kmeans':
+        #     {
+        #         'compresstype':['kmeans']
+        #     },
+        # 'uniform (adaptive-stoch)':
+        #     {
+        #         'compresstype':['uniform'],
+        #         'adaptive':[True],
+        #         'stoch':[True],
+        #         'skipquant':[False]
+        #     },
+        'Uniform quant. (ours)': # (adaptive-det)':
+            {
+                'compresstype':['uniform'],
+                'adaptive':[True],
+                'stoch':[False],
+                'skipquant':[False]
+            },
+        # 'uniform (adaptive-skipquant)':
+        #     {
+        #         'compresstype':['uniform'],
+        #         'adaptive':[True],
+        #         'stoch':[False],
+        #         'skipquant':[True]
+        #     },
+        # 'uniform (non-adaptive, det)':
+        #     {
+        #         'compresstype':['uniform'],
+        #         'adaptive':[False],
+        #         'stoch':[False],
+        #         'skipquant':[False]
+        #     },
+        'DCA':
+            {
+                'compresstype':['dca']
+            },
+        'Dim. reduction':
+            {
+                'compresstype':['nocompress']
+            }
+        },
+        'compression-ratio',
+        'best-f1',
+        logx=True,
+        title='Question-answering performance (F1) vs. compression ratio',
+        var_info=var_info,
+        csv_file=csv_file
+    )
+    plt.ylim(70.5,74.5)
+    crs = [1,1.5,3,6,8,16,32]
+    plt.xticks(crs,crs)
+    plt.show()
+
+
 if __name__ == '__main__':
-    plot_frob_squared_vs_bitrate()
+    #plot_frob_squared_vs_bitrate()
     #plot_dca_frob_squared_vs_lr()
     #print(dca_get_best_k_lr_per_bitrate())
+    plot_2018_11_29_fiveSeeds_QA_vs_bitrate()
+    print('hello')

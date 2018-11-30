@@ -17,7 +17,7 @@ def main():
     utils.init('evaluate')
     logging.info('Beginning evaluation.')
     evaluate_embeds()
-    utils.save_dict_as_json(utils.config, utils.get_filename('_final.json'))
+    utils.save_to_json(utils.config, utils.get_filename('_final.json'))
     logging.info('Run complete. Exiting evaluate.py main method')
 
 def evaluate_embeds():

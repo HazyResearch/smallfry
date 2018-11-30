@@ -21,7 +21,7 @@ def main():
     base_embeds,wordlist = utils.load_embeddings(utils.config['base-embed-path'])
     store_embed_memory_info(*base_embeds.shape)
     compress_and_save_embeddings(base_embeds, wordlist, utils.config['bitrate'])
-    utils.save_dict_as_json(utils.config, utils.get_filename('_final.json'))
+    utils.save_to_json(utils.config, utils.get_filename('_final.json'))
     logging.info('Run complete. Exiting compress.py main method.')
 
 def store_embed_memory_info(v,d):
