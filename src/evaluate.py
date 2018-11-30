@@ -24,9 +24,11 @@ def evaluate_embeds():
     logging.info('Beginning evaluation')
     start = time.time()
     if utils.config['evaltype'] == 'qa':
-        results = evaluate_qa(utils.config['embedpath'],
-            utils.config['compressed-config']['embeddim'],
-            utils.config['epochs'], utils.config['seed'])
+        results = evaluate_qa(
+            utils.config['embedpath'],
+            utils.config['compress-config']['embeddim'],
+            utils.config['compress-config']['seed']
+        )
     elif utils.config['evaltype'] == 'intrinsics':
         results = evaluate_intrinsics(utils.config['embedpath'])
     elif utils.config['evaltype'] == 'synthetics':
@@ -36,10 +38,9 @@ def evaluate_embeds():
     results['elapsed'] = elapsed
     utils.config['results'] = results
 
-def evaluate_qa(embed_path, embed_dim, epochs, seed):
+def evaluate_qa(embed_path, embed_dim, seed):
     qa_args = ['--embed-dir=', '--embedding-file', embed_path,
-               '--embedding-dim', str(embed_dim), '--num-epochs', str(epochs),
-               '--random-seed', str(seed), '--tune-partial', '0']
+               '--embedding-dim', str(embed_dim), '--random-seed', str(seed)]
     f1_scores,exact_match_scores = train_drqa(qa_args, use_cuda=utils.config['cuda'])
     results = {}
     results['f1-scores'] = f1_scores
@@ -137,7 +138,7 @@ def evaluate_synthetics(embed_path):
     '''Evaluates synthetics'''
     embeds,_ = utils.load_embeddings(embed_path)
     base_embeds,_ = utils.load_embeddings(
-        utils.config['compressed-config']['base-embed-path'])
+        utils.config['compress-config']['base-embed-path'])
 
     # TODO FILL THIS IN
     results = {}

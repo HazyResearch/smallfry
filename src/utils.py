@@ -47,6 +47,8 @@ def init_train_parser():
         help='Rungroup for organization')
     parser.add_argument('--dim', type=int, required=True,
         help='Dimension for generated embeddings')
+    parser.add_argument('--seed', type=int, required=True,
+        help='Random seed to use for experiment.')
     parser.add_argument('--maxvocab', type=int, default=400000,
         help='Maximum vocabulary size')
     parser.add_argument('--memusage', type=int, default=256,
@@ -81,6 +83,8 @@ def init_compress_parser():
         help='Name of rungroup')
     parser.add_argument('--bitrate', type=int, required=True,
         help='Bitrate.  Note not exact for some methods, but as close as possible.')
+    parser.add_argument('--seed', type=int, required=True,
+        help='Random seed to use for experiment.')
     ### Begin uniform quantization hyperparameters
     parser.add_argument('--stoch', action='store_true', 
         help='Specifies whether stochastic quantization should be used.')
@@ -114,15 +118,11 @@ def init_evaluate_parser():
         help='Evaluation type.')
     parser.add_argument('--embedpath', type=str, required=True,
         help='Path to embedding to evaluate.')
-    parser.add_argument('--epochs', type=int, default=50,
-        help='Number of epochs to run for DrQA training.')
     return parser
 
 def add_shared_args(parser):
     parser.add_argument('--cuda', action='store_true',
         help='Specifies whether GPU should be used.')
-    parser.add_argument('--seed', type=int, required=True,
-        help='Random seed to use for experiment.')
     parser.add_argument('--debug', action='store_true',
         help='If true, can have local git changes when running this.')
 
@@ -133,8 +133,9 @@ def init_config(parser, runtype):
     orig_config = config.copy()
     if runtype == 'evaluate':
         config_path = config['embedpath'].replace('_compressed_embeds.txt','_config.json')
-        config['compressed-config'] = load_dict_from_json(config_path)
-        config['rungroup'] = 'eval-' + config['compressed-config']['rungroup']
+        config['compress-config'] = load_dict_from_json(config_path)
+        config['rungroup'] = 'eval-' + config['compress-config']['rungroup']
+        config['seed'] = config['compress-config']['seed']
     config['runname'] = get_runname(parser, runtype)
     config['datestr'] = get_date_str()
     config['rungroup'] =  '{}-{}'.format(config['datestr'], config['rungroup'])
@@ -212,7 +213,7 @@ def get_and_make_run_dir(runtype):
             config['basedir'], 'embeddings',
             config['embedtype'], config['rungroup'], config['runname']))
     elif runtype == 'evaluate':
-        rundir = config['compressed-config']['rundir']
+        rundir = config['compress-config']['rundir']
     ensure_dir(rundir)
     return rundir
 
