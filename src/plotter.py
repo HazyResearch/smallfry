@@ -73,6 +73,9 @@ def plot_lines(lines, x_metric, y_metric, logx=False, logy=False, title=None, cs
         if f:
             f.write('{}\n'.format(line_name))
             f.write(x_metric + ',' + ','.join([str(a) for a in sorted_x.tolist()]) + '\n')
+            for i in range(y_array.shape[0]):
+                y = y_array[i,:]
+                f.write('{} ({}),{}\n'.format(y_metric,i, ','.join([str(a) for a in y.tolist()])))
             f.write(y_metric + ' (avg.),' + ','.join([str(a) for a in y_avg.tolist()]) + '\n')
             f.write(y_metric + ' (st. dev.),' + ','.join([str(a) for a in y_std.tolist()]) + '\n')
     if f:
@@ -220,17 +223,17 @@ def dca_get_best_k_lr_per_bitrate():
 
 def plot_2018_11_29_fiveSeeds_QA_vs_bitrate():
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                       '2018-11-29-fiveSeeds_QA_results.json'))
+                       '2018-11-29-fiveSeeds_QA_all_results.json'))
     csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                       'avner_drqa_results.csv'))
+                       'avner_drqa_all_results.csv'))
     all_results = utils.load_from_json(results_file)
-    fix_nocompress_bitrate(all_results)
+    all_results = clean_results(all_results)
 
-    var_info = ['seed',[1,2,5]]
+    var_info = ['seed',[1,2,3,4,5]]
     plt.figure(1)
     # for seed in [1,2,3,4,5]:
     #     plt.subplot(150 + seed)
-    plot_driver(all_results, {'compresstype':['kmeans','uniform','dca','nocompress'], 'seed':[1,2,5]},
+    plot_driver(all_results, {'compresstype':['kmeans','uniform','dca','nocompress'], 'seed':[1,2,3,4,5]},
         {
         # 'kmeans':
         #     {
