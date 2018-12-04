@@ -2,6 +2,7 @@ import glob
 import pathlib
 import numpy as np
 from matplotlib import pyplot as plt
+import matplotlib as mpl
 import utils
 
 default_var_info = ['embedtype',['glove400k']]
@@ -69,7 +70,10 @@ def plot_lines(lines, x_metric, y_metric, logx=False, logy=False, title=None, cs
         y_array = xy[1]
         y_avg = np.average(y_array,axis=0)
         y_std = np.std(y_array,axis=0)
-        plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o')
+        if line_name == 'Dim. reduction':
+            plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o', capthick=4, capsize=10000)
+        else:
+            plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o', capthick=4, capsize=10)
         if f:
             f.write('{}\n'.format(line_name))
             f.write(x_metric + ',' + ','.join([str(a) for a in sorted_x.tolist()]) + '\n')
@@ -235,31 +239,31 @@ def plot_2018_11_29_fiveSeeds_QA_vs_bitrate():
     #     plt.subplot(150 + seed)
     plot_driver(all_results, {'compresstype':['kmeans','uniform','dca','nocompress'], 'seed':[1,2,3,4,5]},
         {
-        # 'kmeans':
-        #     {
-        #         'compresstype':['kmeans']
-        #     },
-        # 'uniform (adaptive-stoch)':
-        #     {
-        #         'compresstype':['uniform'],
-        #         'adaptive':[True],
-        #         'stoch':[True],
-        #         'skipquant':[False]
-        #     },
-        'Uniform quant. (ours)': # (adaptive-det)':
+        'kmeans':
+            {
+                'compresstype':['kmeans']
+            },
+        'uniform (adaptive-stoch)':
+            {
+                'compresstype':['uniform'],
+                'adaptive':[True],
+                'stoch':[True],
+                'skipquant':[False]
+            },
+        'uniform (adaptive-det)': # (adaptive-det)':
             {
                 'compresstype':['uniform'],
                 'adaptive':[True],
                 'stoch':[False],
                 'skipquant':[False]
             },
-        # 'uniform (adaptive-skipquant)':
-        #     {
-        #         'compresstype':['uniform'],
-        #         'adaptive':[True],
-        #         'stoch':[False],
-        #         'skipquant':[True]
-        #     },
+        'uniform (adaptive-skipquant)':
+            {
+                'compresstype':['uniform'],
+                'adaptive':[True],
+                'stoch':[False],
+                'skipquant':[True]
+            },
         # 'uniform (non-adaptive, det)':
         #     {
         #         'compresstype':['uniform'],
