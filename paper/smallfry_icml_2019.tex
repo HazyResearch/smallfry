@@ -1,0 +1,191 @@
+%%%%%%%% ICML 2018 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs} % for professional tables
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2018} with \usepackage[nohyperref]{icml2018} above.
+\usepackage{hyperref}
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Use the following line for the initial blind version submitted for review:
+\usepackage{icml2018}
+
+% If accepted, instead use the following line for the camera-ready submission:
+%\usepackage[accepted]{icml2018}
+
+% The \icmltitle you define below is probably too long as a header.
+% Therefore, a short form for the running title is supplied here:
+\icmltitlerunning{Submission and Formatting Instructions for ICML 2018}
+
+\begin{document}
+
+\twocolumn[
+\icmltitle{Compressing Embeddings with Uniform Quantization}
+%\icmltitle{Submission and Formatting Instructions for \\
+%           International Conference on Machine Learning (ICML 2018)}
+
+% It is OKAY to include author information, even for blind
+% submissions: the style file will automatically remove it for you
+% unless you've provided the [accepted] option to the icml2018
+% package.
+
+% List of affiliations: The first argument should be a (short)
+% identifier you will use later to specify author affiliations
+% Academic affiliations should list Department, University, City, Region, Country
+% Industry affiliations should list Company, City, Region, Country
+
+% You can specify symbols, otherwise they are numbered in order.
+% Ideally, you should not use this facility. Affiliations will be numbered
+% in order of appearance and this is the preferred way.
+%\icmlsetsymbol{equal}{*}
+
+\begin{icmlauthorlist}
+\icmlauthor{Random Name}{equal,stanford}
+%\icmlauthor{Aeiau Zzzz}{equal,to}
+%\icmlauthor{Bauiu C.~Yyyy}{equal,to,goo}
+%\icmlauthor{Cieua Vvvvv}{goo}
+%\icmlauthor{Iaesut Saoeu}{ed}
+%\icmlauthor{Fiuea Rrrr}{to}
+%\icmlauthor{Tateu H.~Yasehe}{ed,to,goo}
+%\icmlauthor{Aaoeu Iasoh}{goo}
+%\icmlauthor{Buiui Eueu}{ed}
+%\icmlauthor{Aeuia Zzzz}{ed}
+%\icmlauthor{Bieea C.~Yyyy}{to,goo}
+%\icmlauthor{Teoau Xxxx}{ed}
+%\icmlauthor{Eee Pppp}{ed}
+\end{icmlauthorlist}
+%
+\icmlaffiliation{stanford}{Department of Computer Science, Stanford University, Stanford, California, USA}
+%\icmlaffiliation{to}{Department of Computation, University of Torontoland, Torontoland, Canada}
+%\icmlaffiliation{goo}{Googol ShallowMind, New London, Michigan, USA}
+%\icmlaffiliation{ed}{School of Computation, University of Edenborrow, Edenborrow, United Kingdom}
+%
+\icmlcorrespondingauthor{Random Name}{random@cs.stanford.edu}
+%\icmlcorrespondingauthor{Eee Pppp}{ep@eden.co.uk}
+
+% You may provide any keywords that you
+% find helpful for describing your paper; these are used to populate
+% the "keywords" metadata in the PDF but will not be shown in the document
+\icmlkeywords{Machine Learning, ICML}
+
+\vskip 0.3in
+]
+
+% this must go after the closing bracket ] following \twocolumn[ ...
+
+% This command actually creates the footnote in the first column
+% listing the affiliations and the copyright notice.
+% The command takes one argument, which is text to display at the start of the footnote.
+% The \icmlEqualContribution command is standard text for equal contribution.
+% Remove it (just {}) if you do not need this facility.
+
+%\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
+\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+\section{Introduction}
+\label{intro}
+
+
+%\subsection{Figures}
+% EXAMPLE FIGURE
+%\begin{figure}[ht]
+%\vskip 0.2in
+%\begin{center}
+%\centerline{\includegraphics[width=\columnwidth]{icml_numpapers}}
+%\caption{Historical locations and number of accepted papers for International
+%Machine Learning Conferences (ICML 1993 -- ICML 2008) and International
+%Workshops on Machine Learning (ML 1988 -- ML 1992). At the time this figure was
+%produced, the number of accepted papers for ICML 2008 was unknown and instead
+%estimated.}
+%\label{icml-historical}
+%\end{center}
+%\vskip -0.2in
+%\end{figure}
+
+
+%\subsection{Algorithms}
+% EXAMPLE ALGORITHM
+%\begin{algorithm}[tb]
+%   \caption{Bubble Sort}
+%   \label{alg:example}
+%\begin{algorithmic}
+%   \STATE {\bfseries Input:} data $x_i$, size $m$
+%   \REPEAT
+%   \STATE Initialize $noChange = true$.
+%   \FOR{$i=1$ {\bfseries to} $m-1$}
+%   \IF{$x_i > x_{i+1}$}
+%   \STATE Swap $x_i$ and $x_{i+1}$
+%   \STATE $noChange = false$
+%   \ENDIF
+%   \ENDFOR
+%   \UNTIL{$noChange$ is $true$}
+%\end{algorithmic}
+%\end{algorithm}
+
+%\subsection{Tables}
+% EXAMPLE TABLE
+%\begin{table}[t]
+%\caption{Example table.}
+%\label{sample-table}
+%\vskip 0.15in
+%\begin{center}
+%\begin{small}
+%\begin{sc}
+%\begin{tabular}{lcccr}
+%\toprule
+%Data set & Naive & Flexible & Better? \\
+%\midrule
+%Cleveland & 83.3$\pm$ 0.6& 80.0$\pm$ 0.6& $\times$\\
+%Glass2    & 61.9$\pm$ 1.4& 83.8$\pm$ 0.7& $\surd$ \\
+%\bottomrule
+%\end{tabular}
+%\end{sc}
+%\end{small}
+%\end{center}
+%\vskip -0.1in
+%\end{table}
+
+
+% Acknowledgements should only appear in the accepted version.
+%\section*{Acknowledgements}
+%
+%\textbf{Do not} include acknowledgements in the initial version of
+%the paper submitted for blind review.
+
+
+% In the unusual situation where you want a paper to appear in the
+% references without citing it in the main text, use \nocite
+%\nocite{langley00}
+
+\bibliography{ref}
+\bibliographystyle{icml2018}
+
+
+\end{document}
+
+
+% This document was modified from the file originally made available by
+% Pat Langley and Andrea Danyluk for ICML-2K. This version was created
+% by Iain Murray in 2018. It was modified from a version from Dan Roy in
+% 2017, which was based on a version from Lise Getoor and Tobias
+% Scheffer, which was slightly modified from the 2010 version by
+% Thorsten Joachims & Johannes Fuernkranz, slightly modified from the
+% 2009 version by Kiri Wagstaff and Sam Roweis's 2008 version, which is
+% slightly modified from Prasad Tadepalli's 2007 version which is a
+% lightly changed version of the previous year's version by Andrew
+% Moore, which was in turn edited from those of Kristian Kersting and
+% Codrina Lauth. Alex Smola contributed to the algorithmic style files.

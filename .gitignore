@@ -2,6 +2,10 @@
 *
 # Now, whitelist anything that's a directory
 !*/
+!*.tex
+!*.sty
+!*.bib
+!*.bst
 # And all the file types you're interested in.
 !*.py
 !*.txt
