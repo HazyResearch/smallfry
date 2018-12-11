@@ -334,3 +334,38 @@ def save_embeddings(path, embeds, wordlist):
             strrow = [str(r) for r in row]
             file.write(" ".join(strrow))
             file.write("\n")
+
+#########################################################
+# two sided delta
+#########################################################
+def delta_approximation(K, K_tilde, lambda_=1e-3):
+    """ Compute the smallest D1 and D2 such that (1 - D1)(K + lambda_ I) <= K_tilde + lambda_ I <= (1 + D2)(K + lambda_ I),
+    where the inequalities are in semidefinite order.
+    """
+    logging.info('Beginning to compute delta_approximation')
+    if type(K) == torch.Tensor and type(K_tilde) == torch.Tensor:
+        # todo: what if K and K_tilde are on GPU?
+        K = K.numpy()
+        K_tilde = K_tilde.numpy()
+    # make K_tilde symmetric
+    #K = (K + K.T)/2
+    #K_tilde = (K_tilde + K_tilde.T)/2
+    n, m = K.shape
+    n_tilde, m_tilde = K_tilde.shape
+    assert n == m and n_tilde == m_tilde, "Kernel matrix must be square"
+    assert n == n_tilde, "K and K_tilde must have the same shape"
+    assert np.allclose(K, K.T) and np.allclose(K_tilde, K_tilde.T), "Kernel matrix must be symmetric"
+    # Compute eigen-decomposition of K + lambda_ I, of the form V @ np.diag(sigma) @ V.T
+    sigma, V = np.linalg.eigh(K)
+    #assert np.all(sigma >= 0), "Kernel matrix K must be positive semidefinite"
+    sigma += lambda_
+    # Whitened K_tilde: np.diag(1 / np.sqrt(sigma)) @ V.T @ K_tilde @ V @ np.diag(1 / np.sqrt(sigma))
+    K_tilde_whitened = V.T.dot(K_tilde.dot(V)) / np.sqrt(sigma) / np.sqrt(sigma)[:, np.newaxis]
+    K_whitened = np.diag(1 - lambda_ / sigma)
+    sigma_final, _ = np.linalg.eigh(K_tilde_whitened - K_whitened)
+    lambda_min = sigma_final[0]
+    lambda_max = sigma_final[-1]
+    logging.info('Finished computing delta_approximation')
+    assert lambda_max >= lambda_min
+    # return delta1, delta2, max(delta2, delta1/(1-delta1))
+    return -lambda_min, lambda_max, max(lambda_max, -lambda_min/(1.0 + lambda_min) )
