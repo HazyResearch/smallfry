@@ -111,50 +111,52 @@ Also, note that in the case where $\sigma = 0$, $\lambda_1 = 0$, $\lambda_2 = a 
 	n \exp \bigg(\frac{-\Delta_1^2}{2dL^2 + (2L/3)\Delta_1}\bigg) -
 	n \exp \bigg(\frac{-(\Delta_2-\delta_b^2/\lambda)^2}{2dL^2 + (2L/3)(\Delta_2-\delta_b^2/\lambda)}\bigg),
 	\end{eqnarray}
-for $L \defeq 5 \cdot \frac{2^b \cdot \delta_b^2}{\lambda}\cdot \frac{n}{d}$.
+	for $L \defeq 5 \cdot \frac{2^b \cdot \delta_b^2}{\lambda}\cdot \frac{n}{d}$.
 \end{theorem}
 
-\noindent\textbf{Remark:} If we approximate $\delta_b^2 \approx 2^{-2b}$, and let $5n/d \eqdef c$, then $L \approx c /(2^b \lambda)$, and the RHS of this bound becomes
-\begin{eqnarray*}
-1 - 
-n \exp \bigg(\frac{-\Delta_1^2 /L}{2dL + (2/3)\Delta_1}\bigg) -
-n \exp \bigg(\frac{-(\Delta_2-\delta_b^2/\lambda)^2 /L}{2dL + (2/3)(\Delta_2-\delta_b^2/\lambda)}\bigg) \\
-= 1 - 
-n \exp \bigg(\frac{-\Delta_1^2 (2^b \lambda)}{2dc^2/(2^b \lambda) + (2c/3)\Delta_1}\bigg) -
-n \exp \bigg(\frac{-(\Delta_2-1/(2^{2b}\lambda))^2 (2^b \lambda)}{2dc^2/(2^b \lambda) + (2c/3)(\Delta_2-1/(2^{2b}\lambda))}\bigg)
-% OLD VERSION
-%= 1 - 2n \exp \Bigg(\frac{-\Big(\Delta-1/(2^{2b}\lambda)\Big)^2 \cdot 2^b \lambda}{2dc^2/(2^b\lambda) + (2c/3)\Big(\Delta-1/(2^{2b}\lambda)\Big)}\Bigg).
-\end{eqnarray*}
-As $2^b \lambda \rightarrow \infty$, and letting $\Delta_1=\Delta_2\eqdef \Delta$ for simplicity, the dominant terms become
-\begin{eqnarray*}
-1 - 2n \exp \Bigg(\frac{-\Delta^2 \cdot 2^b \lambda}{(2c/3)\Delta}\Bigg) = 1 - 2n \exp \Bigg(\frac{-\Delta \cdot 2^b \lambda}{(2c/3)}\Bigg),
-\end{eqnarray*}
-This makes it clear that as $2^b \lambda \rightarrow \infty$, this probability goes to 1, for any $\Delta > 0$.  \textbf{Note that this is NOT the case for the bound in the LP-RFF paper!}
+
+%\noindent\textbf{Remark:} If we approximate $\delta_b^2 \approx 2^{-2b}$, and let $5n/d \eqdef c$, then $L \approx c /(2^b \lambda)$, and the RHS of this bound becomes
+%\begin{eqnarray*}
+%1 - 
+%n \exp \bigg(\frac{-\Delta_1^2 /L}{2dL + (2/3)\Delta_1}\bigg) -
+%n \exp \bigg(\frac{-(\Delta_2-\delta_b^2/\lambda)^2 /L}{2dL + (2/3)(\Delta_2-\delta_b^2/\lambda)}\bigg) \\
+%= 1 - 
+%n \exp \bigg(\frac{-\Delta_1^2 (2^b \lambda)}{2dc^2/(2^b \lambda) + (2c/3)\Delta_1}\bigg) -
+%n \exp \bigg(\frac{-(\Delta_2-1/(2^{2b}\lambda))^2 (2^b \lambda)}{2dc^2/(2^b \lambda) + (2c/3)(\Delta_2-1/(2^{2b}\lambda))}\bigg)
+%% OLD VERSION
+%%= 1 - 2n \exp \Bigg(\frac{-\Big(\Delta-1/(2^{2b}\lambda)\Big)^2 \cdot 2^b \lambda}{2dc^2/(2^b\lambda) + (2c/3)\Big(\Delta-1/(2^{2b}\lambda)\Big)}\Bigg).
+%\end{eqnarray*}
+%As $2^b \lambda \rightarrow \infty$, and letting $\Delta_1=\Delta_2\eqdef \Delta$ for simplicity, the dominant terms become
+%\begin{eqnarray*}
+%1 - 2n \exp \Bigg(\frac{-\Delta^2 \cdot 2^b \lambda}{(2c/3)\Delta}\Bigg) = 1 - 2n \exp \Bigg(\frac{-\Delta \cdot 2^b \lambda}{(2c/3)}\Bigg),
+%\end{eqnarray*}
+%This makes it clear that as $2^b \lambda \rightarrow \infty$, this probability goes to 1, for any $\Delta > 0$.  \textbf{Note that this is NOT the case for the bound in the LP-RFF paper!}
 
 \begin{proof}
-	We conjugate the desired inequality with $B \defeq (K + \lambda I_n)^{-1/2}$ (\ie, 
-	multiply by $B$ on the left and right), noting that semidefinite ordering is
-	preserved by conjugation:
-	\begin{align*}
-	&(1 - \Delta_1) (K + \lambda I_n) \preceq \tK + \lambda I_n \preceq (1 + \Delta_2) (K + \lambda I_n) \\
-	\iff\ &(1 - \Delta_1) I_n \preceq B (\tK + \lambda I_n) B \preceq (1 + \Delta_2) I_n \\
-	\iff\ &-\Delta_1 I_n \preceq B (\tK + \lambda I_n) B - I_n \preceq \Delta_2 I_n \\
-	\iff\ &-\Delta_1 I_n \preceq B (\tK + \lambda I_n - K - \lambda I_n) B \preceq \Delta_2 I_n \\
-	\iff\ &-\Delta_1 I_n \preceq B (\tK - K) B \preceq \Delta_2 I_n.
-	\end{align*}
-	
-	Letting $D=\expect{}{CC^T}$, by Lemma~\ref{lem1} we have that 
-	$$-\Delta_1 I_n \preceq B (\tK - K - D) B \preceq
-	(\Delta_2 - \delta^2_b/\lambda) I_n 
-	\Longrightarrow -\Delta_1 I_n \preceq B (\tK - K) B \preceq
-	\Delta_2 I_n$$
-	and thus
-	$$\Prob\Big[ -\Delta_1 I_n \preceq B (\tK - K) B \preceq
-	\Delta_2 I_n \Big] \geq  \Prob\Big[ -\Delta_1 I_n \preceq B (\tK - K - D) B \preceq
-	(\Delta_2 - \delta^2_b/\lambda) I_n \Big]  $$
+We conjugate the desired inequality with $B \defeq (K + \lambda I_n)^{-1/2}$ (\ie, 
+multiply by $B$ on the left and right), noting that semidefinite ordering is
+preserved by conjugation:
+\begin{align*}
+&(1 - \Delta_1) (K + \lambda I_n) \preceq \tK + \lambda I_n \preceq (1 + \Delta_2) (K + \lambda I_n) \\
+\iff\ &(1 - \Delta_1) I_n \preceq B (\tK + \lambda I_n) B \preceq (1 + \Delta_2) I_n \\
+\iff\ &-\Delta_1 I_n \preceq B (\tK + \lambda I_n) B - I_n \preceq \Delta_2 I_n \\
+\iff\ &-\Delta_1 I_n \preceq B (\tK + \lambda I_n - K - \lambda I_n) B \preceq \Delta_2 I_n \\
+\iff\ &-\Delta_1 I_n \preceq B (\tK - K) B \preceq \Delta_2 I_n.
+\end{align*}
+
+Letting $D=\expect{}{CC^T}$, by Lemma~\ref{lem1} we have that 
+$$-\Delta_1 I_n \preceq B (\tK - K - D) B \preceq
+(\Delta_2 - \delta^2_b/\lambda) I_n 
+\Longrightarrow -\Delta_1 I_n \preceq B (\tK - K) B \preceq
+\Delta_2 I_n,$$
+and thus
+$$\Prob\Big[ -\Delta_1 I_n \preceq B (\tK - K) B \preceq
+\Delta_2 I_n \Big] \geq  \Prob\Big[ -\Delta_1 I_n \preceq B (\tK - K - D) B \preceq
+(\Delta_2 - \delta^2_b/\lambda) I_n \Big].$$
 	
 We thus proceed to bound the RHS of this inequality, using 
-Lemma~\ref{lem:quantized_concentration_two_sided}. This allows us to conclude that for any $\Delta_1 \geq 0$, $\Delta_2 \geq \delta_b^2/\lambda$,
+Lemma~\ref{lem:quantized_concentration_two_sided}.
+This allows us to conclude that for any $\Delta_1 \geq 0$, $\Delta_2 \geq \delta_b^2/\lambda$,
 \begin{align*}
 &\Prob\bigg[- \Delta_1 I_n \preceq B\Big((X + C)(X + C)^T - (XX^T+D)\Big)B \preceq (\Delta_2 - \delta^2_b/\lambda) I_n\bigg] \\
 \geq\ &1 - n \left[ \exp \left( \frac{-\Delta_1^2/2}{dL^2 +
@@ -175,6 +177,36 @@ Thus, combining all of the above results, we get that
 \end{eqnarray*}
 \end{proof}
 
+
+\begin{corollary}
+	If $\Delta_1 \geq \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx \frac{5n}{2^b \lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
+	then $\Prob\big[(1 - \Delta_1) (K + \lambda I_n) \preceq \tK + \lambda I_n \big] \geq  1 - \rho$. 
+	Similarly, if $\Delta_2 \geq \frac{\delta_b^2}{\lambda} +  \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx \frac{1}{2^{2b}\lambda} + \frac{5n}{2^b \lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
+	then $\Prob\big[\tK + \lambda I_n \preceq (1 + \Delta_2) (K + \lambda I_n)\big] \geq  1 - \rho$. 
+\end{corollary}
+
+\begin{proof}
+Letting $\Delta_2 \rightarrow \infty$ in Theorem~\ref{thm2}, we see that 
+$\Prob\big[(1 - \Delta_1) (K + \lambda I_n) \preceq \tK + \lambda I_n \big] \geq 1 - n \exp \bigg(\frac{-\Delta_1^2}{2dL^2 + (2L/3)\Delta_1}\bigg)$.
+Lower-bounding the RHS by $1-\rho$, and solving for $\Delta_1$, we get the following set of equivalent statements (assuming $\Delta_1 \geq 0$, and $a\defeq \log(n/\rho)$):
+
+\begin{eqnarray*}
+1 - n \exp \bigg(\frac{-\Delta_1^2}{2dL^2 + (2L/3)\Delta_1}\bigg) &\geq& 1-\rho \\
+\Longleftrightarrow \rho &\geq& n \exp \bigg(\frac{-\Delta_1^2}{2dL^2 + (2L/3)\Delta_1}\bigg) \\
+\Longleftrightarrow \log(n/\rho) &\leq& \frac{\Delta_1^2}{2dL^2 + (2L/3)\Delta_1} \\
+\Longleftrightarrow 0 &\leq&  \Delta_1^2 - (2aL/3)\Delta_1 - 2adL^2 \\
+\Longleftrightarrow \Delta_1 &\geq&  \frac{1}{2}\bigg(\frac{2aL}{3} + \sqrt{\Big(\frac{2aL}{3}\Big)^2 + 8adL^2}\bigg) \\
+\Longleftrightarrow \Delta_1 &\geq& \frac{aL}{3}\bigg(1 + \sqrt{1 + \frac{18d}{a}}\bigg)
+\end{eqnarray*}
+Now, using $L = 5 \cdot \frac{2^b \cdot \delta_b^2}{\lambda}\cdot  \frac{n}{d} \approx \frac{5n/d}{2^b \lambda}$ (because $\delta_b^2 = (2^b-1)^{-2} \approx 2^{-2b}$), $1 + \sqrt{1 + \frac{18d}{a}} \approx \sqrt{\frac{18d}{a}}$ (assuming $18d \gg a$), we get
+\begin{eqnarray*}
+	\Delta_1 &\gtrsim& \frac{\log(n/\rho)}{3}\cdot \frac{5n/d}{2^b \lambda}\cdot \sqrt{\frac{18d}{\log(n/\rho)}} \\
+	&=& \frac{5n}{2^b \lambda}\sqrt{\frac{2\log(n/\rho)}{d}}.
+\end{eqnarray*}
+This completes the first part of the proof.
+To prove the second part, we repeat the exact same steps with $\widehat{\Delta_2} = \Delta_2 - \delta_b^2/\lambda$, this time letting $\Delta_1 \rightarrow \infty$ in Theorem~\ref{thm2}.
+
+\end{proof}
 
 \section{Lemmas}
 \begin{lemma}
