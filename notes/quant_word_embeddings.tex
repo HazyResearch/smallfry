@@ -12,29 +12,79 @@
 \oddsidemargin = 0in \evensidemargin = 0in
 
 \DeclareMathSizes{12}{10}{7}{5}
-\newcommand{\tsigma}{\tilde{\sigma}}
-\newcommand{\eps}{\epsilon}
-\newcommand{\tZ}{\tilde{Z}}
-\newcommand{\tA}{\tilde{A}}
-\newcommand{\by}{\bar{y}}
-\newcommand{\sm}{\sigma_{min}}
-\newcommand{\tK}{\tilde{K}}
-\newcommand{\tX}{\tilde{X}}
-\newcommand{\defeq}{:=}
-\newcommand{\eqdef}{=:}
-\providecommand{\tr}{\mathop{\rm tr}}
-\providecommand{\sup}{\mathop{\rm sup}}
-\newcommand{\E}{\mathbb{E}} % Expectation symbol (ADDED BY TRI)
 \input{__macros}
 \begin{document}
 
 
-\title{Quantizing word embeddings}
+\title{Compressing Word Embeddings with Uniform Quantization}
 \author{Avner May}
 \onehalfspacing
 \maketitle
 
-\section{Summary}
+\section{Story}
+\begin{enumerate}
+	\item We present a simple method for compressing word embeddings using uniform quantization, and show that it attains strong performance at large compression ratios on a variety of tasks.
+	It performs quite similarly to the more complex baselines (DCA, k-means), and much better than simple baselines (dim. reduction).
+	\item We prove that, in the case of a bounded embedding matrix $X$, the Gram matrix of the quantized matrix $\tX$ is a $(\Delta_1,\Delta_2)$-spectral approximation of the Gram matrix of $X$, and thus enjoys good generalization bounds.
+\end{enumerate}
+
+\section{Method}
+\begin{enumerate}
+	\item We first clip the values of $X$ with absolute value greater then $r$, and then quantize the resulting matrix into $b$ bits using uniform quantization.
+	We choose $r$ to minimize $\|X-\tX\|_F$, where $\tX$ is the clipped and then quantized matrix.
+\end{enumerate}
+\section{Theory}
+\begin{enumerate}
+	\item If the smallest non-zero singular value of $X$ is large, using a large regularizer does not affect generalization performance much.
+	\item If we consider a $b$-bit uniform quantization $\tX$ of a bounded matrix $X$, $\tX\tX^T + \lambda I$ is a $(\Delta_1,\Delta_2)$-spectral approximation of $XX^T + \lambda I$ with high-probability, for $\Delta_1$ and $\Delta_2$ which decay exponentially fast in $2^b \lambda$.
+\end{enumerate}
+\subsection{Theory Validation}
+\begin{enumerate}
+	\item Show in experiments that a large smallest singular value does in fact results in large regularizers attaining good performance.
+	\item Show that $2^b \lambda$ is quite predictive of $\Delta_1$ and $\Delta_2$.
+	\item Show that choosing the right clipping value is really about trading off small $\Delta_1$ vs. $\Delta_2$.
+	Clipping to a very small value results in large $\Delta_1$, but small $\Delta_2$.
+	Clipping to a large value results in small $\Delta_1$, but large $\Delta_2$.
+	\item Show on synthetic data that $(\Delta_1,\Delta_2)$ are much more predictive of generalization performance than $\|XX^T - \tX\tX^T\|_F$.
+\end{enumerate}
+
+\section{Experiments}
+\begin{enumerate}
+	\item Large-scale experiments: show our method does similarly to k-means and DCA (on Glove and FastTest), and better than dimensionality reduction (Glove), on a variety of tasks (intrinsics, sentiment, DrQA).
+	\item Show that given a fixed memory budget, using low-precision and many dimensions is better than using high-precision with fewer dimensions.  Show there is a ``sweet spot''.
+	\item Show that $(\Delta_1,\Delta_2)$ are predictive of generalization performance (better than PIP loss $\|XX^T - \tX\tX^T\|_F$) on real tasks.
+\end{enumerate}
+
+\section{Currently Out of Scope}
+The following is a list of things currently out of scope for the paper (but which we can consider including):
+\begin{enumerate}
+	\item Theory for how clipping affects ($\Delta_1$,$\Delta_2$).
+	\item Theory about the choice of dimension for word embeddings. Should we enter into conversation with the NeurIPS paper ``On the Dimensionality of Word Embeddings'', which proposes an unsupervised explanation for there being an optimal number of features?
+	We can also provide a supervised explanation for this phenomenon (adding more dimensions reduces this bias but increases the variance of the kernel ridge regression model).
+	\item Below 1-bit compression.
+	\item Online compression.
+	\item Experiments with many different vocab sizes.
+\end{enumerate}
+
+\section{Open Issues}
+\begin{enumerate}
+	\item Method
+	\begin{enumerate}
+		\item Should we use $(\Delta_1,\Delta_2)$ to choose the clipping point?
+		\item Deterministic vs. stochastic?
+	\end{enumerate}
+	\item Theory
+	\begin{enumerate}
+		\item Can we account for the clipping operation in the theory?  Currently we assume matrix is clipped, and thus do not consider the effect of clipping on $(\Delta_1,\Delta_2)$.
+	\end{enumerate}
+	\item Theory validation
+	\begin{enumerate}
+		\item It would be good to show that ($\Delta_1$,$\Delta_2$) correlates better with generalization performance than $\|XX^T - \tX \tX^T\|_F$ (this is the PIP loss from the recent NeurIPS paper).
+	\end{enumerate}
+\end{enumerate}
+
+\section{Theory in Detail}
+\subsection{Theory Summary}
 We have observed that word embedding matrices have pretty flat spectra, with large smallest non-zero singular values.  Here, we show that this implies that one can use a large regularizer $\lambda$ while attaining similar generalization performance to smaller $\lambda$.  We then show that large $\lambda$ implies small relative spectral distance between the full-precision embedding matrix and the low-precision embedding matrix with high probability.  We know from prior work that small relative spectral distance gives tight generalization bounds.
 
 %High-level logic:
@@ -52,8 +102,8 @@ We have observed that word embedding matrices have pretty flat spectra, with lar
 %$$\expect{\eps}{\|y - Xw^*\|^2}$$
 
 
-\section{Notation and Definitions}
-We consider the setting of fixed design ridge regression over a fixed data matrix $X \in \RR^{n\times d}$ (in our case, a word embedding matrix). Let $y_i = \by_i + \eps_i \in \RR$ be the observed noisy label for the $i^{th}$ word $z_i$, where the noise satisfies $\expect{}{\eps_i} = 0$ and $\var{}{\eps_i} = \sigma^2$.  Let $K = XX^T$ be the Gram matrix corresponding to this data.  Let $X+C$ be a random quantization of $Z$ to $b$ bits, and let $\tK = (X+C)(X+C)^T$. Assume $\expect{}{C_{ij}} = 0$, and let $\delta_b^2/d \geq \expect{}{C_{ij}^2}$ be an upper bound on the variance of the entry-wise random quantization noise.  $\|X\|$ will denote spectral norm of $X$, $\|X\|_F$ will denote Frobenius norm.
+\subsection{Notation and Definitions}
+We consider the setting of fixed design ridge regression over a fixed data matrix $X \in \RR^{n\times d}$ (in our case, a word embedding matrix). Let $y_i = \by_i + \eps_i \in \RR$ be the observed noisy label for the $i^{th}$ word $z_i$, where the noise satisfies $\expect{}{\eps_i} = 0$ and $\var{}{\eps_i} = \sigma^2$.  Let $K = XX^T$ be the Gram matrix corresponding to this data.  Let $X+C$ be a random quantization of $Z$ to $b$ bits, and let $\tK = (X+C)(X+C)^T$. Assume $\expect{}{C_{ij}} = 0$, and let $\delta_b^2/d \geq \expect{}{C_{ij}^2}$ be an upper bound on the variance of the entry-wise random quantization noise (and thus $0 \preceq \expect{}{CC^T} \preceq \delta_b^2 I_n$).  $\|X\|$ will denote spectral norm of $X$, $\|X\|_F$ will denote Frobenius norm.
 
 We will assume $X_{ij} \in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$.  If we uniformly quantize this interval using $b$ bits, the size of each sub-interval is $\frac{2}{\sqrt{d}(2^b-1)}$.  Thus, using the fact that a bounded random variable in an interval of length $r$ has variance at most $r^2/4$, we get that $\expect{}{C_{ij}^2} \leq \Big(\frac{2}{\sqrt{d}(2^b-1)}\Big)^2\cdot \frac{1}{4} = \frac{1}{d(2^b-1)^2} = \delta_b^2/d$, for $\delta_b^2 \defeq 1/(2^b-1)^2$.
 
@@ -64,18 +114,19 @@ We will assume $X_{ij} \in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$.  If we uni
 
 %It is easy to see that $\expect{}{(Z+C)(Z+C)^T} = K + D$, where $D$ is a diagonal matrix satisfying $0\preceq D\preceq d \cdot \delta_b^2 I$ (we also show this in the LP-RFF work).  
 
-\section{Results}
+\subsection{Results}
 \begin{enumerate}
 	\item \textbf{Theorem 1}: Large regularizer doesn't impact generalization much if spectrum decays slowly.
 	\item \textbf{Theorem 2}: Large regularizer + low-precision = small ($\Delta_1,\Delta_2$) between full-precision and low-precision Gram matrices.  We know from prior work that this implies good generalization bounds.
 %	\item \textbf{Theorem 3}: We directly bound the generalization performance of the models trained on the low-precision embeddings relative to the full-precision embeddings, showing that when the product $2^b(\sigma_d  + \lambda)$ is large, the degradataion in generalization performance is small.  Here, $\sigma_d$ denotes the smallest eigenvalue of the covariance matrix $X^T X$, $\lambda$ is the regularization parameter, and $b$ is the number of bits per entry of the low-precision embeddings.
 \end{enumerate}
 
-\subsection{Theorem 1}
+\subsubsection{Theorem 1}
 \begin{theorem}
 Let $X$ be a data matrix, and $\by$ be the corresponding vector of labels. Let $\sm$ be the smallest eigenvalue of $X^T X$, and let $\lambda_1, \lambda_2$ be two scalars such that $0 \leq \lambda_1 \leq \lambda_2 \leq a\cdot \sm$, for some $a \in [0,1]$. Letting $\cR_{\lambda}(K)$ denote the expected loss when training with regularizer $\lambda$, Gram matrix $K = XX^T$, and label noise $\sigma^2$, we get that:
 \begin{equation}
 \frac{R_{\lambda_2}(XX^T) - R_{\lambda_1}(XX^T)}{\|y\|^2/n} \leq a^2
+\label{eq1}
 \end{equation}
 \end{theorem}
 \begin{proof}
@@ -94,11 +145,11 @@ Let $K = U\Sigma U^T$ be the eigendecomposition of $K = XX^T$. Because $K$ is a 
 &\leq& \frac{a^2}{n}\|y\|^2
 \end{eqnarray*}
 \end{proof}
-\textbf{Remark}: We can understand the division by $\|y\|^2/n$ as a way to normalize the above difference in generalization performance; in particular, $\|y\|^2/n$ is the test error obtained by the model which always guess $0$.
+\textbf{Remark}: We can understand the division by $\|y\|^2/n$ as a way to normalize the above difference in generalization performance; in particular, $\|y\|^2/n$ is the test error obtained by the model which always guesses $0$.
 
-Also, note that in the case where $\sigma = 0$, $\lambda_1 = 0$, $\lambda_2 = a \sigma_{min}$, $\sigma_{max} = c\sigma_{min}$, and $\sum_{i=1}^d (U_i^T \by)^2 = \|y\|^2$, we can also lower bound the above expression by $\frac{a^2}{(c+a)^2}$.
+Also, note that in the case where $\sigma = 0$, $\lambda_1 = 0$, $\lambda_2 = a \sigma_{min}$, $\sigma_{max} = c\sigma_{min}$, and $\sum_{i=1}^d (U_i^T \by)^2 = \|y\|^2$, we can also lower bound Equation~\eqref{eq1} by $\frac{a^2}{(c+a)^2}$.
 
-\subsection{Theorem 2}
+\subsubsection{Theorem 2}
 
 \begin{theorem}
 	\label{thm2}
@@ -144,7 +195,8 @@ preserved by conjugation:
 \iff\ &-\Delta_1 I_n \preceq B (\tK - K) B \preceq \Delta_2 I_n.
 \end{align*}
 
-Letting $D=\expect{}{CC^T}$, by Lemma~\ref{lem1} we have that 
+Letting $D=\expect{}{CC^T}$, and recalling  $0 \preceq D \preceq \delta_b^2 I_n$, 
+by Lemma~\ref{lem1} we have that 
 $$-\Delta_1 I_n \preceq B (\tK - K - D) B \preceq
 (\Delta_2 - \delta^2_b/\lambda) I_n 
 \Longrightarrow -\Delta_1 I_n \preceq B (\tK - K) B \preceq
@@ -208,7 +260,7 @@ To prove the second part, we repeat the exact same steps with $\widehat{\Delta_2
 
 \end{proof}
 
-\section{Lemmas}
+\subsection{Lemmas}
 \begin{lemma}
 	\label{lem1}
 	Letting $K=XX^T$, $\tK = (X+C)(X+C)^T$, $B = (K+\lambda I_n)^{-1/2}$, $D = \expect{}{CC^T}$, with $0 \preceq D \preceq \delta_b^2 I_n$, it follows that:
@@ -243,7 +295,7 @@ Simply add $BDB$ to all sides, and notice that $0 \preceq BDB \preceq (\delta_b^
 
 \begin{proof}
 	Using the notation from Theorem~\ref{thm:intdim-bernstein-herm},
-	we consider $S_k = B\Big((x_k + c_k)(x_k + c_k)^T  - x_k x_k^T - D_i\Big)B$, for $B\defeq (K+\lambda I_n)^{-1/2}$, $D_i = \expect{}{c_k c_k^T}$, and $x_k$ and $c_k$ denoting the $k^{th}$ columns of $X$ and $C$ respectively.
+	we consider $S_k = B\Big((x_k + c_k)(x_k + c_k)^T  - x_k x_k^T - D_k\Big)B$, for $B\defeq (K+\lambda I_n)^{-1/2}$, $D_k = \expect{}{c_k c_k^T}$, and $x_k$ and $c_k$ denoting the $k^{th}$ columns of $X$ and $C$ respectively.
 	It is easy to see that $Z\defeq \sum_{k=1}^d S_k = B((X+C)(X+C)^T - XX^T - D)B = B(\tK - K - D)B$, and that $\expect{}{S_k} = 0$.
 	Thus, to apply Theorem~\ref{thm:intdim-bernstein-herm}, we simply need to find upper bounds $L,v(Z)$ such that $\lambda_{max}(S_k) \leq L$ and  $\|\sum_k \expect{}{S_k^2}\| \leq v(Z)$.
 	By Lemma~\ref{upper_bounds}, $L \defeq 5 \cdot \frac{2^b \cdot \delta_b^2}{\lambda}\cdot  \frac{n}{d}$ and $v(Z) = dL^2$.
@@ -270,7 +322,7 @@ Simply add $BDB$ to all sides, and notice that $0 \preceq BDB \preceq (\delta_b^
 	Let $S_k = B\Big((x_k + c_k)(x_k + c_k)^T  - x_k x_k^T - D_k\Big)B$, with $B=(K+\lambda I_n)^{-1/2}$ and $D_k=\expect{}{c_k c_k^T}$.  It follows that
 	$$\|S_k\| \leq 5 \cdot \frac{2^b \cdot \delta_b^2}{\lambda}\cdot  \frac{n}{d} \eqdef L,$$
 	and
-	$$\sum_{k=1}^d \expect{}{S_k^2} \preceq dL^2 I \eqdef V.$$
+	$$\Big\|\sum_{k=1}^d \expect{}{S_k^2}\Big\| \leq dL^2.$$
 \end{lemma}
 \begin{proof}
 \begin{eqnarray*}
@@ -336,9 +388,6 @@ $\Big\|\sum_{k=1}^d \expect{}{S_k^2}\Big\| \leq \sum_{k=1}^d \big\|\expect{}{S_k
 	\end{equation}
 	\label{thm:bernstein}
 \end{theorem}
-\textbf{TODO}: Should we use intrinsic dimension bound? Can we get something tighter?
-
-
 	
 %\begin{lemma}
 %	\label{lem2}
