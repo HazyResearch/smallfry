@@ -23,9 +23,9 @@
 
 \section{Story}
 \begin{enumerate}
-	\item We present a simple method for compressing word embeddings using uniform quantization, and show that it attains strong performance at large compression ratios on a variety of tasks.
-	It performs quite similarly to the more complex baselines (DCA, k-means), and much better than simple baselines (dim. reduction).
-	\item We prove that, in the case of a bounded embedding matrix $X$, the Gram matrix of the quantized matrix $\tX$ is a $(\Delta_1,\Delta_2)$-spectral approximation of the Gram matrix of $X$, and thus enjoys good generalization bounds.
+	\item We present a simple method for compressing word embeddings using uniform quantization, and show that it attains performance on par with more complex baselines on a variety of tasks.
+	\item \textbf{We can understand why our method performs well}: the flat spectrum allows for the quantized Gram matrix to be a close $(\Delta_1,\Delta_2)$ approximation of the full-precision Gram matrix at very low precisions.
+	This implies good generalization bounds.
 \end{enumerate}
 
 \section{Method}
@@ -35,24 +35,27 @@
 \end{enumerate}
 \section{Theory}
 \begin{enumerate}
-	\item If the smallest non-zero singular value of $X$ is large, using a large regularizer does not affect generalization performance much.
-	\item If we consider a $b$-bit uniform quantization $\tX$ of a bounded matrix $X$, $\tX\tX^T + \lambda I$ is a $(\Delta_1,\Delta_2)$-spectral approximation of $XX^T + \lambda I$ with high-probability, for $\Delta_1$ and $\Delta_2$ which decay exponentially fast in $2^b \lambda$.
+	\item \textbf{DONE}: If the smallest non-zero singular value of $X$ is large, using a large regularizer $\lambda$ cannot hurt generalization performance much.
+	\item \textbf{DONE}: Letting $\tX$ be a $b$-bit uniform quantization of a \textit{bounded} embedding matrix $X$, we show that $\tX \tX^T + \lambda I$ is a $(\Delta_1,\Delta_2)$-spectral approximation of $XX^T + \lambda I$ with high probability, and thus enjoys good generalization bounds.
+	In particular, $\Delta_1$ and $\Delta_2$ decay as $(2^b \lambda)^{-1}$.	
+	% In the case of a bounded embedding matrix $X$, the Gram matrix of a $b$-bit uniform quantization $\tX$ of $X$ is a $(\Delta_1,\Delta_2)$-spectral approximation of the Gram matrix of $X$ with high probability, and thus enjoys good generalization bounds.
 \end{enumerate}
 \subsection{Theory Validation}
 \begin{enumerate}
-	\item Show in experiments that a large smallest singular value does in fact results in large regularizers attaining good performance.
-	\item Show that $2^b \lambda$ is quite predictive of $\Delta_1$ and $\Delta_2$.
-	\item Show that choosing the right clipping value is really about trading off small $\Delta_1$ vs. $\Delta_2$.
-	Clipping to a very small value results in large $\Delta_1$, but small $\Delta_2$.
-	Clipping to a large value results in small $\Delta_1$, but large $\Delta_2$.
-	\item Show on synthetic data that $(\Delta_1,\Delta_2)$ are much more predictive of generalization performance than $\|XX^T - \tX\tX^T\|_F$.
+	\item \textbf{DONE}: Show in experiments that a large smallest singular value for $X$ results in large regularizers attaining good performance.
+	\item \textbf{DONE}: Show that $\Delta_1$ and $\Delta_2$ both decay linearly with $2^b \lambda$.
+	\item \textbf{DONE}: Show that clipping brings $\Delta_1$ down, and can increase $\Delta_2$.
+	\item \textbf{DONE}: Show that when performing quantization, choosing the right clipping value $r$ involves a trade-off in terms of $\Delta_1$ and $\Delta_2$;
+	choosing a very small clipping value $r$ gives large $\Delta_1$, but smaller $\Delta_2$, while choosing large $r$ gives large $\Delta_2$, but smaller $\Delta_1$ (due to quantization noise).
+	\item \textbf{DONE}: Show that with the right choice of $r$, our method attains $\Delta_1$ and $\Delta_2$ which decay at the same asymptotic rate as predicted by the theory (as a function of $2^b\lambda$).
+	\item \textbf{TODO}: Show on synthetic data that $(\Delta_1,\Delta_2)$ is more predictive of generalization performance than $\|XX^T - \tX\tX^T\|_F$.
 \end{enumerate}
 
 \section{Experiments}
 \begin{enumerate}
-	\item Large-scale experiments: show our method does similarly to k-means and DCA (on Glove and FastTest), and better than dimensionality reduction (Glove), on a variety of tasks (intrinsics, sentiment, DrQA).
-	\item Show that given a fixed memory budget, using low-precision and many dimensions is better than using high-precision with fewer dimensions.  Show there is a ``sweet spot''.
-	\item Show that $(\Delta_1,\Delta_2)$ are predictive of generalization performance (better than PIP loss $\|XX^T - \tX\tX^T\|_F$) on real tasks.
+	\item \textbf{Only Glove + DrQA is DONE}: Large-scale experiments: show our method does similarly to k-means and DCA (on Glove and FastText), and better than dimensionality reduction (Glove), on a variety of tasks (intrinsics, sentiment, DrQA).
+	\item \textbf{TODO}: Show that given a fixed memory budget, using low-precision and many dimensions is better than using high-precision with fewer dimensions (train Glove embeddings from scratch for this).  Show there is a ``sweet spot''.
+	\item \textbf{TODO}: Show that $(\Delta_1,\Delta_2)$ are predictive of generalization performance (better than PIP loss $\|XX^T - \tX\tX^T\|_F$) on real tasks.
 \end{enumerate}
 
 \section{Currently Out of Scope}
@@ -60,7 +63,7 @@ The following is a list of things currently out of scope for the paper (but whic
 \begin{enumerate}
 	\item Theory for how clipping affects ($\Delta_1$,$\Delta_2$).
 	\item Theory about the choice of dimension for word embeddings. Should we enter into conversation with the NeurIPS paper ``On the Dimensionality of Word Embeddings'', which proposes an unsupervised explanation for there being an optimal number of features?
-	We can also provide a supervised explanation for this phenomenon (adding more dimensions reduces this bias but increases the variance of the kernel ridge regression model).
+	We can also provide a supervised explanation for this phenomenon (adding more dimensions reduces this bias but increases the variance of the kernel ridge regression model).  Perhaps we can mention this in a remark, but not focus on it?
 	\item Below 1-bit compression.
 	\item Online compression.
 	\item Experiments with many different vocab sizes.
@@ -70,16 +73,16 @@ The following is a list of things currently out of scope for the paper (but whic
 \begin{enumerate}
 	\item Method
 	\begin{enumerate}
-		\item Should we use $(\Delta_1,\Delta_2)$ to choose the clipping point?
+		\item Should we use $(\Delta_1,\Delta_2)$ to choose the clipping point? If so, what value of $\lambda$ should we use (some fraction of smallest singular value perhaps)? Or can we just say that we use Frobenius since it's simpler and picks similar points?
 		\item Deterministic vs. stochastic?
 	\end{enumerate}
 	\item Theory
 	\begin{enumerate}
-		\item Can we account for the clipping operation in the theory?  Currently we assume matrix is clipped, and thus do not consider the effect of clipping on $(\Delta_1,\Delta_2)$.
+		\item Can we account for the clipping operation in the theory?
 	\end{enumerate}
 	\item Theory validation
 	\begin{enumerate}
-		\item It would be good to show that ($\Delta_1$,$\Delta_2$) correlates better with generalization performance than $\|XX^T - \tX \tX^T\|_F$ (this is the PIP loss from the recent NeurIPS paper).
+		\item Can we show that ($\Delta_1$,$\Delta_2$) correlates better with generalization performance than $\|XX^T - \tX \tX^T\|_F$ (this is the PIP loss from the recent NeurIPS paper)?
 	\end{enumerate}
 \end{enumerate}
 
