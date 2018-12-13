@@ -8,8 +8,8 @@ import logging
 import numpy as np
 import subprocess
 from scipy.spatial import distance
-# from third_party.hyperwords.hyperwords import ws_eval, analogy_eval
-# from third_party.hyperwords.hyperwords.representations.embedding import BootstrapEmbeddings
+from third_party.hyperwords.hyperwords import ws_eval, analogy_eval
+from third_party.hyperwords.hyperwords.representations.embedding import Embedding
 from third_party.DrQA.scripts.reader.train import train_drqa
 import utils
 
@@ -187,6 +187,15 @@ def evaluate_synthetics(embed_path):
 #             res['sentiment-score-%s-%s'%(model,dataset)] = parse_senwu_outlogs(cmd_output_txt)
 #     logging.info('done with sentiment evals')
 #     return res
+
+class BootstrapEmbeddings(Embedding):
+    def __init__(self, word_vectors, normalize=True):
+        self.dim = len(list(word_vectors.values())[0])
+        self.m = np.stack(list(word_vectors.values()))
+        self.iw = {i:k for i,k in enumerate(word_vectors.keys())}
+        self.wi = {k:i for i,k in self.iw.items()}
+        if normalize:
+            self.normalize()
 
 if __name__ == '__main__':
     main()
