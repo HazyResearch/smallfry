@@ -1,27 +1,27 @@
-from __builtin__ import sorted
+# from __builtin__ import sorted
 
-from docopt import docopt
+# from docopt import docopt
 import numpy as np
 
 from representations.representation_factory import create_representation
 
 
-def main():
-    args = docopt("""
-    Usage:
-        analogy_eval.py [options] <representation> <representation_path> <task_path>
+# def main():
+#     args = docopt("""
+#     Usage:
+#         analogy_eval.py [options] <representation> <representation_path> <task_path>
     
-    Options:
-        --neg NUM    Number of negative samples; subtracts its log from PMI (only applicable to PPMI) [default: 1]
-        --w+c        Use ensemble of word and context vectors (not applicable to PPMI)
-        --eig NUM    Weighted exponent of the eigenvalue matrix (only applicable to SVD) [default: 0.5]
-    """)
+#     Options:
+#         --neg NUM    Number of negative samples; subtracts its log from PMI (only applicable to PPMI) [default: 1]
+#         --w+c        Use ensemble of word and context vectors (not applicable to PPMI)
+#         --eig NUM    Weighted exponent of the eigenvalue matrix (only applicable to SVD) [default: 0.5]
+#     """)
     
-    data = read_test_set(args['<task_path>'])
-    xi, ix = get_vocab(data)
-    representation = create_representation(args)
-    accuracy_add, accuracy_mul = evaluate(representation, data, xi, ix)
-    print args['<representation>'], args['<representation_path>'], '\t%0.3f' % accuracy_add, '\t%0.3f' % accuracy_mul
+#     data = read_test_set(args['<task_path>'])
+#     xi, ix = get_vocab(data)
+#     representation = create_representation(args)
+#     accuracy_add, accuracy_mul = evaluate(representation, data, xi, ix)
+#     print args['<representation>'], args['<representation_path>'], '\t%0.3f' % accuracy_add, '\t%0.3f' % accuracy_mul
 
 
 def read_test_set(path):
@@ -101,5 +101,5 @@ def guess(representation, sims, xi, a, a_, b):
     return b_add, b_mul
 
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
