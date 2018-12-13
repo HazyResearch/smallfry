@@ -53,7 +53,7 @@ def flat_spectrum_vs_generalization(tight):
             w = np.linalg.inv(lam * np.eye(2) + X_curr.T @ X_curr) @ (X_curr.T @ Y)
             Y_pred = X_curr @ w
             results[s_i,l_i] = np.sum((Y-Y_pred)**2)/np.sum(Y**2)
-            eigs,_ = np.linalg.eig(X_curr.T @ X_curr)
+            eigs,_ = np.linalg.eigh(X_curr.T @ X_curr)
             eigs = np.sort(eigs)
             eig_min = eigs[0]
             eig_max = eigs[1]
@@ -176,7 +176,7 @@ def clipping_effect():
     # X = np.random.randn(n,d) * 0.5 * lim
     X = np.random.randn(n,d)
     K = X @ X.T
-    eigs,_ = np.linalg.eig(X.T @ X)
+    eigs,_ = np.linalg.eigh(X.T @ X)
     eigs = np.sort(eigs)
     eig_min = eigs[0]
     lam = eig_min/10
@@ -208,7 +208,7 @@ def clipping_effect2():
     # lim = 1.0/np.sqrt(d)
     # X = np.random.randn(n,d) * 0.5 * lim
     X = np.random.randn(n,d)
-    eigs,_ = np.linalg.eig(X.T @ X)
+    eigs,_ = np.linalg.eigh(X.T @ X)
     eigs = np.sort(eigs)
     max_r = np.max(X)
     rs = np.linspace(0,max_r,num=8)
@@ -217,7 +217,7 @@ def clipping_effect2():
     leg = ['Orig. Spectrum']
     for r in rs:
         Xc = np.clip(X, -r, r)
-        eigs_c,_ = np.linalg.eig(Xc.T @ Xc)
+        eigs_c,_ = np.linalg.eigh(Xc.T @ Xc)
         eigs_c = np.sort(eigs_c)
         plt.plot(np.arange(d), eigs_c)
         leg.append('Clipped (r={:.2f})'.format(r))
@@ -230,7 +230,7 @@ def clipping_with_quantization_effect():
     n = 1000
     d = 30
     X = np.random.randn(n,d)
-    eigs,_ = np.linalg.eig(X.T @ X)
+    eigs,_ = np.linalg.eigh(X.T @ X)
     eigs = np.sort(eigs)
     eig_min = eigs[0]
     K = X @ X.T

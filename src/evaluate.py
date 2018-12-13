@@ -130,15 +130,66 @@ def evaluate_synthetics(embed_path):
     base_embeds,_ = utils.load_embeddings(
         utils.config['compress-config']['base-embed-path'])
 
-    # TODO FILL THIS IN
     results = {}
-    results['embed-frob-dist'] = np.linalg.norm(base_embeds-embeds)
+    ### Embedding error (X)
+    # Frob error (X)
+    results['embed-frob-error'] = np.linalg.norm(base_embeds-embeds)
     results['embed-frob-norm'] = np.linalg.norm(embeds)
-    results['mean'] = np.mean(embeds)
-    results['var'] = np.var(embeds)
+    results['base-embed-frob-norm'] = np.linalg.norm(base_embeds)
+    # Spec Error (X)
+    results['embed-spec-error'] = np.linalg.norm(base_embeds-embeds,2)
+    results['embed-spec-norm'] = np.linalg.norm(embeds,2)
+    results['base-embed-spec-norm'] = np.linalg.norm(base_embeds,2)
+
+    ### Covariance error (X^T X)
+    compute_gram_or_cov_errors(embeds, base_embeds, False, results)
+    ### Gram matrix error (XX^T)
+    compute_gram_or_cov_errors(embeds, base_embeds, True, results)
+
+    # Other
     results['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
     results['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
+    results['mean'] = np.mean(embeds)
+    results['var'] = np.var(embeds)
+
     return results
+
+def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, results):
+    if use_gram:
+        n = 10000
+        embeds = embeds[:n]
+        base_embeds = base_embeds[:n]
+        compressed = embeds @ embeds.T
+        base = base_embeds @ base_embeds.T
+        type_str = 'gram'
+    else:
+        compressed = embeds.T @ embeds
+        base = base_embeds.T @ base_embeds
+        type_str = 'cov'
+
+    # compute spectrum of base_embeds to extract minimum eigenvalue of X^T X
+    _,base_sing_vals,_ = np.linalg.svd(base_embeds)
+    base_eigs = base_sing_vals**2
+    eig_min = base_eigs[-1]
+    lambdas = [eig_min/100, eig_min/10, eig_min, eig_min*10, eig_min*100]
+
+    # Frob error
+    results[type_str + '-frob-error'] = np.linalg.norm(base-compressed)
+    results[type_str + '-frob-norm'] = np.linalg.norm(compressed)
+    results[type_str + '-base-frob-norm'] = np.linalg.norm(base)
+    # Spec Error
+    results[type_str + '-spec-error'] = np.linalg.norm(base-compressed, 2)
+    results[type_str + '-spec-norm'] = np.linalg.norm(compressed,  2)
+    results[type_str + '-base-spec-norm'] = np.linalg.norm(base, 2)
+    # Delta1,Delta2
+    results[type_str + '-base-eig-min'] = eig_min
+    results[type_str + '-lambdas'] = lambdas
+    delta1_results = [0] * len(lambdas)
+    delta2_results = [0] * len(lambdas)
+    for i,lam in enumerate(lambdas):
+        delta1_results[i], delta2_results[i], _ = utils.delta_approximation(base, compressed,  lambda_ = lam)
+    results[type_str + '-delta1s'] = delta1_results
+    results[type_str + '-delta2s'] = delta2_results
 
 # def perform_command_local(command):
 #     ''' performs a command -- author: MAXLAM'''
