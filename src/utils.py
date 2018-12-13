@@ -308,6 +308,9 @@ def get_base_dir():
         path = '/proj/smallfry'
     return path
 
+def get_src_dir():
+    return os.path.dirname(os.path.abspath(__file__))
+
 def load_embeddings(path):
     """
     Loads a GloVe embedding at specified path. Returns a vector of strings that 

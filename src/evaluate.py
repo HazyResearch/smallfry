@@ -5,6 +5,7 @@ import os
 import re
 import time
 import logging
+import pathlib
 import numpy as np
 import subprocess
 from scipy.spatial import distance
@@ -47,92 +48,81 @@ def evaluate_qa(embed_path, embed_dim, seed):
     results['exact-match-scores'] = exact_match_scores
     results['best-f1'] = max(f1_scores)
     results['best-exact-match'] = max(exact_match_scores)
+    logging.info('DrQA Results: best-f1 = {}, best-exact-match = {}'.format(
+        results['best-f1'], results['best-exact-match']))
     return results
 
 def evaluate_intrinsics(embed_path):
     '''Evaluates intrinsics benchmarks'''
-
-    # Evaluate analogy -- ROUTINE WRITTEN BY MAXLAM
-    # -----------------------------------------
-    # word_vectors - dictionary where keys are words, values are word vectors.
-    # task_path - path to similarity dataset
-    # return - similarity score
-    def evaluate_analogy(word_vectors, task_path):
-        print("Evaluating analogy: %s" % task_path)
-        assert os.path.exists(task_path)
-        data = analogy_eval.read_test_set(task_path)
-        xi, ix = analogy_eval.get_vocab(data)        
-        representation = BootstrapEmbeddings(word_vectors)
-        return analogy_eval.evaluate(representation, data, xi, ix)
-
-    # Evaluate similarity -- ROUTINE WRITTEN BY MAXLAM
-    # -----------------------------------------
-    # word_vectors - dictionary where keys are words, values are word vectors.
-    # task_path - path to similarity dataset
-    # return - similarity score
-    def evaluate_similarity(word_vectors, task_path):
-        '''Evaluates sim intrinsic suite'''
-        print("Evaluating similarity: %s" % task_path)
-        assert os.path.exists(task_path)
-        data = ws_eval.read_test_set(task_path)
-        representation = BootstrapEmbeddings(word_vectors)
-        return ws_eval.evaluate(representation, data)
-
-    #load embeddings and make into dict for intrinsic routines
     embeds, wordlist = utils.load_embeddings(embed_path)
-    word_vectors = { wordlist[i] : embeds[i] for i in range(len(embeds)) }
+    embed_dict = { wordlist[i] : embeds[i] for i in range(len(embeds)) }
 
-    # Get intrinsic tasks to evaluate on        
     similarity_tasks = [
-            "bruni_men.txt",
-            "luong_rare.txt",
-            "radinsky_mturk.txt",
-            "simlex999.txt",
-            "ws353_relatedness.txt",
-            "ws353_similarity.txt"
+            "bruni_men",
+            "luong_rare",
+            "radinsky_mturk",
+            "simlex999",
+            "ws353",
+            "ws353_relatedness",
+            "ws353_similarity"
     ]
     analogy_tasks = [
-            "google_caseinsens.txt",
-            "msr.txt"
+            "google",
+            "msr"
     ]
 
-    # This line below is a bit jenky since it assumes `testsets` relative to this file.
-    # Should be fine since that data is pulled with the repo.
-    all_tasks = analogy_tasks + similarity_tasks
-    path_to_tasks = [os.path.dirname(os.path.abspath(__file__)) + "/testsets/" + x for x in all_tasks]
+    results = {}
+    similarity_results = []
+    analogy_results = []
+    for task in similarity_tasks:
+        task_path = get_task_path('ws', task)
+        output = evaluate_similarity(embed_dict, task_path)
+        results[task] = output
+        similarity_results.append(output)
+    for task in analogy_tasks:
+        task_path = get_task_path('analogy', task)
+        output = evaluate_analogy(embed_dict, task_path)
+        results[task + "-add"] = output[0]
+        results[task + "-mul"] = output[1]
+        analogy_results.extend(output)
+    results['analogy-avg-score'] = np.mean(analogy_results)
+    results['similarity-avg-score'] = np.mean(similarity_results)
 
-    results = ""
-    results_dict = {}
-    ana_score_sum = 0
-    sim_score_sum = 0
-    for task_path in path_to_tasks:
-        if os.path.basename(task_path) in analogy_tasks:
-            output = evaluate_analogy(word_vectors, task_path)
-        elif os.path.basename(task_path) in similarity_tasks:
-            output = evaluate_similarity(word_vectors, task_path)
-        else:
-            logging.info("%s not in list of similarity or analogy tasks." % os.path.basename(task_path))
-        partial_result = "%s - %s\n" % (os.path.basename(task_path), str(output))
-        results += partial_result
-        logging.info(partial_result)
+    logging.info('Word similarity and analogy results:')
+    for task,score in results.items():
+        logging.info('\t{}: {:.4f}'.format(task, score))
+    return results
 
-        task_name = os.path.basename(task_path).replace(".txt", "")
-        task_name = task_name.replace("_", "-")
-        if type(output) == list or type(output) == tuple:
-            results_dict[task_name + "-add"] = output[0]
-            results_dict[task_name + "-mul"] = output[1]
-            ana_score_sum += (output[0] + output[1])
-        else:
-            results_dict[task_name] = output
-            if task_name != 'luong_rare': #we leave out rare words intrinsic
-                sim_score_sum += output
+# Evaluate analogy -- ROUTINE WRITTEN BY MAXLAM
+# -----------------------------------------
+# embed_dict - dictionary where keys are words, values are word vectors.
+# task_path - path to similarity dataset
+# return - similarity score
+def evaluate_analogy(embed_dict, task_path):
+    print("Evaluating analogy: %s" % task_path)
+    assert os.path.exists(task_path)
+    data = analogy_eval.read_test_set(task_path)
+    xi, ix = analogy_eval.get_vocab(data)
+    representation = BootstrapEmbeddings(embed_dict)
+    return analogy_eval.evaluate(representation, data, xi, ix)
 
-    results_dict['analogy-avg-score'] = ana_score_sum/4 #four analogy tasks avg together
-    results_dict['similarity-avg-score'] = sim_score_sum/5 #five sim tasks avg together        
-    logging.info('======= Begin intrinsic results ========')
-    logging.info(results)
-    logging.info('======== End intrinsic results =========')
-    return results_dict
+# Evaluate similarity -- ROUTINE WRITTEN BY MAXLAM
+# -----------------------------------------
+# embed_dict - dictionary where keys are words, values are word vectors.
+# task_path - path to similarity dataset
+# return - similarity score
+def evaluate_similarity(embed_dict, task_path):
+    '''Evaluates sim intrinsic suite'''
+    print("Evaluating similarity: %s" % task_path)
+    assert os.path.exists(task_path)
+    data = ws_eval.read_test_set(task_path)
+    representation = BootstrapEmbeddings(embed_dict)
+    return ws_eval.evaluate(representation, data)
+
+def get_task_path(task_type, task_name):
+    return str(pathlib.PurePath(utils.get_src_dir(),
+               'third_party', 'hyperwords', 'testsets',
+               task_type, task_name + '.txt'))
 
 def evaluate_synthetics(embed_path):
     '''Evaluates synthetics'''
@@ -189,10 +179,10 @@ def evaluate_synthetics(embed_path):
 #     return res
 
 class BootstrapEmbeddings(Embedding):
-    def __init__(self, word_vectors, normalize=True):
-        self.dim = len(list(word_vectors.values())[0])
-        self.m = np.stack(list(word_vectors.values()))
-        self.iw = {i:k for i,k in enumerate(word_vectors.keys())}
+    def __init__(self, embed_dict, normalize=True):
+        self.dim = len(list(embed_dict.values())[0])
+        self.m = np.stack(list(embed_dict.values()))
+        self.iw = {i:k for i,k in enumerate(embed_dict.keys())}
         self.wi = {k:i for i,k in self.iw.items()}
         if normalize:
             self.normalize()
