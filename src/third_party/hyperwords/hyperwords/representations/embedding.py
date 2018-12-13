@@ -2,7 +2,7 @@ import heapq
 
 import numpy as np
 
-from representations.matrix_serializer import load_vocabulary
+from .matrix_serializer import load_vocabulary
 
 
 class Embedding:

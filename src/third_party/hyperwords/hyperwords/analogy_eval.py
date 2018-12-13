@@ -3,7 +3,7 @@
 # from docopt import docopt
 import numpy as np
 
-from representations.representation_factory import create_representation
+from .representations.representation_factory import create_representation
 
 
 # def main():

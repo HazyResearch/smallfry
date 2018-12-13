@@ -3,7 +3,7 @@ import heapq
 from scipy.sparse import dok_matrix, csr_matrix
 import numpy as np
 
-from representations.matrix_serializer import load_vocabulary, load_matrix
+from .matrix_serializer import load_vocabulary, load_matrix
 
 
 class Explicit:
