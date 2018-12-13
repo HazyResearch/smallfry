@@ -75,38 +75,52 @@ def flat_spectrum_vs_generalization(tight):
     plt.show()
     print(1)
 
-def deltas_vs_precision_and_lambda(gaussian):
+# gaussian: if true, use gaussian random data.  Else use uniform random data.
+# use_adapt: if true, compare adaptive and non-adaptive.  Else compare stoch/det.
+def deltas_vs_precision_and_lambda(gaussian, use_adapt):
     n = 1000
     d = 30
     lim = 1.0/np.sqrt(d)
     X = (np.random.randn(n,d) * 0.5 * lim if gaussian else
         np.random.uniform(low=-lim, high=lim, size=(n,d)))
     K = X @ X.T
-    bs = [1,2,4,8,16]
+    bs = [1,2,8]
+    # bs = [1,2,4,8,32]
     lambdas = [2**(-32), 2**(-24), 2**(-16), 2**(-12), 2**(-8),2**(-4), 2**(-2), 2**0, 2**1, 2**2, 2**4, 2**8, 2**12, 2**16, 2**20]
-    stochs = [False,True]
-    delta1s = np.zeros((len(stochs), len(bs), len(lambdas)))
-    delta2s = np.zeros((len(stochs), len(bs), len(lambdas)))
-    
+    # these bools control either stoch/det, or adaptive/non-adaptive (depending on use_adapt flag)
+    bools = [False,True]
+    delta1s = np.zeros((len(bools), len(bs), len(lambdas)))
+    delta2s = np.zeros((len(bools), len(bs), len(lambdas)))
+
     # Gather delta1 and delta2 for different precisions and lambdas
-    for i_s,stoch in enumerate(stochs):
+    for i_bl,bool_ in enumerate(bools):
         for i_b,b in enumerate(bs):
-            Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=gaussian, stochastic_round=stoch)
-            # Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=stoch)
+            # Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=gaussian, stochastic_round=stoch)
+            if use_adapt: # adapt vs. non-adapt
+                Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=bool_, stochastic_round=False)
+            else: # stoch vs. det
+                Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=gaussian, stochastic_round=bool_)
             Kq = Xq @ Xq.T
             for i_l,lam in enumerate(lambdas):
-                delta1s[i_s,i_b,i_l], delta2s[i_s,i_b,i_l], _ = utils.delta_approximation(K, Kq, lambda_ = lam)
+                delta1s[i_bl,i_b,i_l], delta2s[i_bl,i_b,i_l], _ = utils.delta_approximation(K, Kq, lambda_ = lam)
     plt.figure(1)
-    plt.subplot(221)
-    plot_deltas(delta1s[0,:,:], bs, lambdas, n, d, 'Delta_1', gaussian, False)
-    plt.subplot(222)
-    plot_deltas(delta2s[0,:,:], bs, lambdas, n, d, 'Delta_2', gaussian, False)
-    plt.subplot(223)
-    plot_deltas(delta1s[1,:,:], bs, lambdas, n, d, 'Delta_1', gaussian, True)
-    plt.subplot(224)
-    plot_deltas(delta2s[1,:,:], bs, lambdas, n, d, 'Delta_2', gaussian, True)
+    plt.subplot(211)
+    plot_deltas_v2(delta1s, bs, lambdas, n, d, 'Delta_1', gaussian, use_adapt)
+    plt.subplot(212)
+    plot_deltas_v2(delta2s, bs, lambdas, n, d, 'Delta_2', gaussian, use_adapt)
     plt.show()
     print(1)
+    # plt.figure(1)
+    # plt.subplot(221)
+    # plot_deltas(delta1s[0,:,:], bs, lambdas, n, d, 'Delta_1', gaussian, False)
+    # plt.subplot(222)
+    # plot_deltas(delta2s[0,:,:], bs, lambdas, n, d, 'Delta_2', gaussian, False)
+    # plt.subplot(223)
+    # plot_deltas(delta1s[1,:,:], bs, lambdas, n, d, 'Delta_1', gaussian, True)
+    # plt.subplot(224)
+    # plot_deltas(delta2s[1,:,:], bs, lambdas, n, d, 'Delta_2', gaussian, True)
+    # plt.show()
+    # print(1)
 
 def plot_deltas(delta_results, bs, lambdas, n, d, ylabel, gaussian, stoch, xlog=True, ylog=True):
     nplams = np.array(lambdas)
@@ -128,6 +142,31 @@ def plot_deltas(delta_results, bs, lambdas, n, d, ylabel, gaussian, stoch, xlog=
     plt.xlabel('2^b * lambda')
     plt.ylabel(ylabel)
     title = '{} ({}): {} vs. {}'.format(gaussian_str, stoch_str, ylabel, '2^b * lambda')
+    plt.title(title)
+
+def plot_deltas_v2(delta_results, bs, lambdas, n, d, ylabel, gaussian, use_adapt, xlog=True, ylog=True):
+    nplams = np.array(lambdas)
+    x = 2**16 * nplams
+    gaussian_str = 'Gaussian' if gaussian else 'Uniform'
+    bool_str = 'Adapt/Non-Adapt' if use_adapt else 'Stoch/Det.'
+    bool_strs = ['Non-Adapt','Adapt'] if use_adapt else ['Det','Stoch']
+    leg = []
+    colors = ['b','g','r','y','k']
+    for i_b,b in enumerate(bs):
+        plt.plot(2**b * nplams, np.abs(delta_results[0,i_b,:]), marker='o', linestyle='dashed', color=colors[i_b])
+        plt.plot(2**b * nplams, np.abs(delta_results[1,i_b,:]), marker='x', linestyle='dashed', color=colors[i_b])
+        leg.append('b={} ({})'.format(b, bool_strs[0]))
+        leg.append('b={} ({})'.format(b, bool_strs[1]))
+        #plt.plot(2.0**b/((2.0**b-1)**2 * nplams), delta2s[i_b,:] - 1.0/((2**b-1)**2 * nplams) )
+        # plt.plot(nplams, delta2s[i_b,:])
+    plt.plot(x, np.sqrt(2*np.log(n/0.1)/d) * 5 * n / x, marker='s', linestyle='dashed', color='m')
+    leg.append('bound')
+    plt.legend(leg)
+    if xlog: plt.xscale('log')
+    if ylog: plt.yscale('log')
+    plt.xlabel('2^b * lambda')
+    plt.ylabel(ylabel)
+    title = '{} ({}): {} vs. {}'.format(gaussian_str, bool_str, ylabel, '2^b * lambda')
     plt.title(title)
 
 def clipping_effect():
@@ -160,6 +199,30 @@ def clipping_effect():
     # plt.plot(rs, delta2s)
     # plt.xlabel('clip value')
     # plt.ylabel('Delta_2')
+    plt.show()
+    print(1)
+
+def clipping_effect2():
+    n = 1000
+    d = 30
+    # lim = 1.0/np.sqrt(d)
+    # X = np.random.randn(n,d) * 0.5 * lim
+    X = np.random.randn(n,d)
+    eigs,_ = np.linalg.eig(X.T @ X)
+    eigs = np.sort(eigs)
+    max_r = np.max(X)
+    rs = np.linspace(0,max_r,num=8)
+    plt.figure(1)
+    plt.plot(np.arange(d), eigs)
+    leg = ['Orig. Spectrum']
+    for r in rs:
+        Xc = np.clip(X, -r, r)
+        eigs_c,_ = np.linalg.eig(Xc.T @ Xc)
+        eigs_c = np.sort(eigs_c)
+        plt.plot(np.arange(d), eigs_c)
+        leg.append('Clipped (r={:.2f})'.format(r))
+    plt.legend(leg)
+    plt.title('Clipped vs. unclipped spectra')
     plt.show()
     print(1)
 
@@ -211,8 +274,10 @@ def clipping_with_quantization_effect():
 
 if __name__ == '__main__':
     # ppmi_spectrum()
-    deltas_vs_precision_and_lambda(True)
+    deltas_vs_precision_and_lambda(False, False)
+    # deltas_vs_precision_and_lambda(True, False)
+    # deltas_vs_precision_and_lambda(True, True)
     # deltas_vs_precision_and_lambda(False)
-    # clipping_effect()
+    # clipping_effect2()
     # clipping_with_quantization_effect()
     # flat_spectrum_vs_generalization(False)
