@@ -45,8 +45,6 @@ def init_train_parser():
         help='Rungroup for organization')
     parser.add_argument('--embeddim', type=int, required=True,
         help='Dimension for generated embeddings')
-    parser.add_argument('--vocab', type=int, default=400000,
-        help='Vocabulary size')
     parser.add_argument('--threads', type=int, default=8,
         help='Number of threads to spin up')
     parser.add_argument('--epochs', type=int, default=50,
@@ -127,6 +125,8 @@ def init_config(parser, runtype):
     elif runtype == 'train':
         config['embedname'] = get_train_embedding_name()
         config['seed'] = 1 # TODO: do we need to change this?
+        config['vocab-file'], config['cooc-file'], config['raw-file'] = get_corpus_info(config['corpus'])
+        config['vocab'] = sum(1 for line in open(config['vocab-file'], 'r', encoding='utf8'))
     config['runname'] = get_runname(parser, runtype)
     config['datestr'] = get_date_str()
     config['rungroup'] =  '{}-{}'.format(config['datestr'], config['rungroup'])
@@ -176,8 +176,8 @@ def get_runname(parser, runtype):
 
 def get_full_runname(runtype):
     if runtype == 'train':
-        return 'embedname,{}_rungroup,{}_{}'.format(
-            config['embedname'], config['rungroup'], config['runname'])
+        return 'rungroup,{}_{}'.format(
+            config['rungroup'], config['runname'])
     elif runtype == 'compress':
         return 'embedtype,{}_rungroup,{}_{}'.format(
             config['embedtype'], config['rungroup'], config['runname'])
@@ -203,17 +203,7 @@ def get_and_make_run_dir(runtype):
 def get_train_embedding_name():
     # 'am' is an indication that it was trained by Avner May, and is thus not
     # a pre-trained embedding.
-    return '{}{}-am'.format(config['embedtype'], get_num_str(config['vocab']))
-
-# Convert number to abbreviated string (e.g., 400000->'400k', 10**6 -> '1m')
-def get_num_str(num):
-    if num >= 10**6:
-        num_str = '{:.4g}m'.format(num/10**6)
-    elif num >= 10**3:
-        num_str = '{:.4g}k'.format(num/10**3)
-    else:
-        num_str = '{}'.format(num)
-    return num_str
+    return '{}-{}-am'.format(config['embedtype'], config['corpus'])
 
 def init_random_seeds():
     """Initialize random seeds."""
