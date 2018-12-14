@@ -249,7 +249,7 @@ def get_git_hash_and_diff():
     if not is_windows():
         try:
             wd = os.getcwd()
-            git_repo_dir = '/proj/smallfry/git/smallfry'
+            git_repo_dir = str(pathlib.PurePath(get_base_dir(), 'git','smallfry'))
             os.chdir(git_repo_dir)
             git_hash = str(subprocess.check_output(
                 ['git','rev-parse','--short','HEAD']).strip())[2:9]
