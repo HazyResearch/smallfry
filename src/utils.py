@@ -41,8 +41,6 @@ def init_train_parser():
     parser.add_argument('--corpus', type=str, required=True,
         choices=['text8','wiki'],
         help='Natural language dataset used to train embeddings')
-    parser.add_argument('--outputdir', type=str, required=True,
-        help='Head output directory')
     parser.add_argument('--rungroup', type=str, required=True,
         help='Rungroup for organization')
     parser.add_argument('--embeddim', type=int, required=True,
@@ -281,10 +279,13 @@ def is_windows():
     return os.name == 'nt'
 
 def get_base_dir():
+    hostname = socket.gethostname()
     if is_windows():
-        username = ('Avner' if (socket.gethostname() == 'Avner-X1Carbon')
+        username = ('Avner' if (hostname == 'Avner-X1Carbon')
                     else 'avnermay')
         path = 'C:\\Users\\{}\\Babel_Files\\smallfry'.format(username)
+    elif '.stanford.edu' in hostname:
+        path = '/dfs/scratch0/avnermay/smallfry'
     else:
         path = '/proj/smallfry'
     return path
