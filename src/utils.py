@@ -302,8 +302,8 @@ def get_corpus_info(corpus):
         raw = str(pathlib.PurePath(dr, 'wiki.en.txt'))
     elif corpus == 'text8':
         vocab = str(pathlib.PurePath(dr, 'text8_vocab.txt'))
-        cooc = str(pathlib.PurePath(dr, 'tex8_cooccurrence.shuf.bin'))
-        raw = str(pathlib.PurePath(dr, 'text8.txt'))
+        cooc = str(pathlib.PurePath(dr, 'text8_cooccurrence.shuf.bin'))
+        raw = str(pathlib.PurePath(dr, 'N/A'))
     return vocab, cooc, raw
 
 def init_logging():
