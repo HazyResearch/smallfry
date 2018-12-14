@@ -7,7 +7,7 @@ import logging
 import pathlib
 import time
 import random
-from subprocess import check_output
+import subprocess
 import argparse
 import numpy as np
 try:
@@ -35,34 +35,24 @@ def init_train_parser():
     """Initialize cmd-line parser for embedding training."""
     parser = argparse.ArgumentParser()
     add_shared_args(parser)
-    parser.add_argument('--method', type=str, required=True,
+    parser.add_argument('--embedtype', type=str, required=True,
         choices=['glove'],
         help='Name of embeddings training algorithm.')
     parser.add_argument('--corpus', type=str, required=True,
-        choices=['text8','wiki.en.txt'],
+        choices=['text8','wiki'],
         help='Natural language dataset used to train embeddings')
     parser.add_argument('--outputdir', type=str, required=True,
         help='Head output directory')
     parser.add_argument('--rungroup', type=str, required=True,
         help='Rungroup for organization')
-    parser.add_argument('--dim', type=int, required=True,
+    parser.add_argument('--embeddim', type=int, required=True,
         help='Dimension for generated embeddings')
-    parser.add_argument('--seed', type=int, required=True,
-        help='Random seed to use for experiment.')
-    parser.add_argument('--maxvocab', type=int, default=400000,
-        help='Maximum vocabulary size')
-    parser.add_argument('--memusage', type=int, default=256,
-        help='Memory usage in GB')
-    parser.add_argument('--numthreads', type=int, default=52,
+    parser.add_argument('--vocab', type=int, default=400000,
+        help='Vocabulary size')
+    parser.add_argument('--threads', type=int, default=8,
         help='Number of threads to spin up')
-    parser.add_argument('--numiters', type=int, default=50,
+    parser.add_argument('--epochs', type=int, default=50,
         help='Number of iterations to optimize over')
-    parser.add_argument('--writenpy', type=bool, default=False,
-        help='Write embeddings matrix in npy format in addition to text')
-    parser.add_argument('--windowsize', type=int, default=15,
-        help='Window size for use in co-oc calculations')
-    parser.add_argument('--vocabmincount', type=int, default=5,
-        help='Minimum oc count for a vocab')
     parser.add_argument('--lr', type=float, default=0.05,
         help='Learning rate for embedding training.')
     return parser
@@ -136,6 +126,8 @@ def init_config(parser, runtype):
         config['compress-config'] = load_from_json(config_path)
         config['rungroup'] = 'eval-' + config['compress-config']['rungroup']
         config['seed'] = config['compress-config']['seed']
+    elif runtype == 'train':
+        config['embedname'] = get_train_embedding_name()
     config['runname'] = get_runname(parser, runtype)
     config['datestr'] = get_date_str()
     config['rungroup'] =  '{}-{}'.format(config['datestr'], config['rungroup'])
@@ -146,21 +138,11 @@ def init_config(parser, runtype):
     init_logging()
     config['githash'], config['gitdiff'] = get_git_hash_and_diff() # might fail
     logging.info('Command line arguments: {}'.format(' '.join(sys.argv[1:])))
-    # initialize_further(runtype)
     save_to_json(orig_config, get_filename('_orig_config.json'))
     save_current_config()
 
 def save_current_config():
     save_to_json(config, get_filename('_config.json'))
-
-# def initialize_further(runtype):
-#     global config
-#     if runtype == 'train':
-#         pass # TODO
-#     elif runtype == 'compress':
-#         pass # TODO
-#     elif runtype == 'evaluate':
-#         pass # TODO
 
 def validate_config(runtype):
     if runtype == 'train':
@@ -176,14 +158,13 @@ def validate_config(runtype):
             assert config['embeddim'] in (50,100,200,300)
     elif runtype == 'evaluate':
         assert '_compressed_embeds.txt' in config['embedpath']
-    if runtype in ['train','compress']: # evaluate doesn't have rungroup arg.
-        assert '_' not in config['rungroup'], 'rungroups should not have underscores'
+    assert '_' not in config['rungroup'], 'rungroups should not have underscores'
 
 def get_runname(parser, runtype):
     runname = ''
     if runtype == 'train':
-        pass # TODO
-    elif runtype == 'compress':    
+        to_skip = ('rungroup')
+    elif runtype == 'compress':
         to_skip = ('embedtype','rungroup')
     elif runtype == 'evaluate':
         to_skip = ('embedpath')
@@ -196,7 +177,8 @@ def get_runname(parser, runtype):
 
 def get_full_runname(runtype):
     if runtype == 'train':
-        pass # TODO
+        return 'embedname,{}_rungroup,{}_{}'.format(
+            config['embedname'], config['rungroup'], config['runname'])
     elif runtype == 'compress':
         return 'embedtype,{}_rungroup,{}_{}'.format(
             config['embedtype'], config['rungroup'], config['runname'])
@@ -207,7 +189,9 @@ def get_full_runname(runtype):
 def get_and_make_run_dir(runtype):
     rundir = ''
     if runtype == 'train':
-        pass # TODO
+        rundir = str(pathlib.PurePath(
+            config['basedir'], 'base_embeddings',
+            config['embedname'], config['rungroup'], config['runname']))
     elif runtype == 'compress':
         rundir = str(pathlib.PurePath(
             config['basedir'], 'embeddings',
@@ -216,6 +200,21 @@ def get_and_make_run_dir(runtype):
         rundir = config['compress-config']['rundir']
     ensure_dir(rundir)
     return rundir
+
+def get_train_embedding_name():
+    # 'am' is an indication that it was trained by Avner May, and is thus not
+    # a pre-trained embedding.
+    return '{}{}-am'.format(config['embedtype'], get_num_str(config['vocab']))
+
+# Convert number to abbreviated string (e.g., 400000->'400k', 10**6 -> '1m')
+def get_num_str(num):
+    if num >= 10**6:
+        num_str = '{:.4g}m'.format(num/10**6)
+    elif num >= 10**3:
+        num_str = '{:.4g}k'.format(num/10**3)
+    else:
+        num_str = '{}'.format(num)
+    return num_str
 
 def init_random_seeds():
     """Initialize random seeds."""
@@ -253,8 +252,9 @@ def get_git_hash_and_diff():
             wd = os.getcwd()
             git_repo_dir = '/proj/smallfry/git/smallfry'
             os.chdir(git_repo_dir)
-            git_hash = str(check_output(['git','rev-parse','--short','HEAD']).strip())[2:9]
-            git_diff = str(check_output(['git','diff']).strip())[3:]
+            git_hash = str(subprocess.check_output(
+                ['git','rev-parse','--short','HEAD']).strip())[2:9]
+            git_diff = str(subprocess.check_output(['git','diff']).strip())[3:]
             if not config['debug']:
                 # if not in debug mode, local repo changes are not allowed.
                 assert git_diff == '', 'Cannot have any local changes'
@@ -276,6 +276,34 @@ def get_filename(suffix):
     return str(pathlib.PurePath(
         config['rundir'], config['full-runname'] + suffix))
 
+def is_windows():
+    """Determine if running on windows OS."""
+    return os.name == 'nt'
+
+def get_base_dir():
+    if is_windows():
+        username = ('Avner' if (socket.gethostname() == 'Avner-X1Carbon')
+                    else 'avnermay')
+        path = 'C:\\Users\\{}\\Babel_Files\\smallfry'.format(username)
+    else:
+        path = '/proj/smallfry'
+    return path
+
+def get_src_dir():
+    return os.path.dirname(os.path.abspath(__file__))
+
+def get_corpus_info(corpus):
+    dr = str(pathlib.PurePath(get_base_dir(), 'corpora', corpus))
+    if corpus == 'wiki':
+        vocab = str(pathlib.PurePath(dr, 'vocab_minCount_5_ws_15.txt'))
+        cooc = str(pathlib.PurePath(dr, 'cooccurrence_minCount_5_ws_15.shuf.bin'))
+        raw = str(pathlib.PurePath(dr, 'wiki.en.txt'))
+    elif corpus == 'text8':
+        vocab = str(pathlib.PurePath(dr, 'text8_vocab.txt'))
+        cooc = str(pathlib.PurePath(dr, 'tex8_cooccurrence.shuf.bin'))
+        raw = str(pathlib.PurePath(dr, 'text8.txt'))
+    return vocab, cooc, raw
+
 def init_logging():
     """Initialize logfile to be used for experiment."""
     log_filename = get_filename('.log')
@@ -294,22 +322,6 @@ def save_to_json(dict_to_write, path):
 
 def load_from_json(path):
     with open(path) as f: return json.load(f)
-
-def is_windows():
-    """Determine if running on windows OS."""
-    return os.name == 'nt'
-
-def get_base_dir():
-    if is_windows():
-        username = ('Avner' if (socket.gethostname() == 'Avner-X1Carbon')
-                    else 'avnermay')
-        path = 'C:\\Users\\{}\\Babel_Files\\smallfry'.format(username)
-    else:
-        path = '/proj/smallfry'
-    return path
-
-def get_src_dir():
-    return os.path.dirname(os.path.abspath(__file__))
 
 def load_embeddings(path):
     """
@@ -338,11 +350,15 @@ def save_embeddings(path, embeds, wordlist):
             file.write(" ".join(strrow))
             file.write("\n")
 
-#########################################################
-# two sided delta
-#########################################################
+def perform_command_local(command):
+    ''' performs a command -- author: MAXLAM'''
+    out = str(subprocess.check_output(command,
+            stderr=subprocess.STDOUT, shell=True).decode('utf-8'))
+    return out
+
 def delta_approximation(K, K_tilde, lambda_=1e-3):
-    """ Compute the smallest D1 and D2 such that (1 - D1)(K + lambda_ I) <= K_tilde + lambda_ I <= (1 + D2)(K + lambda_ I),
+    """ Compute the smallest D1 and D2 such that
+    (1 - D1)(K + lambda_ I) <= K_tilde + lambda_ I <= (1 + D2)(K + lambda_ I),
     where the inequalities are in semidefinite order.
     """
     logging.info('Beginning to compute delta_approximation')
@@ -371,4 +387,4 @@ def delta_approximation(K, K_tilde, lambda_=1e-3):
     logging.info('Finished computing delta_approximation')
     assert lambda_max >= lambda_min
     # return delta1, delta2, max(delta2, delta1/(1-delta1))
-    return -lambda_min, lambda_max, max(lambda_max, -lambda_min/(1.0 + lambda_min) )
+    return -lambda_min, lambda_max, max(lambda_max, -lambda_min/(1.0 + lambda_min))

@@ -16,7 +16,6 @@ import utils
 
 def main():
     utils.init('evaluate')
-    logging.info('Beginning evaluation.')
     evaluate_embeds()
     utils.save_to_json(utils.config, utils.get_filename('_final.json'))
     logging.info('Run complete. Exiting evaluate.py main method')
@@ -35,9 +34,9 @@ def evaluate_embeds():
     elif utils.config['evaltype'] == 'synthetics':
         results = evaluate_synthetics(utils.config['embedpath'])
     elapsed = time.time() - start
-    logging.info('Finished evaluating embeddings. It took {} min.'.format(elapsed/60))
     results['elapsed'] = elapsed
     utils.config['results'] = results
+    logging.info('Finished evaluating embeddings. It took {} min.'.format(elapsed/60))
 
 def evaluate_qa(embed_path, embed_dim, seed):
     qa_args = ['--embed-dir=', '--embedding-file', embed_path,
