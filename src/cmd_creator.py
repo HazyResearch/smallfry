@@ -200,7 +200,7 @@ def cmds_12_14_18_trainGlove():
     cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd '
               '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
               '\\"python /proj/smallfry/git/smallfry/src/train_glove.py '
-              '--embedtype glove --corpus wiki --rungroup {} --embeddim {} --threads 72')
+              '--embedtype glove --corpus wiki --rungroup {} --embeddim {} --threads 72\n')
     rungroup = 'trainGlove'
     dims = [25,50,100,200,400,800,1600]
     with open(filename,'w') as f:
