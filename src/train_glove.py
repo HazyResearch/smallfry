@@ -17,8 +17,7 @@ def train():
     start = time.time()
     src_dir = utils.get_src_dir()
     vocab, cooc, _ = utils.get_corpus_info(utils.config['corpus'])
-    output = utils.perform_command_local(
-        'bash {}/train_glove.sh {} {} {} {} {} {} {} {}'.format(
+    cmd = 'bash {}/train_glove.sh {} {} {} {} {} {} {} {}'.format(
             src_dir,
             '{}/third_party/GloVe/build'.format(src_dir), # builddir
             vocab, # vocab_file
@@ -28,9 +27,9 @@ def train():
             utils.config['lr'], # lr
             utils.config['epochs'], # epochs
             utils.config['threads']  # threads
-        )
     )
-    logging.info(output)
+    logging.info(cmd)
+    utils.perform_command_local(cmd.split())
     elapsed = time.time() - start
     logging.info('Finished training GloVe embeddings. It took {} min.'.format(elapsed/60))
 

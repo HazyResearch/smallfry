@@ -352,11 +352,21 @@ def save_embeddings(path, embeds, wordlist):
             file.write(" ".join(strrow))
             file.write("\n")
 
-def perform_command_local(command):
-    ''' performs a command -- author: MAXLAM'''
-    out = str(subprocess.check_output(command,
-            stderr=subprocess.STDOUT, shell=True).decode('utf-8'))
-    return out
+# def perform_command_local(command):
+#     ''' performs a command -- original author: MAXLAM'''
+#     out = str(subprocess.check_output(command,
+#             stderr=subprocess.STDOUT).decode('utf-8'))
+#     return out
+
+def perform_command_local(cmd):
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    all_output = []
+    for line in iter(p.stdout.readline, b''):
+        # remove b' from beginning, and ' from end.
+        line = str(line.rstrip())[2:-1]
+        logging.info(line)
+        all_output.append(line)
+    return all_output
 
 def delta_approximation(K, K_tilde, lambda_=1e-3):
     """ Compute the smallest D1 and D2 such that
