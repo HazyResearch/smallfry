@@ -126,6 +126,7 @@ def init_config(parser, runtype):
         config['seed'] = config['compress-config']['seed']
     elif runtype == 'train':
         config['embedname'] = get_train_embedding_name()
+        config['seed'] = 1 # TODO: do we need to change this?
     config['runname'] = get_runname(parser, runtype)
     config['datestr'] = get_date_str()
     config['rungroup'] =  '{}-{}'.format(config['datestr'], config['rungroup'])
