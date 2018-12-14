@@ -42,11 +42,15 @@ def get_embed_info():
                               'base_embeddings', 'glove400k', 'glove.6B.{}d.txt'))
         path = path_format_str.format(utils.config['embeddim'])
         vocab = 400000
-    if utils.config['embedtype'] == 'glove10k':
+    elif utils.config['embedtype'] == 'glove10k':
         path_format_str = str(pathlib.PurePath(utils.config['basedir'],
                               'base_embeddings', 'glove10k', 'glove.6B.{}d.10k.txt'))
         path = path_format_str.format(utils.config['embeddim'])
         vocab = 10000
+    elif utils.config['embedtype'] == 'fasttext1m':
+        path = str(pathlib.PurePath(utils.config['basedir'],
+                   'base_embeddings', 'fasttext1m', 'wiki-news-300d-1M.vec'))
+        vocab = 999994
     return path,vocab
 
 def compress_and_save_embeddings(X, wordlist, bit_rate):

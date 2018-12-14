@@ -58,7 +58,7 @@ def init_compress_parser():
     parser = argparse.ArgumentParser()
     add_shared_args(parser)
     parser.add_argument('--embedtype', type=str, required=True,
-        choices=['glove400k','glove10k'], # TODO: Add more options
+        choices=['glove400k','glove10k','fasttext1m'],
         help='Name of embedding to compress')
     parser.add_argument('--embeddim', type=int, required=True,
         help='Dimension of embeddings to use.')
@@ -145,7 +145,7 @@ def save_current_config():
 
 def validate_config(runtype):
     if runtype == 'train':
-        pass # TODO
+        pass # nothing to validate here
     elif runtype == 'compress':
         if config['compresstype'] == 'dca':
             assert config['k'] != -1, 'Must specify k for DCA training.'
@@ -155,6 +155,8 @@ def validate_config(runtype):
             assert config['bitrate'] == 32
         if config['embedtype'] == 'glove400k' or config['embedtype'] == 'glove10k':
             assert config['embeddim'] in (50,100,200,300)
+        elif config['embedtype'] == 'fasttext1m':
+            assert config['embeddim'] == 300
     elif runtype == 'evaluate':
         assert '_compressed_embeds.txt' in config['embedpath']
     assert '_' not in config['rungroup'], 'rungroups should not have underscores'
@@ -317,13 +319,15 @@ def load_from_json(path):
 
 def load_embeddings(path):
     """
-    Loads a GloVe embedding at specified path. Returns a vector of strings that 
-    represents the vocabulary and a 2-D numpy matrix that is the embeddings. 
+    Loads a GloVe or FastText format embedding at specified path. Returns a
+    vector of strings that represents the vocabulary and a 2-D numpy matrix that
+    is the embeddings.
     """
     with open(path, 'r', encoding='utf8') as f:
         lines = f.readlines()
         wordlist = []
         embeddings = []
+        if is_fasttext_format(lines): lines = lines[1:]
         for line in lines:
             row = line.strip("\n").split(" ")
             wordlist.append(row.pop(0))
@@ -331,6 +335,10 @@ def load_embeddings(path):
         embeddings = np.array(embeddings)
     assert len(wordlist) == embeddings.shape[0], 'Embedding dim must match wordlist length.'
     return embeddings, wordlist
+
+def is_fasttext_format(lines):
+    first_line = lines[0].strip("\n").split(" ")
+    return len(first_line) == 2 and first_line[0].isdigit() and first_line[1].isdigit()
 
 def save_embeddings(path, embeds, wordlist):
     ''' save embeddings in text file format'''

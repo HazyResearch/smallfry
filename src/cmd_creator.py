@@ -12,7 +12,7 @@ def cmds_11_28_18_compress_round1():
     rungroup = 'round1'
     embedtype = 'glove400k'
     seed = 1
-    with open(filename,'w+') as f:
+    with open(filename,'w') as f:
         # nocompress
         compresstype = 'nocompress'
         bitrate = 32
@@ -78,7 +78,7 @@ def cmds_11_28_18_compress_tuneDCA():
     ks = [2,4,8,16] # 4
     lrs = ['0.00001', '0.00003', '0.0001', '0.0003', '0.001'] # 5
 
-    with open(filename,'w+') as f:
+    with open(filename,'w') as f:
         for bitrate in bitrates:
             for k in ks:
                 for lr in lrs:
@@ -99,7 +99,7 @@ def cmds_11_28_18_compress_fiveSeeds():
     rungroup = 'fiveSeeds'
     embedtype = 'glove400k'
     seeds = [1,2,3,4,5]
-    with open(filename,'w+') as f:
+    with open(filename,'w') as f:
         for seed in seeds:
             # nocompress
             compresstype = 'nocompress'
@@ -179,7 +179,7 @@ def cmds_11_29_18_eval_fiveSeeds():
 
     with open(embed_list_file,'r') as f:
         embed_file_paths = f.readlines()
-    with open(cmd_file,'w+') as f:
+    with open(cmd_file,'w') as f:
         for path in embed_file_paths:
             f.write(cmd_format_str.format(path.strip()))
 
@@ -191,13 +191,26 @@ def cmds_11_29_18_eval_fiveSeeds_fixFailedEvals():
     ]
     cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
               '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --cuda --evaltype qa --embedpath {}\\"\n')
-    with open(cmd_file,'w+') as f:
+    with open(cmd_file,'w') as f:
         for path in embed_file_paths:
             f.write(cmd_format_str.format(path.strip()))
+
+def cmds_12_14_18_trainGlove():
+    filename = get_cmdfile_path('12_14_18_trainGlove_cmds')
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/train_glove.py '
+              '--embedtype glove --corpus wiki --rungroup {} --embeddim {} --threads 72')
+    rungroup = 'trainGlove'
+    dims = [25,50,100,200,400,800,1600]
+    with open(filename,'w') as f:
+        for dim in dims:
+            f.write(cmd_format_str.format(rungroup, dim))
 
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
     # cmds_11_28_18_compress_fiveSeeds()
     # cmds_11_29_18_eval_fiveSeeds()
-    cmds_11_29_18_eval_fiveSeeds_fixFailedEvals()
+    # cmds_11_29_18_eval_fiveSeeds_fixFailedEvals()
+    cmds_12_14_18_trainGlove()
