@@ -22,7 +22,7 @@ def train():
             '{}/third_party/GloVe/build'.format(src_dir), # builddir
             vocab, # vocab_file
             cooc, # cooccurence shuf file
-            utils.get_filename('_embeds.txt'), # output file
+            utils.get_filename('_embeds'), # output file (no extension)
             utils.config['embeddim'], # embed_dim
             utils.config['lr'], # lr
             utils.config['epochs'], # epochs
