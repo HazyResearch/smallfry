@@ -1,4 +1,4 @@
-%%%%%%%% ICML 2018 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
+%%%%%%%% ICML 2019 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
 
 \documentclass{article}
 
@@ -11,32 +11,30 @@
 % hyperref makes hyperlinks in the resulting PDF.
 % If your build breaks (sometimes temporarily if a hyperlink spans a page)
 % please comment out the following usepackage line and replace
-% \usepackage{icml2018} with \usepackage[nohyperref]{icml2018} above.
+% \usepackage{icml2019} with \usepackage[nohyperref]{icml2019} above.
 \usepackage{hyperref}
 
 % Attempt to make hyperref and algorithmic work together better:
 \newcommand{\theHalgorithm}{\arabic{algorithm}}
 
 % Use the following line for the initial blind version submitted for review:
-\usepackage{icml2018}
+\usepackage{icml2019}
 
 % If accepted, instead use the following line for the camera-ready submission:
-%\usepackage[accepted]{icml2018}
+%\usepackage[accepted]{icml2019}
 
 % The \icmltitle you define below is probably too long as a header.
 % Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{Submission and Formatting Instructions for ICML 2018}
+\icmltitlerunning{Compressing Embeddings with Uniform Quantization}
 
 \begin{document}
-
+	
 \twocolumn[
 \icmltitle{Compressing Embeddings with Uniform Quantization}
-%\icmltitle{Submission and Formatting Instructions for \\
-%           International Conference on Machine Learning (ICML 2018)}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
-% unless you've provided the [accepted] option to the icml2018
+% unless you've provided the [accepted] option to the icml2019
 % package.
 
 % List of affiliations: The first argument should be a (short)
@@ -47,31 +45,15 @@
 % You can specify symbols, otherwise they are numbered in order.
 % Ideally, you should not use this facility. Affiliations will be numbered
 % in order of appearance and this is the preferred way.
-%\icmlsetsymbol{equal}{*}
+\icmlsetsymbol{equal}{*}
 
 \begin{icmlauthorlist}
-\icmlauthor{Random Name}{equal,stanford}
-%\icmlauthor{Aeiau Zzzz}{equal,to}
-%\icmlauthor{Bauiu C.~Yyyy}{equal,to,goo}
-%\icmlauthor{Cieua Vvvvv}{goo}
-%\icmlauthor{Iaesut Saoeu}{ed}
-%\icmlauthor{Fiuea Rrrr}{to}
-%\icmlauthor{Tateu H.~Yasehe}{ed,to,goo}
-%\icmlauthor{Aaoeu Iasoh}{goo}
-%\icmlauthor{Buiui Eueu}{ed}
-%\icmlauthor{Aeuia Zzzz}{ed}
-%\icmlauthor{Bieea C.~Yyyy}{to,goo}
-%\icmlauthor{Teoau Xxxx}{ed}
-%\icmlauthor{Eee Pppp}{ed}
+	\icmlauthor{Random Name}{equal,stan}
 \end{icmlauthorlist}
-%
-\icmlaffiliation{stanford}{Department of Computer Science, Stanford University, Stanford, California, USA}
-%\icmlaffiliation{to}{Department of Computation, University of Torontoland, Torontoland, Canada}
-%\icmlaffiliation{goo}{Googol ShallowMind, New London, Michigan, USA}
-%\icmlaffiliation{ed}{School of Computation, University of Edenborrow, Edenborrow, United Kingdom}
-%
-\icmlcorrespondingauthor{Random Name}{random@cs.stanford.edu}
-%\icmlcorrespondingauthor{Eee Pppp}{ep@eden.co.uk}
+
+\icmlaffiliation{stan}{Department of Computer Science, Stanford University, Stanford, California, USA}
+
+\icmlcorrespondingauthor{Random Name}{random@stanford.edu}
 
 % You may provide any keywords that you
 % find helpful for describing your paper; these are used to populate
@@ -91,6 +73,7 @@
 
 %\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
 \printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
+
 
 \begin{abstract}
 \input{abstract}
@@ -117,6 +100,11 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
+% Acknowledgements should only appear in the accepted version.
+%\section*{Acknowledgements}
+%
+%\textbf{Do not} include acknowledgements in the initial version of
+%the paper submitted for blind review.
 
 %\subsection{Figures}
 % EXAMPLE FIGURE
@@ -178,19 +166,8 @@
 %\end{table}
 
 
-% Acknowledgements should only appear in the accepted version.
-%\section*{Acknowledgements}
-%
-%\textbf{Do not} include acknowledgements in the initial version of
-%the paper submitted for blind review.
-
-
-% In the unusual situation where you want a paper to appear in the
-% references without citing it in the main text, use \nocite
-%\nocite{langley00}
-
 \bibliography{ref}
-\bibliographystyle{icml2018}
+\bibliographystyle{icml2019}
 
 
 \end{document}
