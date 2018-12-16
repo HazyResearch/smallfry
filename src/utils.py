@@ -285,6 +285,13 @@ def get_base_dir():
         path = '/proj/smallfry'
     return path
 
+def get_home_dir():
+    hostname = socket.gethostname()
+    if is_windows() or '.stanford.edu' in hostname:
+        return get_base_dir()
+    else:
+        return '/home/ubuntu'
+
 def get_src_dir():
     return os.path.dirname(os.path.abspath(__file__))
 

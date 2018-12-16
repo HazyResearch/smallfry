@@ -73,8 +73,11 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
         Xq, frob_squared_error, elapsed = compress_kmeans(X, bit_rate,
             random_seed=utils.config['seed'])
     elif utils.config['compresstype'] == 'dca':
-        dca_file_prefix = str(pathlib.PurePath(utils.config['rundir'],
-                       'dca_tmp', utils.config['full-runname']))
+        dca_file_prefix = str(pathlib.PurePath(
+            utils.get_home_dir(), 'dca_tmp', utils.config['embedtype'],
+            utils.config['rungroup'], utils.config['runname'],
+            utils.config['full-runname']
+        ))
         Xq, frob_squared_error, elapsed, results_per_epoch = compress_dca(
             X, bit_rate, k=utils.config['k'], work_dir=dca_file_prefix,
             learning_rate=utils.config['lr'], batch_size=utils.config['batchsize'],
