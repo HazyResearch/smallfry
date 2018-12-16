@@ -202,10 +202,75 @@ def cmds_12_14_18_trainGlove():
               '\\"python /proj/smallfry/git/smallfry/src/train_glove.py '
               '--embedtype glove --corpus wiki --rungroup {} --embeddim {} --threads 72\\"\n')
     rungroup = 'trainGlove'
-    dims = [25,50,100,200,400,800,1600]
+    dims = [25,50,100,200,400,800,1600] # note: 1600 failed to run.
     with open(filename,'w') as f:
         for dim in dims:
             f.write(cmd_format_str.format(rungroup, dim))
+
+def cmds_12_15_18_fasttext_tuneDCA():
+    # dca
+    filename = get_cmdfile_path('12_15_18_fasttext_tuneDCA')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/dca_docker.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'fasttextTuneDCA'
+    compresstype = 'dca'
+    embeddim = 300
+    embedtype = 'fasttext1m'
+    seed = 1
+
+    # 60 total configurations
+    bitrates = [1,2,4] # 3
+    ks = [2,4,8,16] # 4
+    lrs = ['0.00001', '0.00003', '0.0001', '0.0003', '0.001'] # 5
+
+    with open(filename,'w') as f:
+        for bitrate in bitrates:
+            for k in ks:
+                for lr in lrs:
+                    f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {} --k {} --lr {}\\"\n').format(
+                        prefix, rungroup, embedtype, compresstype, bitrate,
+                        embeddim, seed, k, lr)
+                    )
+
+def cmds_12_15_18_compress_dimVsPrec():
+    filename = get_cmdfile_path('12_15_18_compress_dimVsPrec')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'dimVsPrec'
+    embedtype = 'glove-wiki-am'
+    seeds = [1,2,3,4,5]
+    embeddims = [25,50,100,200,400,800]
+    with open(filename,'w') as f:
+        for seed in seeds:
+            for embeddim in embeddims:
+                # nocompress
+                compresstype = 'nocompress'
+                bitrate = 32
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {}\\"\n').format(
+                    prefix, rungroup, embedtype, compresstype, bitrate, embeddim, seed)
+                )
+
+                # bitrates for uniform quantization
+                bitrates = [1,2,4,8,16] # kmeans failed on bitrate 8
+
+                # uniform
+                compresstype = 'uniform'
+                adapt = True
+                stochs = [False,True]
+                #skipquant = False
+                for bitrate in bitrates:
+                    for stoch in stochs:
+                        adapt_str = ' --adaptive' if adapt else ''
+                        stoch_str = ' --stoch' if stoch else ''
+                        f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                                '--embeddim {} --seed {}{}{}\\"\n').format(
+                                prefix, rungroup, embedtype, compresstype, bitrate,
+                                embeddim, seed, adapt_str, stoch_str)
+                        )
 
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
@@ -213,4 +278,6 @@ if __name__ == '__main__':
     # cmds_11_28_18_compress_fiveSeeds()
     # cmds_11_29_18_eval_fiveSeeds()
     # cmds_11_29_18_eval_fiveSeeds_fixFailedEvals()
-    cmds_12_14_18_trainGlove()
+    # cmds_12_14_18_trainGlove()
+    cmds_12_15_18_fasttext_tuneDCA()
+    cmds_12_15_18_compress_dimVsPrec()
