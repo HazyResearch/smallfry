@@ -25,12 +25,16 @@
 
 % The \icmltitle you define below is probably too long as a header.
 % Therefore, a short form for the running title is supplied here:
-\icmltitlerunning{Compressing Embeddings with Uniform Quantization}
+\icmltitlerunning{Compressing Word Embeddings with Uniform Quantization}
 
+%Added by Avner
+\usepackage{amsmath}
+
+\input{__macros}
 \begin{document}
 	
 \twocolumn[
-\icmltitle{Compressing Embeddings with Uniform Quantization}
+\icmltitle{Compressing Word Embeddings with Uniform Quantization}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -81,21 +85,19 @@
 
 \section{Introduction}
 \label{sec:intro}
-
-\section{Related Work}
-\label{sec:relwork}
+\input{intro}
 
 \section{Uniform Quantization}
-\label{sec:uniquant}
-
-\subsection{Method Details}
-\label{sec:method}
-
-\subsection{Theory}
-\label{sec:theory}
+\label{sec:uniform}
 
 \section{Experiments}
 \label{sec:experiments}
+
+\section{Theory}
+\label{sec:theory}
+
+\section{Related Work}
+\label{sec:relwork}
 
 \section{Conclusion}
 \label{sec:conclusion}

@@ -1,0 +1,19 @@
+In recent years, \textit{word embeddings} \citep{glove,word2vec} have brought large improvements to a wide range of applications in natural language processing (NLP) \citep{examples}.
+By encoding words as low-dimensional dense vectors, word embeddings allow NLP tasks to be framed as pattern recognition problems over dense continuous spaces, which can then be tackled using the powerful machinery of neural networks.
+%To maximize the benefit of these embeddings, it is important for word embeddings to be computed and stored for very large vocabularies of words \citep{}.
+However, these word embeddings can occupy a very large amount of memory, making it impractical to deploy them to memory-constrained environments like smart phones.
+Our goal in this work is to dramatically decrease the amount of memory occupied by the embeddings, while provably retaining strong performance on downstream tasks.
+
+Designing powerful and principled compression schemes is challenging because it is unclear a priori how to model how compression affects performance.
+This is particularly true when the compression schemes being considered are complex, and when large non-convex models are employed for the downstream tasks.
+For example, the current state-of-the-art method for compression word embeddings uses a deep architecture to represent each word as a sum of vectors from learned dictionaries \citep{dccl}.
+
+In this work, we propose a simple compression method based on uniform quantization, and analyze it's impact on generalization performance in the case of linear regression models.
+Our method has two parts: first, we find the optimal threshold with which to clip the extreme values in the word embedding matrix, and then we uniformly quantize the clipped embeddings.
+Empirically, we demonstrate that this method can match the performance of the more complex baselines across a variety of tasks, embedding types, and compression rates.
+For example, we attain 32x compression for GloVe and Fasttext embeddings on the Stanford Question Answering Dataset (SQuAD) \citep{x}, while on average attaining F1 scores within \todo{XX\%} and \todo{YY\%} absolute of the full-precision embeddings, respectively.
+Theoretically, we show that $b$-bit quantization has negligible effect on the generalization performance of linear ridge regression models when the product of $2^b$ and the regularization parameter $\lambda$ is large.
+Furthermore, we show that when the spectrum of the word embedding matrix decays slowly (which we empirically observe to be true), a large regularizer, and thus low-precision, will perform similarly to the full-precision embeddings.
+Our theoretical analysis builds on recent work analyzing the generalization performance of low-precision representations in the context of kernel ridge regression \citep{our_work}.
+
+The rest of this paper is organized as follows: In Section~\ref{sec:uniform} we present our compression method. We present our large-scale experimental results in Section~\ref{sec:experiments}, and the theoretical analysis for our method in Section~\ref{sec:theory}. We discuss related work in Section~\ref{sec:relwork}, and conclude in Section~\ref{sec:conclusion}.
