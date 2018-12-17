@@ -1,0 +1,21 @@
+We now evaluate the performance of our word embedding compression algorithm on a variety of NLP tasks and embeddings types.
+We show that we are consistently able to match the performance of more complex baselines (DCCL, k-means), while dramatically outperforming more naive baselines (dimensionality reduction).
+We additionally present results in which we maintain the memory budget fixed by  jointly varying the dimension and precision of the compressed embeddings;
+we observe that in this memory-constrained setting, the compressed embeddings attain \todo{XX\%} to \todo{YY\%} better performance than the full-precision embeddings.
+This demonstrates the importance of considering low-precision when trying to attain the best possible performance under a memory budget.
+
+\subsection{Large-scale evaluation}
+\begin{itemize}
+	\item \textbf{Embeddings}: GloVe ($d=300$,$n=400k$) and fastText ($d=300$,$n=1m$) pre-trained.
+	\item \textbf{Baselines}: k-means, DCCL, dim. reduction (GloVe)
+	\item \textbf{Tasks}: DrQA, sentiment, intrinsics, synthetics.
+	\item \textbf{Compression ratios}: 8x-32x.
+	\item \textbf{Number of random seeds}: 5
+\end{itemize}
+\subsection{Fixed budget experiments}
+\begin{itemize}
+	\item \textbf{Embeddings}: We train GloVe embeddings on a Wiki 2017 dump, for $n=3.8m$ (corresponding to min-count = 5) and $d \in \{25,50,100,200,400,800\}$.
+	\item \textbf{Bitrates}: We compress embeddings for $b \in \{1,2,4,8,16,32\}$.
+	\item \textbf{Tasks}: DrQA, sentiment, intrinsics, synthetics.
+	\item \textbf{Number of random seeds}: 5
+\end{itemize}

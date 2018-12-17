@@ -28,7 +28,7 @@
 \icmltitlerunning{Compressing Word Embeddings with Uniform Quantization}
 
 %Added by Avner
-\usepackage{amsmath}
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
 
 \input{__macros}
 \begin{document}
@@ -89,12 +89,15 @@
 
 \section{Uniform Quantization}
 \label{sec:uniform}
+\input{uniform}
 
 \section{Experiments}
 \label{sec:experiments}
+\input{experiments}
 
 \section{Theory}
 \label{sec:theory}
+\input{theory}
 
 \section{Related Work}
 \label{sec:relwork}
@@ -170,6 +173,21 @@
 
 \bibliography{ref}
 \bibliographystyle{icml2019}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DELETE THIS PART. DO NOT PLACE CONTENT AFTER THE REFERENCES!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\onecolumn
+\appendix
+\section{Appendix: Theoretical Results}
+\input{app_theory}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 \end{document}
