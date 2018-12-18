@@ -39,7 +39,7 @@ def init_train_parser():
         choices=['glove'],
         help='Name of embeddings training algorithm.')
     parser.add_argument('--corpus', type=str, required=True,
-        choices=['text8','wiki'],
+        choices=['text8','wiki','wiki400k'],
         help='Natural language dataset used to train embeddings')
     parser.add_argument('--rungroup', type=str, required=True,
         help='Rungroup for organization')
@@ -301,6 +301,11 @@ def get_corpus_info(corpus):
         vocab = str(pathlib.PurePath(dr, 'vocab_minCount_5_ws_15.txt'))
         cooc = str(pathlib.PurePath(dr, 'cooccurrence_minCount_5_ws_15.shuf.bin'))
         raw = str(pathlib.PurePath(dr, 'wiki.en.txt'))
+    if corpus == 'wiki400k':
+        vocab = str(pathlib.PurePath(dr, 'vocab_wiki400k.txt'))
+        cooc = str(pathlib.PurePath(dr, 'cooccurrence_wiki400k.shuf.bin'))
+        # raw file is same as for 'wiki' above.
+        raw = str(pathlib.PurePath(dr, 'N/A'))
     elif corpus == 'text8':
         vocab = str(pathlib.PurePath(dr, 'text8_vocab.txt'))
         cooc = str(pathlib.PurePath(dr, 'text8_cooccurrence.shuf.bin'))
