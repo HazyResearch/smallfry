@@ -338,7 +338,7 @@ def load_embeddings(path):
         embeddings = []
         if is_fasttext_format(lines): lines = lines[1:]
         for line in lines:
-            row = line.strip("\n").split(" ")
+            row = line.strip('\n').split(' ')
             wordlist.append(row.pop(0))
             embeddings.append([float(i) for i in row])
         embeddings = np.array(embeddings)
@@ -346,18 +346,23 @@ def load_embeddings(path):
     return embeddings, wordlist
 
 def is_fasttext_format(lines):
-    first_line = lines[0].strip("\n").split(" ")
+    first_line = lines[0].strip('\n').split(' ')
     return len(first_line) == 2 and first_line[0].isdigit() and first_line[1].isdigit()
 
 def save_embeddings(path, embeds, wordlist):
     ''' save embeddings in text file format'''
-    all_strs = [0] * range(len(wordlist))
-    for i in range(len(wordlist)):
-        strrow = ' '.join([str(r) for r in row])
-        all_strs[i] = '{} {}\n'.format(wordlist[i], strrow)
-    full_str = ''.join(all_strs)
-    with open(path, 'w', encoding='utf8') as file:
-        file.write(full_str)
+    with open(path, 'w', encoding='utf8') as f:
+        for i in range(len(wordlist)):
+            strrow = ' '.join([str(embed) for embed in embeds[i,:]])
+            f.write('{} {}\n'.format(wordlist[i], strrow))
+    # ANOTHER VERSION, WHICH WRITES FILE ALL AT ONCE
+    # all_strs = [0] * range(len(wordlist))
+    # for i in range(len(wordlist)):
+    #     strrow = ' '.join([str(embed) for embed in embeds[i,:]])
+    #     all_strs[i] = '{} {}\n'.format(wordlist[i], strrow)
+    # full_str = ''.join(all_strs)
+    # with open(path, 'w', encoding='utf8') as file:
+    #     file.write(full_str)
 
 # def perform_command_local(command):
 #     ''' performs a command -- original author: MAXLAM'''

@@ -284,7 +284,7 @@ def cmds_wiki_400k_create_cooccur():
     MAX_VOCAB=400000
     MEMORY=160
     with open(filename,'w') as f:
-        f.write('{} {} {} {} {} {} {} {}'.format(
+        f.write('{} {} {} {} {} {} {} {}\n'.format(
             prefix, BUILDDIR, CORPUS, VOCAB_FILE, COOCCURRENCE_FILE,
             COOCCURRENCE_SHUF_FILE, MAX_VOCAB, MEMORY
         ))
