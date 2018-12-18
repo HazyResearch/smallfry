@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import matplotlib as mpl
 import utils
 
-default_var_info = ['embedtype',['glove400k']]
+default_var_info = ['gitdiff',['']]
 
 # Returns a list of result dictionaries whose filenames match the path_regex.
 def gather_results(path_regex):
@@ -185,10 +185,12 @@ def plot_frob_squared_vs_bitrate():
     )
     plt.show()
 
-def plot_dca_frob_squared_vs_lr():
-    path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
-                     'glove400k', 'round1_tuneDCA_results', '*final.json'))
-    all_results = gather_results(path_regex)
+def plot_dca_frob_squared_vs_lr(results_path):
+    # path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
+    #                  'glove400k', 'round1_tuneDCA_results', '*final.json'))
+    # all_results = gather_results(path_regex)
+    all_results = utils.load_from_json(results_path)
+    embedtype = all_results[0]['embedtype']
     bitrates = [1,2,4] # 3
     ks = [2,4,8,16] # 4
     # lrs = ['0.00001', '0.00003', '0.0001', '0.0003', '0.001'] # 5
@@ -204,14 +206,14 @@ def plot_dca_frob_squared_vs_lr():
             'frob-squared-error',
             logx=True,
             logy=True,
-            title='bitrate = {}, lr vs. frob'.format(b)
+            title='{}, bitrate = {}, lr vs. frob'.format(embedtype, b)
         )
     plt.show()
 
 def dca_get_best_k_lr_per_bitrate(path_regex):
     # path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
     #                 'glove400k', 'round1_tuneDCA_results', '*final.json'))
-    all_results = gather_results(path_regex)
+    all_results = clean_results(gather_results(path_regex))
     bitrates = [1,2,4] # 3
     # ks = [2,4,8,16] # 4
     # lrs = ['0.00001', '0.00003', '0.0001', '0.0003', '0.001'] # 5
@@ -297,5 +299,7 @@ if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
     #plot_dca_frob_squared_vs_lr()
     #print(dca_get_best_k_lr_per_bitrate())
-    plot_2018_11_29_fiveSeeds_QA_vs_bitrate()
-    print('hello')
+    #plot_2018_11_29_fiveSeeds_QA_vs_bitrate()
+    #print('hello')
+    results_path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\results\\2018-12-16-fasttextTuneDCA_all_results.json'
+    plot_dca_frob_squared_vs_lr(results_path)

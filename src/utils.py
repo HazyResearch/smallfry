@@ -351,13 +351,13 @@ def is_fasttext_format(lines):
 
 def save_embeddings(path, embeds, wordlist):
     ''' save embeddings in text file format'''
-    with open(path, "w+", encoding='utf8') as file:
-        for i in range(len(wordlist)):
-            file.write(wordlist[i] + " ")
-            row = embeds[i, :]
-            strrow = [str(r) for r in row]
-            file.write(" ".join(strrow))
-            file.write("\n")
+    all_strs = [0] * range(len(wordlist))
+    for i in range(len(wordlist)):
+        strrow = ' '.join([str(r) for r in row])
+        all_strs[i] = '{} {}\n'.format(wordlist[i], strrow)
+    full_str = ''.join(all_strs)
+    with open(path, 'w', encoding='utf8') as file:
+        file.write(full_str)
 
 # def perform_command_local(command):
 #     ''' performs a command -- original author: MAXLAM'''

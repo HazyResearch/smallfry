@@ -62,7 +62,7 @@ def get_embed_info():
     return path,vocab
 
 def compress_and_save_embeddings(X, wordlist, bit_rate):
-    logging.info('Beggining to make embeddings')
+    logging.info('Beginning to make embeddings')
     results = {}
     if utils.config['compresstype'] == 'uniform':
         Xq, frob_squared_error, elapsed = compress_uniform(X, bit_rate,
