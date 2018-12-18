@@ -276,19 +276,31 @@ def cmds_wiki_400k_create_cooccur():
     filename = get_cmdfile_path('12_17_18_create_cooccur_wiki400k')
     prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
               '/proj/smallfry/git/smallfry/src/create_cooccur.sh ')
-    BUILDDIR='/proj/smallfry/git/smallfry/src/third_party/GloVe/build'
-    CORPUS='/proj/smallfry/corpora/wiki/wiki.en.txt'
-    VOCAB_FILE='/proj/smallfry/corpora/wiki/vocab_wiki400k.txt'
-    COOCCURRENCE_FILE='/proj/smallfry/corpora/wiki/cooccurrence_wiki400k.bin'
-    COOCCURRENCE_SHUF_FILE='/proj/smallfry/corpora/wiki/cooccurrence_wiki400k.shuf.bin'
-    MAX_VOCAB=400000
-    MEMORY=160
+    BUILDDIR = '/proj/smallfry/git/smallfry/src/third_party/GloVe/build'
+    CORPUS = '/proj/smallfry/corpora/wiki/wiki.en.txt'
+    VOCAB_FILE = '/proj/smallfry/corpora/wiki/vocab_wiki400k.txt'
+    COOCCURRENCE_FILE = '/proj/smallfry/corpora/wiki/cooccurrence_wiki400k.bin'
+    COOCCURRENCE_SHUF_FILE = '/proj/smallfry/corpora/wiki/cooccurrence_wiki400k.shuf.bin'
+    MAX_VOCAB = 400000
+    MEMORY = 160
     with open(filename,'w') as f:
         f.write('{} {} {} {} {} {} {} {}'.format(
             prefix, BUILDDIR, CORPUS, VOCAB_FILE, COOCCURRENCE_FILE,
             COOCCURRENCE_SHUF_FILE, MAX_VOCAB, MEMORY
         ))
 
+def cmds_12_17_18_trainGlove_wiki400k():
+    filename = get_cmdfile_path('12_17_18_trainGlove_wiki400k_cmds')
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/train_glove.py '
+              '--embedtype glove --corpus {} --rungroup {} --embeddim {} --threads 72\\"\n')
+    corpus = 'wiki400k'
+    rungroup = 'trainGlove'
+    dims = [25,50,100,200,400,800,1600] # note: 1600 failed to run.
+    with open(filename,'w') as f:
+        for dim in dims:
+            f.write(cmd_format_str.format(corpus, rungroup, dim))
 
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
@@ -299,4 +311,5 @@ if __name__ == '__main__':
     # cmds_12_14_18_trainGlove()
     # cmds_12_15_18_fasttext_tuneDCA()
     # cmds_12_15_18_compress_dimVsPrec()
-    cmds_wiki_400k_create_cooccur()
+    # cmds_wiki_400k_create_cooccur()
+    cmds_12_17_18_trainGlove_wiki400k()
