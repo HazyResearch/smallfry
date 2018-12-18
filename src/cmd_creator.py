@@ -302,6 +302,20 @@ def cmds_12_17_18_trainGlove_wiki400k():
         for dim in dims:
             f.write(cmd_format_str.format(corpus, rungroup, dim))
 
+def cmds_12_18_18_trainGlove_wiki400k():
+    filename = get_cmdfile_path('12_18_18_trainGlove_wiki400k_cmds')
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/train_glove.py '
+              '--embedtype glove --corpus {} --rungroup {} --embeddim {} --lr {} --threads 72\\"\n')
+    corpus = 'wiki400k'
+    rungroup = 'trainGlove'
+    dim = 800 # note: 1600 failed to run.
+    lrs = [0.025, 0.01]
+    with open(filename,'w') as f:
+        for lr in lrs:
+            f.write(cmd_format_str.format(corpus, rungroup, dim, lr))
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
@@ -312,4 +326,5 @@ if __name__ == '__main__':
     # cmds_12_15_18_fasttext_tuneDCA()
     # cmds_12_15_18_compress_dimVsPrec()
     # cmds_wiki_400k_create_cooccur()
-    cmds_12_17_18_trainGlove_wiki400k()
+    # cmds_12_17_18_trainGlove_wiki400k()
+    cmds_12_18_18_trainGlove_wiki400k()
