@@ -272,6 +272,24 @@ def cmds_12_15_18_compress_dimVsPrec():
                                 embeddim, seed, adapt_str, stoch_str)
                         )
 
+def cmds_wiki_400k_create_cooccur():
+    filename = get_cmdfile_path('12_17_18_create_cooccur_wiki400k')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/create_cooccur.sh ')
+    BUILDDIR='/proj/smallfry/git/smallfry/src/third_party/GloVe/build'
+    CORPUS='/proj/smallfry/corpora/wiki/wiki.en.txt'
+    VOCAB_FILE='/proj/smallfry/corpora/wiki/vocab_wiki400k.txt'
+    COOCCURRENCE_FILE='/proj/smallfry/corpora/wiki/cooccurrence_wiki400k.bin'
+    COOCCURRENCE_SHUF_FILE='/proj/smallfry/corpora/wiki/cooccurrence_wiki400k.shuf.bin'
+    MAX_VOCAB=400000
+    MEMORY=160
+    with open(filename,'w') as f:
+        f.write('{} {} {} {} {} {} {} {}'.format(
+            prefix, BUILDDIR, CORPUS, VOCAB_FILE, COOCCURRENCE_FILE,
+            COOCCURRENCE_SHUF_FILE, MAX_VOCAB, MEMORY
+        ))
+
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
@@ -279,5 +297,6 @@ if __name__ == '__main__':
     # cmds_11_29_18_eval_fiveSeeds()
     # cmds_11_29_18_eval_fiveSeeds_fixFailedEvals()
     # cmds_12_14_18_trainGlove()
-    cmds_12_15_18_fasttext_tuneDCA()
-    cmds_12_15_18_compress_dimVsPrec()
+    # cmds_12_15_18_fasttext_tuneDCA()
+    # cmds_12_15_18_compress_dimVsPrec()
+    cmds_wiki_400k_create_cooccur()
