@@ -208,9 +208,9 @@ def plot_dca_frob_squared_vs_lr():
         )
     plt.show()
 
-def dca_get_best_k_lr_per_bitrate():
-    path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
-                    'glove400k', 'round1_tuneDCA_results', '*final.json'))
+def dca_get_best_k_lr_per_bitrate(path_regex):
+    # path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
+    #                 'glove400k', 'round1_tuneDCA_results', '*final.json'))
     all_results = gather_results(path_regex)
     bitrates = [1,2,4] # 3
     # ks = [2,4,8,16] # 4
