@@ -316,7 +316,6 @@ def cmds_12_18_18_trainGlove_wiki400k():
         for lr in lrs:
             f.write(cmd_format_str.format(corpus, rungroup, dim, lr))
 
-
 def cmds_12_18_18_compress_fastText_FiveSeeds():
     filename = get_cmdfile_path('12_18_18_compress_fastText_FiveSeeds_cmds')
     prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
@@ -396,6 +395,37 @@ def cmds_12_18_18_compress_fastText_FiveSeeds():
                         embeddim, seed, k, lr)
                 )
 
+def cmds_12_18_18_compress_fastText_FiveSeeds_dca():
+    filename = get_cmdfile_path('12_18_18_compress_fastText_FiveSeeds_dca_cmds')
+    dca_prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/dca_docker.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'fiveSeeds'
+    embedtype = 'fasttext1m'
+    compresstype = 'dca'
+    seeds = [1,2,3,4,5]
+    bitrates = [1,2,4] # kmeans failed on bitrate 8
+    embeddim = 300
+    # These are the best bitrate,k,lr combos from the 2018-12-16-fasttextTuneDCA run (keys are 'b' value).
+    # I ran 'dca_get_best_k_lr_per_bitrate(regex)' in plotter.py to compute the
+    # dictionary below containing the best performing settings.
+    ### path_regex = '/proj/smallfry/embeddings/fasttext1m/2018-12-16-fasttextTuneDCA/*/*final.json'
+    ### best = plotter.dca_get_best_k_lr_per_bitrate(path_regex)
+    bitrate_k_lr = {1: {'k': 8, 'lr': 0.0001},
+                    2: {'k': 4, 'lr': 0.0001},
+                    4: {'k': 8, 'lr': 0.0001}}
+    with open(filename,'w') as f:
+        for seed in seeds:
+            for bitrate in bitrates:
+                k = bitrate_k_lr[bitrate]['k']
+                lr = bitrate_k_lr[bitrate]['lr']
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {} --k {} --lr {}\\"\n').format(
+                        dca_prefix, rungroup, embedtype, compresstype, bitrate,
+                        embeddim, seed, k, lr)
+                )
+
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
@@ -408,4 +438,5 @@ if __name__ == '__main__':
     # cmds_wiki_400k_create_cooccur()
     # cmds_12_17_18_trainGlove_wiki400k()
     # cmds_12_18_18_trainGlove_wiki400k()
-    cmds_12_18_18_compress_fastText_FiveSeeds()
+    # cmds_12_18_18_compress_fastText_FiveSeeds()
+    cmds_12_18_18_compress_fastText_FiveSeeds_dca()
