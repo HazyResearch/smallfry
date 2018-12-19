@@ -66,7 +66,7 @@ def get_embed_info():
                 'embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72',
                 'rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72_embeds.txt'
             ))
-        vocab = 400000
+        vocab = 400001
     elif utils.config['embedtype'] == 'fasttext1m':
         file_format_str = 'wiki-news-{}d-1M.vec'
         vocab = 999994
