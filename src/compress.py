@@ -113,8 +113,8 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
     results['elapsed'] = elapsed
     utils.config['results'] = results
     utils.config['compressed-embed-path'] = utils.get_filename('_compressed_embeds.txt')
-    utils.save_embeddings(utils.config['compressed-embed-path'], Xq, wordlist)
     logging.info('Finished making embeddings. It took {} min.'.format(elapsed/60))
+    utils.save_embeddings(utils.config['compressed-embed-path'], Xq, wordlist)
 
 def compress_kmeans(X, bit_rate, random_seed=None, n_init=1):
     # Tony's params for k-means: max_iter=70, n_init=1, tol=0.01.

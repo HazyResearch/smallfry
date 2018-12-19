@@ -347,6 +347,7 @@ def load_embeddings(path):
     vector of strings that represents the vocabulary and a 2-D numpy matrix that
     is the embeddings.
     """
+    logging.info('Beginning to load embeddings')
     with open(path, 'r', encoding='utf8') as f:
         lines = f.readlines()
         wordlist = []
@@ -358,6 +359,7 @@ def load_embeddings(path):
             embeddings.append([float(i) for i in row])
         embeddings = np.array(embeddings)
     assert len(wordlist) == embeddings.shape[0], 'Embedding dim must match wordlist length.'
+    logging.info('Finished loading embeddings')
     return embeddings, wordlist
 
 def is_fasttext_format(lines):
@@ -366,10 +368,12 @@ def is_fasttext_format(lines):
 
 def save_embeddings(path, embeds, wordlist):
     ''' save embeddings in text file format'''
+    logging.info('Beginning to save embeddings')
     with open(path, 'w', encoding='utf8') as f:
         for i in range(len(wordlist)):
             strrow = ' '.join([str(embed) for embed in embeds[i,:]])
             f.write('{} {}\n'.format(wordlist[i], strrow))
+    logging.info('Finished saving embeddings')
     # ANOTHER VERSION, WHICH WRITES FILE ALL AT ONCE
     # all_strs = [0] * range(len(wordlist))
     # for i in range(len(wordlist)):
