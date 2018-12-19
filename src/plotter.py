@@ -297,11 +297,37 @@ def plot_2018_11_29_fiveSeeds_QA_vs_bitrate():
     plt.show()
 
 
+def plot_embedding_spectra():
+    path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\base_embeddings\\glove400k\\glove.6B.{}d.txt'
+    plot_dir = 'C:\\Users\\avnermay\\git\\smallfry\\paper\\figures\\'
+    ds = [50,100,200,300]
+    for i,d in enumerate(ds):
+        # plt.subplot(221 + i)
+        emb,_ = utils.load_embeddings(path.format(d))
+        s = np.linalg.svd(emb,compute_uv=False,full_matrices=False)    
+        plt.plot(s)
+    plt.title('Glove400k spectra')
+    plt.yscale('log')
+    plt.ylabel('Singular values')
+    plt.legend([str(d) for d in ds])
+    plt.savefig(plot_dir + 'glove400k_spectra.pdf')
+
+    plt.figure(2)
+    path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\base_embeddings\\fasttext1m\\wiki-news-300d-1M.vec'
+    emb,_ = utils.load_embeddings(path)
+    s = np.linalg.svd(emb,compute_uv=False,full_matrices=False)
+    plt.title('fasttext1m, d=300')
+    plt.plot(s)
+    plt.yscale('log')
+    plt.ylabel('Singular values')
+    plt.savefig(plot_dir + 'fasttext1m_spectra.pdf')
+
 if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
     #plot_dca_frob_squared_vs_lr()
     #print(dca_get_best_k_lr_per_bitrate())
     #plot_2018_11_29_fiveSeeds_QA_vs_bitrate()
     #print('hello')
-    results_path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\results\\2018-12-16-fasttextTuneDCA_all_results.json'
-    plot_dca_frob_squared_vs_lr(results_path)
+    #results_path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\results\\2018-12-16-fasttextTuneDCA_all_results.json'
+    #plot_dca_frob_squared_vs_lr(results_path)
+    plot_embedding_spectra()

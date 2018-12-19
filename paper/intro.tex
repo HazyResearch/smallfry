@@ -6,7 +6,7 @@ Our goal in this work is to dramatically decrease the amount of memory occupied 
 
 Designing powerful and principled compression schemes is challenging because it is unclear a priori how to model how compression affects performance.
 This is particularly true when the compression schemes being considered are complex, and when large non-convex models are employed for the downstream tasks.
-For example, the current state-of-the-art method for compression word embeddings uses a deep architecture to represent each word as a sum of vectors from learned dictionaries \citep{dccl}.
+For example, the current state-of-the-art method for compression word embeddings, called deep compositional code learning (DCCL), uses a deep architecture to represent each word as a sum of vectors from learned dictionaries \citep{dccl}.
 
 In this work, we propose a simple compression method based on uniform quantization, and analyze it's impact on generalization performance in the case of linear regression models.
 Our method has two parts: first, we find the optimal threshold with which to clip the extreme values in the word embedding matrix, and then we uniformly quantize the clipped embeddings.

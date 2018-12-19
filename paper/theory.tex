@@ -16,8 +16,8 @@ It is easy to show \citep{alaoui15} that the expected generalization error for t
 \cR(f_X) &=& \frac{\lambda^2}{n} \by^T(XX^T + \lambda I_n)^{-2}\by \; +\\ && \frac{\sigma^2}{n}\tr\Big((XX^T)^2(XX^T + \lambda I_n)^{-2}\Big).
 \end{eqnarray*}
 
-The question we ask in this work is: when we replace $X$ by an approximation $\tX$, how close will $\cR(f_{\tX})$ be to $\cR(X)$?
-To answer this question, we intuitively require two things: a notion of distance between $X$ and $\tX$, and an upper bound for $\cR(f_{\tX})$ in terms of $\cR{X}$ and the distance between $X$ and $\tX$.
+The question we ask in this work is: when we replace $X$ by an approximation $\tX$, how close will $\cR(f_{\tX})$ be to $\cR(f_X)$?
+To answer this question, we intuitively require two things: a notion of distance between $X$ and $\tX$, and an upper bound for $\cR(f_{\tX})$ in terms of $\cR(f_X)$ and the distance between $X$ and $\tX$.
 For both of these components, we leverage the recent work of \citep{lprff18}.
 In that work, they define the following notion of distance between two matrices:
 
@@ -44,16 +44,16 @@ By applying this definition to $\tX\tX^T + \lambda I_n$ and $XX^T + \lambda I_n$
 \end{proposition}
 
 \subsection{Theoretical Results}
-We now show that our compression algorithm with high probability produces embedding matrices $\tX$ such that $\tX\tX^T + \lambda I_n$ is a $(\Delta_1,\Delta_2)$-spectral approximation of $XX^T+\lambda I_n$.
+We now show that our compression algorithm with high probability produces an embedding matrix which is a close spectral approximation of the full-precision matrix, in terms of $(\Delta_1,\Delta_2)$.
 Combining this with the Proposition~\ref{prop:genbound} yields a generalization bound for the compressed embeddings.
-A consequence of our bound is that when $\lambda$ is large, lower precision can be used for the embeddings without affecting $\Delta_1$ and $\Delta_2$.
+A consequence of our bound is that when the regularization parameter is large, lower precision can be used for the embeddings without affecting $\Delta_1$ and $\Delta_2$.
 We show that in the case of word embeddings with slowly-decaying singular values, a large regularization parameter $\lambda$ (and thus, a low-precision $b$) can be used without significantly affecting generalization performance.
 Our empirical observation that embedding matrices have slowly decaying singular values thus helps explain why our compression algorithm is able to attain strong generalization performance at very low levels of precision.
 
-
+We now present our main theoretical result, deferring all proofs to the Appendix:
 \begin{theorem}
 	\label{thm:main}
-	Let $X \in \RR^{n\times d}$ be a data matrix with corresponding (linear) kernel matrix $K = XX^T$; let $X+C$ denote a $b$-bit quantization of $X$, with $\tK = (X+C)(X+C)^T$ the kernel matrix of the quantized data matrix. Here, $C$ denotes the quantization noise, with $\expect{}{C_{ij}} = 0$ and $\var{}{C_{ij}} \leq \delta_b^2/d \;\;\forall i,j$, where $b$ is the number of bits used per feature.
+	Let $X \in \RR^{n\times d}$ be an embedding matrix with corresponding Gram matrix $K \defeq XX^T$, where we assume all entries $X_{ij} \in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$; let $\tX\defeq X+C$ denote a $b$-bit quantization of $X$, with $\tK \defeq \tX\tX^T$ the kernel matrix of the quantized data matrix. Here, $C$ denotes the quantization noise, with $\expect{}{C_{ij}} = 0$ and $\var{}{C_{ij}} \leq \delta_b^2/d \;\;\forall i,j$, where $\delta_b^2 \defeq (2^b-1)^{-2}$, and $b$ is the number of bits used per feature.
 	Then for any $\Delta_1 \geq 0, \Delta_2 \geq \delta^2_b/\lambda$,
 	\begin{eqnarray*}
 	&&\hspace{-0.37in}\Prob\Big[(1- \Delta_1) (K + \lambda I_n) \preceq \tK + \lambda I_n \preceq (1 + \Delta_2) (K + \lambda I_n)
@@ -64,6 +64,8 @@ Our empirical observation that embedding matrices have slowly decaying singular 
 	\end{eqnarray*}
 	for $L \defeq 5 \cdot \frac{2^b \cdot \delta_b^2}{\lambda}\cdot \frac{n}{d}$.
 \end{theorem}
+Note that in this theorem, we assume the embedding matrix is bounded, whereas in the actual implementation of our compression algorithm (Alg.~\ref{alg:smallfry}) we enforce this constraint artificially by searching for the optimal threshold at which to clip the matrix entries.
+To better understand the implications of the above theorem, we present the following corollary:
 \begin{corollary}
 	\label{cor:main}
 	If $\Delta_1 \geq \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx \frac{5n}{2^b \lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
@@ -72,11 +74,26 @@ Our empirical observation that embedding matrices have slowly decaying singular 
 	then $\Prob\big[\tK + \lambda I_n \preceq (1 + \Delta_2) (K + \lambda I_n)\big] \geq  1 - \rho$. 
 \end{corollary}
 
+This corollary makes clear that if $2^b\lambda$ is large, the $b$-bit compressed embedding matrix will be a close spectral approximation of the full-precision matrix, for small $\Delta_1$ and $\Delta_2$.
+In the following theorem, we show that when the smallest singular value of $X^TX$ is large, using a large regularization parameter $\lambda$ will not significantly harm the generalization performance of $f_X$, relative to using a smaller $\lambda$.
+Combining this result with Proposition~\ref{prop:genbound} and Theorem~\ref{thm:main}, we can conclude that the generalization performance of a linear model trained on low-precision features with a large regularizer $\lambda$ will not be much worse than the performance of a model trained on the full-precision features with any $\lambda' \leq \lambda$.
+We now present the result:
+
 \begin{theorem}
 	\label{thm:large_lambda}
-	Let $X$ be a data matrix, and $\by$ be the corresponding vector of labels. Let $\sm$ be the smallest eigenvalue of $X^T X$, and let $\lambda_1, \lambda_2$ be two scalars such that $0 \leq \lambda_1 \leq \lambda_2 \leq a\cdot \sm$, for some $a \in [0,1]$. Letting $\cR_{\lambda}(K)$ denote the expected loss when training with regularizer $\lambda$, Gram matrix $K = XX^T$, and label noise $\sigma^2$, we get that:
+	Let $X$ be an embedding matrix, and $\by$ be the corresponding vector of labels. Let $\sm$ be the smallest eigenvalue of $X^T X$, and let $\lambda_1, \lambda_2$ be two scalars such that $0 \leq \lambda_1 \leq \lambda_2 \leq a\cdot \sm$, for some $a \in [0,1]$. Letting $\cR_{\lambda}(K)$ denote the expected loss when training with regularizer $\lambda$, Gram matrix $K = XX^T$, and label noise $\sigma^2$, we get that:
 	\begin{equation}
-	\frac{R_{\lambda_2}(XX^T) - R_{\lambda_1}(XX^T)}{\|y\|^2/n} \leq a^2
+	R_{\lambda_2}(XX^T) - R_{\lambda_1}(XX^T) \leq a^2\|y\|^2/n
 	\label{eq1}
 	\end{equation}
 \end{theorem}
+Intuitively, this theorem shows that if there are no directions in the input space with very small variance, then using a large regularizer will not hurt performance significantly relative to using a smaller regularizer.
+This makes sense because the directions of small variance are the ones which are effectively ignored when strong regularization is used.
+For the purposes of this work, this theorem shows that if the embedding matrix has a large smallest eigenvalue, it should be possible to attain strong generalization performance with low-precision and a large regularizer.
+In practice, we observe that it is common for embedding matrices to have slowly decaying spectra, and thus have a large smallest eigenvalue;
+we present plots of the eigenvalues of $X^T X$ for fastText and Glove in Figure~\ref{fig:spectra}.
+
+\subsection{Empirical Validation of Theory}
+In this section, we empirically validate two important predictions made by the above theoretical results:
+(1) when $2^b \lambda$ is large, $\Delta_1$ and $\Delta_2$ are small, and
+(2) when $X^T X$ has a large smallest eigenvalue, generalization performance is not significantly harmed by using a large regularizer.

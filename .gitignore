@@ -6,6 +6,7 @@
 !*.sty
 !*.bib
 !*.bst
+!paper/figures/*.pdf
 # And all the file types you're interested in.
 !*.py
 !*.txt

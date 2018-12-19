@@ -10,6 +10,9 @@ Given this rounded value, one can simply store the $b$-bit integer $j$ or $j+1$ 
 There are a few ways to implement the above rounding operation, including rounding up, rounding down, rounding to the nearest value, and stochastically rounding up or down in such a way that the expected value is equal to $x$.
 In this work, we will considering these final two options, which we will call the ``deterministic'' and ``stochastic'' rounding schemes.
 In particular, our analysis will focus on the stochastic rounding scheme, while our experiments will include results with both schemes.
+%Note that we can upper bound the variance of these rounding schemes using the fact that a bounded random variable in an interval of length $c$ has variance at most $c^2/4$;
+%using this fact, we can see that the variances of these rounding schemes are at most $\frac{1}{4} \cdot \Big(\frac{2r}{(2^b-1)}\Big)^2 = \frac{4r^2}{(2^b-1)^2}$.
+
 
 We are now ready to present our compression algorithm, which we express in pseudo-code in Algorithm~\ref{alg:smallfry}.
 The input to the algorithm is an embedding matrix $X \in \RR^{n\times d}$, where $n$ is the size of the vocabulary, and $d$ is the dimension of the embeddings.
