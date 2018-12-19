@@ -211,8 +211,10 @@ def plot_dca_frob_squared_vs_lr(results_path):
     plt.show()
 
 def dca_get_best_k_lr_per_bitrate(path_regex):
-    # path_regex = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
+    # path_regex1 = str(pathlib.PurePath(utils.get_base_dir(), 'embeddings',
     #                 'glove400k', 'round1_tuneDCA_results', '*final.json'))
+    # path_regex2 = '/proj/smallfry/embeddings/fasttext1m/2018-12-16-fasttextTuneDCA/*/*final.json'
+    # best = plotter.dca_get_best_k_lr_per_bitrate(path_regex)
     all_results = clean_results(gather_results(path_regex))
     bitrates = [1,2,4] # 3
     # ks = [2,4,8,16] # 4

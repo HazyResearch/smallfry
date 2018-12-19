@@ -316,6 +316,86 @@ def cmds_12_18_18_trainGlove_wiki400k():
         for lr in lrs:
             f.write(cmd_format_str.format(corpus, rungroup, dim, lr))
 
+
+def cmds_12_18_18_compress_fastText_FiveSeeds():
+    filename = get_cmdfile_path('12_18_18_compress_fastText_FiveSeeds_cmds')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    dca_prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/dca_docker.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'fiveSeeds'
+    embedtype = 'fasttext1m'
+    seeds = [1,2,3,4,5]
+    with open(filename,'w') as f:
+        for seed in seeds:
+            # nocompress
+            compresstype = 'nocompress'
+            bitrate = 32
+            embeddim = 300
+            f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                    '--embeddim {} --seed {}\\"\n').format(
+                prefix, rungroup, embedtype, compresstype, bitrate, embeddim, seed)
+            )
+
+            # bitrates and embeddim for k-means, uniform, and dca
+            bitrates = [1,2,4] # kmeans failed on bitrate 8
+            embeddim = 300
+
+            # kmeans
+            compresstype = 'kmeans'
+            for bitrate in bitrates:
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {}\\"\n').format(
+                    prefix, rungroup, embedtype, compresstype, bitrate, embeddim, seed)
+                )
+
+            # uniform
+            compresstype = 'uniform'
+            adapts = [False,True]
+            stochs = [False,True]
+            #skipquant = False
+            for bitrate in bitrates:
+                for adapt in adapts:
+                    for stoch in stochs:
+                        adapt_str = ' --adaptive' if adapt else ''
+                        stoch_str = ' --stoch' if stoch else ''
+                        f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                                '--embeddim {} --seed {}{}{}\\"\n').format(
+                                prefix, rungroup, embedtype, compresstype, bitrate,
+                                embeddim, seed, adapt_str, stoch_str)
+                        )
+                # ** Ablation for uniform quantization: clipping without quantizing. **
+                # For each bitrate, we only consider adapt=True, stoch=False, skipquant=True.
+                # We choose this combo because skipquant with adapt=False is simply
+                # 'nocompress', and when skipquant is True it doesn't matter if stoch
+                # is True or False.
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                    '--embeddim {} --seed {} --adaptive --skipquant\\"\n').format(
+                    prefix, rungroup, embedtype, compresstype, bitrate,
+                    embeddim, seed)
+                )
+
+            # dca
+            compresstype = 'dca'
+            # These are the best bitrate,k,lr combos from the 2018-12-16-fasttextTuneDCA run (keys are 'b' value).
+            # I ran 'dca_get_best_k_lr_per_bitrate(regex)' in plotter.py to compute the
+            # dictionary below containing the best performing settings.
+            ### path_regex = '/proj/smallfry/embeddings/fasttext1m/2018-12-16-fasttextTuneDCA/*/*final.json'
+            ### best = plotter.dca_get_best_k_lr_per_bitrate(path_regex)
+            bitrate_k_lr = {1: {'k': 8, 'lr': 0.0001},
+                            2: {'k': 4, 'lr': 0.0001},
+                            4: {'k': 8, 'lr': 0.0001}}
+            for bitrate in bitrates:
+                k = bitrate_k_lr[bitrate]['k']
+                lr = bitrate_k_lr[bitrate]['lr']
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {} --k {} --lr {}\\"\n').format(
+                        dca_prefix, rungroup, embedtype, compresstype, bitrate,
+                        embeddim, seed, k, lr)
+                )
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
@@ -327,4 +407,5 @@ if __name__ == '__main__':
     # cmds_12_15_18_compress_dimVsPrec()
     # cmds_wiki_400k_create_cooccur()
     # cmds_12_17_18_trainGlove_wiki400k()
-    cmds_12_18_18_trainGlove_wiki400k()
+    # cmds_12_18_18_trainGlove_wiki400k()
+    cmds_12_18_18_compress_fastText_FiveSeeds()
