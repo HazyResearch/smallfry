@@ -292,6 +292,16 @@ def get_home_dir():
     else:
         return '/home/ubuntu'
 
+def get_git_dir():
+    hostname = socket.gethostname()
+    if is_windows():
+        username = ('Avner' if (hostname == 'Avner-X1Carbon')
+                    else 'avnermay')
+        path = 'C:\\Users\\{}\\Git\\smallfry'.format(username)
+    else:
+        path = '/proj/smallfry/git/smallfry'
+    return path
+
 def get_src_dir():
     return os.path.dirname(os.path.abspath(__file__))
 

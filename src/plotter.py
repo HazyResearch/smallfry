@@ -7,6 +7,11 @@ import utils
 
 default_var_info = ['gitdiff',['']]
 
+def save_plot(filename):
+    plot_dir = str(pathlib.PurePath(utils.get_git_dir(), 'paper','figures'))
+    plot_filename = str(pathlib.PurePath(plot_dir, filename))
+    plt.savefig(plot_filename)
+
 # Returns a list of result dictionaries whose filenames match the path_regex.
 def gather_results(path_regex):
     file_list = glob.glob(path_regex)
@@ -70,10 +75,10 @@ def plot_lines(lines, x_metric, y_metric, logx=False, logy=False, title=None, cs
         y_array = xy[1]
         y_avg = np.average(y_array,axis=0)
         y_std = np.std(y_array,axis=0)
-        if line_name == 'Dim. reduction':
-            plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o', capthick=4, capsize=10000)
-        else:
-            plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o', capthick=4, capsize=10)
+        # if line_name == 'Dim. reduction':
+        #     plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o', capthick=4, capsize=10000)
+        # else:
+        plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o', capthick=4, capsize=10)
         if f:
             f.write('{}\n'.format(line_name))
             f.write(x_metric + ',' + ','.join([str(a) for a in sorted_x.tolist()]) + '\n')
@@ -247,13 +252,13 @@ def plot_2018_11_29_fiveSeeds_QA_vs_bitrate():
             {
                 'compresstype':['kmeans']
             },
-        'uniform (adaptive-stoch)':
-            {
-                'compresstype':['uniform'],
-                'adaptive':[True],
-                'stoch':[True],
-                'skipquant':[False]
-            },
+        # 'uniform (adaptive-stoch)':
+        #     {
+        #         'compresstype':['uniform'],
+        #         'adaptive':[True],
+        #         'stoch':[True],
+        #         'skipquant':[False]
+        #     },
         'uniform (adaptive-det)': # (adaptive-det)':
             {
                 'compresstype':['uniform'],
@@ -261,13 +266,13 @@ def plot_2018_11_29_fiveSeeds_QA_vs_bitrate():
                 'stoch':[False],
                 'skipquant':[False]
             },
-        'uniform (adaptive-skipquant)':
-            {
-                'compresstype':['uniform'],
-                'adaptive':[True],
-                'stoch':[False],
-                'skipquant':[True]
-            },
+        # 'uniform (adaptive-skipquant)':
+        #     {
+        #         'compresstype':['uniform'],
+        #         'adaptive':[True],
+        #         'stoch':[False],
+        #         'skipquant':[True]
+        #     },
         # 'uniform (non-adaptive, det)':
         #     {
         #         'compresstype':['uniform'],
@@ -275,7 +280,7 @@ def plot_2018_11_29_fiveSeeds_QA_vs_bitrate():
         #         'stoch':[False],
         #         'skipquant':[False]
         #     },
-        'DCA':
+        'DCCL':
             {
                 'compresstype':['dca']
             },
@@ -287,47 +292,46 @@ def plot_2018_11_29_fiveSeeds_QA_vs_bitrate():
         'compression-ratio',
         'best-f1',
         logx=True,
-        title='Question-answering performance (F1) vs. compression ratio',
+        title='GloVe: DrQA Perf. (F1) vs. compression ratio',
         var_info=var_info,
         csv_file=csv_file
     )
     plt.ylim(70.5,74.5)
     crs = [1,1.5,3,6,8,16,32]
     plt.xticks(crs,crs)
-    plt.show()
-
+    save_plot('glove400k_drqa_vs_compression.pdf')
 
 def plot_embedding_spectra():
-    path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\base_embeddings\\glove400k\\glove.6B.{}d.txt'
-    plot_dir = 'C:\\Users\\avnermay\\git\\smallfry\\paper\\figures\\'
+    path = str(pathlib.PurePath(utils.get_base_dir(), 'base_embeddings',
+               'glove400k', 'glove.6B.{}d.txt'))
     ds = [50,100,200,300]
-    for i,d in enumerate(ds):
-        # plt.subplot(221 + i)
+    for d in ds:
         emb,_ = utils.load_embeddings(path.format(d))
         s = np.linalg.svd(emb,compute_uv=False,full_matrices=False)    
         plt.plot(s)
     plt.title('Glove400k spectra')
     plt.yscale('log')
     plt.ylabel('Singular values')
-    plt.legend([str(d) for d in ds])
-    plt.savefig(plot_dir + 'glove400k_spectra.pdf')
+    plt.legend(['d=' + str(d) for d in ds])
+    save_plot('glove400k_spectra.pdf')
 
     plt.figure(2)
-    path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\base_embeddings\\fasttext1m\\wiki-news-300d-1M.vec'
+    path = str(pathlib.PurePath(utils.get_base_dir(), 'base_embeddings',
+               'fasttext1m', 'wiki-news-300d-1M.vec'))
     emb,_ = utils.load_embeddings(path)
     s = np.linalg.svd(emb,compute_uv=False,full_matrices=False)
     plt.title('fasttext1m, d=300')
     plt.plot(s)
     plt.yscale('log')
     plt.ylabel('Singular values')
-    plt.savefig(plot_dir + 'fasttext1m_spectra.pdf')
+    save_plot('fasttext1m_spectra.pdf')
 
 if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
     #plot_dca_frob_squared_vs_lr()
     #print(dca_get_best_k_lr_per_bitrate())
-    #plot_2018_11_29_fiveSeeds_QA_vs_bitrate()
+    plot_2018_11_29_fiveSeeds_QA_vs_bitrate()
     #print('hello')
     #results_path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\results\\2018-12-16-fasttextTuneDCA_all_results.json'
     #plot_dca_frob_squared_vs_lr(results_path)
-    plot_embedding_spectra()
+    #plot_embedding_spectra()

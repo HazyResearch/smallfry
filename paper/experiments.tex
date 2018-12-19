@@ -1,19 +1,27 @@
 We now evaluate the performance of our word embedding compression algorithm on a variety of NLP tasks and embeddings types.
 We show that we are consistently able to match the performance of more complex baselines (DCCL, k-means), while dramatically outperforming more naive baselines (dimensionality reduction).
 We additionally present results in which we maintain the memory budget fixed by  jointly varying the dimension and precision of the compressed embeddings;
-we observe that in this memory-constrained setting, the compressed embeddings attain \todo{XX\%} to \todo{YY\%} better performance than the full-precision embeddings.
+we observe that in this memory-constrained setting, the best compressed embeddings attain \todo{XX\%} to \todo{YY\%} better performance than the full-precision embeddings.
 This demonstrates the importance of considering low-precision when trying to attain the best possible performance under a memory budget.
 
 \subsection{Large-scale evaluation}
 \begin{itemize}
-	\item \textbf{Embeddings}: GloVe ($d=300$,$n=400k$) and fastText ($d=300$,$n=1m$) pre-trained.
+	\item \textbf{Embeddings}: GloVe ($d\in\{50,100,200,300\}$, $n=400k$) and fastText ($d=300$, $n=10^6$) pre-trained.
 	\item \textbf{Baselines}: k-means, DCCL, dim. reduction (GloVe)
 	\item \textbf{Tasks}: DrQA, sentiment, intrinsics, synthetics.
 	\item \textbf{Compression ratios}: 8x-32x.
 	\item \textbf{Number of random seeds}: 5
 \end{itemize}
 
-Here, we show that our uniform quantization method performs comparably to k-means and DCCL, while performing significantly better than the dimensionality reduction baseline.
+In Figure~\ref{fig:glove400k_drqa} we show that our uniform quantization method performs comparably to k-means and DCCL, while performing significantly better than the dimensionality reduction baseline.
+
+\begin{figure}
+\begin{center}
+\centerline{\includegraphics[width=\columnwidth]{figures/glove400k_drqa_vs_compression.pdf}}
+\caption{Question answering performance (DrQA) for a number of compression methods at various compression ratios, on pre-trained GloVe embedding.  Uniform quantization performs similarly to k-means and DCCL, while significantly outperforming the dimensionality reduction baseline. \todo{TODO: Include fastText results (though there won't be a dim. reduction baseline, since they don't release pre-trained embeddings at smaller dimensions.)}}
+\label{fig:glove400k_drqa}
+\end{center}
+\end{figure}
 
 \subsection{Fixed budget experiments}
 \begin{itemize}
@@ -23,4 +31,12 @@ Here, we show that our uniform quantization method performs comparably to k-mean
 	\item \textbf{Number of random seeds}: 5
 \end{itemize}
 
-Here, we show that when considering a fixed memory budget, it is best to use low-precision and high-dimensions (up to a point?).
+In Figure~\ref{fig:glove400k_dim_vs_prec}, we show that when considering a fixed memory budget, it is best to use low-precision and high-dimensions (\todo{up to a point? Exact results TBD}).
+
+\begin{figure}
+	\begin{center}
+		\centerline{\includegraphics[width=\columnwidth]{figures/glove400k_dim_vs_prec.pdf}}
+		\caption{We compress GloVe embeddings for dimensions $d\in\{25,50,100,200,400,800\}$ at precision values $b\in\{1,2,4,8,16,32\}$, and measure performance on question-answering (DrQA).  \todo{TODO: Include real results and discuss them.}}
+		\label{fig:glove400k_dim_vs_prec}
+	\end{center}
+\end{figure}

@@ -1,14 +1,15 @@
 In this section, we present our word embedding compression algorithm.
 At a high-level, our algorithm clips the embedding matrix into the range $[-r,r]$, and then uniformly quantizes the entries of the clipped matrix;
-we use the value of $r$ which minimizes the reconstruction error of the quantized matrix.
+we choose the value of $r$ which minimizes the reconstruction error of the quantized matrix.
 Because our algorithm uses uniform quantization, we first review uniform quantization, and then describe in more detail how our algorithm uses it to compress word embeddings.
 
 A \textit{$b$-bit uniform quantization} $Q_{b,r}(x)$ of a real number $x \in [-r,r]$ is computed as follows:
 First, the interval $[-r,r]$ is divided into $2^b - 1$ sub-intervals of equal size.
 Then, $x$ is rounded to either the top or bottom of the sub-interval $[\ulx,\olx]$ containing $x$, where $\ulx = r + j\frac{2r}{2^b-1}$ and $\olx = r + (j+1)\frac{2r}{2^b-1}$, for $j\in\{0,1,\ldots,2^b-2\}$.
 Given this rounded value, one can simply store the $b$-bit integer $j$ or $j+1$ in place of the real-valued $x$, depending on whether $x$ was rounded to $\ulx$ and $\olx$ respectively.
-There are a few ways to implement the above rounding operation, including rounding up, rounding down, rounding to the nearest value, and stochastically rounding up or down in such a way that the expected value is equal to $x$.
-In this work, we will considering these final two options, which we will call the ``deterministic'' and ``stochastic'' rounding schemes.
+In this work, we will consider a deterministic rounding scheme which rounds $x$ to the nearest value, and a stochastic rounding scheme which rounds $x$ up or down in such a way that the expected value is equal to $x$.\footnote{
+	This stochastic scheme rounds $x$ to $\ulx$ with probability $\frac{\olx-x}{\olx-\ulx}$ and to $\olx$ with probability $\frac{x-\ulx}{\olx-\ulx}$.
+}
 In particular, our analysis will focus on the stochastic rounding scheme, while our experiments will include results with both schemes.
 %Note that we can upper bound the variance of these rounding schemes using the fact that a bounded random variable in an interval of length $c$ has variance at most $c^2/4$;
 %using this fact, we can see that the variances of these rounding schemes are at most $\frac{1}{4} \cdot \Big(\frac{2r}{(2^b-1)}\Big)^2 = \frac{4r^2}{(2^b-1)^2}$.
@@ -21,9 +22,9 @@ The first step in our algorithm is to find the value of $r \in [0,\max(|X|)]$ wh
 More formally, we let $r^* \defeq \argmin_{r \in [0,\max(|X|)} \|Q_{b,r}(clip_r(X))-X\|_F$.
 We then use this value $r^*$ to clip $X$, and then quantize it to $b$ bits per entry.
 
-In our experiments, we find $r^*$ to within a specified tolerance $\eps > 0$ using the golden-section search algorithm.
-To avoid stochasticity impacting the search process, we always use deterministic rounding in the search for $r^*$, even if we use stochastic quantization in the final quantization;
-this choice also allows us to more cleanly compare deterministic vs.\ stochastic rounding, since they will always use the same value of $r^*$.
+In our experiments, we find $r^*$ to within a specified tolerance $\eps > 0$ using the golden-section search algorithm \citep{golden53}.
+To avoid stochasticity impacting the search process, we always use deterministic rounding in the search for $r^*$, even if we use stochastic quantization in the final quantization.
+%this choice also allows us to more cleanly compare deterministic vs.\ stochastic rounding, since they will always use the same value of $r^*$.
 
 \begin{algorithm}[tb]
    \caption{Our embedding compression algorithm}

@@ -1,8 +1,8 @@
 In this section, we analyze the impact of uniform quantization on the generalization performance of linear regression models trained on top of the word embeddings.
 We present two results:
-First, we show that if the singular values of the embedding matrix decay slowly, then training the regression model with a large regularization parameter $\lambda$ cannot perform much worse than training with a smaller one.
-Second, we show that when the matrix is quantized to $b$ bits, when $2^b \lambda$ is large, we attain a good generalization bounds for the quantized features with high probability.
-Combining this theoretical result with our empirical observation that the singular values of embedding matrices decay slowly for various embedding types provides a principled explanation for why the quantized embeddings perform well on various tasks.
+First, we show that when the matrix is quantized to $b$ bits, and the linear ridge regression model is trained with regularization parameter $\lambda$, we attain good generalization bounds for the quantized features relative to the full-precision features when $2^b \lambda$ is large.
+Second, we show that if the singular values of the embedding matrix decay slowly, then training the regression model with a large regularization parameter $\lambda$ cannot perform much worse than training with a smaller one.
+Combining this theoretical result with our empirical observation that the singular values of embedding matrices typically decay slowly provides a principled explanation low-precision embeddings perform well on various tasks.
 
 We begin, however, by reviewing generalization bounds for fixed design linear ridge regression.
 
@@ -10,7 +10,7 @@ We begin, however, by reviewing generalization bounds for fixed design linear ri
 In fixed design linear regression, one is given a dataset $\{(x_i,y_i)\}_{i=1}^n$, for $x_i \in \RR^d$ and $y_i = \by_i + \eps_i \in \RR$, where the $\eps_i$ are independent random perturbations of the ``true labels'' $\by_i$ satisfying $\expect{}{\eps_i} = 0$ and $\var{}{\eps_i} = \sigma^2 < \infty$.
 The goal is to design a training algorithm which takes as input the noisy dataset $\{(x_i,y_i)\}_{i=1}^n$ and outputs a model $f(x) = w^T x$ for which $\expect{}{\frac{1}{n}\sum_i (f(x_i) -\by_i)} \eqdef \cR(f)$ is small.
 Linear ridge regression selects $w^* = \argmin_w \sum_i (w^T x_i - y_i)^2 + \lambda\|w\|_2^2$.
-Letting $X \in \RR^{n\times d}$ be the matrix whose rows are $x_i$, $y \defeq (y_1,...,y_n) \in \RR^d$, and $I_d$ be the $d$-dimensional identity matrix, the minimizer of this optimization problem is $w^* = (\lambda I_d + X^T X)^{-1}X^Ty$.
+Letting $X \in \RR^{n\times d}$ be the matrix whose rows are $x_i$, $y \defeq (y_1,...,y_n) \in \RR^d$, and $I_d$ be the $d$-dimensional identity matrix, the minimizer of this optimization problem is $w^* = ( X^T X + \lambda I_d)^{-1}X^Ty$.
 It is easy to show \citep{alaoui15} that the expected generalization error for the model $f_X(x) = w^{*T}x$ is
 \begin{eqnarray*}
 \cR(f_X) &=& \frac{\lambda^2}{n} \by^T(XX^T + \lambda I_n)^{-2}\by \; +\\ && \frac{\sigma^2}{n}\tr\Big((XX^T)^2(XX^T + \lambda I_n)^{-2}\Big).
@@ -91,9 +91,64 @@ Intuitively, this theorem shows that if there are no directions in the input spa
 This makes sense because the directions of small variance are the ones which are effectively ignored when strong regularization is used.
 For the purposes of this work, this theorem shows that if the embedding matrix has a large smallest eigenvalue, it should be possible to attain strong generalization performance with low-precision and a large regularizer.
 In practice, we observe that it is common for embedding matrices to have slowly decaying spectra, and thus have a large smallest eigenvalue;
-we present plots of the eigenvalues of $X^T X$ for fastText and Glove in Figure~\ref{fig:spectra}.
+we present plots of the singular values for fastText and Glove embeddings in Figure~\ref{fig:real_spectra}.
 
 \subsection{Empirical Validation of Theory}
 In this section, we empirically validate two important predictions made by the above theoretical results:
-(1) when $2^b \lambda$ is large, $\Delta_1$ and $\Delta_2$ are small, and
-(2) when $X^T X$ has a large smallest eigenvalue, generalization performance is not significantly harmed by using a large regularizer.
+\begin{enumerate}
+	\item When $2^b \lambda$ is large, $\Delta_1$ and $\Delta_2$ are small (Figure~\ref{fig:micro_d1d2}).
+	\item When $X^T X$ has a large smallest eigenvalue, generalization performance is not significantly harmed by using a large regularizer
+	(Figure~\ref{fig:micro_large_sigma_min}).
+\end{enumerate}
+
+In addition, we show that in general word embedding matrices have a relatively large smallest singular value (Figure~\ref{fig:real_spectra}).
+
+\begin{figure*}
+	\centering
+	\begin{tabular}{c c}
+		%		\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		\includegraphics[width=0.4\linewidth]{figures/micro_uniform_nonadapt_delta1_vs_2_b_lambda.pdf} &	
+		\includegraphics[width=0.4\linewidth]{figures/micro_uniform_nonadapt_delta2_vs_2_b_lambda.pdf}
+	\end{tabular}
+	\caption{We plot $\Delta_1$ (left) and $\Delta_2$ (right) as a function of $2^b\lambda$, on a randomly generated matrix $X\in\RR^{1000\times 30}$ ($X_{ij}\sim U([-\frac{1}{\sqrt{30}},\frac{1}{\sqrt{30}}])$), for various precisions $b$ and $\lambda$ values.  We show that $2^b \lambda$ largely determines the values of $\Delta_1$ and $\Delta_2$ after compression, as predicted by our theoretical results. We plot results for both deterministic quantization and stochastic quantization, and see that they perform quite similarly by these metrics (though deterministic does perform slightly better on $\Delta_2$). We additionally plot the bounds for $\Delta_1$ and $\Delta_2$ from Corollary~\ref{cor:main}, and see that while the bounds are not tight, their trajectory is matched by the real data.}
+	\label{fig:micro_d1d2}
+\end{figure*}
+
+\begin{figure}
+	\begin{center}
+		\centerline{\includegraphics[width=0.8\columnwidth]{figures/micro_large_sigma_min.pdf}}
+		\caption{We show that the ratio $a=\frac{\lambda}{\sigma_{min}}$ between the regularization parameter $\lambda$ and the smallest eigenvalue $\sigma_{min}$ of $X^T X$ is very predictive of the degradation in generalization performance $\|\by - y_{pred}\|^2/\|\by\|^2$, as predicted by Theorem~\ref{thm:large_lambda}.
+		In particular, we generate an i.i.d. Gaussian matrix $X\in \RR^{1000\times 2}$ for various standard deviations $\sigma$, and consider the noiseless model $\by_i = [0,1]^T x_i$.
+		We then solve for the optimal ridge regression model for various values of $\lambda$, and plot $a$ vs.\ the normalized degradation in generalization performance of this model. \todo{TODO: Perhaps plot a more realistic example?}
+		}
+		\label{fig:micro_large_sigma_min}
+	\end{center}
+\end{figure}
+
+\begin{figure*}
+	\centering
+	\begin{tabular}{c c}
+		%		\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		\includegraphics[width=0.4\linewidth]{figures/glove400k_spectra.pdf} &	
+		\includegraphics[width=0.4\linewidth]{figures/fasttext1m_spectra.pdf}
+	\end{tabular}
+	\caption{We plot the real spectra of the pre-trained GloVe ($d \in \{50,100,200,300\}$) and fastText ($d=300$) embedding matrices.
+	The smallest singular values are generally only 1 or 2 orders of magnitude smaller than the largest.}
+	\label{fig:real_spectra}
+\end{figure*}
+
+\subsection{Effect of Clipping on $(\Delta_1,\Delta_2)$}
+One way to understand why it is important for us to search for the optimal clipping value in Algorithm~\ref{alg:smallfry} is by understanding the way clipping and quantization together impact $\Delta_1$ and $\Delta_2$.
+This perspective reveals that there is a fundamental trade-off between $\Delta_1$ and $\Delta_2$ when choosing the clipping value:
+if the clip value is too large, then $\Delta_2$ becomes very large, while if the clip value is too small, then $\Delta_1$ becomes very large.
+We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}
+\begin{figure}
+	\begin{center}
+		\centerline{\includegraphics[width=0.8\columnwidth]{figures/deltas_vs_clip_and_quant.pdf}}
+		\caption{On random Gaussian data $X \in \RR^{1000\times 30}$, we demonstrate the joint effect of clipping and quantizing on $\Delta_1$ and $\Delta_2$, where we take $\lambda = \sigma_{min}(X^T X)/10$.
+		A large clipping value gives large $\Delta_2$, whereas a small clipping values gives large $\Delta_1$.
+		This reveals the importance of choosing a clipping value which balances these two considerations.
+		}
+		\label{fig:deltas_vs_clip_quant}
+	\end{center}
+\end{figure}

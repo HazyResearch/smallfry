@@ -3,6 +3,7 @@ from scipy.sparse import coo_matrix, csr_matrix, save_npz, load_npz
 import matplotlib.pyplot as plt
 import compress
 import utils
+from plotter import save_plot
 
 # inspect spectrum of ppmi matrix
 def ppmi_spectrum():
@@ -47,7 +48,7 @@ def flat_spectrum_vs_generalization(tight):
     a_vals = np.zeros((len(sigmas),len(lambdas)))
     c_vals = np.zeros((len(sigmas),len(lambdas)))
     for s_i,sigma in enumerate(sigmas):
-        X_curr = np.vstack((10 * sigma * X[:,0], sigma * X[:,1])).T
+        X_curr = np.vstack((sigma * X[:,0], sigma * X[:,1])).T
         Y = X_curr[:,1] if tight else X_curr[:,0]
         for l_i,lam in enumerate(lambdas):
             w = np.linalg.inv(lam * np.eye(2) + X_curr.T @ X_curr) @ (X_curr.T @ Y)
@@ -64,20 +65,24 @@ def flat_spectrum_vs_generalization(tight):
         plt.plot(a_vals[i,:],results[i,:])
     a = np.logspace(-11,0,40)
     plt.plot(a,a**2, marker='o', linestyle='dashed')
-    plt.plot(a, a**2 / (c_vals[0,0] + a)**2, marker='o', linestyle='dashed')
+    # plt.plot(a, a**2 / (c_vals[0,0] + a)**2, marker='o', linestyle='dashed')
     plt.xscale('log')
     plt.yscale('log')
-    plt.legend(['sigma = .0001', 'sigma = .001', 'sigma = .01', 'sigma = .1', 'sigma = 1', 'sigma = 10', 'a^2 (upper bound)', 'a^2/(c+a)^2 (lower bound)'])
+    plt.legend(['sigma = .0001', 'sigma = .001', 'sigma = .01', 'sigma = .1', 'sigma = 1', 'sigma = 10', 'a^2 (upper bound)'])
+    # plt.legend(['sigma = .0001', 'sigma = .001', 'sigma = .01', 'sigma = .1', 'sigma = 1', 'sigma = 10', 'a^2 (upper bound)', 'a^2/(c+a)^2 (lower bound)'])
     plt.xlabel('a (equal to lambda/eig_min)')
     plt.ylabel('Normalized MSE (||Y-Y_pred||^2/||Y||^2)')
     tight_str = 'tight' if tight else 'loose'
     plt.title('Normalized MSE vs. a (bound is {})'.format(tight_str))
-    plt.show()
-    print(1)
+    save_plot('micro_large_sigma_min.pdf')
+    # plt.show()
+    # print(1)
 
 # gaussian: if true, use gaussian random data.  Else use uniform random data.
 # use_adapt: if true, compare adaptive and non-adaptive.  Else compare stoch/det.
 def deltas_vs_precision_and_lambda(gaussian, use_adapt):
+    gaussian_str = 'gaussian' if gaussian else 'uniform'
+    adapt_str = 'adapt' if use_adapt else 'nonadapt'
     n = 1000
     d = 30
     lim = 1.0/np.sqrt(d)
@@ -104,12 +109,17 @@ def deltas_vs_precision_and_lambda(gaussian, use_adapt):
             for i_l,lam in enumerate(lambdas):
                 delta1s[i_bl,i_b,i_l], delta2s[i_bl,i_b,i_l], _ = utils.delta_approximation(K, Kq, lambda_ = lam)
     plt.figure(1)
-    plt.subplot(211)
     plot_deltas_v2(delta1s, bs, lambdas, n, d, 'Delta_1', gaussian, use_adapt)
-    plt.subplot(212)
+    save_plot('micro_{}_{}_delta1_vs_2_b_lambda.pdf'.format(gaussian_str, adapt_str))
+    plt.figure(2)
     plot_deltas_v2(delta2s, bs, lambdas, n, d, 'Delta_2', gaussian, use_adapt)
-    plt.show()
-    print(1)
+    save_plot('micro_{}_{}_delta2_vs_2_b_lambda.pdf'.format(gaussian_str, adapt_str))
+    # plt.subplot(211)
+    # plot_deltas_v2(delta1s, bs, lambdas, n, d, 'Delta_1', gaussian, use_adapt)
+    # plt.subplot(212)
+    # plot_deltas_v2(delta2s, bs, lambdas, n, d, 'Delta_2', gaussian, use_adapt)
+    # plt.show()
+    # print(1)
     # plt.figure(1)
     # plt.subplot(221)
     # plot_deltas(delta1s[0,:,:], bs, lambdas, n, d, 'Delta_1', gaussian, False)
@@ -268,16 +278,22 @@ def clipping_with_quantization_effect():
     plt.legend(legend)
     plt.title('Effect of clipping + quantization on (Delta1,Delta2) for Gaussian data.')
     plt.yscale('log')
-    # plt.savefig('example.pdf')
-    plt.show()
-    print(1)
+    save_plot('deltas_vs_clip_and_quant.pdf')
+    # plt.show()
+    # print(1)
 
 if __name__ == '__main__':
     # ppmi_spectrum()
-    deltas_vs_precision_and_lambda(False, False)
-    # deltas_vs_precision_and_lambda(True, False)
-    # deltas_vs_precision_and_lambda(True, True)
-    # deltas_vs_precision_and_lambda(False)
+
+    # MICRO #1: Delta1 and Delta2 vs. 2^b lambda. Can specify whether data should
+    # be Gaussian or uniform, and whether range should be chosen adaptively.
+    # deltas_vs_precision_and_lambda(False, False)
+
+    # MICRO #2: Show that when sigma_min is large, one can use a large regularizer.
+    flat_spectrum_vs_generalization(True)
+
     # clipping_effect2()
+
+    # This experiment looks at the effect of clipping and quantization on
+    # Delta1 and Delta2.
     # clipping_with_quantization_effect()
-    # flat_spectrum_vs_generalization(False)
