@@ -426,6 +426,44 @@ def cmds_12_18_18_compress_fastText_FiveSeeds_dca():
                 )
 
 
+def cmds_12_19_18_compress_gloveWiki400k_dimVsPrec():
+    filename = get_cmdfile_path('12_19_18_compress_gloveWiki400k_dimVsPrec')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'dimVsPrec'
+    embedtype = 'glove-wiki400k-am'
+    seeds = [1,2,3,4,5]
+    embeddims = [25,50,100,200,400,800]
+    with open(filename,'w') as f:
+        for seed in seeds:
+            for embeddim in embeddims:
+                # nocompress
+                compresstype = 'nocompress'
+                bitrate = 32
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {}\\"\n').format(
+                    prefix, rungroup, embedtype, compresstype, bitrate, embeddim, seed)
+                )
+
+                # bitrates for uniform quantization
+                bitrates = [1,2,4,8,16] # kmeans failed on bitrate 8
+
+                # uniform
+                compresstype = 'uniform'
+                adapt = True
+                stochs = [False,True]
+                #skipquant = False
+                for bitrate in bitrates:
+                    for stoch in stochs:
+                        adapt_str = ' --adaptive' if adapt else ''
+                        stoch_str = ' --stoch' if stoch else ''
+                        f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                                '--embeddim {} --seed {}{}{}\\"\n').format(
+                                prefix, rungroup, embedtype, compresstype, bitrate,
+                                embeddim, seed, adapt_str, stoch_str)
+                        )
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
@@ -439,4 +477,5 @@ if __name__ == '__main__':
     # cmds_12_17_18_trainGlove_wiki400k()
     # cmds_12_18_18_trainGlove_wiki400k()
     # cmds_12_18_18_compress_fastText_FiveSeeds()
-    cmds_12_18_18_compress_fastText_FiveSeeds_dca()
+    # cmds_12_18_18_compress_fastText_FiveSeeds_dca()
+    cmds_12_19_18_compress_gloveWiki400k_dimVsPrec()

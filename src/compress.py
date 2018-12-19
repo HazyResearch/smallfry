@@ -53,6 +53,20 @@ def get_embed_info():
             'rungroup,2018-12-14-trainGlove_embedtype,glove_corpus,wiki_embeddim,{}_threads,72_embeds.txt'
         ))
         vocab = 3801686
+    elif utils.config['embedtype'] == 'glove-wiki400k-am':
+        if utils.config['embeddim'] == 800:
+            file_format_str = str(pathlib.PurePath(
+                '2018-12-18-trainGlove',
+                'embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72_lr,0.025',
+                'rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72_lr,0.025_embeds.txt'
+            ))
+        else:
+            file_format_str = str(pathlib.PurePath(
+                '2018-12-18-trainGlove',
+                'embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72',
+                'rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72_embeds.txt'
+            ))
+        vocab = 400000
     elif utils.config['embedtype'] == 'fasttext1m':
         file_format_str = 'wiki-news-{}d-1M.vec'
         vocab = 999994

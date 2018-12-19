@@ -58,7 +58,7 @@ def init_compress_parser():
     parser = argparse.ArgumentParser()
     add_shared_args(parser)
     parser.add_argument('--embedtype', type=str, required=True,
-        choices=['glove400k','glove10k','glove-wiki-am','fasttext1m'],
+        choices=['glove400k','glove10k','glove-wiki-am','glove-wiki400k-am','fasttext1m'],
         help='Name of embedding to compress')
     parser.add_argument('--embeddim', type=int, required=True,
         help='Dimension of embeddings to use.')
@@ -155,7 +155,7 @@ def validate_config(runtype):
             assert config['bitrate'] == 32
         if config['embedtype'] == 'glove400k' or config['embedtype'] == 'glove10k':
             assert config['embeddim'] in (50,100,200,300)
-        elif config['embedtype'] == 'glove-wiki-am':
+        elif config['embedtype'] == 'glove-wiki-am' or config['embedtype'] == 'glove-wiki400k-am':
             assert config['embeddim'] in (25,50,100,200,400,800)
         elif config['embedtype'] == 'fasttext1m':
             assert config['embeddim'] == 300
