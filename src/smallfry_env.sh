@@ -3,7 +3,7 @@
 # NOTE: This only works if called from base conda environment!
 
 # Make sure conda is in path
-export PATH=/proj/anaconda3/bin:$PATH
+# export PATH=$PATH:/proj/anaconda3/bin
 
 # This is necessary for conda activate to work properly
 . /proj/anaconda3/etc/profile.d/conda.sh
