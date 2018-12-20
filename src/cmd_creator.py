@@ -1,3 +1,4 @@
+import glob
 import utils
 import pathlib
 
@@ -464,6 +465,21 @@ def cmds_12_19_18_compress_gloveWiki400k_dimVsPrec():
                                 embeddim, seed, adapt_str, stoch_str)
                         )
 
+def cmds_12_19_18_eval_drqa_fasttext_gloveWiki400k():
+    cmd_files = [get_cmdfile_path('12_19_18_eval_drqa_fasttext_fiveSeeds_cmds'),
+                 get_cmdfile_path('12_19_18_eval_drqa_gloveWiki400k_dimVsPrec_cmds')]
+    path_regexes = ['/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*embeds.txt',
+                    '/proj/smallfry/embeddings/glove-wiki400k-am/2018-12-19-dimVsPrec/*/*embeds.txt']
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --cuda --evaltype qa --embedpath {}\\"\n')
+    for i in range(len(cmd_files)):
+        cmd_file = cmd_files[i]
+        path_regex = path_regexes[i]
+        embed_file_paths = glob.glob(path_regex)
+        with open(cmd_file,'w') as f:
+            for path in embed_file_paths:
+                f.write(cmd_format_str.format(path.strip()))
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
@@ -478,4 +494,5 @@ if __name__ == '__main__':
     # cmds_12_18_18_trainGlove_wiki400k()
     # cmds_12_18_18_compress_fastText_FiveSeeds()
     # cmds_12_18_18_compress_fastText_FiveSeeds_dca()
-    cmds_12_19_18_compress_gloveWiki400k_dimVsPrec()
+    # cmds_12_19_18_compress_gloveWiki400k_dimVsPrec()
+    cmds_12_19_18_eval_drqa_fasttext_gloveWiki400k()
