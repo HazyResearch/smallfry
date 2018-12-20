@@ -161,7 +161,8 @@ def validate_config(runtype):
             assert config['embeddim'] == 300
     elif runtype == 'evaluate':
         assert '_compressed_embeds.txt' in config['embedpath']
-    assert '_' not in config['rungroup'], 'rungroups should not have underscores'
+    if runtype != 'evaluate':
+        assert '_' not in config['rungroup'], 'rungroups should not have underscores'
 
 def get_runname(parser, runtype):
     runname = ''
