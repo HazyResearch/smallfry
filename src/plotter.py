@@ -330,9 +330,9 @@ def gather_ICML_qa_results():
     path_regexes = ['/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/*/*qa_final.json',
                     '/proj/smallfry/embeddings/glove-wiki400k-am/2018-12-19-dimVsPrec/*/*qa_final.json',
                     '/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*qa_final.json']
-    filenames = ['glove400k_2018-11-29-fiveSeeds',
-                 'glove-wiki400k-am_2018-12-19-dimVsPrec',
-                 'fasttext1m_2018-12-19-fiveSeeds']
+    filenames = ['glove400k_2018-11-29-fiveSeeds.json',
+                 'glove-wiki400k-am_2018-12-19-dimVsPrec.json',
+                 'fasttext1m_2018-12-19-fiveSeeds.json']
     result_dir = '/proj/smallfry/results/'
     for i in range(len(filenames)):
         path_regex = path_regexes[i]
