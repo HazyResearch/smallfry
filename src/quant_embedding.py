@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import math
 
@@ -6,47 +7,46 @@ def compress_long_vec(long_tensor, nbit):
     we assume a single vector is along the last dimension.
     We compress 
     """
-    assert byte_tensor.dtype == torch.int32
+    assert long_tensor.dtype == torch.int64
     assert 64 % nbit == 0
     # n_entry is the # of entries each long value can contain
-    n_entry = 64 / nbit
-    mask = int("".join([0] * (64 - nbit) + [1] * nbit))
-    out_shape = int_tensor.shape
+    n_entry = 64 // nbit
+    mask = int("".join(['0'] * (64 - nbit) + ['1'] * nbit), 2)
+    out_shape = list(long_tensor.shape)
     out_shape[-1] = math.ceil(out_shape[-1] / n_entry)
-    out = torch.LongTensor(out_shape, device=long_tensor.device).zero_()
-    out_flat = out.view(-1, output_shape[-1])
+    out = torch.zeros(*out_shape, device=long_tensor.device, dtype=torch.int64)
+    out_flat = out.view(-1, out_shape[-1])
     long_tensor_flat = long_tensor.view(-1, long_tensor.shape[-1])
 
     for i in range(n_entry):
         # number of value to compress
         n_val = long_tensor_flat[:, i::n_entry].size(-1)
-        out_flat[:, :nval] |= (long_tensor_flat[:, i::n_entry] & mask) << ((n_entry - i - 1) * nbit)
+        out_flat[:, :n_val] |= (long_tensor_flat[:, i::n_entry] & mask) << ((n_entry - i - 1) * nbit)
     return out # out is the original version of out_flat
 
 
-def decompress_long_vec(byte_tensor, value_list, nbit, dim=None):
+def decompress_long_vec(byte_tensor, nbit, dim=None):
     """
     we assume a single vector is along the last dimension.
     """
-    assert byte_tensor.dtype == torch.int32
+    assert byte_tensor.dtype == torch.int64
     assert 64 % nbit == 0
-    n_entry = 64 / nbit
-    mask = int("".join([0] * (64 - nbit) + [1] * nbit))
-    out_shape = byte_tensor.shape
+    n_entry = 64 // nbit
+    mask = int("".join(['0'] * (64 - nbit) + ['1'] * nbit), 2)
+    out_shape = list(byte_tensor.shape)
     out_shape[-1] *= n_entry
-    out = torch.LongTensor(out_shape, device=value_list.device)
+    out = torch.zeros(*out_shape, device=byte_tensor.device, dtype=torch.int64)
     # manipulate as 2d tensors
-    out_flat = out.view(-1, output_shape[-1])
+    out_flat = out.view(-1, out_shape[-1])
     byte_tensor_flat = byte_tensor.view(-1, byte_tensor.shape[-1])
     for i in range(n_entry):
         out_flat[:, i::n_entry] = (byte_tensor_flat >> ( (n_entry - i - 1) * nbit)) & mask
     if dim is not None:
         # cut the redundent dimensions
         out_flat = out_flat[:, :dim].contiguous()
-        out_shape = byte_tensor.shape
+        out_shape = list(byte_tensor.shape)
         out_shape[-1] = dim
-        out = out_flat.view(out_shape)
-    out = value_list[out]
+        out = out_flat.view(*out_shape)
     return out
 
 
@@ -107,7 +107,7 @@ class QuantEmbedding(nn.Embedding):
                 for line_id, line in enumerate(f.readlines()):
                     _ = [
                         self.value_set.update(float(value))
-                        for value in line.split(" ")[1:]
+                        for value in line.strip('\n').split(" ")[1:]
                     ]
             torch.register_buffer(
                 "value_list", torch.FloatTensor(sorted(list(self.value_set))))
@@ -128,7 +128,7 @@ class QuantEmbedding(nn.Embedding):
                 if self.nbit != 32:
                     vector = torch.LongTensor([
                         self.value_dict[float(value)]
-                        for value in line.split(" ")[1:]
+                        for value in line.strip('\n').split(" ")[1:]
                     ])
                     self.weight[line_id].copy(compress_long_vector(vector, self.nbit))
                 else:
@@ -142,7 +142,8 @@ class QuantEmbedding(nn.Embedding):
                                self.max_norm, self.norm_type,
                                self.scale_grad_by_freq, self.sparse)
         if self.nbit != 32:
-            embedding = decompress_long_vec(embedding, self.value_list, self.nbit, self.embedding_dim)         
+            embedding = decompress_long_vec(embedding, self.nbit, self.embedding_dim)  
+            embedding = self.value_list[embedding]
         return embedding
 
 
