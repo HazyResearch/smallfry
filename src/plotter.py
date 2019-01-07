@@ -326,6 +326,20 @@ def plot_embedding_spectra():
     plt.ylabel('Singular values')
     save_plot('fasttext1m_spectra.pdf')
 
+def gather_ICML_qa_results():
+    path_regexes = ['/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/*/*qa_final.json',
+                    '/proj/smallfry/embeddings/glove-wiki400k-am/2018-12-19-dimVsPrec/*/*qa_final.json',
+                    '/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*qa_final.json']
+    filenames = ['glove400k_2018-11-29-fiveSeeds',
+                 'glove-wiki400k-am_2018-12-19-dimVsPrec',
+                 'fasttext1m_2018-12-19-fiveSeeds']
+    result_dir = '/proj/smallfry/results/'
+    for i in range(len(filenames)):
+        path_regex = path_regexes[i]
+        filename = filenames[i]
+        results = gather_results(path_regex)
+        utils.save_to_json(results, result_dir + filename)
+
 if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
     #plot_dca_frob_squared_vs_lr()
