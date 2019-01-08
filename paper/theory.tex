@@ -1,17 +1,17 @@
 In this section, we analyze the impact of uniform quantization on the generalization performance of linear regression models trained on top of the word embeddings.
 We present two results:
-First, we show that when the matrix is quantized to $b$ bits, and the linear ridge regression model is trained with regularization parameter $\lambda$, we attain good generalization bounds for the quantized features relative to the full-precision features when $2^b \lambda$ is large.
+First, we show that when the embedding matrix is quantized to $b$ bits, and the linear ridge regression model is trained with regularization parameter $\lambda$, we attain good generalization bounds for the quantized features relative to the full-precision features when $2^b \lambda$ is large.
 Second, we show that if the singular values of the embedding matrix decay slowly, then training the regression model with a large regularization parameter $\lambda$ cannot perform much worse than training with a smaller one.
-Combining this theoretical result with our empirical observation that the singular values of embedding matrices typically decay slowly provides a principled explanation low-precision embeddings perform well on various tasks.
+Combining this theoretical result with our empirical observation that the singular values of embedding matrices typically decay slowly provides a principled explanation for why low-precision embeddings perform well on various tasks.
 
 We begin, however, by reviewing generalization bounds for fixed design linear ridge regression.
 
 \subsection{Background: Generalized Bounds for Fixed Design Linear Ridge Regression}
 In fixed design linear regression, one is given a dataset $\{(x_i,y_i)\}_{i=1}^n$, for $x_i \in \RR^d$ and $y_i = \by_i + \eps_i \in \RR$, where the $\eps_i$ are independent random perturbations of the ``true labels'' $\by_i$ satisfying $\expect{}{\eps_i} = 0$ and $\var{}{\eps_i} = \sigma^2 < \infty$.
-The goal is to design a training algorithm which takes as input the noisy dataset $\{(x_i,y_i)\}_{i=1}^n$ and outputs a model $f(x) = w^T x$ for which $\expect{}{\frac{1}{n}\sum_i (f(x_i) -\by_i)} \eqdef \cR(f)$ is small.
+The goal is to design a training algorithm which takes as input the noisy dataset $\{(x_i,y_i)\}_{i=1}^n$ and outputs a model $f(x) = w^T x$ for which $\expect{}{\frac{1}{n}\sum_i (f(x_i) -\by_i)^2} \eqdef \cR(f)$ is small.
 Linear ridge regression selects $w^* = \argmin_w \sum_i (w^T x_i - y_i)^2 + \lambda\|w\|_2^2$.
 Letting $X \in \RR^{n\times d}$ be the matrix whose rows are $x_i$, $y \defeq (y_1,...,y_n) \in \RR^d$, and $I_d$ be the $d$-dimensional identity matrix, the minimizer of this optimization problem is $w^* = ( X^T X + \lambda I_d)^{-1}X^Ty$.
-It is easy to show \citep{alaoui15} that the expected generalization error for the model $f_X(x) = w^{*T}x$ is
+It is easy to show \citep{alaoui15} that the expected generalization error for the model $f_X(x) \defeq w^{*T}x$ is
 \begin{eqnarray*}
 \cR(f_X) &=& \frac{\lambda^2}{n} \by^T(XX^T + \lambda I_n)^{-2}\by \; +\\ && \frac{\sigma^2}{n}\tr\Big((XX^T)^2(XX^T + \lambda I_n)^{-2}\Big).
 \end{eqnarray*}
