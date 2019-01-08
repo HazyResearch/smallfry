@@ -118,7 +118,7 @@ def init_config(parser, runtype):
     validate_config(runtype)
     orig_config = config.copy()
     if runtype == 'evaluate':
-        config_path = config['embedpath'].replace('_compressed_embeds.txt','_config.json')
+        config_path = config['embedpath'].replace('_compressed_embeds.txt','_final.json')
         config['compress-config'] = load_from_json(config_path)
         config['rungroup'] = 'eval-' + config['compress-config']['rungroup']
         config['seed'] = config['compress-config']['seed']

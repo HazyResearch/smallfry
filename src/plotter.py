@@ -22,8 +22,12 @@ def clean_results(results):
     for result in results:
         result = flatten_dict(result)
         if result['compresstype'] == 'nocompress':
-            result['bitrate'] = (32.0/300.0) * result['embeddim']
-        result['compression-ratio'] = 32.0/result['bitrate']
+            # NOTE: This assumes all other compression methods are compressing
+            # a 300 dimensional embedding
+            effective_bitrate = (32.0/300.0) * result['embeddim']
+            result['compression-ratio'] = 32.0/effective_bitrate
+        else:
+            result['compression-ratio'] = 32.0/result['bitrate']
         cleaned.append(result)
     return cleaned
 
@@ -57,7 +61,10 @@ def matches_all_key_values(result, key_values_to_match):
 def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_metric,
                 logx=False, logy=False, title=None, var_info=default_var_info,
                 csv_file=None):
-    subset = extract_result_subset(all_results, key_values_to_match)
+    if len(key_values_to_match) == 0:
+        subset = all_results
+    else:
+        subset = extract_result_subset(all_results, key_values_to_match)
     lines = extract_x_y_foreach_line(subset, info_per_line, x_metric, y_metric, var_info=var_info)
     plot_lines(lines, x_metric, y_metric, logx=logx, logy=logy, title=title, csv_file=csv_file)
 
@@ -340,12 +347,151 @@ def gather_ICML_qa_results():
         results = gather_results(path_regex)
         utils.save_to_json(results, result_dir + filename)
 
+def plot_ICML_qa_results_glove400k():
+    filename = 'glove400k_2018-11-29-fiveSeeds.json'
+    dataset = 'glove400k'
+    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                    filename))
+    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                    filename[:-5] + '.csv'))
+    all_results = utils.load_from_json(results_file)
+    all_results = clean_results(all_results)
+
+    var_info = ['seed',[1,2,3,4,5]]
+    plt.figure()
+    plot_driver(all_results, [],
+        {
+        'kmeans':
+            {
+                'compresstype':['kmeans']
+            },
+        'uniform (adaptive-det)': # (adaptive-det)':
+            {
+                'compresstype':['uniform'],
+                'adaptive':[True],
+                'stoch':[False],
+                'skipquant':[False]
+            },
+        'DCCL':
+            {
+                'compresstype':['dca']
+            },
+        'Dim. reduction':
+            {
+                'compresstype':['nocompress']
+            }
+        },
+        'compression-ratio',
+        'best-f1',
+        logx=True,
+        title='{}: DrQA Perf. (F1) vs. compression ratio'.format(dataset),
+        var_info=var_info,
+        csv_file=csv_file
+    )
+    plt.ylim(70.5,74.5)
+    crs = [1,1.5,3,6,8,16,32]
+    plt.xticks(crs,crs)
+    # plt.show()
+    save_plot('{}_drqa_vs_compression.pdf'.format(dataset))
+
+def plot_ICML_qa_results_fasttext1m():
+    filename = 'fasttext1m_2018-12-19-fiveSeeds.json'
+    dataset = 'fasttext1m'
+    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                    filename))
+    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                    filename[:-5] + '.csv'))
+    all_results = utils.load_from_json(results_file)
+    all_results = clean_results(all_results)
+
+    var_info = ['seed',[1,2,3,4,5]]
+    plt.figure()
+    plot_driver(all_results, [],
+        {
+        'kmeans':
+            {
+                'compresstype':['kmeans']
+            },
+        'uniform (adaptive-det)': # (adaptive-det)':
+            {
+                'compresstype':['uniform'],
+                'adaptive':[True],
+                'stoch':[False],
+                'skipquant':[False]
+            },
+        'DCCL':
+            {
+                'compresstype':['dca']
+            },
+        },
+        'compression-ratio',
+        'best-f1',
+        logx=True,
+        title='{}: DrQA Perf. (F1) vs. compression ratio'.format(dataset),
+        var_info=var_info,
+        csv_file=csv_file
+    )
+    # plt.ylim(70.5,74.5)
+    crs = [8,16,32]
+    plt.xticks(crs,crs)
+    # plt.show()
+    save_plot('{}_drqa_vs_compression.pdf'.format(dataset))
+
+def plot_ICML_qa_results_gloveWiki400kAm():
+    filename = 'glove-wiki400k-am_2018-12-19-dimVsPrec.json'
+    dataset = 'glove-wiki400k-am'
+    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                    filename))
+    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                    filename[:-5] + '.csv'))
+    all_results = utils.load_from_json(results_file)
+    all_results = clean_results(all_results)
+    all_results_tmp = []
+    vocab = 400000
+    for result in all_results:
+        result['memory'] = vocab * result['embeddim'] * result['bitrate']
+        all_results_tmp.append(result)
+    all_results = all_results_tmp
+    bitrates = [1,2,4,8,16]
+    info_per_line = {}
+    for b in bitrates:
+        info_per_line['b={}'.format(b)] = {
+                'bitrate':[b],
+                'compresstype':['uniform'],
+                'adaptive':[True],
+                'stoch':[False],
+                'skipquant':[False]
+            }
+    info_per_line['b=32'] = {
+            'bitrate':[32],
+            'compresstype':['nocompress'],
+        }
+
+    var_info = ['seed',[1,2,3,4,5]]
+    plt.figure()
+    plot_driver(all_results,{'embeddim':[25,50,100,200,400]}, info_per_line,
+        'memory',
+        'best-f1',
+        logx=True,
+        title='{}: DrQA Perf. (F1) vs. memory'.format(dataset),
+        var_info=var_info,
+        csv_file=csv_file
+    )
+    save_plot('{}_drqa_vs_compression.pdf'.format(dataset))
+
+
+def plot_ICML_qa_results():
+    plot_ICML_qa_results_glove400k()
+    plot_ICML_qa_results_fasttext1m()
+    plot_ICML_qa_results_gloveWiki400kAm()
+
 if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
     #plot_dca_frob_squared_vs_lr()
     #print(dca_get_best_k_lr_per_bitrate())
-    plot_2018_11_29_fiveSeeds_QA_vs_bitrate()
+    #plot_2018_11_29_fiveSeeds_QA_vs_bitrate()
     #print('hello')
     #results_path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\results\\2018-12-16-fasttextTuneDCA_all_results.json'
     #plot_dca_frob_squared_vs_lr(results_path)
     #plot_embedding_spectra()
+    plot_ICML_qa_results()
