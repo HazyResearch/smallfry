@@ -57,6 +57,15 @@ def decompress_long_vec(byte_tensor, nbit, dim=None):
     return out
 
 
+"""
+TODO: Jian. 
+1 interface:
+a. split nbit infer and value list construction into one function
+b. make the underlying tensor compression into another function
+c. for a and b, implement both for the tensor and file interface.
+d. If necessary, can switch to int32 underlying representation. But not necessary now.
+"""
+
 class QuantEmbedding(nn.Embedding):
     def __init__(self,
                  num_embeddings,
