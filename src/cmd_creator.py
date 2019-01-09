@@ -481,7 +481,7 @@ def cmds_12_19_18_eval_drqa_fasttext_gloveWiki400k():
                 f.write(cmd_format_str.format(path.strip()))
 
 def cmds_1_8_19_eval_synthetics_intrinsics():
-    filename = get_cmdfile_path('1_8_19_eval_synthetics_intrinsics')
+    filename = get_cmdfile_path('1_8_19_eval_synthetics_intrinsics_cmds')
     cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
             '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {}\\"\n')
     path_regexes = ['/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/*/*_compressed_embeds.txt',
@@ -489,7 +489,7 @@ def cmds_1_8_19_eval_synthetics_intrinsics():
                 '/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*_compressed_embeds.txt']
     embedpaths = []
     for path_regex in path_regexes:
-        embedpaths.append(glob.glob(path_regex))
+        embedpaths.extend(glob.glob(path_regex))
     evaltypes = ['instrinsics','synthetics']
     with open(filename,'w') as f:
         for evaltype in evaltypes:
@@ -511,4 +511,5 @@ if __name__ == '__main__':
     # cmds_12_18_18_compress_fastText_FiveSeeds()
     # cmds_12_18_18_compress_fastText_FiveSeeds_dca()
     # cmds_12_19_18_compress_gloveWiki400k_dimVsPrec()
-    cmds_12_19_18_eval_drqa_fasttext_gloveWiki400k()
+    # cmds_12_19_18_eval_drqa_fasttext_gloveWiki400k()
+    cmds_1_8_19_eval_synthetics_intrinsics()
