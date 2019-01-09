@@ -12,6 +12,7 @@ from scipy.spatial import distance
 from third_party.hyperwords.hyperwords import ws_eval, analogy_eval
 from third_party.hyperwords.hyperwords.representations.embedding import Embedding
 from third_party.DrQA.scripts.reader.train import train_drqa
+# from third_party.sentence_classification.train_classifier import train_sentiment
 import utils
 
 def main():
