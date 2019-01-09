@@ -104,6 +104,12 @@ def init_evaluate_parser():
         help='Evaluation type.')
     parser.add_argument('--embedpath', type=str, required=True,
         help='Path to embedding to evaluate.')
+    parser.add_argument('--dataset', type=str, required=True,
+        help='Sentiment dataset to evaluate.')
+    parser.add_argument('--tunelr', action='store_true',
+        help='Boolean specifying whether or not the learning rate should be tuned.')
+    parser.add_argument('--lr', type=float, default='-1',
+        help='Learning rate to use for sentiment analysis.')
     return parser
 
 def add_shared_args(parser):

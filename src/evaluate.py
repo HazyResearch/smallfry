@@ -12,7 +12,7 @@ from scipy.spatial import distance
 from third_party.hyperwords.hyperwords import ws_eval, analogy_eval
 from third_party.hyperwords.hyperwords.representations.embedding import Embedding
 from third_party.DrQA.scripts.reader.train import train_drqa
-# from third_party.sentence_classification.train_classifier import train_sentiment
+from third_party.sentence_classification.train_classifier import train_sentiment
 import utils
 
 def main():
@@ -34,6 +34,15 @@ def evaluate_embeds():
         results = evaluate_intrinsics(utils.config['embedpath'])
     elif utils.config['evaltype'] == 'synthetics':
         results = evaluate_synthetics(utils.config['embedpath'])
+    elif utils.config['evaltype'] == 'sentiment':
+        results = evaluate_sentiment(
+            utils.config['embedpath'],
+            get_sentiment_data_path(),
+            utils.config['compress-config']['seed'],
+            utils.config['tunelr'],
+            utils.config['dataset'],
+            lr=utils.config['lr']
+        )
     elapsed = time.time() - start
     results['elapsed'] = elapsed
     utils.config['results'] = results
@@ -124,6 +133,10 @@ def get_task_path(task_type, task_name):
                'third_party', 'hyperwords', 'testsets',
                task_type, task_name + '.txt'))
 
+def get_sentiment_data_path():
+    return str(pathlib.PurePath(utils.get_src_dir(),
+               'third_party', 'sent-conv-torch', 'data'))
+
 def evaluate_synthetics(embed_path):
     '''Evaluates synthetics'''
     embeds,_ = utils.load_embeddings(embed_path)
@@ -191,43 +204,61 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, results):
     results[type_str + '-delta1s'] = delta1_results
     results[type_str + '-delta2s'] = delta2_results
 
-# def perform_command_local(command):
-#     ''' performs a command -- author: MAXLAM'''
-#     out = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True).decode('utf-8')
-#     return out
-
-# def eval_sent(embed_txt_path, seed, dataset=None):
-#     '''
-#     Sentiment analysis evaluation using Senwu's code -- supports perceptron, CNN, and LSTM models with various datasets
-#     '''
-#     def parse_senwu_outlogs(outlog):
-#         lines = outlog.split('\n')
-#         return float(lines[-3].split(' ')[-1])
-
-#     logging.info('starting sentiment')
-#     models = ['lstm', 'cnn', 'la']
-#     datasets = ['mr',
-#                 'subj', 
-#                 'cr', 
-#                 'sst', 
-#                 'trec', 
-#                 'mpqa'] if dataset == 'all' else [dataset]
-#     res = dict()
-#     for model in models:
-#         for dataset in datasets:
-#             command = "python2  %s --dataset %s --path %s --embedding %s --cv 0 --%s --out %s" % (
-#                 str(pathlib.PurePath(get_senwu_sentiment_directory(),'train_classifier.py')),
-#                 dataset,
-#                 get_harvardnlp_sentiment_data_directory(),
-#                 embed_txt_path,
-#                 model,
-#                 get_senwu_sentiment_out_directory()
-#             ) 
-#             cmd_output_txt = perform_command_local(command)
-#             logging.info(cmd_output_txt)
-#             res['sentiment-score-%s-%s'%(model,dataset)] = parse_senwu_outlogs(cmd_output_txt)
-#     logging.info('done with sentiment evals')
-#     return res
+def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, lr=-1):
+    if tunelr:
+        # TODO need to recover the full list
+        # lrs = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1]
+        lrs = [1e-3, 1e-2]
+        results = {}
+        results['best-lr'] = 0
+        results['best-val-err'] = 1.1 # error is between 0 and 1
+        results['best-test-err'] = 1.1
+        n_fold = 10
+        max_epoch = 1 # TODO update to 100
+        for lr in lrs:
+            err_valid_ave, err_test_ave = 0.0, 0.0
+            for cv_id in range(n_fold):
+                # TODO Jian, we need to change the file name
+                cmdlines = ["--dataset", dataset, 
+                            "--path", data_path + "/", 
+                            "--embedding", embed_path, 
+                            "--cv", str(cv_id),
+                            "--cnn", 
+                            "--max_epoch", str(max_epoch), 
+                            "--model_seed", str(cv_id), 
+                            "--data_seed", str(cv_id),
+                            "--lr", str(lr)]
+                err_valid, err_test = train_sentiment(cmdlines)
+                err_valid_ave += err_valid
+                err_test_ave += err_test
+                logging.info(str(cv_id + 1) \
+                    + " folds done with valid/test acc " \
+                    + str(err_valid_ave/(cv_id + 1)) + " / " + str(err_test_ave/(cv_id + 1)) )
+            err_valid_ave /= n_fold
+            err_test_ave /= n_fold
+            results[lr]= {"valid-err": err_valid_ave, "test-err": err_test_ave}
+            if err_valid_ave < results['best-val-err']:
+                results['best-lr'] = lr
+                results['best-val-err'] = err_valid_ave
+                results['best-test-err'] = err_test_ave
+    else:
+        assert lr > 0, 'Must specify positive learning rate'
+        results = {}
+        n_fold = 10
+        max_epoch = 5 # TODO update max epoch
+        cmdlines = ["--dataset", dataset, 
+                    "--path", data_path + "/", 
+                    "--embedding", embed_path, 
+                    "--no_cv", 
+                    "--cnn", 
+                    "--max_epoch", str(max_epoch), 
+                    "--model_seed", str(seed), 
+                    "--data_seed", str(seed),
+                    "--lr", str(lr)]
+        err_valid, err_test = train_sentiment(cmdlines)
+        results["val-err"] = err_valid
+        results["test-err"] = err_test
+    return results
 
 class BootstrapEmbeddings(Embedding):
     def __init__(self, embed_dict, normalize=True):
