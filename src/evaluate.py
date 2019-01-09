@@ -167,7 +167,7 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, results):
         type_str = 'cov'
 
     # compute spectrum of base_embeds to extract minimum eigenvalue of X^T X
-    _,base_sing_vals,_ = np.linalg.svd(base_embeds)
+    base_sing_vals = np.linalg.svd(base_embeds, compute_uv=False)
     base_eigs = base_sing_vals**2
     eig_min = base_eigs[-1]
     lambdas = [eig_min/100, eig_min/10, eig_min, eig_min*10, eig_min*100]
