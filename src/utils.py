@@ -100,11 +100,12 @@ def init_evaluate_parser():
     parser = argparse.ArgumentParser()
     add_shared_args(parser)
     parser.add_argument('--evaltype', type=str, required=True,
-        choices=['qa','intrinsics','synthetics'],
+        choices=['qa','intrinsics','synthetics','sentiment'],
         help='Evaluation type.')
     parser.add_argument('--embedpath', type=str, required=True,
         help='Path to embedding to evaluate.')
     parser.add_argument('--dataset', type=str, required=True,
+        choices=['mr','subj','cr','sst','trec','mpqa'],
         help='Sentiment dataset to evaluate.')
     parser.add_argument('--tunelr', action='store_true',
         help='Boolean specifying whether or not the learning rate should be tuned.')
