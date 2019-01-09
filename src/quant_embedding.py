@@ -64,6 +64,7 @@ a. split nbit infer and value list construction into one function
 b. make the underlying tensor compression into another function
 c. for a and b, implement both for the tensor and file interface.
 d. If necessary, can switch to int32 underlying representation. But not necessary now.
+e. Test on GPU
 """
 
 class QuantEmbedding(nn.Embedding):
