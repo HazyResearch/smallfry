@@ -490,7 +490,7 @@ def cmds_1_8_19_eval_synthetics_intrinsics():
     embedpaths = []
     for path_regex in path_regexes:
         embedpaths.extend(glob.glob(path_regex))
-    evaltypes = ['instrinsics','synthetics']
+    evaltypes = ['intrinsics','synthetics']
     with open(filename,'w') as f:
         for evaltype in evaltypes:
             for embedpath in embedpaths:
