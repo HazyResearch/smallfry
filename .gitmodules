@@ -10,3 +10,6 @@
 [submodule "src/third_party/sentence_classification"]
 	path = src/third_party/sentence_classification
 	url = https://github.com/avnermay/sentence_classification.git
+[submodule "src/third_party/sent-conv-torch"]
+	path = src/third_party/sent-conv-torch
+	url = https://github.com/harvardnlp/sent-conv-torch.git
