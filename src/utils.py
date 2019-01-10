@@ -104,7 +104,7 @@ def init_evaluate_parser():
         help='Evaluation type.')
     parser.add_argument('--embedpath', type=str, required=True,
         help='Path to embedding to evaluate.')
-    parser.add_argument('--dataset', type=str, required=True,
+    parser.add_argument('--dataset', type=str,
         choices=['mr','subj','cr','sst','trec','mpqa'],
         help='Sentiment dataset to evaluate.')
     parser.add_argument('--tunelr', action='store_true',
@@ -170,6 +170,8 @@ def validate_config(runtype):
             assert config['embeddim'] == 300
     elif runtype == 'evaluate':
         assert '_compressed_embeds.txt' in config['embedpath']
+        if config['evaltype'] == 'sentiment':
+            assert config['dataset'], 'Must specify dataset for sentiment eval.'
     if runtype != 'evaluate':
         assert '_' not in config['rungroup'], 'rungroups should not have underscores'
 
