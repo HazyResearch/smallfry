@@ -212,33 +212,24 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=
         results['best-lr'] = 0
         results['best-val-err'] = 1.1 # error is between 0 and 1
         results['best-test-err'] = 1.1
-        n_fold = 10
         for lr in lrs:
-            err_valid_ave, err_test_ave = 0.0, 0.0
-            for cv_id in range(n_fold):
-                # TODO Jian, we need to change the file name
-                cmdlines = ["--dataset", dataset, 
-                            "--path", data_path + "/", 
-                            "--embedding", embed_path, 
-                            "--cv", str(cv_id),
-                            "--cnn", 
-                            "--max_epoch", str(epochs), 
-                            "--model_seed", str(cv_id), 
-                            "--data_seed", str(cv_id),
-                            "--lr", str(lr)]
-                err_valid, err_test = train_sentiment(cmdlines)
-                err_valid_ave += err_valid
-                err_test_ave += err_test
-                logging.info(str(cv_id + 1) \
-                    + " folds done with valid/test acc " \
-                    + str(err_valid_ave/(cv_id + 1)) + " / " + str(err_test_ave/(cv_id + 1)) )
-            err_valid_ave /= n_fold
-            err_test_ave /= n_fold
-            results[lr]= {"valid-err": err_valid_ave, "test-err": err_test_ave}
-            if err_valid_ave < results['best-val-err']:
+            cmdlines = ["--dataset", dataset, 
+                        "--path", data_path + "/", 
+                        "--embedding", embed_path, 
+                        "--cnn", 
+                        "--max_epoch", str(epochs), 
+                        "--model_seed", str(seed), 
+                        "--data_seed", str(seed),
+                        "--lr", str(lr)]
+            err_valid, err_test = train_sentiment(cmdlines)
+            logging.info("lr " + str(lr) \
+                + " done with valid/test acc " \
+                + str(err_valid) + " / " + str(err_test) )
+            results[lr]= {"valid-err": err_valid, "test-err": err_test}
+            if err_valid < results['best-val-err']:
                 results['best-lr'] = lr
-                results['best-val-err'] = err_valid_ave
-                results['best-test-err'] = err_test_ave
+                results['best-val-err'] = err_valid
+                results['best-test-err'] = err_test
     else:
         assert lr > 0, 'Must specify positive learning rate'
         results = {}
@@ -246,7 +237,6 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=
         cmdlines = ["--dataset", dataset, 
                     "--path", data_path + "/", 
                     "--embedding", embed_path, 
-                    "--no_cv", 
                     "--cnn", 
                     "--max_epoch", str(epochs), 
                     "--model_seed", str(seed), 
