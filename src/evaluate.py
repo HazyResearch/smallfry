@@ -136,7 +136,7 @@ def get_task_path(task_type, task_name):
 
 def get_sentiment_data_path():
     return str(pathlib.PurePath(utils.get_src_dir(),
-               'third_party', 'sent-conv-torch', 'data'))
+               'third_party', 'sentence_classification', 'data'))
 
 def evaluate_synthetics(embed_path):
     '''Evaluates synthetics'''
@@ -207,9 +207,7 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, results):
 
 def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=-1):
     if tunelr:
-        # TODO need to recover the full list
-        # lrs = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1]
-        lrs = [1e-3, 1e-2]
+        lrs = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e0]
         results = {}
         results['best-lr'] = 0
         results['best-val-err'] = 1.1 # error is between 0 and 1
