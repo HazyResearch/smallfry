@@ -485,6 +485,47 @@ def plot_ICML_qa_results():
     plot_ICML_qa_results_fasttext1m()
     plot_ICML_qa_results_gloveWiki400kAm()
 
+def get_best_lr_sentiment():
+    path_regex = '/proj/smallfry/embeddings/*/*/*/*evaltype,sent*final.json'
+    all_results = clean_results(gather_results(path_regex))
+    # first gather list of base_embeds
+    base_embeds = []
+    for result in all_results:
+        if result['base-embed-path'] not in base_embeds:
+            base_embeds.append(result['base-embed-path'])
+    assert len(base_embeds) == 11
+    # now find best lr per base_embed, based on average of validation errors.
+    datasets = ['mr','subj','cr','sst','trec','mpqa']
+    lrs = all_results[0]['lrs']
+    assert len(lrs) == 7
+    num_seeds = 5
+    best_lr_array = np.zeros((len(base_embeds),len(datasets)))
+    best_lr_dict = {}
+    results_array = np.zeros((len(base_embeds),len(datasets),len(lrs)))
+    val_errs = np.zeros((num_seeds,len(lrs)))
+    for i,base_embed in enumerate(base_embeds):
+        best_lr_dict[base_embed] = {}
+        for j,dataset in enumerate(datasets):
+            base_embed_results = extract_result_subset(all_results,
+                {'base-embed-path':[base_embed], 'dataset':[dataset]})
+            assert len(base_embed_results) == num_seeds
+            for k in range(num_seeds):
+                val_errs[k,:] = base_embed_results[k]['val-errs']
+            avg_val_errs = np.mean(val_errs,axis=0)
+            ind = np.argmin(avg_val_errs)
+            results_array[i,j,:] = avg_val_errs
+            best_lr_array[i,j] = lrs[ind]
+            best_lr_dict[base_embed][dataset] = lrs[ind]
+    lr_tuning_results = {
+        'best_lr_dict': best_lr_dict,
+        'best_lr_array': best_lr_array,
+        'results_array': results_array,
+        'base_embeds': base_embeds,
+        'datasets': datasets,
+        'lrs': lrs
+    }
+    return lr_tuning_results
+
 if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
     #plot_dca_frob_squared_vs_lr()
@@ -494,4 +535,5 @@ if __name__ == '__main__':
     #results_path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\results\\2018-12-16-fasttextTuneDCA_all_results.json'
     #plot_dca_frob_squared_vs_lr(results_path)
     #plot_embedding_spectra()
-    plot_ICML_qa_results()
+    # plot_ICML_qa_results()
+    get_best_lr_sentiment()
