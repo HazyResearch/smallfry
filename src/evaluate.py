@@ -212,6 +212,9 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=
         results['best-lr'] = 0
         results['best-val-err'] = 1.1 # error is between 0 and 1
         results['best-test-err'] = 1.1
+        results['lrs'] = []
+        results['val-errs'] = []
+        results['test-errs'] = []
         for lr in lrs:
             cmdlines = ["--dataset", dataset, 
                         "--path", data_path + "/", 
@@ -222,10 +225,11 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=
                         "--data_seed", str(seed),
                         "--lr", str(lr)]
             err_valid, err_test = train_sentiment(cmdlines)
-            logging.info("lr " + str(lr) \
-                + " done with valid/test acc " \
-                + str(err_valid) + " / " + str(err_test) )
-            results[lr]= {"valid-err": err_valid, "test-err": err_test}
+            logging.info('lr: {}, accuracy (valid/test): {}/{}'.format(
+                            lr, err_valid, err_test))
+            results['lrs'].append(lr)
+            results['val-errs'].append(err_valid)
+            results['test-errs'].append(err_test)
             if err_valid < results['best-val-err']:
                 results['best-lr'] = lr
                 results['best-val-err'] = err_valid
@@ -233,7 +237,6 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=
     else:
         assert lr > 0, 'Must specify positive learning rate'
         results = {}
-        n_fold = 10
         cmdlines = ["--dataset", dataset, 
                     "--path", data_path + "/", 
                     "--embedding", embed_path, 
@@ -243,6 +246,8 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=
                     "--data_seed", str(seed),
                     "--lr", str(lr)]
         err_valid, err_test = train_sentiment(cmdlines)
+        logging.info('lr: {}, accuracy (valid/test): {}/{}'.format(
+                lr, err_valid, err_test))
         results["val-err"] = err_valid
         results["test-err"] = err_test
     return results
