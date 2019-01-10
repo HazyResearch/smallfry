@@ -502,8 +502,8 @@ def cmds_1_9_19_eval_sentiment():
             '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype sentiment --epochs 100 --tunelr '
             '--dataset {} --embedpath {}\\"\n')
     path_regexes = [
-        '/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/*/*nocompress*embeds.txt'
-        '/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*nocompress*embeds.txt'
+        '/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/*/*nocompress*embeds.txt',
+        '/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*nocompress*embeds.txt',
         '/proj/smallfry/embeddings/glove-wiki400k-am/2018-12-19-dimVsPrec/*/*nocompress*embeds.txt'
     ]
     datasets = ['mr','subj','cr','sst','trec','mpqa']
