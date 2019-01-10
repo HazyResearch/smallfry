@@ -496,6 +496,25 @@ def cmds_1_8_19_eval_synthetics_intrinsics():
             for embedpath in embedpaths:
                 f.write(cmd_format_str.format(evaltype, embedpath))
 
+def cmds_1_9_19_eval_sentiment():
+    filename = get_cmdfile_path('1_9_19_eval_sentiment_cmds')
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
+            '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype sentiment --epochs 100 --tunelr '
+            '--dataset {} --embedpath {}\\"\n')
+    path_regexes = [
+        '/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/*/*nocompress*embeds.txt'
+        '/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*nocompress*embeds.txt'
+        '/proj/smallfry/embeddings/glove-wiki400k-am/2018-12-19-dimVsPrec/*/*nocompress*embeds.txt'
+    ]
+    datasets = ['mr','subj','cr','sst','trec','mpqa']
+    embedpaths = []
+    for path_regex in path_regexes:
+        embedpaths.extend(glob.glob(path_regex))
+    with open(filename,'w') as f:
+        for embedpath in embedpaths:
+            for dataset in datasets:
+                f.write(cmd_format_str.format(dataset, embedpath))
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
@@ -512,4 +531,5 @@ if __name__ == '__main__':
     # cmds_12_18_18_compress_fastText_FiveSeeds_dca()
     # cmds_12_19_18_compress_gloveWiki400k_dimVsPrec()
     # cmds_12_19_18_eval_drqa_fasttext_gloveWiki400k()
-    cmds_1_8_19_eval_synthetics_intrinsics()
+    # cmds_1_8_19_eval_synthetics_intrinsics()
+    cmds_1_9_19_eval_sentiment()
