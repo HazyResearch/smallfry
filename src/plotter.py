@@ -518,8 +518,8 @@ def get_best_lr_sentiment():
             best_lr_dict[base_embed][dataset] = lrs[ind]
     lr_tuning_results = {
         'best_lr_dict': best_lr_dict,
-        'best_lr_array': best_lr_array,
-        'results_array': results_array,
+        'best_lr_array': best_lr_array.tolist(),
+        'results_array': results_array.tolist(),
         'base_embeds': base_embeds,
         'datasets': datasets,
         'lrs': lrs
