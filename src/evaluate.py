@@ -41,6 +41,7 @@ def evaluate_embeds():
             utils.config['compress-config']['seed'],
             utils.config['tunelr'],
             utils.config['dataset'],
+            utils.config['epochs'],
             lr=utils.config['lr']
         )
     elapsed = time.time() - start
@@ -204,7 +205,7 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, results):
     results[type_str + '-delta1s'] = delta1_results
     results[type_str + '-delta2s'] = delta2_results
 
-def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, lr=-1):
+def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=-1):
     if tunelr:
         # TODO need to recover the full list
         # lrs = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1]
@@ -214,7 +215,6 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, lr=-1):
         results['best-val-err'] = 1.1 # error is between 0 and 1
         results['best-test-err'] = 1.1
         n_fold = 10
-        max_epoch = 1 # TODO update to 100
         for lr in lrs:
             err_valid_ave, err_test_ave = 0.0, 0.0
             for cv_id in range(n_fold):
@@ -224,7 +224,7 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, lr=-1):
                             "--embedding", embed_path, 
                             "--cv", str(cv_id),
                             "--cnn", 
-                            "--max_epoch", str(max_epoch), 
+                            "--max_epoch", str(epochs), 
                             "--model_seed", str(cv_id), 
                             "--data_seed", str(cv_id),
                             "--lr", str(lr)]
@@ -245,13 +245,12 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, lr=-1):
         assert lr > 0, 'Must specify positive learning rate'
         results = {}
         n_fold = 10
-        max_epoch = 5 # TODO update max epoch
         cmdlines = ["--dataset", dataset, 
                     "--path", data_path + "/", 
                     "--embedding", embed_path, 
                     "--no_cv", 
                     "--cnn", 
-                    "--max_epoch", str(max_epoch), 
+                    "--max_epoch", str(epochs), 
                     "--model_seed", str(seed), 
                     "--data_seed", str(seed),
                     "--lr", str(lr)]
