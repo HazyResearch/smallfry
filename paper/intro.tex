@@ -1,23 +1,38 @@
 In recent years, \textit{word embeddings} \citep{word2vec13,glove14,fasttext18} have brought large improvements to a wide range of applications in natural language processing (NLP) \citep{collins16,drqa17}.
 By encoding words as low-dimensional dense vectors, word embeddings allow NLP tasks to be framed as pattern recognition problems over dense continuous spaces, which can then be tackled using the powerful machinery of neural networks.
-%To maximize the benefit of these embeddings, it is important for word embeddings to be computed and stored for very large vocabularies of words \citep{}.
 However, these word embeddings can occupy a very large amount of memory, making it impractical to deploy them to memory-constrained environments like smart phones.
 Our goal in this work is to dramatically decrease the amount of memory occupied by the embeddings, while provably retaining strong performance on downstream tasks.
 
-% Though this has been worked on, naive approaches have not been explored in-depth.
-Designing powerful and principled compression schemes is challenging because it is unclear a priori how to model how compression affects performance.
-This is particularly true when the compression schemes being considered are complex, and when large non-convex models are employed for the downstream tasks.
-For example, the current state-of-the-art method for compressing word embeddings, called deep compositional code learning (DCCL), uses a deep architecture to represent each word as a sum of vectors from learned dictionaries \citep{dccl17}.
+Designing a compression scheme which is capable of retaining strong performance at low memory budgets, while also being amenable to theoretical analysis, is a challenging problem.
+There have been numerous important works proposing compression schemes for word embeddings and studying their empirical performance, for example using deep dictionary learning or sparse representations \citep{sparse16,andrews16,dccl17}.
+Although these methods can attain large reductions in memory usage while performing well on tasks such as language modeling \citep{mikolov10} and machine translation \citep{bahdanau15}, to the best of our knowledge there exists no analysis describing the effect compression has on generalization performance for these methods.
 
-In this work, we propose a simple compression method based on uniform quantization, and analyze the impact of quantization on generalization performance in the case of linear regression models.
-Our method has two parts: first, we find the optimal threshold at which to clip the extreme values in the word embedding matrix.  We then uniformly quantize the clipped embeddings within the clipped interval.
-Empirically, we demonstrate that this method can match the performance of the more complex baselines across a variety of tasks, embedding types, and compression rates.
-For example, on the Stanford Question Answering Dataset (SQuAD) \citep{squad16} it can attain 32x compression for GloVe and fastText embeddings, while on average attaining F1 scores within 0.45\% and \todo{XX\%} absolute of the full-precision embeddings, respectively.
+%Designing powerful and principled compression schemes is challenging because it is unclear a priori how to model how compression affects performance.
+%This is particularly true when the compression schemes being considered are complex, and when large non-convex models are employed for the downstream tasks.
+%For example, the current state-of-the-art method for compressing word embeddings, called deep compositional code learning (DCCL), uses a deep architecture to represent each word as a sum of vectors from learned dictionaries \citep{dccl17}.
 
-Theoretically, we show that $b$-bit quantization has negligible effect on the generalization performance of linear ridge regression models when the product of $2^b$ and the regularization parameter $\lambda$ is large.
-Furthermore, we show that when the spectrum of the word embedding matrix decays slowly (which we empirically observe to be true), a large regularizer, and thus low-precision, will perform similarly to the full-precision embeddings. \todo{Discuss how clipping fits into theory. Motivate why regression matters (as opposed to classification) for NLP.}
+In this work, we show that a simple compression method based on uniform quantization can compete with the above-mentioned methods, and we bound this method's impact on the generalization performance of linear regression models.
+This method has two parts: first, it determines the optimal threshold at which to clip the extreme values in the word embedding matrix.
+It then uniformly quantizes the clipped embeddings within the clipped interval.
+This algorithm is easy to implement, has no hyperparameters, and runs in seconds on a single CPU core.
+
+Empirically, we demonstrate that this method can match the performance of the state-of-the-art compression schemes on question answering, sentiment analysis, and word analogy and similarity tasks, for both GloVe \citep{glove14} and fastText \citep{fasttext18} embeddings.
+On the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, for example, it attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the full-precision GloVe embeddings, while the deep dictionary learning method of \citet{dccl17} is 0.43\% below.
+
+Theoretically, we show in the context of linear ridge regression that quantization has a negligible effect on generalization performance when the quantization noise is small relative to the regularization parameter.
+Furthermore, we show that when the spectrum of the word embedding matrix decays slowly (which we empirically observe to be true), a large regularizer, and thus low-precision, will perform similarly to the full-precision embeddings.
+Importantly, our analysis is not specific to word embeddings; it directly extends to any setting in which a linear model is being learned over a uniformly quantized representation.
+%\todo{Discuss how clipping fits into theory. Motivate why regression matters (as opposed to classification) for NLP.}
 %Our theoretical analysis builds on recent work analyzing the generalization performance of low-precision representations in the context of kernel ridge regression \citep{lprff18}.
 
-\todo{Add contribution list:}
+Our main contributions:
+\begin{itemize}
+	\item We show that a simple compression scheme based on uniform quantization can compete with state-of-the-art word embedding compression methods on a variety of tasks.
+	\item We prove that this compression method's impact on the generalization performance of linear ridge regression models is minimal when the quantization noise is small relative to the regularization parameter.
+\end{itemize}
 
-The rest of this paper is organized as follows: In Section~\ref{sec:uniform} we present our compression method. We present our large-scale experimental results in Section~\ref{sec:experiments}, and the theoretical analysis for our method in Section~\ref{sec:theory}. We discuss related work in Section~\ref{sec:relwork}, and conclude in Section~\ref{sec:conclusion}.
+The rest of this paper is organized as follows:
+In Section~\ref{sec:relwork} we review related work, including existing methods for compressing word embeddings.
+In Section~\ref{sec:uniform} we present our compression method.
+We discuss our large-scale experiments in Section~\ref{sec:experiments}, and the theoretical analysis for our method in Section~\ref{sec:theory}.
+We conclude in Section~\ref{sec:conclusion}.
