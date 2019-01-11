@@ -1,5 +1,27 @@
 In recent years, \textit{word embeddings} \citep{word2vec13,glove14,fasttext18} have brought large improvements to a wide range of applications in natural language processing (NLP) \citep{collins16,drqa17}.
 By encoding words as low-dimensional dense vectors, word embeddings allow NLP tasks to be framed as pattern recognition problems over dense continuous spaces, which can then be tackled using the powerful machinery of neural networks.
+However, these word embeddings can occupy a very large amount of memory, making it impractical to deploy them to memory-constrained environments like smart phones.
+To this end, it is of great importance to decrease the amount of memory occupied by the embeddings for massive deployment.
+
+
+Designing simple embedding compression methods with both strong empirical performance and provable guarantees is challenging.
+For example, the current state-of-the-art methods for compressing word embeddings are deep learning-based approaches, such as deep compositional code \citep{dccl17} and K-way discrete code \citep{chen2018learning}. In these methods, the compression are achieved by training a neural network architectures to represent each word as a sum of vectors from learned dictionaries.
+
+
+In this work, we revisit a compression method based on simple uniform quantization, and analyze the impact of quantization on generalization performance in the case of linear regression models.
+The quantization-based approach has two parts: By using golden section search, we find the optimal threshold at which to clip the extreme values in the word embedding matrix. We then uniformly quantize the clipped embeddings within the clipped interval. Based on these two steps, this simple approach can achieve fast compression without computationally expensive training or extensive hyperparameter tuning.
+
+Empirically, we demonstrate that uniform quantization can match the performance of the more complex baselines across a variety of tasks, embedding types, and compression rates.
+On the machine reading comprehension task, we evaluate different embeddings with DrQA model \cite{drqa17} using the Stanford Question Answering Dataset (SQuAD) \citep{squad16}. Uniform quantization can attain 32x compression for GloVe and fastText embeddings, while on average attaining F1 scores within 0.45\% and \todo{XX\%} absolute of the full-precision embeddings, respectively. To evaluate on more NLP applications with various model architecture, we also show that quantized embeddings matche the generalization performance of embeddings compressed with state-of-the-art deep learning-based methods, across 7 sentiment analysis, 2 word similarity and 2 analogy tasks. 
+
+We theoretically show that the quantization has negligible effect on generalization in important schemes when quantization error is relatively small comparing to regularization strength. Specifically we work in the case of linear regression, which is a simplified model of regression and ranking-based NLP tasks such as sentiment analysis. Our analysis reveals that when the spectrum of the word embedding matrix decays slowly (which we empirically observe to be true), strong regularization has minimally impact on generalization performance. Thus uniformly quantized embeddings can have similar generalization performance to that of uncompressed full precision embeddings.
+\todo{Discuss how clipping fits into theory.}
+
+
+
+
+In recent years, \textit{word embeddings} \citep{word2vec13,glove14,fasttext18} have brought large improvements to a wide range of applications in natural language processing (NLP) \citep{collins16,drqa17}.
+By encoding words as low-dimensional dense vectors, word embeddings allow NLP tasks to be framed as pattern recognition problems over dense continuous spaces, which can then be tackled using the powerful machinery of neural networks.
 %To maximize the benefit of these embeddings, it is important for word embeddings to be computed and stored for very large vocabularies of words \citep{}.
 However, these word embeddings can occupy a very large amount of memory, making it impractical to deploy them to memory-constrained environments like smart phones.
 Our goal in this work is to dramatically decrease the amount of memory occupied by the embeddings, while provably retaining strong performance on downstream tasks.
