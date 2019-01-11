@@ -21,7 +21,7 @@ def clean_results(results):
     cleaned = []
     for result in results:
         result = flatten_dict(result)
-        if result['compresstype'] == 'nocompress':
+        if result['compresstype'] == 'nocompress' and result['embedtype'] == 'glove400k':
             # NOTE: This assumes all other compression methods are compressing
             # a 300 dimensional embedding
             effective_bitrate = (32.0/300.0) * result['embeddim']
@@ -347,6 +347,20 @@ def gather_ICML_qa_results():
         results = gather_results(path_regex)
         utils.save_to_json(results, result_dir + filename)
 
+def gather_ICML_results():
+    embedtypes = ['glove-wiki400k-am','glove400k','fasttext1m']
+    result_file_regexes = ['*evaltype,qa*final.json', '*evaltype,sent*lr,0*final.json',
+            '*evaltype,intrinsics*final.json', '*evaltype,synthetics*final.json']
+    # if we want the compression config file, use 'embedtype,*final.json'
+    path_regex = '/proj/smallfry/embeddings/{}/*/*/{}'
+    all_results = []
+    for embedtype in embedtypes:
+        for result_file_regex in result_file_regexes:
+            results = gather_results(path_regex.format(embedtype, result_file_regex))
+            all_results.extend(results)
+    result_dir = '/proj/smallfry/results/'
+    utils.save_to_json(results, result_dir + 'ICML_results.json')
+
 def plot_ICML_qa_results_glove400k():
     filename = 'glove400k_2018-11-29-fiveSeeds.json'
     dataset = 'glove400k'
@@ -536,4 +550,5 @@ if __name__ == '__main__':
     #plot_dca_frob_squared_vs_lr(results_path)
     #plot_embedding_spectra()
     # plot_ICML_qa_results()
-    get_best_lr_sentiment()
+    # get_best_lr_sentiment()
+    gather_ICML_results()
