@@ -1,16 +1,16 @@
 %\subsection{Joint Version}
 In recent years, \textit{word embeddings} \citep{word2vec13,glove14,fasttext18} have brought large improvements to a wide range of applications in natural language processing (NLP) \citep{collins16,drqa17}.
 By encoding words as low-dimensional dense vectors, word embeddings allow NLP tasks to be framed as pattern recognition problems over dense continuous spaces, which can then be tackled using the powerful machinery of neural networks.
-However, these word embeddings can occupy a very large amount of memory, making it expensive to deploy them in the data center, and impractical to deploy them to memory-constrained environments like smart phones.
-Thus, it is important to decrease the amount of memory occupied by the embeddings.
+However, these word embeddings can occupy a very large amount of memory, making it expensive to deploy them in data centers, and impractical to use them in memory-constrained environments like smart phones.
+Thus, compressing these embeddings is an important problem.
 
-Designing embedding compression methods with both strong empirical performance and provable bounds on generalization performance is challenging.
+Designing embedding compression methods with both strong empirical performance and provable generalization bounds for downstream tasks is challenging.
 There have been numerous important works proposing compression schemes for word embeddings and studying their empirical performance \citep{sparse16,andrews16,dccl17,chen2018learning};
 for example, current state-of-the-art methods train neural network models to represent each word as a sum of vectors from learned dictionaries \citep{dccl17}.
-Although these methods can attain large reductions in memory usage while performing well on tasks such as language modeling \citep{mikolov10} and machine translation \citep{bahdanau15}, to the best of our knowledge there exists no analysis describing the effect compression has on generalization performance for these methods.
+Although these methods can attain large reductions in memory while performing well on tasks such as language modeling \citep{mikolov10} and machine translation \citep{bahdanau15}, to the best of our knowledge there exists no analysis describing the effect compression has on generalization performance for these methods.
 
 In this work, we show that a simple compression method based on uniform quantization can empirically compete with the state-of-the-art methods, and we present generalization bounds for the quantized embeddings for linear regression models.
-This method has two parts: first, it determines the optimal threshold at which to clip the extreme values in the word embedding matrix using golden section search \citep{golden53}.
+The compression method has two parts: first, it determines the optimal threshold at which to clip the extreme values in the word embedding matrix using golden section search \citep{golden53}.
 It then uniformly quantizes the clipped embeddings within the clipped interval.
 This simple approach can compress large embeddings in seconds on a single CPU core, without computationally expensive training or hyperparameter tuning.
 
