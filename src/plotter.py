@@ -362,20 +362,62 @@ def gather_ICML_results():
     result_dir = '/proj/smallfry/results/'
     utils.save_to_json(all_results, result_dir + 'ICML_results.json')
 
+def get_best_lr_sentiment():
+    path_regex = '/proj/smallfry/embeddings/*/*/*/*evaltype,sent*final.json'
+    all_results = clean_results(gather_results(path_regex))
+    # first gather list of base_embeds
+    base_embeds = []
+    for result in all_results:
+        if result['base-embed-path'] not in base_embeds:
+            base_embeds.append(result['base-embed-path'])
+    assert len(base_embeds) == 11
+    # now find best lr per base_embed, based on average of validation errors.
+    datasets = ['mr','subj','cr','sst','trec','mpqa']
+    lrs = all_results[0]['lrs']
+    assert len(lrs) == 7
+    num_seeds = 5
+    best_lr_array = np.zeros((len(base_embeds),len(datasets)))
+    best_lr_dict = {}
+    results_array = np.zeros((len(base_embeds),len(datasets),len(lrs)))
+    val_errs = np.zeros((num_seeds,len(lrs)))
+    for i,base_embed in enumerate(base_embeds):
+        best_lr_dict[base_embed] = {}
+        for j,dataset in enumerate(datasets):
+            base_embed_results = extract_result_subset(all_results,
+                {'base-embed-path':[base_embed], 'dataset':[dataset]})
+            assert len(base_embed_results) == num_seeds
+            for k in range(num_seeds):
+                val_errs[k,:] = base_embed_results[k]['val-errs']
+            avg_val_errs = np.mean(val_errs,axis=0)
+            ind = np.argmin(avg_val_errs)
+            results_array[i,j,:] = avg_val_errs
+            best_lr_array[i,j] = lrs[ind]
+            best_lr_dict[base_embed][dataset] = lrs[ind]
+    lr_tuning_results = {
+        'best_lr_dict': best_lr_dict,
+        'best_lr_array': best_lr_array.tolist(),
+        'results_array': results_array.tolist(),
+        'base_embeds': base_embeds,
+        'datasets': datasets,
+        'lrs': lrs
+    }
+    return lr_tuning_results
+
 def plot_ICML_qa_results_glove400k():
     filename = 'ICML_results.json'
     embedtype = 'glove400k'
+    evaltype = 'qa'
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
                     filename))
     csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                    filename[:-5] + '.csv'))
+                    '{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype)))
     all_results = utils.load_from_json(results_file)
     all_results = clean_results(all_results)
 
     var_info = ['seed',[1,2,3,4,5]]
     subset_info = {
-        'evaltype':['qa'],
-        'embedtype':['glove400k']
+        'evaltype':[evaltype],
+        'embedtype':[embedtype]
     }
     info_per_line = {
         'kmeans':
@@ -418,17 +460,18 @@ def plot_ICML_qa_results_glove400k():
 def plot_ICML_qa_results_fasttext1m():
     filename = 'ICML_results.json'
     embedtype = 'fasttext1m'
+    evaltype = 'qa'
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
                     filename))
     csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                    filename[:-5] + '.csv'))
+                   '{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype)))
     all_results = utils.load_from_json(results_file)
     all_results = clean_results(all_results)
 
     var_info = ['seed',[1,2,3,4,5]]
     subset_info = {
-        'evaltype':['qa'],
-        'embedtype':['fasttext1m']
+        'evaltype':[evaltype],
+        'embedtype':[embedtype]
     }
     info_per_line = {
         'kmeans':
@@ -467,10 +510,11 @@ def plot_ICML_qa_results_fasttext1m():
 def plot_ICML_qa_results_gloveWiki400kAm():
     filename = 'ICML_results.json'
     embedtype = 'glove-wiki400k-am'
+    evaltype = 'qa'
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
                     filename))
     csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                    filename[:-5] + '.csv'))
+                   '{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype)))
     all_results = utils.load_from_json(results_file)
     all_results = clean_results(all_results)
     all_results_tmp = []
@@ -482,8 +526,8 @@ def plot_ICML_qa_results_gloveWiki400kAm():
     bitrates = [1,2,4,8,16]
     subset_info = {
         'embeddim':[25,50,100,200,400],
-        'evaltype':['qa'],
-        'embedtype':['glove-wiki400k-am']
+        'evaltype':[evaltype],
+        'embedtype':[embedtype]
     }
     info_per_line = {}
     for b in bitrates:
@@ -512,52 +556,179 @@ def plot_ICML_qa_results_gloveWiki400kAm():
     )
     save_plot('{}_drqa_vs_compression.pdf'.format(embedtype))
 
+def plot_ICML_sentiment_results_glove400k(dataset, use_heldout):
+    filename = 'ICML_results.json'
+    embedtype = 'glove400k'
+    evaltype = 'sentiment'
+    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                    filename))
+    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                   '{}_{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype, dataset)))
+    all_results = utils.load_from_json(results_file)
+    all_results = clean_results(all_results)
+
+    var_info = ['seed',[1,2,3,4,5]]
+    subset_info = {
+        'evaltype':[evaltype],
+        'embedtype':[embedtype],
+        'dataset':[dataset]
+    }
+    info_per_line = {
+        'kmeans':
+            {
+                'compresstype':['kmeans']
+            },
+        'uniform (adaptive-det)': # (adaptive-det)':
+            {
+                'compresstype':['uniform'],
+                'adaptive':[True],
+                'stoch':[False],
+                'skipquant':[False]
+            },
+        'DCCL':
+            {
+                'compresstype':['dca']
+            },
+        'Dim. reduction':
+            {
+                'compresstype':['nocompress']
+            }
+    }
+    y_metric = 'val-err' if use_heldout else 'test-err'
+    plt.figure()
+    plot_driver(all_results,
+        subset_info,
+        info_per_line,
+        'compression-ratio',
+        y_metric,
+        logx=True,
+        title='{},{}: Sentiment analysis perf. ({}) vs. memory'.format(embedtype,dataset,y_metric),
+        var_info=var_info,
+        csv_file=csv_file
+    )
+    # plt.ylim(70.5,74.5)
+    crs = [1,1.5,3,6,8,16,32]
+    plt.xticks(crs,crs)
+    # plt.show()
+    save_plot('{}_{}_{}_vs_compression.pdf'.format(embedtype,dataset,y_metric))
+
+def plot_ICML_sentiment_results_fasttext1m(dataset,use_heldout):
+    filename = 'ICML_results.json'
+    embedtype = 'fasttext1m'
+    evaltype = 'sentiment'
+    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                    filename))
+    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                   '{}_{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype, dataset)))
+    all_results = utils.load_from_json(results_file)
+    all_results = clean_results(all_results)
+
+    var_info = ['seed',[1,2,3,4,5]]
+    subset_info = {
+        'evaltype':[evaltype],
+        'embedtype':[embedtype],
+        'dataset':[dataset]
+    }
+    info_per_line = {
+        'kmeans':
+            {
+                'compresstype':['kmeans']
+            },
+        'uniform (adaptive-det)': # (adaptive-det)':
+            {
+                'compresstype':['uniform'],
+                'adaptive':[True],
+                'stoch':[False],
+                'skipquant':[False]
+            },
+        'DCCL':
+            {
+                'compresstype':['dca']
+            },
+    }
+    y_metric = 'val-err' if use_heldout else 'test-err'
+    plt.figure()
+    plot_driver(all_results,
+        subset_info,
+        info_per_line,
+        'compression-ratio',
+        y_metric,
+        logx=True,
+        title='{},{}: Sentiment analysis perf. ({}) vs. memory'.format(embedtype,dataset,y_metric),
+        var_info=var_info,
+        csv_file=csv_file
+    )
+    # plt.ylim(70.5,74.5)
+    crs = [8,16,32]
+    plt.xticks(crs,crs)
+    # plt.show()
+    save_plot('{}_{}_{}_vs_compression.pdf'.format(embedtype,dataset,y_metric))
+
+def plot_ICML_sentiment_results_gloveWiki400kAm(dataset, use_heldout):
+    filename = 'ICML_results.json'
+    embedtype = 'glove-wiki400k-am'
+    evaltype = 'sentiment'
+    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                    filename))
+    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                   '{}_{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype, dataset)))
+    all_results = utils.load_from_json(results_file)
+    all_results = clean_results(all_results)
+    all_results_tmp = []
+    vocab = 400000
+    for result in all_results:
+        result['memory'] = vocab * result['embeddim'] * result['bitrate']
+        all_results_tmp.append(result)
+    all_results = all_results_tmp
+    bitrates = [1,2,4,8,16]
+    subset_info = {
+        'embeddim':[25,50,100,200,400],
+        'evaltype':[evaltype],
+        'embedtype':[embedtype],
+        'dataset':[dataset]
+    }
+    info_per_line = {}
+    for b in bitrates:
+        info_per_line['b={}'.format(b)] = {
+            'bitrate':[b],
+            'compresstype':['uniform'],
+            'adaptive':[True],
+            'stoch':[False],
+            'skipquant':[False]
+        }
+    info_per_line['b=32'] = {
+        'bitrate':[32],
+        'compresstype':['nocompress'],
+    }
+    var_info = ['seed',[1,2,3,4,5]]
+    y_metric = 'val-err' if use_heldout else 'test-err'
+    plt.figure()
+    plot_driver(all_results,
+        subset_info,
+        info_per_line,
+        'memory',
+        y_metric,
+        logx=True,
+        title='{},{}: Sentiment analysis perf. ({}) vs. memory'.format(embedtype,dataset,y_metric),
+        var_info=var_info,
+        csv_file=csv_file
+    )
+    save_plot('{}_{}_{}_vs_compression.pdf'.format(embedtype,dataset,y_metric))
+
 
 def plot_ICML_qa_results():
     plot_ICML_qa_results_glove400k()
     plot_ICML_qa_results_fasttext1m()
     plot_ICML_qa_results_gloveWiki400kAm()
 
-def get_best_lr_sentiment():
-    path_regex = '/proj/smallfry/embeddings/*/*/*/*evaltype,sent*final.json'
-    all_results = clean_results(gather_results(path_regex))
-    # first gather list of base_embeds
-    base_embeds = []
-    for result in all_results:
-        if result['base-embed-path'] not in base_embeds:
-            base_embeds.append(result['base-embed-path'])
-    assert len(base_embeds) == 11
-    # now find best lr per base_embed, based on average of validation errors.
+def plot_ICML_sentiment_results():
     datasets = ['mr','subj','cr','sst','trec','mpqa']
-    lrs = all_results[0]['lrs']
-    assert len(lrs) == 7
-    num_seeds = 5
-    best_lr_array = np.zeros((len(base_embeds),len(datasets)))
-    best_lr_dict = {}
-    results_array = np.zeros((len(base_embeds),len(datasets),len(lrs)))
-    val_errs = np.zeros((num_seeds,len(lrs)))
-    for i,base_embed in enumerate(base_embeds):
-        best_lr_dict[base_embed] = {}
-        for j,dataset in enumerate(datasets):
-            base_embed_results = extract_result_subset(all_results,
-                {'base-embed-path':[base_embed], 'dataset':[dataset]})
-            assert len(base_embed_results) == num_seeds
-            for k in range(num_seeds):
-                val_errs[k,:] = base_embed_results[k]['val-errs']
-            avg_val_errs = np.mean(val_errs,axis=0)
-            ind = np.argmin(avg_val_errs)
-            results_array[i,j,:] = avg_val_errs
-            best_lr_array[i,j] = lrs[ind]
-            best_lr_dict[base_embed][dataset] = lrs[ind]
-    lr_tuning_results = {
-        'best_lr_dict': best_lr_dict,
-        'best_lr_array': best_lr_array.tolist(),
-        'results_array': results_array.tolist(),
-        'base_embeds': base_embeds,
-        'datasets': datasets,
-        'lrs': lrs
-    }
-    return lr_tuning_results
+    use_heldouts = [True,False]
+    for use_heldout in use_heldouts:
+        for dataset in datasets:
+            plot_ICML_sentiment_results_glove400k(dataset, use_heldout)
+            plot_ICML_sentiment_results_fasttext1m(dataset, use_heldout)
+            plot_ICML_sentiment_results_gloveWiki400kAm(dataset, use_heldout)
 
 if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
@@ -570,5 +741,6 @@ if __name__ == '__main__':
     #plot_embedding_spectra()
     # plot_ICML_qa_results()
     # get_best_lr_sentiment()
-    #plot_ICML_qa_results()
-    gather_ICML_results()
+    #gather_ICML_results()
+    # plot_ICML_qa_results()
+    plot_ICML_sentiment_results()
