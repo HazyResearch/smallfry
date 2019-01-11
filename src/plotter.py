@@ -357,13 +357,14 @@ def gather_ICML_results():
     for embedtype in embedtypes:
         for result_file_regex in result_file_regexes:
             results = gather_results(path_regex.format(embedtype, result_file_regex))
+            print('{}, {}, {}'.format(embedtype, result_file_regex, len(results)))
             all_results.extend(results)
     result_dir = '/proj/smallfry/results/'
-    utils.save_to_json(results, result_dir + 'ICML_results.json')
+    utils.save_to_json(all_results, result_dir + 'ICML_results.json')
 
 def plot_ICML_qa_results_glove400k():
-    filename = 'glove400k_2018-11-29-fiveSeeds.json'
-    dataset = 'glove400k'
+    filename = 'ICML_results.json'
+    embedtype = 'glove400k'
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
                     filename))
     csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
@@ -372,9 +373,11 @@ def plot_ICML_qa_results_glove400k():
     all_results = clean_results(all_results)
 
     var_info = ['seed',[1,2,3,4,5]]
-    plt.figure()
-    plot_driver(all_results, [],
-        {
+    subset_info = {
+        'evaltype':['qa'],
+        'embedtype':['glove400k']
+    }
+    info_per_line = {
         'kmeans':
             {
                 'compresstype':['kmeans']
@@ -394,11 +397,15 @@ def plot_ICML_qa_results_glove400k():
             {
                 'compresstype':['nocompress']
             }
-        },
+    }
+    plt.figure()
+    plot_driver(all_results,
+        subset_info,
+        info_per_line,
         'compression-ratio',
         'best-f1',
         logx=True,
-        title='{}: DrQA Perf. (F1) vs. compression ratio'.format(dataset),
+        title='{}: DrQA Perf. (F1) vs. compression ratio'.format(embedtype),
         var_info=var_info,
         csv_file=csv_file
     )
@@ -406,11 +413,11 @@ def plot_ICML_qa_results_glove400k():
     crs = [1,1.5,3,6,8,16,32]
     plt.xticks(crs,crs)
     # plt.show()
-    save_plot('{}_drqa_vs_compression.pdf'.format(dataset))
+    save_plot('{}_drqa_vs_compression.pdf'.format(embedtype))
 
 def plot_ICML_qa_results_fasttext1m():
-    filename = 'fasttext1m_2018-12-19-fiveSeeds.json'
-    dataset = 'fasttext1m'
+    filename = 'ICML_results.json'
+    embedtype = 'fasttext1m'
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
                     filename))
     csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
@@ -419,9 +426,11 @@ def plot_ICML_qa_results_fasttext1m():
     all_results = clean_results(all_results)
 
     var_info = ['seed',[1,2,3,4,5]]
-    plt.figure()
-    plot_driver(all_results, [],
-        {
+    subset_info = {
+        'evaltype':['qa'],
+        'embedtype':['fasttext1m']
+    }
+    info_per_line = {
         'kmeans':
             {
                 'compresstype':['kmeans']
@@ -437,11 +446,15 @@ def plot_ICML_qa_results_fasttext1m():
             {
                 'compresstype':['dca']
             },
-        },
+    }
+    plt.figure()
+    plot_driver(all_results,
+        subset_info,
+        info_per_line,
         'compression-ratio',
         'best-f1',
         logx=True,
-        title='{}: DrQA Perf. (F1) vs. compression ratio'.format(dataset),
+        title='{}: DrQA Perf. (F1) vs. compression ratio'.format(embedtype),
         var_info=var_info,
         csv_file=csv_file
     )
@@ -449,11 +462,11 @@ def plot_ICML_qa_results_fasttext1m():
     crs = [8,16,32]
     plt.xticks(crs,crs)
     # plt.show()
-    save_plot('{}_drqa_vs_compression.pdf'.format(dataset))
+    save_plot('{}_drqa_vs_compression.pdf'.format(embedtype))
 
 def plot_ICML_qa_results_gloveWiki400kAm():
-    filename = 'glove-wiki400k-am_2018-12-19-dimVsPrec.json'
-    dataset = 'glove-wiki400k-am'
+    filename = 'ICML_results.json'
+    embedtype = 'glove-wiki400k-am'
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
                     filename))
     csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
@@ -467,31 +480,37 @@ def plot_ICML_qa_results_gloveWiki400kAm():
         all_results_tmp.append(result)
     all_results = all_results_tmp
     bitrates = [1,2,4,8,16]
+    subset_info = {
+        'embeddim':[25,50,100,200,400],
+        'evaltype':['qa'],
+        'embedtype':['glove-wiki400k-am']
+    }
     info_per_line = {}
     for b in bitrates:
         info_per_line['b={}'.format(b)] = {
-                'bitrate':[b],
-                'compresstype':['uniform'],
-                'adaptive':[True],
-                'stoch':[False],
-                'skipquant':[False]
-            }
-    info_per_line['b=32'] = {
-            'bitrate':[32],
-            'compresstype':['nocompress'],
+            'bitrate':[b],
+            'compresstype':['uniform'],
+            'adaptive':[True],
+            'stoch':[False],
+            'skipquant':[False]
         }
-
+    info_per_line['b=32'] = {
+        'bitrate':[32],
+        'compresstype':['nocompress'],
+    }
     var_info = ['seed',[1,2,3,4,5]]
     plt.figure()
-    plot_driver(all_results,{'embeddim':[25,50,100,200,400]}, info_per_line,
+    plot_driver(all_results,
+        subset_info,
+        info_per_line,
         'memory',
         'best-f1',
         logx=True,
-        title='{}: DrQA Perf. (F1) vs. memory'.format(dataset),
+        title='{}: DrQA Perf. (F1) vs. memory'.format(embedtype),
         var_info=var_info,
         csv_file=csv_file
     )
-    save_plot('{}_drqa_vs_compression.pdf'.format(dataset))
+    save_plot('{}_drqa_vs_compression.pdf'.format(embedtype))
 
 
 def plot_ICML_qa_results():
@@ -551,4 +570,5 @@ if __name__ == '__main__':
     #plot_embedding_spectra()
     # plot_ICML_qa_results()
     # get_best_lr_sentiment()
+    #plot_ICML_qa_results()
     gather_ICML_results()
