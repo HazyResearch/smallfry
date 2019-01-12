@@ -334,6 +334,19 @@ def get_corpus_info(corpus):
         raw = str(pathlib.PurePath(dr, 'N/A'))
     return vocab, cooc, raw
 
+def get_embedding_vocab(embedtype):
+    if embedtype == 'glove400k':
+        vocab = 400000
+    elif embedtype == 'glove10k':
+        vocab = 10000
+    elif embedtype == 'glove-wiki-am':
+        vocab = 3801686
+    elif embedtype == 'glove-wiki400k-am':
+        vocab = 400001
+    elif embedtype == 'fasttext1m':
+        vocab = 999994
+    return vocab
+
 def init_logging():
     """Initialize logfile to be used for experiment."""
     log_filename = get_filename('.log')

@@ -40,19 +40,17 @@ def get_embed_info():
     basedir = str(pathlib.PurePath(
         utils.config['basedir'], 'base_embeddings', utils.config['embedtype']
     ))
+    vocab = utils.get_embedding_vocab(utils.config['embedtype'])
     if utils.config['embedtype'] == 'glove400k':
         file_format_str = 'glove.6B.{}d.txt'
-        vocab = 400000
     elif utils.config['embedtype'] == 'glove10k':
         file_format_str = 'glove.6B.{}d.10k.txt'
-        vocab = 10000
     elif utils.config['embedtype'] == 'glove-wiki-am':
         file_format_str = str(pathlib.PurePath(
             '2018-12-14-trainGlove',
             'embedtype,glove_corpus,wiki_embeddim,{}_threads,72',
             'rungroup,2018-12-14-trainGlove_embedtype,glove_corpus,wiki_embeddim,{}_threads,72_embeds.txt'
         ))
-        vocab = 3801686
     elif utils.config['embedtype'] == 'glove-wiki400k-am':
         if utils.config['embeddim'] == 800:
             file_format_str = str(pathlib.PurePath(
@@ -66,10 +64,8 @@ def get_embed_info():
                 'embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72',
                 'rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72_embeds.txt'
             ))
-        vocab = 400001
     elif utils.config['embedtype'] == 'fasttext1m':
         file_format_str = 'wiki-news-{}d-1M.vec'
-        vocab = 999994
     path_format_str = str(pathlib.PurePath(basedir, file_format_str))
     # pass embeddim twice because of glove-wiki-am (it doesn't affect the others)
     path = path_format_str.format(utils.config['embeddim'], utils.config['embeddim'])

@@ -28,6 +28,9 @@ def clean_results(results):
             result['compression-ratio'] = 32.0/effective_bitrate
         else:
             result['compression-ratio'] = 32.0/result['bitrate']
+        if result['compresstype'] in ['uniform','nocompress','kmeans']:
+            vocab = utils.get_embedding_vocab(result['embedtype'])
+            result['memory'] = vocab * result['embeddim'] * result['bitrate']
         cleaned.append(result)
     return cleaned
 
@@ -715,13 +718,88 @@ def plot_ICML_sentiment_results_gloveWiki400kAm(dataset, use_heldout):
     )
     save_plot('{}_{}_{}_vs_compression.pdf'.format(embedtype,dataset,y_metric))
 
+def plot_ICML_intrinsic_results(embedtype,y_metric):
+    filename = 'ICML_results.json'
+    evaltype = 'intrinsics'
+    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results', filename))
+    output_file_str = '{}_{}_{}_vs_compression'.format(embedtype, evaltype, y_metric)
+    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
+                   output_file_str + '.csv'))
+    all_results = utils.load_from_json(results_file)
+    all_results = clean_results(all_results)
 
-def plot_ICML_qa_results():
+    var_info = ['seed',[1,2,3,4,5]]
+    subset_info = {
+        'evaltype':[evaltype],
+        'embedtype':[embedtype]
+    }
+    if embedtype in ['glove400k','fasttext1m']:
+        x_metric = 'compression-ratio'
+        info_per_line = {
+            'kmeans':
+                {
+                    'compresstype':['kmeans']
+                },
+            'uniform (adaptive-det)': # (adaptive-det)':
+                {
+                    'compresstype':['uniform'],
+                    'adaptive':[True],
+                    'stoch':[False],
+                    'skipquant':[False]
+                },
+            'DCCL':
+                {
+                    'compresstype':['dca']
+                }
+        }
+        if embedtype == 'glove400k':
+            crs = [1,1.5,3,6,8,16,32]
+            info_per_line['Dim. reduction'] = {
+                'compresstype':['nocompress']
+            }
+        else:
+            crs = [8,16,32]
+    else:
+        x_metric = 'memory'
+        info_per_line = {}
+        bitrates = [1,2,4,8,16]
+        for b in bitrates:
+            info_per_line['b={}'.format(b)] = {
+                'bitrate':[b],
+                'compresstype':['uniform'],
+                'adaptive':[True],
+                'stoch':[False],
+                'skipquant':[False]
+            }
+        info_per_line['b=32'] = {
+            'bitrate':[32],
+            'compresstype':['nocompress'],
+        }
+        subset_info['embeddim'] = [25,50,100,200,400]
+
+    plt.figure()
+    plot_driver(all_results,
+        subset_info,
+        info_per_line,
+        x_metric,
+        y_metric,
+        logx=True,
+        title='{}: Intrinsic perf. ({}) vs. memory'.format(embedtype,y_metric),
+        var_info=var_info,
+        csv_file=csv_file
+    )
+    # plt.show()
+    # plt.ylim(70.5,74.5)
+    if embedtype in ['glove400k','fasttext1m']:
+        plt.xticks(crs,crs)
+    save_plot(output_file_str + '.pdf')
+
+def plot_all_ICML_qa_results():
     plot_ICML_qa_results_glove400k()
     plot_ICML_qa_results_fasttext1m()
     plot_ICML_qa_results_gloveWiki400kAm()
 
-def plot_ICML_sentiment_results():
+def plot_all_ICML_sentiment_results():
     datasets = ['mr','subj','cr','sst','trec','mpqa']
     use_heldouts = [True,False]
     for use_heldout in use_heldouts:
@@ -729,6 +807,24 @@ def plot_ICML_sentiment_results():
             plot_ICML_sentiment_results_glove400k(dataset, use_heldout)
             plot_ICML_sentiment_results_fasttext1m(dataset, use_heldout)
             plot_ICML_sentiment_results_gloveWiki400kAm(dataset, use_heldout)
+
+def plot_all_ICML_intrinsic_results():
+    embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
+    y_metrics = ['analogy-avg-score','similarity-avg-score']
+    for embedtype in embedtypes:
+        for y_metric in y_metrics:
+            plot_ICML_intrinsic_results(embedtype,y_metric)
+
+# def construct_ICML_sentiment_figure():
+#     datasets = ['mr','subj','cr','sst','trec','mpqa']
+#     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
+#     table_str = ''
+#     '\\includegraphics[width=0.3\\linewidth]{figures/{}_{}_test-err_vs_compression.pdf}'
+#     for dataset in datasets:
+#         for i,embedtype in enumerate(embedtypes):
+#             table_str = 
+
+
 
 if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
@@ -743,4 +839,5 @@ if __name__ == '__main__':
     # get_best_lr_sentiment()
     #gather_ICML_results()
     # plot_ICML_qa_results()
-    plot_ICML_sentiment_results()
+    # plot_all_ICML_sentiment_results()
+    plot_all_ICML_intrinsic_results()
