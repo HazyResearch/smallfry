@@ -1,0 +1,35 @@
+\subsection{Extended Results}
+In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results, for our different embedding types and the different sentiment analysis datasets.
+\begin{figure}
+	\centering
+	\begin{tabular} {c c c}
+	% MPQA
+	\includegraphics[width=0.28\linewidth]{figures/fasttext1m_mpqa_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove400k_mpqa_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove-wiki400k-am_mpqa_test-err_vs_compression.pdf} \\[-0.5em]
+	% TREC
+	\includegraphics[width=0.28\linewidth]{figures/fasttext1m_trec_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove400k_trec_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove-wiki400k-am_trec_test-err_vs_compression.pdf} \\[-0.5em]
+	% SST
+	\includegraphics[width=0.28\linewidth]{figures/fasttext1m_sst_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove400k_sst_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove-wiki400k-am_sst_test-err_vs_compression.pdf} \\[-0.5em]
+	% CR
+	\includegraphics[width=0.28\linewidth]{figures/fasttext1m_cr_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove400k_cr_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove-wiki400k-am_cr_test-err_vs_compression.pdf} \\[-0.5em]
+	% SUBJ
+	\includegraphics[width=0.28\linewidth]{figures/fasttext1m_subj_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove400k_subj_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove-wiki400k-am_subj_test-err_vs_compression.pdf} \\[-0.5em]
+	% MR
+	\includegraphics[width=0.28\linewidth]{figures/fasttext1m_mr_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove400k_mr_test-err_vs_compression.pdf} &
+	\includegraphics[width=0.28\linewidth]{figures/glove-wiki400k-am_mr_test-err_vs_compression.pdf} \\[-0.5em]
+	\end{tabular}
+	\caption{
+		Sentiment analysis results for different embeddings methods (pre-trained fastText and GloVe embeddings, and GloVe embeddings trained from scratch), on different sentiment analysis datasets (MPQA, TREC, SST, CR, SUBJ, MR).
+	}
+	\label{fig:all_sentiment}
+\end{figure}

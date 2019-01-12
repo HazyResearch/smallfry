@@ -13,7 +13,7 @@ This demonstrates the importance of considering low-precision when trying to att
 	\item \textbf{Number of random seeds}: 5
 \end{itemize}
 
-In Figure~\ref{fig:glove400k_drqa} we show that our uniform quantization method performs comparably to k-means and DCCL, while performing significantly better than the dimensionality reduction baseline.
+In Figure~\ref{fig:drqa_sent_results} we show that on both question answering and sentiment analysis tasks the uniform quantization method performs comparably to k-means and DCCL, while performing significantly better than the dimensionality reduction baseline.
 
 %\begin{figure}
 %\begin{center}
@@ -23,24 +23,50 @@ In Figure~\ref{fig:glove400k_drqa} we show that our uniform quantization method 
 %\end{center}
 %\end{figure}
 
-
-
+\begin{figure*}
+	\centering
+	\begin{small}
+		%		\begin{tabular}{c c c c}
+		\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+			\includegraphics[width=0.4\linewidth]{figures/glove400k_drqa_vs_compression.pdf} &
+			\includegraphics[width=0.4\linewidth]{figures/fasttext1m_drqa_vs_compression.pdf} \\
+			\includegraphics[width=0.4\linewidth]{figures/glove400k_trec_test-err_vs_compression.pdf} &
+			\includegraphics[width=0.4\linewidth]{figures/fasttext1m_trec_test-err_vs_compression.pdf} \\
+			\;\;\;\;\;(a) & \;\;\;\;\;\;(b) 
+		\end{tabular}
+	\end{small}
+\caption{Question answering (top) and sentiment analysis (bottom) performance for a number of compression methods at various compression ratios, on pre-trained 300-dimensional GloVe and fastText embeddings.
+Uniform quantization performs similarly to k-means and DCCL.  For GloVe, we are also able to compare with pre-trained embeddings of smaller dimensions ($d\in\{50,100,200,300\}$), and observe that compressing the 300-dimensional embeddings is significantly better than using a lower dimension.}
+\label{fig:drqa_sent_results}
+\end{figure*}
 
 \begin{figure*}
 	\centering
 	\begin{small}
 		%		\begin{tabular}{c c c c}
 		\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-			\includegraphics[width=0.45\linewidth]{figures/glove400k_drqa_vs_compression.pdf} &
-			\includegraphics[width=0.45\linewidth]{figures/fasttext1m_drqa_vs_compression.pdf} \\
+			\includegraphics[width=0.4\linewidth]{figures/glove-wiki400k-am_drqa_vs_compression.pdf} &
+			\includegraphics[width=0.4\linewidth]{figures/glove-wiki400k-am_trec_test-err_vs_compression.pdf} \\
 			\;\;\;\;\;(a) & \;\;\;\;\;\;(b) 
 		\end{tabular}
 	\end{small}
-\caption{Question answering performance (DrQA) for a number of compression methods at various compression ratios, on pre-trained 300-dimensional GloVe and fastText embeddings.  Uniform quantization performs similarly to k-means and DCCL.  For GloVe, we are also able to compare with pre-trained embeddings of smaller dimensions ($d\in\{50,100,200,300\}$), and observe that compressing the 300-dimensional embeddings is significantly better than using a lower dimension.}
-\label{fig:glove400k_drqa}
+	\caption{DrQA and sentiment analysis results (TREC dataset), where we train GloVe embeddings of various dimensions ($d\in\{25,50,100,200,400\}$) and compress them at various precisions ($b \in \{1,2,4,8,16,32\}$) with uniform quantization.  Here we see that when considering a memory budget, it is best to use low-precision features with high-dimensional embeddings.}
+	\label{fig:drqa_sent_dimVsPrec}
 \end{figure*}
 
-
+%\begin{figure*}
+%	\centering
+%	\begin{small}
+%		%		\begin{tabular}{c c c c}
+%		\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+%			\includegraphics[width=0.45\linewidth]{figures/glove400k_trec_test-err_vs_compression.pdf} &
+%			\includegraphics[width=0.45\linewidth]{figures/fasttext1m_trec_test-err_vs_compression.pdf} \\
+%			\;\;\;\;\;(a) & \;\;\;\;\;\;(b) 
+%		\end{tabular}
+%	\end{small}
+%	\caption{Sentiment analysis results (TREC dataset).}
+%	\label{fig:sentiment}
+%\end{figure*}
 
 \subsection{Fixed budget experiments}
 \begin{itemize}
@@ -50,12 +76,12 @@ In Figure~\ref{fig:glove400k_drqa} we show that our uniform quantization method 
 	\item \textbf{Number of random seeds}: 5
 \end{itemize}
 
-In Figure~\ref{fig:glove400k_dim_vs_prec}, we show that when considering a fixed memory budget, it is best to use low-precision and high-dimensions.
+In Figure~\ref{fig:drqa_sent_dimVsPrec}, we show that when considering a fixed memory budget, it is best to use low-precision and high-dimensions, on both question answering and sentiment analysis tasks.
 
-\begin{figure}
-	\begin{center}
-		\centerline{\includegraphics[width=\columnwidth]{figures/glove-wiki400k-am_drqa_vs_compression.pdf}}
-		\caption{We compress GloVe embeddings for dimensions $d\in\{25,50,100,200,400\}$ at precision values $b\in\{1,2,4,8,16,32\}$, and measure performance on question-answering (DrQA).  \todo{TODO: Include $d=800$ results, which are worse than $d=400$?}}
-		\label{fig:glove400k_dim_vs_prec}
-	\end{center}
-\end{figure}
+%\begin{figure}
+%	\begin{center}
+%		\centerline{\includegraphics[width=\columnwidth]{figures/glove-wiki400k-am_drqa_vs_compression.pdf}}
+%		\caption{We compress GloVe embeddings for dimensions $d\in\{25,50,100,200,400\}$ at precision values $b\in\{1,2,4,8,16,32\}$, and measure performance on question-answering (DrQA).  \todo{TODO: Include $d=800$ results, which are worse than $d=400$?}}
+%		\label{fig:glove400k_dim_vs_prec}
+%	\end{center}
+%\end{figure}
