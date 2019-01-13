@@ -7,11 +7,6 @@ import utils
 
 default_var_info = ['gitdiff',['']]
 
-def save_plot(filename):
-    plot_dir = str(pathlib.PurePath(utils.get_git_dir(), 'paper','figures'))
-    plot_filename = str(pathlib.PurePath(plot_dir, filename))
-    plt.savefig(plot_filename)
-
 # Returns a list of result dictionaries whose filenames match the path_regex.
 def gather_results(path_regex):
     file_list = glob.glob(path_regex)
@@ -244,76 +239,12 @@ def dca_get_best_k_lr_per_bitrate(path_regex):
                 best_k_lr_per_bitrate[b] = {'k':result['k'], 'lr':result['lr'], }
     return best_k_lr_per_bitrate
 
-def plot_2018_11_29_fiveSeeds_QA_vs_bitrate():
-    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                       '2018-11-29-fiveSeeds_QA_all_results.json'))
-    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                       'avner_drqa_all_results.csv'))
-    all_results = utils.load_from_json(results_file)
-    all_results = clean_results(all_results)
-
-    var_info = ['seed',[1,2,3,4,5]]
-    plt.figure(1)
-    # for seed in [1,2,3,4,5]:
-    #     plt.subplot(150 + seed)
-    plot_driver(all_results, {'compresstype':['kmeans','uniform','dca','nocompress'], 'seed':[1,2,3,4,5]},
-        {
-        'kmeans':
-            {
-                'compresstype':['kmeans']
-            },
-        # 'uniform (adaptive-stoch)':
-        #     {
-        #         'compresstype':['uniform'],
-        #         'adaptive':[True],
-        #         'stoch':[True],
-        #         'skipquant':[False]
-        #     },
-        'uniform (adaptive-det)': # (adaptive-det)':
-            {
-                'compresstype':['uniform'],
-                'adaptive':[True],
-                'stoch':[False],
-                'skipquant':[False]
-            },
-        # 'uniform (adaptive-skipquant)':
-        #     {
-        #         'compresstype':['uniform'],
-        #         'adaptive':[True],
-        #         'stoch':[False],
-        #         'skipquant':[True]
-        #     },
-        # 'uniform (non-adaptive, det)':
-        #     {
-        #         'compresstype':['uniform'],
-        #         'adaptive':[False],
-        #         'stoch':[False],
-        #         'skipquant':[False]
-        #     },
-        'DCCL':
-            {
-                'compresstype':['dca']
-            },
-        'Dim. reduction':
-            {
-                'compresstype':['nocompress']
-            }
-        },
-        'compression-ratio',
-        'best-f1',
-        logx=True,
-        title='GloVe: DrQA Perf. (F1) vs. compression ratio',
-        var_info=var_info,
-        csv_file=csv_file
-    )
-    plt.ylim(70.5,74.5)
-    crs = [1,1.5,3,6,8,16,32]
-    plt.xticks(crs,crs)
-    save_plot('glove400k_drqa_vs_compression.pdf')
-
 def plot_embedding_spectra():
     path = str(pathlib.PurePath(utils.get_base_dir(), 'base_embeddings',
                'glove400k', 'glove.6B.{}d.txt'))
+    output_file_str = str(pathlib.PurePath(utils.get_git_dir(),
+        'paper', 'figures', '{}_spectra.pdf'))
+
     ds = [50,100,200,300]
     for d in ds:
         emb,_ = utils.load_embeddings(path.format(d))
@@ -323,7 +254,7 @@ def plot_embedding_spectra():
     plt.yscale('log')
     plt.ylabel('Singular values')
     plt.legend(['d=' + str(d) for d in ds])
-    save_plot('glove400k_spectra.pdf')
+    plt.savefig(output_file_str.format('glove400k'))
 
     plt.figure(2)
     path = str(pathlib.PurePath(utils.get_base_dir(), 'base_embeddings',
@@ -334,21 +265,7 @@ def plot_embedding_spectra():
     plt.plot(s)
     plt.yscale('log')
     plt.ylabel('Singular values')
-    save_plot('fasttext1m_spectra.pdf')
-
-def gather_ICML_qa_results():
-    path_regexes = ['/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/*/*qa_final.json',
-                    '/proj/smallfry/embeddings/glove-wiki400k-am/2018-12-19-dimVsPrec/*/*qa_final.json',
-                    '/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*qa_final.json']
-    filenames = ['glove400k_2018-11-29-fiveSeeds.json',
-                 'glove-wiki400k-am_2018-12-19-dimVsPrec.json',
-                 'fasttext1m_2018-12-19-fiveSeeds.json']
-    result_dir = '/proj/smallfry/results/'
-    for i in range(len(filenames)):
-        path_regex = path_regexes[i]
-        filename = filenames[i]
-        results = gather_results(path_regex)
-        utils.save_to_json(results, result_dir + filename)
+    plt.savefig(output_file_str.format('fasttext1m'))
 
 def gather_ICML_results():
     embedtypes = ['glove-wiki400k-am','glove400k','fasttext1m']
@@ -406,333 +323,27 @@ def get_best_lr_sentiment():
     }
     return lr_tuning_results
 
-def plot_ICML_qa_results_glove400k():
-    filename = 'ICML_results.json'
-    embedtype = 'glove400k'
-    evaltype = 'qa'
-    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                    filename))
-    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                    '{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype)))
+
+def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
+    # load and clean all results
+    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results', 'ICML_results.json'))
     all_results = utils.load_from_json(results_file)
     all_results = clean_results(all_results)
+
+    # prepare filenames of output csv and pdf files.
+    output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+        '{}_{}_{}_vs_compression'.format(embedtype, evaltype, y_metric)))
+    csv_file = output_file_str + '.csv'
+    plot_file = output_file_str + '.pdf'
 
     var_info = ['seed',[1,2,3,4,5]]
     subset_info = {
         'evaltype':[evaltype],
         'embedtype':[embedtype]
     }
-    info_per_line = {
-        'kmeans':
-            {
-                'compresstype':['kmeans']
-            },
-        'uniform (adaptive-det)': # (adaptive-det)':
-            {
-                'compresstype':['uniform'],
-                'adaptive':[True],
-                'stoch':[False],
-                'skipquant':[False]
-            },
-        'DCCL':
-            {
-                'compresstype':['dca']
-            },
-        'Dim. reduction':
-            {
-                'compresstype':['nocompress']
-            }
-    }
-    plt.figure()
-    plot_driver(all_results,
-        subset_info,
-        info_per_line,
-        'compression-ratio',
-        'best-f1',
-        logx=True,
-        title='{}: DrQA Perf. (F1) vs. compression ratio'.format(embedtype),
-        var_info=var_info,
-        csv_file=csv_file
-    )
-    plt.ylim(70.5,74.5)
-    crs = [1,1.5,3,6,8,16,32]
-    plt.xticks(crs,crs)
-    # plt.show()
-    save_plot('{}_drqa_vs_compression.pdf'.format(embedtype))
-
-def plot_ICML_qa_results_fasttext1m():
-    filename = 'ICML_results.json'
-    embedtype = 'fasttext1m'
-    evaltype = 'qa'
-    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                    filename))
-    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                   '{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype)))
-    all_results = utils.load_from_json(results_file)
-    all_results = clean_results(all_results)
-
-    var_info = ['seed',[1,2,3,4,5]]
-    subset_info = {
-        'evaltype':[evaltype],
-        'embedtype':[embedtype]
-    }
-    info_per_line = {
-        'kmeans':
-            {
-                'compresstype':['kmeans']
-            },
-        'uniform (adaptive-det)': # (adaptive-det)':
-            {
-                'compresstype':['uniform'],
-                'adaptive':[True],
-                'stoch':[False],
-                'skipquant':[False]
-            },
-        'DCCL':
-            {
-                'compresstype':['dca']
-            },
-    }
-    plt.figure()
-    plot_driver(all_results,
-        subset_info,
-        info_per_line,
-        'compression-ratio',
-        'best-f1',
-        logx=True,
-        title='{}: DrQA Perf. (F1) vs. compression ratio'.format(embedtype),
-        var_info=var_info,
-        csv_file=csv_file
-    )
-    # plt.ylim(70.5,74.5)
-    crs = [8,16,32]
-    plt.xticks(crs,crs)
-    # plt.show()
-    save_plot('{}_drqa_vs_compression.pdf'.format(embedtype))
-
-def plot_ICML_qa_results_gloveWiki400kAm():
-    filename = 'ICML_results.json'
-    embedtype = 'glove-wiki400k-am'
-    evaltype = 'qa'
-    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                    filename))
-    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                   '{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype)))
-    all_results = utils.load_from_json(results_file)
-    all_results = clean_results(all_results)
-    all_results_tmp = []
-    vocab = 400000
-    for result in all_results:
-        result['memory'] = vocab * result['embeddim'] * result['bitrate']
-        all_results_tmp.append(result)
-    all_results = all_results_tmp
-    bitrates = [1,2,4,8,16]
-    subset_info = {
-        'embeddim':[25,50,100,200,400],
-        'evaltype':[evaltype],
-        'embedtype':[embedtype]
-    }
-    info_per_line = {}
-    for b in bitrates:
-        info_per_line['b={}'.format(b)] = {
-            'bitrate':[b],
-            'compresstype':['uniform'],
-            'adaptive':[True],
-            'stoch':[False],
-            'skipquant':[False]
-        }
-    info_per_line['b=32'] = {
-        'bitrate':[32],
-        'compresstype':['nocompress'],
-    }
-    var_info = ['seed',[1,2,3,4,5]]
-    plt.figure()
-    plot_driver(all_results,
-        subset_info,
-        info_per_line,
-        'memory',
-        'best-f1',
-        logx=True,
-        title='{}: DrQA Perf. (F1) vs. memory'.format(embedtype),
-        var_info=var_info,
-        csv_file=csv_file
-    )
-    save_plot('{}_drqa_vs_compression.pdf'.format(embedtype))
-
-def plot_ICML_sentiment_results_glove400k(dataset, use_heldout):
-    filename = 'ICML_results.json'
-    embedtype = 'glove400k'
-    evaltype = 'sentiment'
-    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                    filename))
-    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                   '{}_{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype, dataset)))
-    all_results = utils.load_from_json(results_file)
-    all_results = clean_results(all_results)
-
-    var_info = ['seed',[1,2,3,4,5]]
-    subset_info = {
-        'evaltype':[evaltype],
-        'embedtype':[embedtype],
-        'dataset':[dataset]
-    }
-    info_per_line = {
-        'kmeans':
-            {
-                'compresstype':['kmeans']
-            },
-        'uniform (adaptive-det)': # (adaptive-det)':
-            {
-                'compresstype':['uniform'],
-                'adaptive':[True],
-                'stoch':[False],
-                'skipquant':[False]
-            },
-        'DCCL':
-            {
-                'compresstype':['dca']
-            },
-        'Dim. reduction':
-            {
-                'compresstype':['nocompress']
-            }
-    }
-    y_metric = 'val-err' if use_heldout else 'test-err'
-    plt.figure()
-    plot_driver(all_results,
-        subset_info,
-        info_per_line,
-        'compression-ratio',
-        y_metric,
-        logx=True,
-        title='{},{}: Sentiment analysis perf. ({}) vs. memory'.format(embedtype,dataset,y_metric),
-        var_info=var_info,
-        csv_file=csv_file
-    )
-    # plt.ylim(70.5,74.5)
-    crs = [1,1.5,3,6,8,16,32]
-    plt.xticks(crs,crs)
-    # plt.show()
-    save_plot('{}_{}_{}_vs_compression.pdf'.format(embedtype,dataset,y_metric))
-
-def plot_ICML_sentiment_results_fasttext1m(dataset,use_heldout):
-    filename = 'ICML_results.json'
-    embedtype = 'fasttext1m'
-    evaltype = 'sentiment'
-    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                    filename))
-    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                   '{}_{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype, dataset)))
-    all_results = utils.load_from_json(results_file)
-    all_results = clean_results(all_results)
-
-    var_info = ['seed',[1,2,3,4,5]]
-    subset_info = {
-        'evaltype':[evaltype],
-        'embedtype':[embedtype],
-        'dataset':[dataset]
-    }
-    info_per_line = {
-        'kmeans':
-            {
-                'compresstype':['kmeans']
-            },
-        'uniform (adaptive-det)': # (adaptive-det)':
-            {
-                'compresstype':['uniform'],
-                'adaptive':[True],
-                'stoch':[False],
-                'skipquant':[False]
-            },
-        'DCCL':
-            {
-                'compresstype':['dca']
-            },
-    }
-    y_metric = 'val-err' if use_heldout else 'test-err'
-    plt.figure()
-    plot_driver(all_results,
-        subset_info,
-        info_per_line,
-        'compression-ratio',
-        y_metric,
-        logx=True,
-        title='{},{}: Sentiment analysis perf. ({}) vs. memory'.format(embedtype,dataset,y_metric),
-        var_info=var_info,
-        csv_file=csv_file
-    )
-    # plt.ylim(70.5,74.5)
-    crs = [8,16,32]
-    plt.xticks(crs,crs)
-    # plt.show()
-    save_plot('{}_{}_{}_vs_compression.pdf'.format(embedtype,dataset,y_metric))
-
-def plot_ICML_sentiment_results_gloveWiki400kAm(dataset, use_heldout):
-    filename = 'ICML_results.json'
-    embedtype = 'glove-wiki400k-am'
-    evaltype = 'sentiment'
-    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                    filename))
-    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                   '{}_{}_{}_{}.csv'.format(filename[:-5], embedtype, evaltype, dataset)))
-    all_results = utils.load_from_json(results_file)
-    all_results = clean_results(all_results)
-    all_results_tmp = []
-    vocab = 400000
-    for result in all_results:
-        result['memory'] = vocab * result['embeddim'] * result['bitrate']
-        all_results_tmp.append(result)
-    all_results = all_results_tmp
-    bitrates = [1,2,4,8,16]
-    subset_info = {
-        'embeddim':[25,50,100,200,400],
-        'evaltype':[evaltype],
-        'embedtype':[embedtype],
-        'dataset':[dataset]
-    }
-    info_per_line = {}
-    for b in bitrates:
-        info_per_line['b={}'.format(b)] = {
-            'bitrate':[b],
-            'compresstype':['uniform'],
-            'adaptive':[True],
-            'stoch':[False],
-            'skipquant':[False]
-        }
-    info_per_line['b=32'] = {
-        'bitrate':[32],
-        'compresstype':['nocompress'],
-    }
-    var_info = ['seed',[1,2,3,4,5]]
-    y_metric = 'val-err' if use_heldout else 'test-err'
-    plt.figure()
-    plot_driver(all_results,
-        subset_info,
-        info_per_line,
-        'memory',
-        y_metric,
-        logx=True,
-        title='{},{}: Sentiment analysis perf. ({}) vs. memory'.format(embedtype,dataset,y_metric),
-        var_info=var_info,
-        csv_file=csv_file
-    )
-    save_plot('{}_{}_{}_vs_compression.pdf'.format(embedtype,dataset,y_metric))
-
-def plot_ICML_intrinsic_results(embedtype,y_metric):
-    filename = 'ICML_results.json'
-    evaltype = 'intrinsics'
-    results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results', filename))
-    output_file_str = '{}_{}_{}_vs_compression'.format(embedtype, evaltype, y_metric)
-    csv_file = str(pathlib.PurePath(utils.get_base_dir(), 'results',
-                   output_file_str + '.csv'))
-    all_results = utils.load_from_json(results_file)
-    all_results = clean_results(all_results)
-
-    var_info = ['seed',[1,2,3,4,5]]
-    subset_info = {
-        'evaltype':[evaltype],
-        'embedtype':[embedtype]
-    }
+    if evaltype == 'sentiment':
+        assert dataset, 'Must specify dataset for sentiment analysis plots.'
+        subset_info['dataset'] = [dataset]
     if embedtype in ['glove400k','fasttext1m']:
         x_metric = 'compression-ratio'
         info_per_line = {
@@ -784,7 +395,7 @@ def plot_ICML_intrinsic_results(embedtype,y_metric):
         x_metric,
         y_metric,
         logx=True,
-        title='{}: Intrinsic perf. ({}) vs. memory'.format(embedtype,y_metric),
+        title='{}: {} perf. ({}) vs. memory'.format(embedtype, evaltype, y_metric),
         var_info=var_info,
         csv_file=csv_file
     )
@@ -792,28 +403,40 @@ def plot_ICML_intrinsic_results(embedtype,y_metric):
     # plt.ylim(70.5,74.5)
     if embedtype in ['glove400k','fasttext1m']:
         plt.xticks(crs,crs)
-    save_plot(output_file_str + '.pdf')
+    plt.savefig(plot_file)
 
-def plot_all_ICML_qa_results():
-    plot_ICML_qa_results_glove400k()
-    plot_ICML_qa_results_fasttext1m()
-    plot_ICML_qa_results_gloveWiki400kAm()
-
-def plot_all_ICML_sentiment_results():
-    datasets = ['mr','subj','cr','sst','trec','mpqa']
-    use_heldouts = [True,False]
-    for use_heldout in use_heldouts:
-        for dataset in datasets:
-            plot_ICML_sentiment_results_glove400k(dataset, use_heldout)
-            plot_ICML_sentiment_results_fasttext1m(dataset, use_heldout)
-            plot_ICML_sentiment_results_gloveWiki400kAm(dataset, use_heldout)
-
-def plot_all_ICML_intrinsic_results():
+def plot_all_ICML_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
+
+    # QA
+    evaltype = 'qa'
+    y_metric = 'best-f1'
+    for embedtype in embedtypes:
+        plot_ICML_results(embedtype, evaltype, y_metric)
+
+    # SENTIMENT
+    evaltype = 'sentiment'
+    y_metrics = ['val-err','test-err']
+    datasets = ['mr','subj','cr','sst','trec','mpqa']
+    for embedtype in embedtypes:
+        for y_metric in y_metrics:
+            for dataset in datasets:
+                plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset)
+
+    # INTRINSICS
+    evaltype = 'intrinsics'
     y_metrics = ['analogy-avg-score','similarity-avg-score']
     for embedtype in embedtypes:
         for y_metric in y_metrics:
-            plot_ICML_intrinsic_results(embedtype,y_metric)
+            plot_ICML_results(embedtype, evaltype, y_metric)
+
+    # SYNTHETICS
+    evaltype = 'synthetics'
+    y_metrics = ['embed-frob-error', 'embed-spec-error', 'semantic-dist', 'gram-frob-error', 'gram-spec-error']
+    for embedtype in embedtypes:
+        for y_metric in y_metrics:
+            plot_ICML_results(embedtype, evaltype, y_metric)
+
 
 # def construct_ICML_sentiment_figure():
 #     datasets = ['mr','subj','cr','sst','trec','mpqa']
@@ -823,8 +446,6 @@ def plot_all_ICML_intrinsic_results():
 #     for dataset in datasets:
 #         for i,embedtype in enumerate(embedtypes):
 #             table_str = 
-
-
 
 if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
@@ -840,4 +461,4 @@ if __name__ == '__main__':
     #gather_ICML_results()
     # plot_ICML_qa_results()
     # plot_all_ICML_sentiment_results()
-    plot_all_ICML_intrinsic_results()
+    plot_all_ICML_results()
