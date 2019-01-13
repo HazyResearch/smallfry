@@ -404,6 +404,7 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
     if embedtype in ['glove400k','fasttext1m']:
         plt.xticks(crs,crs)
     plt.savefig(plot_file)
+    plt.close()
 
 def plot_all_ICML_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
@@ -437,6 +438,30 @@ def plot_all_ICML_results():
         for y_metric in y_metrics:
             plot_ICML_results(embedtype, evaltype, y_metric)
 
+def check_embedding_standard_deviation():
+    embedding_paths = [
+        '/proj/smallfry/base_embeddings/fasttext1m/wiki-news-300d-1M.vec',
+        '/proj/smallfry/base_embeddings/glove400k/glove.6B.50d.txt',
+        '/proj/smallfry/base_embeddings/glove400k/glove.6B.100d.txt',
+        '/proj/smallfry/base_embeddings/glove400k/glove.6B.200d.txt',
+        '/proj/smallfry/base_embeddings/glove400k/glove.6B.300d.txt',
+        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,100_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,100_threads,72_embeds.txt',
+        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,200_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,200_threads,72_embeds.txt',
+        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,25_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,25_threads,72_embeds.txt',
+        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,400_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,400_threads,72_embeds.txt',
+        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,50_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,50_threads,72_embeds.txt',
+        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,800_threads,72_lr,0.025/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,800_threads,72_lr,0.025_embeds.txt',
+    ]
+    embedtypes = ['fasttext1m'] * 1 + ['glove400k'] * 4 + ['glove-wiki400k-am'] * 6
+
+    filename = '/proj/smallfry/results/embedding_stdevs.csv'
+    with open(filename,'w') as f:
+        for i,embedding_path in enumerate(embedding_paths):
+            embedding,_ = utils.load_embeddings(embedding_path)
+            embedtype = embedtypes[i]
+            dim = embedding.shape[0]
+            stdev = np.std(embedding)
+            f.write('{},{},{},{}\n'.format(embedding_path, embedtype, dim, stdev))
 
 # def construct_ICML_sentiment_figure():
 #     datasets = ['mr','subj','cr','sst','trec','mpqa']
