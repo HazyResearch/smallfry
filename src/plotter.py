@@ -459,7 +459,7 @@ def check_embedding_standard_deviation():
         for i,embedding_path in enumerate(embedding_paths):
             embedding,_ = utils.load_embeddings(embedding_path)
             embedtype = embedtypes[i]
-            dim = embedding.shape[0]
+            dim = embedding.shape[1]
             stdev = np.std(embedding)
             f.write('{},{},{},{}\n'.format(embedding_path, embedtype, dim, stdev))
 
