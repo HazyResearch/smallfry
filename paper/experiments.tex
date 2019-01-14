@@ -21,6 +21,7 @@ Specifically, in Figure~\ref{fig:comparison_results} we compare the performance 
 on four types of NLP tasks (question answering, sentiment analysis, word analogy, word similarity).
 For the dimensionality reduction baseline, we evaluate the performance of the lower-dimensional pre-trained GloVe embeddings ($d\in\{50,100,200,300\}$, and compare their performance to the compressed 300-dimensional embeddings.
 We use five random seeds per compression configuration, and plot the average performance per task, using error bars to denote the standard deviation.
+\todo{Reorganize this a bit, to put explanation of tasks before the results.}
 
 We now provide some details on how we performed each of these evaluations; for more information, please see Appendix~\ref{app:experiment_details}.
 For the question answering task, we train the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD 1.1) \citep{squad16}.
@@ -109,3 +110,4 @@ We consider the $400k$ most frequent words.}
 We then compress these embeddings via uniform quantization, for precisions $b\in\{1,2,4,8,16,32\}$.
 As in Section~\ref{sec:exp_comparison}, we consider performance on question answering, sentiment analysis, word analogy, and word similarity tasks, and present results in Figure~\ref{fig:dimVsPrec}.
 As we can see, across a wide-range of memory budgets, the low-precision high-dimensional embeddings outperform the higher-precision lower-dimensional embeddings of equal size.
+\todo{Mention that we think slow-spectrum explains why $b=1$ is best.}

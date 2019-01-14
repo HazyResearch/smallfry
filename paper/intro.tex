@@ -5,7 +5,7 @@ However, these word embeddings can occupy a very large amount of memory, making 
 Thus, compressing these embeddings is an important problem.
 
 Designing embedding compression methods with both strong empirical performance and provable generalization bounds for downstream tasks is challenging.
-There have been numerous important works proposing compression schemes for word embeddings and studying their empirical performance \citep{sparse16,andrews16,dccl17,chen2018learning};
+There have been numerous important works proposing compression schemes for word embeddings and studying their empirical performance \citep{sparse16,andrews16,dccl17,kway18};
 for example, current state-of-the-art methods train neural network models to represent each word as a sum of vectors from learned dictionaries \citep{dccl17}.
 Although these methods can attain large reductions in memory while performing well on tasks such as language modeling \citep{mikolov10} and machine translation \citep{bahdanau15}, to the best of our knowledge there exists no analysis describing the effect compression has on generalization performance for these methods.
 
@@ -16,7 +16,7 @@ This simple approach can compress large embeddings in seconds on a single CPU co
 
 Empirically, we demonstrate that this method can match the performance of the state-of-the-art compression schemes on question answering, sentiment analysis, and word analogy and similarity tasks, for both GloVe \citep{glove14} and fastText \citep{fasttext18} embeddings.
 Using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, for example, it attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the deep dictionary learning method of \citet{dccl17} is 0.43\% below.
-\todo{Discuss other tasks}
+%\todo{Discuss other tasks}
 
 Theoretically, we show in the context of linear ridge regression that quantization has a negligible effect on generalization performance when the quantization noise is small relative to the regularization parameter.
 Furthermore, we show that when the spectrum of the word embedding matrix decays slowly (which we empirically observe to be true), strong regularization has minimal impact on generalization performance.

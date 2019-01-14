@@ -47,7 +47,7 @@ By applying this definition to $\tX\tX^T + \lambda I_n$ and $XX^T + \lambda I_n$
 	\end{eqnarray*}
 	\label{prop:genbound}
 \end{proposition}
-\todo{Discuss how what we will show differs from what is shown in kernel paper.}
+%\todo{Discuss how what we will show differs from what is shown in kernel paper.}
 
 \subsection{Theoretical Results}
 \label{sec:theory_results}
@@ -71,27 +71,27 @@ We now present our main theoretical result, deferring all proofs to the Appendix
 	\end{eqnarray*}
 	for $L \defeq 5 \cdot \frac{2^b \cdot \delta_b^2}{\lambda}\cdot \frac{n}{d}$.
 \end{theorem}
-\todo{Discuss assumption of bounded embedding entries.}\\
 Note that in this theorem, we assume the embedding matrix is bounded, whereas in the actual implementation of our compression algorithm (Alg.~\ref{alg:smallfry}) we enforce this constraint artificially by searching for the optimal threshold at which to clip the matrix entries.
+\todo{Say more about boundedness assumption.}
 To better understand the implications of the above theorem, we present the following corollary:
 \begin{corollary}
 	\label{cor:main}
-	If $\Delta_1 \geq \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx \frac{5n}{2^b \lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
+	If $\Delta_1 \geq \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx 5n\cdot \frac{\delta_b}{\lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
 	then $\Prob\big[(1 - \Delta_1) (K + \lambda I_n) \preceq \tK + \lambda I_n \big] \geq  1 - \rho$. 
-	Similarly, if $\Delta_2 \geq \frac{\delta_b^2}{\lambda} +  \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx \frac{1}{2^{2b}\lambda} + \frac{5n}{2^b \lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
+	Similarly, if $\Delta_2 \geq \frac{\delta_b^2}{\lambda} +  \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx \frac{\delta_b^2}{\lambda} + 5n\cdot \frac{\delta_b}{\lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
 	then $\Prob\big[\tK + \lambda I_n \preceq (1 + \Delta_2) (K + \lambda I_n)\big] \geq  1 - \rho$. 
 \end{corollary}
 
-This corollary makes clear that if $2^b\lambda$ is large, the $b$-bit compressed embedding matrix will be a close spectral approximation of the full-precision matrix, for small $\Delta_1$ and $\Delta_2$.
+This corollary makes clear that if $\delta_b/\lambda$ is small, the $b$-bit compressed embedding matrix will be a close spectral approximation of the full-precision matrix, for small $\Delta_1$ and $\Delta_2$.
 In the following theorem, we show that when the smallest singular value of $X^TX$ is large, using a large regularization parameter $\lambda$ will not significantly harm the generalization performance of $f_X$, relative to using a smaller $\lambda$.
 Combining this result with Proposition~\ref{prop:genbound} and Theorem~\ref{thm:main}, we can conclude that the generalization performance of a linear model trained on low-precision features with a large regularizer $\lambda$ will not be much worse than the performance of a model trained on the full-precision features with any $\lambda' \leq \lambda$.
 We now present the result:
 
 \begin{theorem}
 	\label{thm:large_lambda}
-	Let $X$ be an embedding matrix, and $\by$ be the corresponding vector of labels. Let $\sm$ be the smallest eigenvalue of $X^T X$, and let $\lambda_1, \lambda_2$ be two scalars such that $0 \leq \lambda_1 \leq \lambda_2 \leq a\cdot \sm$, for some $a \in [0,1]$. Letting $\cR_{\lambda}(K)$ denote the expected loss when training with regularizer $\lambda$, Gram matrix $K = XX^T$, and label noise $\sigma^2$, we get that:
+	Let $X$ be an embedding matrix, and $\by$ be the corresponding vector of labels. Let $\sm$ be the smallest eigenvalue of $X^T X$, and let $\lambda', \lambda$ be two scalars such that $0 \leq \lambda' \leq \lambda \leq a\cdot \sm$, for some $a \in [0,1]$. Letting $\cR_{\lambda}(K)$ denote the expected loss when training with regularizer $\lambda$, Gram matrix $K = XX^T$, and label noise $\sigma^2$, we get that:
 	\begin{equation}
-	R_{\lambda_2}(XX^T) - R_{\lambda_1}(XX^T) \leq a^2\|y\|^2/n
+	\frac{1}{\|y\|^2/n}\Big(R_{\lambda}(XX^T) - R_{\lambda'}(XX^T)\Big) \leq a^2
 	\label{eq1}
 	\end{equation}
 \end{theorem}
@@ -105,7 +105,7 @@ we present plots of the singular values for fastText and Glove embeddings in Fig
 \label{sec:theory_validation}
 In this section, we empirically validate two important predictions made by the above theoretical results: (1) When $\delta_b/\lambda$ is small, $\Delta_1$ and $\Delta_2$ are small. (2) When $X^T X$ has a large smallest eigenvalue, generalization performance is not significantly harmed by using a large regularizer $\lambda$.
 Lastly, we show that in general word embedding matrices have a relatively large smallest singular value;
-combining this observation with the above theoretical results helps explain the strong performance of the uniformly quantized embeddings, even at very low precisions. \todo{Is this the right place for this empirical observation?}
+combining this observation with the above theoretical results helps explain the strong performance of the uniformly quantized embeddings, even at very low precisions.
 
 To validate the first prediction, we uniformly quantize a random matrix $X$ with various precisions $b$, and then measure the values of $\Delta_1$ and $\Delta_2$ for which the quantized Gram matrix is a $(\Delta_1,\Delta_2)$-spectral approximation of the full-precision Gram matrix.
 More specifically, we randomly generate a matrix $X \in \RR^{1000 \times 30}$, where each entry is drawn uniformly from $[-\frac{1}{\sqrt{30}},\frac{1}{\sqrt{30}}]$.
@@ -114,18 +114,16 @@ Next, we compute the minimum values of $\Delta_1$ and $\Delta_2$ for which $\tX\
 In Figure~\ref{fig:micro_d1d2}, we plot the values of $\Delta_1$ and $\Delta_2$ as a function of $\delta_b/\lambda$, where $\delta_b \defeq 1/(2^b-1)$.
 As we can see, the values of $\Delta_1$ and $\Delta_2$ are largely governed by the value of $\delta_b/\lambda$; when $\delta_b/\lambda$ is small, so are $\Delta_1$ and $\Delta_2$.
 
-
 To validate the second prediction, we measure how the generalization error of a simple linear model grows as a function of the ratio between the regularization parameter $\lambda$ and the smallest eigenvalue of the covariance matrix $X^T X$.
 Specifically, we consider the noiseless model $y = Xw^*$, where each entry of $X \in \RR^{1000 \times 2}$ is drawn from a zero-mean Gaussian with variance $\sigma^2$, and $w^*=[0,1]$.
-Then, for various values of $\sigma$, and various values of $\lambda$, we learn the linear ridge regression model $w = ( X^T X + \lambda I_d)^{-1}X^Ty$, and measure the means-squared error $\|Xw-y\|_2^2$
+Then, for various values of $\sigma$, and various values of $\lambda$, we learn the linear ridge regression model $w = (X^T X + \lambda I_d)^{-1}X^Ty$, and measure the mean-squared error $\|Xw-y\|_2^2$ as well as $\sigma_{min}(X^T X)$.
+Because we are in the noiseless setting, $\lambda'=0$ attains a mean-squared error of zero.
+We are thus interested in understanding how quickly generalization performance degrades as $\lambda$ is increased to larger positive values.
+In Figure~\ref{fig:micro_large_sigma_min} we plot the LHS of Equation~\eqref{eq1} as a function of the ratio $a \defeq \lambda/\sigma_{min}$ for the various settings discussed above.
+We see that when $a$ is small, the mean-squared error of the model trained with $\lambda$ performs similarly to using $\lambda'=0$, as predicted by the theory.
 
-%we consider a simple linear model $y=w^T x$, and measure how the generalization error as the ratio $a\defeq grows as the regularization parameter $\lambda$ grows, 
-
-
-
-%	(Figure~\ref{fig:micro_large_sigma_min}).
-
-
+Lastly, in Figure~\ref{fig:real_spectra} we show that for real word embedding matrices the spectra decay quite slowly, such that the smallest eigenvalue is relatively large.
+Combining this empirical observations with the theorems discussed above provides a principled explanation for why quantized word embeddings can attain strong empirical performance at such high compression rates.
 
 \begin{figure*}
 	\centering
@@ -143,7 +141,7 @@ Then, for various values of $\sigma$, and various values of $\lambda$, we learn 
 		\centerline{\includegraphics[width=0.8\columnwidth]{figures/micro_large_sigma_min.pdf}}
 		\caption{We show that the ratio $a=\frac{\lambda}{\sigma_{min}}$ between the regularization parameter $\lambda$ and the smallest eigenvalue $\sigma_{min}$ of $X^T X$ is very predictive of the degradation in generalization performance $\|\by - y_{pred}\|^2/\|\by\|^2$, as predicted by Theorem~\ref{thm:large_lambda}.
 		In particular, we generate an i.i.d. Gaussian matrix $X\in \RR^{1000\times 2}$ for various standard deviations $\sigma$, and consider the noiseless model $\by_i = [0,1]^T x_i$.
-		We then solve for the optimal ridge regression model for various values of $\lambda$, and plot $a$ vs.\ the normalized degradation in generalization performance of this model. \todo{TODO: Perhaps plot a more realistic example?}
+		We then solve for the optimal ridge regression model for various values of $\lambda$, and plot $a$ vs.\ the normalized degradation in generalization performance of this model. \todo{TODO: Perhaps plot a more realistic example?  And use $\|\by - y_{pred}\|^2/(\|\by\|^2/n)$ as y-axis.}
 		}
 		\label{fig:micro_large_sigma_min}
 	\end{center}
@@ -157,7 +155,8 @@ Then, for various values of $\sigma$, and various values of $\lambda$, we learn 
 		\includegraphics[width=0.4\linewidth]{figures/fasttext1m_spectra.pdf}
 	\end{tabular}
 	\caption{We plot the real spectra of the pre-trained GloVe ($d \in \{50,100,200,300\}$) and fastText ($d=300$) embedding matrices.
-	The smallest singular values are generally only 1 or 2 orders of magnitude smaller than the largest.}
+	The smallest singular values are generally only 1 or 2 orders of magnitude smaller than the largest.  
+	\todo{Add spectra for GloVe embeddings we trained from scratch ($d\in\{25,50,100,200,400\}$).}}
 	\label{fig:real_spectra}
 \end{figure*}
 
