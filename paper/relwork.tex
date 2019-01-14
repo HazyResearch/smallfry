@@ -1,6 +1,12 @@
-\begin{itemize}
-	\item Existing compression methods: DCCL paper \citep{dccl17}, k-means \citep{andrews16}, and sparse representations \citep{sparse16}
-	\item Our paper \citep{lprff18} and Avron's paper \citep{avron17}
-	\item General discussion about low-memory ML? HALP?
-	\item On the Dimensionality of Word Embedding \citep{yin18}.
-\end{itemize}
+Compressing word embeddings has been an active topic in natural language processing. Existing methods can achieve strong empirical performance by learning an approximation in the framework of sparse dictionary learning. In this framework, words are represented as sparse combinations of learned dictionary entry vectors. \cite{murphy2012learning} and \cite{sparse16} investigated non-negative sparse matrix factorization for embedding compression on NLP tasks such as language modeling. Recently, deep decompositional code learning \cite{dccl17} (DCCL) and K-way discrete code learning \cite{chen2018learning} independently proposed learning multi-dictionary representation using auto-encoders. This approach represents a word by combining exactly one entry from each dictionary; the compressed embedding demonstrate high compression rate while matching the state-of-the-art performance on machine translation, sentiment analysis and graph embeddings. In this paper, we work on the simple and fast uniform quantization method for word embedding compression. We show this simple approach can match the empirical performance of state-of-the-art computationally expensive approaches, without time-consuming training procedures.
+
+Our analysis on the impact of quantization on generalization builds on recent concepts from matrix spectral approximation~\citep{avron17, lprff18}. We use matrix concentrations bounds to quantify the guarantees on generalization bounds for embeddings compressed with uniform quantization.
+
+
+
+%\begin{itemize}
+%	\item Existing compression methods: DCCL paper \citep{dccl17}, K-way code \citep{chen2018learning}, k-means \citep{andrews16}, and sparse representations \citep{sparse16}
+%	\item Our paper \citep{lprff18} and Avron's paper \citep{avron17}
+%	\item Recently there are works with good empirical performances: Sparsity and quantization. Quantization: k means method. Sparsity: based on variants of dictionary learning: dictionary based learning approaches (including Murphy)--- 1) murphy/chen16 uses NNSE , k way approaches, As another sparsity approach, Andrew also tested with per-dimensional sparsity using auto encoder. K means quantization . These method improves iterative training process, in this paper we use no training
+%	\item Our generalization builds on matrix spectral approximation techniques and matrix concentration bounds. We use Bernstein to understand the guarantees on the generalizatin performance of blabla.
+%\end{itemize}
