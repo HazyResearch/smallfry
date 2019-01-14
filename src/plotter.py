@@ -426,7 +426,19 @@ def plot_all_ICML_results():
 
     # INTRINSICS
     evaltype = 'intrinsics'
-    y_metrics = ['analogy-avg-score','similarity-avg-score']
+    y_metrics = ['bruni_men',
+                 'luong_rare',
+                 'radinsky_mturk',
+                 'simlex999',
+                 'ws353',
+                 'ws353_relatedness',
+                 'ws353_similarity',
+                 'google-add',
+                 'google-mul',
+                 'msr-add',
+                 'msr-mul',
+                 'analogy-avg-score',
+                 'similarity-avg-score']
     for embedtype in embedtypes:
         for y_metric in y_metrics:
             plot_ICML_results(embedtype, evaltype, y_metric)
