@@ -7,6 +7,7 @@
 !*.bib
 !*.bst
 !paper/figures/*.pdf
+!paper/figures/*.csv
 # And all the file types you're interested in.
 !*.py
 !*.txt

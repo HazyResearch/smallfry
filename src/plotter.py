@@ -26,6 +26,9 @@ def clean_results(results):
         if result['compresstype'] in ['uniform','nocompress','kmeans']:
             vocab = utils.get_embedding_vocab(result['embedtype'])
             result['memory'] = vocab * result['embeddim'] * result['bitrate']
+        if 'test-err' in result:
+            result['test-acc'] = 1-result['test-err']
+            result['val-acc'] = 1-result['val-err']
         cleaned.append(result)
     return cleaned
 
@@ -330,12 +333,6 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
     all_results = utils.load_from_json(results_file)
     all_results = clean_results(all_results)
 
-    # prepare filenames of output csv and pdf files.
-    output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-        '{}_{}_{}_vs_compression'.format(embedtype, evaltype, y_metric)))
-    csv_file = output_file_str + '.csv'
-    plot_file = output_file_str + '.pdf'
-
     var_info = ['seed',[1,2,3,4,5]]
     subset_info = {
         'evaltype':[evaltype],
@@ -344,6 +341,16 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
     if evaltype == 'sentiment':
         assert dataset, 'Must specify dataset for sentiment analysis plots.'
         subset_info['dataset'] = [dataset]
+        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+            '{}_{}_{}_{}_vs_compression'.format(embedtype, evaltype, dataset, y_metric)))
+    else:
+        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+            '{}_{}_{}_vs_compression'.format(embedtype, evaltype, y_metric)))
+
+    # prepare filenames of output csv and pdf files.
+    csv_file = output_file_str + '.csv'
+    plot_file = output_file_str + '.pdf'
+
     if embedtype in ['glove400k','fasttext1m']:
         x_metric = 'compression-ratio'
         info_per_line = {
@@ -406,62 +413,91 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
     plt.savefig(plot_file)
     plt.close()
 
-def plot_all_ICML_results():
+def plot_qa_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
-
-    # QA
     evaltype = 'qa'
     y_metric = 'best-f1'
     for embedtype in embedtypes:
         plot_ICML_results(embedtype, evaltype, y_metric)
 
-    # SENTIMENT
+def plot_sentiment_results():
+    embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
     evaltype = 'sentiment'
-    y_metrics = ['val-err','test-err']
+    y_metrics = ['val-acc','test-acc']
     datasets = ['mr','subj','cr','sst','trec','mpqa']
     for embedtype in embedtypes:
         for y_metric in y_metrics:
             for dataset in datasets:
                 plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset)
 
-    # INTRINSICS
+def plot_intrinsic_results():
+    embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
     evaltype = 'intrinsics'
-    y_metrics = ['analogy-avg-score','similarity-avg-score']
+    y_metrics = ['bruni_men',
+                 'luong_rare',
+                 'radinsky_mturk',
+                 'simlex999',
+                 'ws353',
+                 'ws353_relatedness',
+                 'ws353_similarity',
+                 'google-add',
+                 'google-mul',
+                 'msr-add',
+                 'msr-mul',
+                 'analogy-avg-score',
+                 'similarity-avg-score']
     for embedtype in embedtypes:
         for y_metric in y_metrics:
             plot_ICML_results(embedtype, evaltype, y_metric)
 
-    # SYNTHETICS
+def plot_synthetic_results():
+    embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
     evaltype = 'synthetics'
     y_metrics = ['embed-frob-error', 'embed-spec-error', 'semantic-dist', 'gram-frob-error', 'gram-spec-error']
     for embedtype in embedtypes:
         for y_metric in y_metrics:
             plot_ICML_results(embedtype, evaltype, y_metric)
 
-def check_embedding_standard_deviation():
+def plot_embedding_standard_deviation():
     embedding_paths = [
         '/proj/smallfry/base_embeddings/fasttext1m/wiki-news-300d-1M.vec',
         '/proj/smallfry/base_embeddings/glove400k/glove.6B.50d.txt',
         '/proj/smallfry/base_embeddings/glove400k/glove.6B.100d.txt',
         '/proj/smallfry/base_embeddings/glove400k/glove.6B.200d.txt',
         '/proj/smallfry/base_embeddings/glove400k/glove.6B.300d.txt',
+        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,25_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,25_threads,72_embeds.txt',
+        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,50_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,50_threads,72_embeds.txt',
         '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,100_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,100_threads,72_embeds.txt',
         '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,200_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,200_threads,72_embeds.txt',
-        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,25_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,25_threads,72_embeds.txt',
         '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,400_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,400_threads,72_embeds.txt',
-        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,50_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,50_threads,72_embeds.txt',
         '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,800_threads,72_lr,0.025/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,800_threads,72_lr,0.025_embeds.txt',
     ]
     embedtypes = ['fasttext1m'] * 1 + ['glove400k'] * 4 + ['glove-wiki400k-am'] * 6
-
-    filename = '/proj/smallfry/results/embedding_stdevs.csv'
-    with open(filename,'w') as f:
+    glove_dims = np.array([25,50,100,200,400,800])
+    glove_stds = np.array([0]*6)
+    ind = 0
+    output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+        'glove-wiki400k-am_embed-stdev_vs_dim'))
+    csv_file = output_file_str + '.csv'
+    plot_file = output_file_str + '.pdf'
+    with open(csv_file,'w') as f:
         for i,embedding_path in enumerate(embedding_paths):
             embedding,_ = utils.load_embeddings(embedding_path)
             embedtype = embedtypes[i]
             dim = embedding.shape[1]
             stdev = np.std(embedding)
             f.write('{},{},{},{}\n'.format(embedding_path, embedtype, dim, stdev))
+            if embedtype == 'glove-wiki400k-am':
+                assert dim == glove_dims[ind]
+                glove_stds[ind] = stdev
+                ind = ind + 1
+    plt.figure()
+    plt.plot(1/np.sqrt(glove_dims), glove_stds)
+    plt.title('GloVe embedding matrix st-dev vs. 1/sqrt(dim)')
+    plt.xlabel('1/sqrt(dim)')
+    plt.ylabel('Embedding standard deviation')
+    plt.savefig(plot_file)
+    plt.close()
 
 # def construct_ICML_sentiment_figure():
 #     datasets = ['mr','subj','cr','sst','trec','mpqa']
@@ -471,6 +507,13 @@ def check_embedding_standard_deviation():
 #     for dataset in datasets:
 #         for i,embedtype in enumerate(embedtypes):
 #             table_str = 
+
+def plot_all_ICML_results():
+    plot_qa_results()
+    plot_sentiment_results()
+    plot_intrinsic_results()
+    plot_synthetic_results()
+    plot_embedding_standard_deviation()
 
 if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
