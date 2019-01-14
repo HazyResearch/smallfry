@@ -333,12 +333,6 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
     all_results = utils.load_from_json(results_file)
     all_results = clean_results(all_results)
 
-    # prepare filenames of output csv and pdf files.
-    output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-        '{}_{}_{}_vs_compression'.format(embedtype, evaltype, y_metric)))
-    csv_file = output_file_str + '.csv'
-    plot_file = output_file_str + '.pdf'
-
     var_info = ['seed',[1,2,3,4,5]]
     subset_info = {
         'evaltype':[evaltype],
@@ -347,6 +341,16 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
     if evaltype == 'sentiment':
         assert dataset, 'Must specify dataset for sentiment analysis plots.'
         subset_info['dataset'] = [dataset]
+        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+            '{}_{}_{}_{}_vs_compression'.format(embedtype, evaltype, dataset, y_metric)))
+    else:
+        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+            '{}_{}_{}_vs_compression'.format(embedtype, evaltype, y_metric)))
+
+    # prepare filenames of output csv and pdf files.
+    csv_file = output_file_str + '.csv'
+    plot_file = output_file_str + '.pdf'
+
     if embedtype in ['glove400k','fasttext1m']:
         x_metric = 'compression-ratio'
         info_per_line = {
