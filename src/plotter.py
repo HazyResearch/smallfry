@@ -468,8 +468,11 @@ def plot_embedding_standard_deviation():
     glove_dims = np.array([25,50,100,200,400,800])
     glove_stds = np.array([0]*6)
     ind = 0
-    filename = '/proj/smallfry/results/embedding_stdevs.csv'
-    with open(filename,'w') as f:
+    output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+        'glove-wiki400k-am_embed-stdev_vs_dim'))
+    csv_file = output_file_str + '.csv'
+    plot_file = output_file_str + '.pdf'
+    with open(csv_file,'w') as f:
         for i,embedding_path in enumerate(embedding_paths):
             embedding,_ = utils.load_embeddings(embedding_path)
             embedtype = embedtypes[i]
@@ -480,12 +483,11 @@ def plot_embedding_standard_deviation():
                 assert dim == glove_dims[ind]
                 glove_stds[ind] = stdev
                 ind = ind + 1
+    plt.figure()
     plt.plot(1/np.sqrt(glove_dims), glove_stds)
     plt.title('GloVe embedding matrix st-dev vs. 1/sqrt(dim)')
     plt.xlabel('1/sqrt(dim)')
     plt.ylabel('Embedding standard deviation')
-    plot_file = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-        'glove-wiki400k-am_embed-stdev_vs_dim.pdf'))
     plt.savefig(plot_file)
     plt.close()
 
