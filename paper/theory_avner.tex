@@ -165,7 +165,8 @@ Combining this empirical observations with the theorems discussed above provides
 One way to understand why it is important for us to search for the optimal clipping value in Algorithm~\ref{alg:smallfry} is by understanding the way clipping and quantization together impact $\Delta_1$ and $\Delta_2$.
 This perspective reveals that there is a fundamental trade-off between $\Delta_1$ and $\Delta_2$ when choosing the clipping value:
 if the clip value is too large, then $\Delta_2$ becomes very large, while if the clip value is too small, then $\Delta_1$ becomes very large.
-We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}
+We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}.
+\todo{Polish and expand the discussion here, and discuss how using Frobenius error to pick optimal clipping value leads to a nice point on the trade-off curve between $\Delta_1$ and $\Delta_2$.}
 \begin{figure}
 	\begin{center}
 		\centerline{\includegraphics[width=0.8\columnwidth]{figures/deltas_vs_clip_and_quant.pdf}}
