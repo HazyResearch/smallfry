@@ -438,22 +438,24 @@ def plot_all_ICML_results():
         for y_metric in y_metrics:
             plot_ICML_results(embedtype, evaltype, y_metric)
 
-def check_embedding_standard_deviation():
+def plot_embedding_standard_deviation():
     embedding_paths = [
         '/proj/smallfry/base_embeddings/fasttext1m/wiki-news-300d-1M.vec',
         '/proj/smallfry/base_embeddings/glove400k/glove.6B.50d.txt',
         '/proj/smallfry/base_embeddings/glove400k/glove.6B.100d.txt',
         '/proj/smallfry/base_embeddings/glove400k/glove.6B.200d.txt',
         '/proj/smallfry/base_embeddings/glove400k/glove.6B.300d.txt',
+        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,25_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,25_threads,72_embeds.txt',
+        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,50_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,50_threads,72_embeds.txt',
         '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,100_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,100_threads,72_embeds.txt',
         '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,200_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,200_threads,72_embeds.txt',
-        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,25_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,25_threads,72_embeds.txt',
         '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,400_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,400_threads,72_embeds.txt',
-        '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,50_threads,72/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,50_threads,72_embeds.txt',
         '/proj/smallfry/base_embeddings/glove-wiki400k-am/2018-12-18-trainGlove/embedtype,glove_corpus,wiki400k_embeddim,800_threads,72_lr,0.025/rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,800_threads,72_lr,0.025_embeds.txt',
     ]
     embedtypes = ['fasttext1m'] * 1 + ['glove400k'] * 4 + ['glove-wiki400k-am'] * 6
-
+    glove_dims = np.array([25,50,100,200,400,800])
+    glove_stds = np.array([0]*6)
+    ind = 0
     filename = '/proj/smallfry/results/embedding_stdevs.csv'
     with open(filename,'w') as f:
         for i,embedding_path in enumerate(embedding_paths):
@@ -462,6 +464,18 @@ def check_embedding_standard_deviation():
             dim = embedding.shape[1]
             stdev = np.std(embedding)
             f.write('{},{},{},{}\n'.format(embedding_path, embedtype, dim, stdev))
+            if embedtype == 'glove-wiki400k-am':
+                assert dim == glove_dims[ind]
+                glove_stds[ind] = stdev
+                ind = ind + 1
+    plt.plot(1/np.sqrt(glove_dims), glove_stds)
+    plt.title('GloVe embedding matrix st-dev vs. 1/sqrt(dim)')
+    plt.xlabel('1/sqrt(dim)')
+    plt.ylabel('Embedding standard deviation')
+    plot_file = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+        'glove-wiki400k-am_embed-stdev_vs_dim.pdf'))
+    plt.savefig(plot_file)
+    plt.close()
 
 # def construct_ICML_sentiment_figure():
 #     datasets = ['mr','subj','cr','sst','trec','mpqa']
