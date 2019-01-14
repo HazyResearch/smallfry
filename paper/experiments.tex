@@ -1,6 +1,6 @@
 We now evaluate the performance of our word embedding compression algorithm on a variety of NLP tasks (question answering, sentiment analysis, word analogy/similarity) and embeddings types (GloVe, fastText).
-We present two primary conclusions:
-(1) Our compression method is consistently able to match the performance of more complex baselines (DCCL, k-means), while dramatically outperforming a more naive dimensionality reduction baseline (\S\ref{sec:exp_comparison});
+We present two main conclusions:
+(1) Uniform quantization is consistently able to match the performance of more complex baselines (DCCL, k-means), while dramatically outperforming a more naive dimensionality reduction baseline (\S\ref{sec:exp_comparison});
 (2) When considering a fixed memory budget, low-precision high-dimensional embeddings significantly outperform high-precision low-dimensional embeddings (\S\ref{sec:dim_vs_prec}).
 %We observe that in this memory-constrained setting, the best compressed embeddings attain \todo{XX\%} to \todo{YY\%} better performance than the full-precision embeddings.
 This demonstrates the importance of considering low-precision when trying to attain the best possible performance under a memory budget.
@@ -19,7 +19,7 @@ For extended details about all of our experiments, and for results which did not
 In this section, we show that across a variety of tasks and embedding types, uniform quantization performs comparably to the DCCL and k-means compression methods, while significantly outperforming a dimensionality reduction baseline.
 Specifically, in Figure~\ref{fig:comparison_results} we compare the performance of these compression methods on publicly available pre-trained GloVe and fastText embeddings,\footnote{We use the Wikipedia 2014 + Gigaword 5 GloVe embeddings available at \url{http://nlp.stanford.edu/data/glove.6B.zip}, and the 300-dimensional fastText embeddings trained on Wikipedia 2017, UMBC webbase corpus and statmt.org news dataset, available at \url{https://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki-news-300d-1M.vec.zip}}
 on four types of NLP tasks (question answering, sentiment analysis, word analogy, word similarity).
-For the dimensionality reduction baseline, we evaluate the performance of the lower-dimensional pre-trained GloVe embeddings ($d\in\{50,100,200,300\}$, and compare the performance to the compressed 300-dimensional embeddings.
+For the dimensionality reduction baseline, we evaluate the performance of the lower-dimensional pre-trained GloVe embeddings ($d\in\{50,100,200,300\}$, and compare their performance to the compressed 300-dimensional embeddings.
 We use five random seeds per compression configuration, and plot the average performance per task, using error bars to denote the standard deviation.
 
 We now provide some details on how we performed each of these evaluations; for more information, please see Appendix~\ref{app:experiment_details}.
@@ -42,11 +42,11 @@ In Figure~\ref{fig:comparison_results}(c,d) we plot the average performance acro
 	%	\begin{tabular}{c c c c}
 	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
 		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_compression.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_trec_test-err_vs_compression.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_compression.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_compression.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_compression.pdf} \\
 		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_compression.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_trec_test-err_vs_compression.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_trec_test-acc_vs_compression.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_compression.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_compression.pdf} \\
 		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d)
@@ -55,7 +55,6 @@ In Figure~\ref{fig:comparison_results}(c,d) we plot the average performance acro
 Uniform quantization performs similarly to k-means and DCCL on question answering and sentiment analysis;
 on the word analogy and similarity tasks, uniform quantization once again performs similarly to k-means, but outperforms the DCCL method.
 For the GloVe experiments, we are also able to compare with pre-trained embeddings of smaller dimensions ($d\in\{50,100,200,300\}$), and observe that compressing the 300-dimensional embeddings is significantly better than using lower-dimensional full-precision embeddings (``Dim. reduction'').
-\todo{Plot test accuracy instead of error for sentiment analysis, so that plots look more symmetric.}
 }
 \label{fig:comparison_results}
 \end{figure*}
@@ -64,19 +63,19 @@ For the GloVe experiments, we are also able to compare with pre-trained embeddin
 	\centering
 	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
 		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_compression.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_trec_test-err_vs_compression.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_compression.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_compression.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_compression.pdf} \\
 		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d)
 	\end{tabular}			
 %		\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
 %			\includegraphics[width=0.4\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_compression.pdf} &
-%			\includegraphics[width=0.4\linewidth]{figures/glove-wiki400k-am_trec_test-err_vs_compression.pdf} \\
+%			\includegraphics[width=0.4\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_compression.pdf} \\
 %			\;\;\;\;\;(a) & \;\;\;\;\;\;(b) 
 %		\end{tabular}
 \caption{
 Performance of GloVe embeddings of various dimensions ($d\in\{25,50,100,200,400\}$) compressed with uniform quantization for precisions $b \in \{1,2,4,8,16,32\}$, on question answering (a), sentiment analysis (TREC dataset) (b), word analogy (c), and word similarity (d) tasks.
-Here we see that when considering a memory budget, it is best to use low-precision features with high-dimensional embeddings. \todo{Plot test accuracy instead of error for sentiment analysis, so that plots look more symmetric.}}
+Here we see that when considering a memory budget, it is best to use low-precision features with high-dimensional embeddings.}
 \label{fig:dimVsPrec}
 \end{figure*}
 
@@ -85,8 +84,8 @@ Here we see that when considering a memory budget, it is best to use low-precisi
 %	\begin{small}
 %		%		\begin{tabular}{c c c c}
 %		\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-%			\includegraphics[width=0.45\linewidth]{figures/glove400k_trec_test-err_vs_compression.pdf} &
-%			\includegraphics[width=0.45\linewidth]{figures/fasttext1m_trec_test-err_vs_compression.pdf} \\
+%			\includegraphics[width=0.45\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_compression.pdf} &
+%			\includegraphics[width=0.45\linewidth]{figures/fasttext1m_sentiment_trec_test-acc_vs_compression.pdf} \\
 %			\;\;\;\;\;(a) & \;\;\;\;\;\;(b) 
 %		\end{tabular}
 %	\end{small}
@@ -105,8 +104,8 @@ Here we see that when considering a memory budget, it is best to use low-precisi
 %
 %In Figure~\ref{fig:drqa_sent_dimVsPrec}, we show that when considering a fixed memory budget, it is best to use low-precision and high-dimensions, on both question answering and sentiment analysis tasks.
 In this section, we show that when considering a fixed memory budget for uniformly quantized embeddings, low-precision high-dimensional embeddings perform significantly better than high-precision low-dimensional embeddings.
-Specifically, we train GloVe embeddings of various dimensions ($d\in\{25,50,100,200,400\}$) on a Wikipedia 2017 dataset.\footnote{We use a full English Wikimedia dump from December 4, 2017 (4.5 billion tokens) which was pre-processed by a fastText script (\url{https://github.com/facebookresearch/fastText/blob/master/get-wikimedia.sh}) while keeping the letter cases and digits.
+Specifically, we train GloVe embeddings of various dimensions ($d\in\{25,50,100,200,400\}$) on a Wikipedia 2017 corpus.\footnote{We use a full English Wikimedia dump from December 4, 2017 (4.5 billion tokens) which was pre-processed by a fastText script (\url{https://github.com/facebookresearch/fastText/blob/master/get-wikimedia.sh}) while keeping the letter cases and digits.
 We consider the $400k$ most frequent words.}
 We then compress these embeddings via uniform quantization, for precisions $b\in\{1,2,4,8,16,32\}$.
 As in Section~\ref{sec:exp_comparison}, we consider performance on question answering, sentiment analysis, word analogy, and word similarity tasks, and present results in Figure~\ref{fig:dimVsPrec}.
-As we can see, across a wide-range of memory budgets, the low-precision high-dimensional embeddings outperform the high-precision low-dimensional embeddings of equal size.
+As we can see, across a wide-range of memory budgets, the low-precision high-dimensional embeddings outperform the higher-precision lower-dimensional embeddings of equal size.
