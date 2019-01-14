@@ -26,6 +26,9 @@ def clean_results(results):
         if result['compresstype'] in ['uniform','nocompress','kmeans']:
             vocab = utils.get_embedding_vocab(result['embedtype'])
             result['memory'] = vocab * result['embeddim'] * result['bitrate']
+        if 'test-err' in result:
+            result['test-acc'] = 1-result['test-err']
+            result['val-acc'] = 1-result['val-err']
         cleaned.append(result)
     return cleaned
 
@@ -406,25 +409,25 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
     plt.savefig(plot_file)
     plt.close()
 
-def plot_all_ICML_results():
+def plot_qa_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
-
-    # QA
     evaltype = 'qa'
     y_metric = 'best-f1'
     for embedtype in embedtypes:
         plot_ICML_results(embedtype, evaltype, y_metric)
 
-    # SENTIMENT
+def plot_sentiment_results():
+    embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
     evaltype = 'sentiment'
-    y_metrics = ['val-err','test-err']
+    y_metrics = ['val-acc','test-acc']
     datasets = ['mr','subj','cr','sst','trec','mpqa']
     for embedtype in embedtypes:
         for y_metric in y_metrics:
             for dataset in datasets:
                 plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset)
 
-    # INTRINSICS
+def plot_intrinsic_results():
+    embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
     evaltype = 'intrinsics'
     y_metrics = ['bruni_men',
                  'luong_rare',
@@ -443,7 +446,8 @@ def plot_all_ICML_results():
         for y_metric in y_metrics:
             plot_ICML_results(embedtype, evaltype, y_metric)
 
-    # SYNTHETICS
+def plot_synthetic_results():
+    embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
     evaltype = 'synthetics'
     y_metrics = ['embed-frob-error', 'embed-spec-error', 'semantic-dist', 'gram-frob-error', 'gram-spec-error']
     for embedtype in embedtypes:
@@ -499,6 +503,13 @@ def plot_embedding_standard_deviation():
 #     for dataset in datasets:
 #         for i,embedtype in enumerate(embedtypes):
 #             table_str = 
+
+def plot_all_ICML_results():
+    plot_qa_results()
+    plot_sentiment_results()
+    plot_intrinsic_results()
+    plot_synthetic_results()
+    plot_embedding_standard_deviation()
 
 if __name__ == '__main__':
     #plot_frob_squared_vs_bitrate()
