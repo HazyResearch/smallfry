@@ -19,8 +19,7 @@ This simple approach can compress large embeddings in seconds on a single CPU co
 Empirically, we demonstrate that uniform quantization can match the performance of the state-of-the-art compression schemes on a variety of tasks, and that low-precision high-dimensional quantized embeddings can attain significantly better performance than full-precision lower-dimensional embeddings of equal size.
 In our comparisons to other compression schemes, we evaluate performance on question answering, sentiment analysis, and word analogy and similarity tasks, for both GloVe \citep{glove14} and fastText \citep{fasttext18} embeddings.
 Using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, for example, uniform quantization attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the deep dictionary learning method of \citet{dccl17} is 0.43\% below.
-For the fixed memory budget experiments, we train and compress GloVe embeddings at a wide range of dimensions and precisions, and compare performance on the same set of tasks.
-\todo{Give concrete result.}
+For the fixed memory budget experiments, we show that 400-dimensional GloVe embeddings quantized to 1 bit per entry attain an average DrQA F1 score of 77.2\%, while 25-dimensional embeddings quantized to 16 bits per entry get 70.1\%.
 
 Theoretically, we analyze in the context of linear ridge regression how the dimension and precision of uniformly quantized word embeddings jointly impact generalization performance.
 We demonstrate that when choosing the dimension of word embeddings there is a bias-variance trade-off, and that there can thus an optimal dimension; although this phenomenon has been observed \citep{landauer97} and analyzed \citep{yin18} previously, this explanation provides a novel perspective.
