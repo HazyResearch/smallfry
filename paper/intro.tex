@@ -4,27 +4,57 @@ By encoding words as low-dimensional dense vectors, word embeddings allow NLP ta
 However, these word embeddings can occupy a very large amount of memory, making it expensive to deploy them in data centers, and impractical to use them in memory-constrained environments like smart phones.
 Thus, compressing these embeddings is an important problem.
 
-Designing embedding compression methods with both strong empirical performance and provable generalization bounds for downstream tasks is challenging.
-There have been numerous important works proposing compression schemes for word embeddings and studying their empirical performance \citep{sparse16,andrews16,dccl17,kway18};
-for example, current state-of-the-art methods train neural network models to represent each word as a sum of vectors from learned dictionaries \citep{dccl17}.
-Although these methods can attain large reductions in memory while performing well on tasks such as language modeling \citep{mikolov10} and machine translation \citep{bahdanau15}, to the best of our knowledge there exists no analysis describing the effect compression has on generalization performance for these methods.
 
-In this work, we show that a simple compression method based on uniform quantization can empirically compete with the state-of-the-art methods, and we present generalization bounds for the quantized embeddings for linear regression models.
-The compression method has two parts: first, it determines the optimal threshold at which to clip the extreme values in the word embedding matrix using golden section search \citep{golden53}.
-It then uniformly quantizes the clipped embeddings within the clipped interval.
+Designing simple and fast embedding compression methods with strong empirical performance is challenging.
+There have been numerous important works proposing compression schemes for word embeddings and studying their empirical performance \citep{sparse16,andrews16,dccl17,kway18};
+for example, current state-of-the-art methods train neural network models to represent each word as a sum of vectors from learned dictionaries \citep{dccl17,kway18}.
+Although these methods can attain strong performance on a range of natural language processing tasks such as language modeling \citep{mikolov10} and machine translation \citep{bahdanau15}, designing and training the neural network for compression can be time-consuming.
+
+%Designing embedding compression methods with both strong empirical performance and provable generalization bounds for downstream tasks is challenging.
+%There have been numerous important works proposing compression schemes for word embeddings and studying their empirical performance \citep{sparse16,andrews16,dccl17,kway18};
+%for example, current state-of-the-art methods train neural network models to represent each word as a sum of vectors from learned dictionaries \citep{dccl17}.
+%Although these methods can attain large reductions in memory while performing well on tasks such as language modeling \citep{mikolov10} and machine translation \citep{bahdanau15}, to the best of our knowledge there exists no analysis describing the effect compression has on generalization performance for these methods.
+
+%In this work, we show that a simple compression method based on uniform quantization can empirically compete with the state-of-the-art methods, and we present generalization bounds for the quantized embeddings for linear regression models.
+%The compression method has two parts: first, it determines the optimal threshold at which to clip the extreme values in the word embedding matrix using golden section search \citep{golden53}.
+%It then uniformly quantizes the clipped embeddings within the clipped interval.
+%This simple approach can compress large embeddings in seconds on a single CPU core, without computationally expensive training or hyperparameter tuning.
+
+In this paper, we work on a simple compression method based on uniform quantization. We show that it can empirically compete with the state-of-the-art methods, and we analysis theoretically to understand how to optimize down steam task performance under a fixed memory budget for the quantized embedding.
+Our simple compression method has two components: first, it determines the optimal threshold at which to clip the extreme values in the word embedding matrix using golden section search \citep{golden53}.
+It then uniformly quantizes the clipped embeddings to fixed-point representations within the clipped interval.
 This simple approach can compress large embeddings in seconds on a single CPU core, without computationally expensive training or hyperparameter tuning.
 
-Empirically, we demonstrate that this method can match the performance of the state-of-the-art compression schemes on question answering, sentiment analysis, and word analogy and similarity tasks, for both GloVe \citep{glove14} and fastText \citep{fasttext18} embeddings.
-Using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, for example, it attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the deep dictionary learning method of \citet{dccl17} is 0.43\% below.
+
+Empirically, we demonstrate that this uniform quantization method can match the performance of the state-of-the-art compression schemes on question answering, sentiment analysis, and word analogy and similarity tasks, for both GloVe \citep{glove14} and fastText \citep{fasttext18} embeddings.
+Using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, for example, it attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the state-of-the-art deep compositional code learning method \cite{dccl17} is 0.43\% below.
 %\todo{Discuss other tasks}
 
-Theoretically, we show in the context of linear ridge regression that quantization has a negligible effect on generalization performance when the quantization noise is small relative to the regularization parameter.
-Furthermore, we show that when the spectrum of the word embedding matrix decays slowly (which we empirically observe to be true), strong regularization has minimal impact on generalization performance.
-Combined, these two results imply that the uniformly quantized embeddings can have similar generalization performance to the uncompressed embeddings at high compression rates.
+Theoretically, we work on understanding a critical question regarding embedding quantization given a fixed memory budget to store embedding matrices --- {to optimize downstream task performance, should we quantize a higher dimensional uncompressed embedding to lower precision, or should we quantize a lower dimensional uncompressed embedding to higher precision.} Specifically, we analyze generalization bounds in the case of linear ridge regression using word embeddings.
+Our analysis reveals that one can optimize down stream performance under the fixed memory budget following a two-steps principle. In the first step, we show an optimal dimensionality exists as a consequence of the bias-variance trade-off in generalization performance. In the second step, we show quantization can have negligible impact on the generalization bound when the uncompressed embedding has a slow-decaying spectrum (empirically observed to be true). Thus under limit memory budgets, one should use the lowest quantization precision until the quantized embedding reaches the optimal dimensionality for the uncompressed counter-part. 
+
+
+
+%Theoretically, we show in the context of linear ridge regression that quantization has a negligible effect on generalization performance when the quantization noise is small relative to the regularization parameter.
+%Furthermore, we show that when the spectrum of the word embedding matrix decays slowly (which we empirically observe to be true), strong regularization has minimal impact on generalization performance.
+%Combined, these two results imply that the uniformly quantized embeddings can have similar generalization performance to the uncompressed embeddings at high compression rates.
+%
+%1. Theoretically, we analyze the trade-off between dimensionality and precision. From this analysis, we extract guidelines how to optimize for generalization performance given a fixed memory budget: there exists an optimal dimension without 
+%2. Specifically, we analyze in the linear regression setting.
+%3. We first go in renosante, show there is an optimal without memory constraint.
+%3. We then show quantization has minimal effect in generalizaiton
+%These two understanding combines and lead to our stuff.
+%
+%
+%
+%Theoretically, we show in the context of linear ridge regression that quantization has a negligible effect on generalization performance when the quantization noise is small relative to the regularization parameter.
+%Furthermore, we show that when the spectrum of the word embedding matrix decays slowly (which we empirically observe to be true), strong regularization has minimal impact on generalization performance.
+%Combined, these two results imply that the uniformly quantized embeddings can have similar generalization performance to the uncompressed embeddings at high compression rates.
+
 
 The rest of this paper is organized as follows:
 In Section~\ref{sec:relwork} we review related work, including existing methods for compressing word embeddings.
-In Section~\ref{sec:uniform} we present our compression method.
+In Section~\ref{sec:uniform} we present our uniform quantization method for compressing embeddings.
 We discuss our large-scale experiments in Section~\ref{sec:experiments}, and the theoretical analysis for our method in Section~\ref{sec:theory}.
 We conclude in Section~\ref{sec:conclusion}.
 
