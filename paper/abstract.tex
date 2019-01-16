@@ -1,1 +1,10 @@
-Abstract here.
+Word embedding compression is critical to the deployment in memory-constrained devices such as mobile phones. State-of-the-art embedding compression methods attains strong empirical performance by learning compressed representations. In this paper, we work on a simple and fast embedding compression method based on uniform fixed-point quantization. 
+%This method first determines a threshold value to clip extreme values in the embedding matrix using simple golden section search; it then uniformly quantizes the clipped embedding into fixed-point representation. 
+Without computationally expensive training, the uniform quantization approach can empirically match the performance of state-of-the-art compression methods across different compression rates. 
+Theoretically, we perform analysis to answer how to optimize down stream task performance with fixed memory budgets for quantized embeddings. Our analysis suggests quantizing higher dimensional uncompressed embedding to lower precision, until it reaches the optimal dimensionality for uncompressed embedding.
+	
+
+%approach and solution
+%Contribution 1: empirically match 
+%Contribution 2: 
+\todo{theory paragraph in intro can be shorten} 
