@@ -1,17 +1,12 @@
-In this section, we present generalization bounds for linear regression models trained on top of uniformly quantized word embeddings.
-Though linear regression is evidently a very simplified setting, we believe the analysis in this setting is an important first step toward understanding the way compression affects generalization performance on downstream tasks.
-We present two main results:
-First, we show that when the standard deviation of the quantization noise is small relative to the regularization parameter $\lambda$ used to train the linear model, we attain good generalization bounds for the quantized embeddings relative to the full-precision embeddings.
+In this section, we analyze the impact of uniform quantization on the generalization performance of linear regression models trained on top of the word embeddings.
+We present two results:
+First, we show that when the embedding matrix is quantized to $b$ bits, and the linear ridge regression model is trained with regularization parameter $\lambda$, we attain good generalization bounds for the quantized features relative to the full-precision features when $2^b \lambda$ is large.
 Second, we show that if the singular values of the embedding matrix decay slowly, then training the regression model with a large regularization parameter $\lambda$ cannot perform much worse than training with a smaller one.
-Combining these two results with our empirical observation that word embedding spectra decay relatively slowly helps explain why quantized word embeddings perform so well at high compression rates.
+Combining this theoretical result with our empirical observation that the singular values of embedding matrices typically decay slowly provides a principled explanation for why low-precision embeddings perform well on various tasks.
 
-This section is organized as follows:
-In Section~\ref{sec:theory_background} we review fixed design linear ridge regression and the corresponding generalization bounds.
-In Section~\ref{sec:theory_results} we present our two main theoretical results, and we empirically validate predictions from this analysis in Section~\ref{sec:theory_validation}.
-In Section~\ref{sec:theory_clipping} we discuss why choosing the correct threshold at which to clip the extreme values of the embedding matrix is important, in light of the theoretical analysis.
+We begin, however, by reviewing generalization bounds for fixed design linear ridge regression.
 
 \subsection{Background: Generalized Bounds for Fixed Design Linear Ridge Regression}
-\label{sec:theory_background}
 In fixed design linear regression, one is given a dataset $\{(x_i,y_i)\}_{i=1}^n$, for $x_i \in \RR^d$ and $y_i = \by_i + \eps_i \in \RR$, where the $\eps_i$ are independent random perturbations of the ``true labels'' $\by_i$ satisfying $\expect{}{\eps_i} = 0$ and $\var{}{\eps_i} = \sigma^2 < \infty$.
 The goal is to design a training algorithm which takes as input the noisy dataset $\{(x_i,y_i)\}_{i=1}^n$ and outputs a model $f(x) = w^T x$ for which $\expect{}{\frac{1}{n}\sum_i (f(x_i) -\by_i)^2} \eqdef \cR(f)$ is small.
 Linear ridge regression selects $w^* = \argmin_w \sum_i (w^T x_i - y_i)^2 + \lambda\|w\|_2^2$.
@@ -47,10 +42,9 @@ By applying this definition to $\tX\tX^T + \lambda I_n$ and $XX^T + \lambda I_n$
 	\end{eqnarray*}
 	\label{prop:genbound}
 \end{proposition}
-%\todo{Discuss how what we will show differs from what is shown in kernel paper.}
+\todo{Discuss how what we will show differs from what is shown in kernel paper.}
 
 \subsection{Theoretical Results}
-\label{sec:theory_results}
 We now show that our compression algorithm with high probability produces an embedding matrix which is a close spectral approximation of the full-precision matrix, in terms of $(\Delta_1,\Delta_2)$.
 Combining this with the Proposition~\ref{prop:genbound} yields a generalization bound for the compressed embeddings.
 A consequence of our bound is that when the regularization parameter is large, lower precision can be used for the embeddings without affecting $\Delta_1$ and $\Delta_2$.
@@ -71,27 +65,27 @@ We now present our main theoretical result, deferring all proofs to the Appendix
 	\end{eqnarray*}
 	for $L \defeq 5 \cdot \frac{2^b \cdot \delta_b^2}{\lambda}\cdot \frac{n}{d}$.
 \end{theorem}
+\todo{Discuss assumption of bounded embedding entries.}\\
 Note that in this theorem, we assume the embedding matrix is bounded, whereas in the actual implementation of our compression algorithm (Alg.~\ref{alg:smallfry}) we enforce this constraint artificially by searching for the optimal threshold at which to clip the matrix entries.
-\todo{Say more about boundedness assumption.}
 To better understand the implications of the above theorem, we present the following corollary:
 \begin{corollary}
 	\label{cor:main}
-	If $\Delta_1 \geq \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx 5n\cdot \frac{\delta_b}{\lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
+	If $\Delta_1 \geq \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx \frac{5n}{2^b \lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
 	then $\Prob\big[(1 - \Delta_1) (K + \lambda I_n) \preceq \tK + \lambda I_n \big] \geq  1 - \rho$. 
-	Similarly, if $\Delta_2 \geq \frac{\delta_b^2}{\lambda} +  \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx \frac{\delta_b^2}{\lambda} + 5n\cdot \frac{\delta_b}{\lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
+	Similarly, if $\Delta_2 \geq \frac{\delta_b^2}{\lambda} +  \frac{\log(n/\rho)L}{3}\Big(1+\sqrt{1+\frac{18d}{\log(n/\rho)}}\Big) \approx \frac{1}{2^{2b}\lambda} + \frac{5n}{2^b \lambda}\sqrt{\frac{2\log(n/\rho)}{d}}$,
 	then $\Prob\big[\tK + \lambda I_n \preceq (1 + \Delta_2) (K + \lambda I_n)\big] \geq  1 - \rho$. 
 \end{corollary}
 
-This corollary makes clear that if $\delta_b/\lambda$ is small, the $b$-bit compressed embedding matrix will be a close spectral approximation of the full-precision matrix, for small $\Delta_1$ and $\Delta_2$.
+This corollary makes clear that if $2^b\lambda$ is large, the $b$-bit compressed embedding matrix will be a close spectral approximation of the full-precision matrix, for small $\Delta_1$ and $\Delta_2$.
 In the following theorem, we show that when the smallest singular value of $X^TX$ is large, using a large regularization parameter $\lambda$ will not significantly harm the generalization performance of $f_X$, relative to using a smaller $\lambda$.
 Combining this result with Proposition~\ref{prop:genbound} and Theorem~\ref{thm:main}, we can conclude that the generalization performance of a linear model trained on low-precision features with a large regularizer $\lambda$ will not be much worse than the performance of a model trained on the full-precision features with any $\lambda' \leq \lambda$.
 We now present the result:
 
 \begin{theorem}
 	\label{thm:large_lambda}
-	Let $X$ be an embedding matrix, and $\by$ be the corresponding vector of labels. Let $\sm$ be the smallest eigenvalue of $X^T X$, and let $\lambda', \lambda$ be two scalars such that $0 \leq \lambda' \leq \lambda \leq a\cdot \sm$, for some $a \in [0,1]$. Letting $\cR_{\lambda}(K)$ denote the expected loss when training with regularizer $\lambda$, Gram matrix $K = XX^T$, and label noise $\sigma^2$, we get that:
+	Let $X$ be an embedding matrix, and $\by$ be the corresponding vector of labels. Let $\sm$ be the smallest eigenvalue of $X^T X$, and let $\lambda_1, \lambda_2$ be two scalars such that $0 \leq \lambda_1 \leq \lambda_2 \leq a\cdot \sm$, for some $a \in [0,1]$. Letting $\cR_{\lambda}(K)$ denote the expected loss when training with regularizer $\lambda$, Gram matrix $K = XX^T$, and label noise $\sigma^2$, we get that:
 	\begin{equation}
-	\frac{1}{\|y\|^2/n}\Big(R_{\lambda}(XX^T) - R_{\lambda'}(XX^T)\Big) \leq a^2
+	R_{\lambda_2}(XX^T) - R_{\lambda_1}(XX^T) \leq a^2\|y\|^2/n
 	\label{eq1}
 	\end{equation}
 \end{theorem}
@@ -102,28 +96,14 @@ In practice, we observe that it is common for embedding matrices to have slowly 
 we present plots of the singular values for fastText and Glove embeddings in Figure~\ref{fig:real_spectra}.
 
 \subsection{Empirical Validation of Theory}
-\label{sec:theory_validation}
-In this section, we empirically validate two important predictions made by the above theoretical results: (1) When $\delta_b/\lambda$ is small, $\Delta_1$ and $\Delta_2$ are small. (2) When $X^T X$ has a large smallest eigenvalue, generalization performance is not significantly harmed by using a large regularizer $\lambda$.
-Lastly, we show that in general word embedding matrices have a relatively large smallest singular value;
-combining this observation with the above theoretical results helps explain the strong performance of the uniformly quantized embeddings, even at very low precisions.
+In this section, we empirically validate two important predictions made by the above theoretical results:
+\begin{enumerate}
+	\item When $2^b \lambda$ is large, $\Delta_1$ and $\Delta_2$ are small (Figure~\ref{fig:micro_d1d2}).
+	\item When $X^T X$ has a large smallest eigenvalue, generalization performance is not significantly harmed by using a large regularizer
+	(Figure~\ref{fig:micro_large_sigma_min}).
+\end{enumerate}
 
-To validate the first prediction, we uniformly quantize a random matrix $X$ with various precisions $b$, and then measure the values of $\Delta_1$ and $\Delta_2$ for which the quantized Gram matrix is a $(\Delta_1,\Delta_2)$-spectral approximation of the full-precision Gram matrix.
-More specifically, we randomly generate a matrix $X \in \RR^{1000 \times 30}$, where each entry is drawn uniformly from $[-\frac{1}{\sqrt{30}},\frac{1}{\sqrt{30}}]$.
-We then uniformly quantize this matrix for precisions $b \in \{1,2,4,8,32\}$, denoting the quantized matrix by $\tX$.
-Next, we compute the minimum values of $\Delta_1$ and $\Delta_2$ for which $\tX\tX^T + \lambda I$ is a $(\Delta_1,\Delta_2)$-spectral approximation of $XX^T + \lambda I$, for $\lambda \in \{2^{-32}, 2^{-24}, \ldots, 2^{12}, 2^{16}, 2^{20}\}$ \todo{Clean up this list of $\lambda$ values.}
-In Figure~\ref{fig:micro_d1d2}, we plot the values of $\Delta_1$ and $\Delta_2$ as a function of $\delta_b/\lambda$, where $\delta_b \defeq 1/(2^b-1)$.
-As we can see, the values of $\Delta_1$ and $\Delta_2$ are largely governed by the value of $\delta_b/\lambda$; when $\delta_b/\lambda$ is small, so are $\Delta_1$ and $\Delta_2$.
-
-To validate the second prediction, we measure how the generalization error of a simple linear model grows as a function of the ratio between the regularization parameter $\lambda$ and the smallest eigenvalue of the covariance matrix $X^T X$.
-Specifically, we consider the noiseless model $y = Xw^*$, where each entry of $X \in \RR^{1000 \times 2}$ is drawn from a zero-mean Gaussian with variance $\sigma^2$, and $w^*=[0,1]$.
-Then, for various values of $\sigma$, and various values of $\lambda$, we learn the linear ridge regression model $w = (X^T X + \lambda I_d)^{-1}X^Ty$, and measure the mean-squared error $\|Xw-y\|_2^2$ as well as $\sigma_{min}(X^T X)$.
-Because we are in the noiseless setting, $\lambda'=0$ attains a mean-squared error of zero.
-We are thus interested in understanding how quickly generalization performance degrades as $\lambda$ is increased to larger positive values.
-In Figure~\ref{fig:micro_large_sigma_min} we plot the LHS of Equation~\eqref{eq1} as a function of the ratio $a \defeq \lambda/\sigma_{min}$ for the various settings discussed above.
-We see that when $a$ is small, the mean-squared error of the model trained with $\lambda$ performs similarly to using $\lambda'=0$, as predicted by the theory.
-
-Lastly, in Figure~\ref{fig:real_spectra} we show that for real word embedding matrices the spectra decay quite slowly, such that the smallest eigenvalue is relatively large.
-Combining this empirical observations with the theorems discussed above provides a principled explanation for why quantized word embeddings can attain strong empirical performance at such high compression rates.
+In addition, we show that in general word embedding matrices have a relatively large smallest singular value (Figure~\ref{fig:real_spectra}).
 
 \begin{figure*}
 	\centering
@@ -141,7 +121,7 @@ Combining this empirical observations with the theorems discussed above provides
 		\centerline{\includegraphics[width=0.8\columnwidth]{figures/micro_large_sigma_min.pdf}}
 		\caption{We show that the ratio $a=\frac{\lambda}{\sigma_{min}}$ between the regularization parameter $\lambda$ and the smallest eigenvalue $\sigma_{min}$ of $X^T X$ is very predictive of the degradation in generalization performance $\|\by - y_{pred}\|^2/\|\by\|^2$, as predicted by Theorem~\ref{thm:large_lambda}.
 		In particular, we generate an i.i.d. Gaussian matrix $X\in \RR^{1000\times 2}$ for various standard deviations $\sigma$, and consider the noiseless model $\by_i = [0,1]^T x_i$.
-		We then solve for the optimal ridge regression model for various values of $\lambda$, and plot $a$ vs.\ the normalized degradation in generalization performance of this model. \todo{TODO: Perhaps plot a more realistic example?  And use $\|\by - y_{pred}\|^2/(\|\by\|^2/n)$ as y-axis.}
+		We then solve for the optimal ridge regression model for various values of $\lambda$, and plot $a$ vs.\ the normalized degradation in generalization performance of this model. \todo{TODO: Perhaps plot a more realistic example?}
 		}
 		\label{fig:micro_large_sigma_min}
 	\end{center}
@@ -155,18 +135,15 @@ Combining this empirical observations with the theorems discussed above provides
 		\includegraphics[width=0.4\linewidth]{figures/fasttext1m_spectra.pdf}
 	\end{tabular}
 	\caption{We plot the real spectra of the pre-trained GloVe ($d \in \{50,100,200,300\}$) and fastText ($d=300$) embedding matrices.
-	The smallest singular values are generally only 1 or 2 orders of magnitude smaller than the largest.  
-	\todo{Add spectra for GloVe embeddings we trained from scratch ($d\in\{25,50,100,200,400\}$).}}
+	The smallest singular values are generally only 1 or 2 orders of magnitude smaller than the largest.}
 	\label{fig:real_spectra}
 \end{figure*}
 
 \subsection{Effect of Clipping on $(\Delta_1,\Delta_2)$}
-\label{sec:theory_clipping}
 One way to understand why it is important for us to search for the optimal clipping value in Algorithm~\ref{alg:smallfry} is by understanding the way clipping and quantization together impact $\Delta_1$ and $\Delta_2$.
 This perspective reveals that there is a fundamental trade-off between $\Delta_1$ and $\Delta_2$ when choosing the clipping value:
 if the clip value is too large, then $\Delta_2$ becomes very large, while if the clip value is too small, then $\Delta_1$ becomes very large.
-We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}.
-\todo{Polish and expand the discussion here, and discuss how using Frobenius error to pick optimal clipping value leads to a nice point on the trade-off curve between $\Delta_1$ and $\Delta_2$.}
+We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}
 \begin{figure}
 	\begin{center}
 		\centerline{\includegraphics[width=0.8\columnwidth]{figures/deltas_vs_clip_and_quant.pdf}}
@@ -177,3 +154,6 @@ We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}.
 		\label{fig:deltas_vs_clip_quant}
 	\end{center}
 \end{figure}
+
+
+\input{jian_theory}
