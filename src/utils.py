@@ -100,7 +100,7 @@ def init_evaluate_parser():
     parser = argparse.ArgumentParser()
     add_shared_args(parser)
     parser.add_argument('--evaltype', type=str, required=True,
-        choices=['qa','intrinsics','synthetics','sentiment'],
+        choices=['qa','intrinsics','synthetics','synthetics-large-dim','sentiment'],
         help='Evaluation type.')
     parser.add_argument('--embedpath', type=str, required=True,
         help='Path to embedding to evaluate.')
@@ -346,6 +346,43 @@ def get_embedding_vocab(embedtype):
     elif embedtype == 'fasttext1m':
         vocab = 999994
     return vocab
+
+def get_base_embed_info(embedtype, embeddim):
+    '''Get path to embedding, and size of vocab for embedding'''
+    path = ''
+    basedir = str(pathlib.PurePath(
+        get_base_dir(), 'base_embeddings', embedtype
+    ))
+    vocab = get_embedding_vocab(embedtype)
+    if embedtype == 'glove400k':
+        file_format_str = 'glove.6B.{}d.txt'
+    elif embedtype == 'glove10k':
+        file_format_str = 'glove.6B.{}d.10k.txt'
+    elif embedtype == 'glove-wiki-am':
+        file_format_str = str(pathlib.PurePath(
+            '2018-12-14-trainGlove',
+            'embedtype,glove_corpus,wiki_embeddim,{}_threads,72',
+            'rungroup,2018-12-14-trainGlove_embedtype,glove_corpus,wiki_embeddim,{}_threads,72_embeds.txt'
+        ))
+    elif embedtype == 'glove-wiki400k-am':
+        if embeddim == 800:
+            file_format_str = str(pathlib.PurePath(
+                '2018-12-18-trainGlove',
+                'embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72_lr,0.025',
+                'rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72_lr,0.025_embeds.txt'
+            ))
+        else:
+            file_format_str = str(pathlib.PurePath(
+                '2018-12-18-trainGlove',
+                'embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72',
+                'rungroup,2018-12-18-trainGlove_embedtype,glove_corpus,wiki400k_embeddim,{}_threads,72_embeds.txt'
+            ))
+    elif embedtype == 'fasttext1m':
+        file_format_str = 'wiki-news-{}d-1M.vec'
+    path_format_str = str(pathlib.PurePath(basedir, file_format_str))
+    # pass embeddim twice because of glove-wiki-am (it doesn't affect the others)
+    path = path_format_str.format(embeddim, embeddim)
+    return path,vocab
 
 def init_logging():
     """Initialize logfile to be used for experiment."""
