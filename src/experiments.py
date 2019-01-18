@@ -3,7 +3,14 @@ from scipy.sparse import coo_matrix, csr_matrix, save_npz, load_npz
 import matplotlib.pyplot as plt
 import compress
 import utils
-from plotter import save_plot
+import pathlib
+
+def save_plot(plot_filename):
+    output_file_str = str(pathlib.PurePath(utils.get_git_dir(),
+        'paper', 'figures', plot_filename))
+    plot_file = output_file_str + '.pdf'
+    plt.savefig(plot_file)
+    plt.close()
 
 # inspect spectrum of ppmi matrix
 def ppmi_spectrum():
@@ -282,6 +289,26 @@ def clipping_with_quantization_effect():
     # plt.show()
     # print(1)
 
+def delta_experiment():
+    n = 1000
+    d = 25
+    eps = 2*10**(-1)
+    X = (np.random.rand(n,d) * 2 - 1) * 1/np.sqrt(d)
+    X2 = X + np.random.randn(n,d)* eps
+    #X2 = X[:,:d-1] + np.random.randn(n,d-1)* eps
+    K = X@X.T
+    K2 = X2 @ X2.T
+
+    base_sing_vals = np.linalg.svd(X, compute_uv=False)
+    base_eigs = base_sing_vals**2
+    eig_min = base_eigs[-1]
+    lambdas = [eig_min/100, eig_min/10, eig_min, eig_min*10, eig_min*100]
+    for lam in lambdas:
+        delta1,delta2,_ = utils.delta_approximation(K,K2,lambda_=lam)
+        delta1_lower_bound = eig_min/(eig_min + lam)
+        # assert delta1 >= delta1_lower_bound
+        print(delta1,delta2,delta1_lower_bound)
+
 if __name__ == '__main__':
     # ppmi_spectrum()
 
@@ -290,10 +317,13 @@ if __name__ == '__main__':
     # deltas_vs_precision_and_lambda(False, False)
 
     # MICRO #2: Show that when sigma_min is large, one can use a large regularizer.
-    flat_spectrum_vs_generalization(True)
+    # flat_spectrum_vs_generalization(True)
 
     # clipping_effect2()
 
     # This experiment looks at the effect of clipping and quantization on
     # Delta1 and Delta2.
     # clipping_with_quantization_effect()
+
+    # This looks at deltas between two similar matrices.
+    delta_experiment()
