@@ -34,6 +34,8 @@ def evaluate_embeds():
         results = evaluate_intrinsics(utils.config['embedpath'])
     elif utils.config['evaltype'] == 'synthetics':
         results = evaluate_synthetics(utils.config['embedpath'])
+    elif utils.config['evaltype'] == 'synthetics-large-dim':
+        results = evaluate_synthetics_large_dim(utils.config['embedpath'])
     elif utils.config['evaltype'] == 'sentiment':
         results = evaluate_sentiment(
             utils.config['embedpath'],
@@ -155,31 +157,50 @@ def evaluate_synthetics(embed_path):
     results['embed-spec-norm'] = np.linalg.norm(embeds,2)
     results['base-embed-spec-norm'] = np.linalg.norm(base_embeds,2)
 
-    ### Covariance error (X^T X)
-    compute_gram_or_cov_errors(embeds, base_embeds, False, results)
-    ### Gram matrix error (XX^T)
-    compute_gram_or_cov_errors(embeds, base_embeds, True, results)
-
     # Other
     results['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
     results['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
     results['mean'] = np.mean(embeds)
     results['var'] = np.var(embeds)
 
+    ### Covariance error (X^T X)
+    compute_gram_or_cov_errors(embeds, base_embeds, False, 'cov', results)
+    ### Gram matrix error (XX^T)
+    compute_gram_or_cov_errors(embeds, base_embeds, True, 'gram', results)
     return results
 
-def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, results):
+def evaluate_synthetics_large_dim(embed_path):
+    '''Evaluates synthetics'''
+    embeds,_ = utils.load_embeddings(embed_path)
+    results = {}
+    # Compute delta's between compressed embedding matrix and large-dimensional
+    # base embedding matrix (eg, compressed 50d glove400k kernel matrix vs.
+    # uncompressed 300d glove400k kernel matrix)
+    if utils.config['embedtype'] == 'glove400k':
+        large_dim = 300
+    elif utils.config['embedtype'] == 'glove-wiki400k-am':
+        large_dim = 400
+    else:
+        assert utils.config['embedtype'] == 'fasttext1m'
+        large_dim = 300
+
+    base_path_large_dim,_ = utils.get_base_embed_info(
+        utils.config['embedtype'], large_dim)
+    base_embeds_large_dim,_ = utils.load_embeddings(base_path_large_dim)
+    compute_gram_or_cov_errors(embeds, base_embeds_large_dim, True, 'gram-large-dim', results)
+    return results
+
+def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str, results):
     if use_gram:
         n = 10000
         embeds = embeds[:n]
         base_embeds = base_embeds[:n]
         compressed = embeds @ embeds.T
         base = base_embeds @ base_embeds.T
-        type_str = 'gram'
     else:
+        assert embeds.shape[1] == base_embeds.shape[1]
         compressed = embeds.T @ embeds
         base = base_embeds.T @ base_embeds
-        type_str = 'cov'
 
     # compute spectrum of base_embeds to extract minimum eigenvalue of X^T X
     base_sing_vals = np.linalg.svd(base_embeds, compute_uv=False)
