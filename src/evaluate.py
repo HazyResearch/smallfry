@@ -176,16 +176,16 @@ def evaluate_synthetics_large_dim(embed_path):
     # Compute delta's between compressed embedding matrix and large-dimensional
     # base embedding matrix (eg, compressed 50d glove400k kernel matrix vs.
     # uncompressed 300d glove400k kernel matrix)
-    if utils.config['embedtype'] == 'glove400k':
+    embedtype = utils.config['compress-config']['embedtype']
+    if embedtype == 'glove400k':
         large_dim = 300
-    elif utils.config['embedtype'] == 'glove-wiki400k-am':
+    elif embedtype == 'glove-wiki400k-am':
         large_dim = 400
     else:
-        assert utils.config['embedtype'] == 'fasttext1m'
+        assert embedtype == 'fasttext1m'
         large_dim = 300
 
-    base_path_large_dim,_ = utils.get_base_embed_info(
-        utils.config['embedtype'], large_dim)
+    base_path_large_dim,_ = utils.get_base_embed_info(embedtype, large_dim)
     base_embeds_large_dim,_ = utils.load_embeddings(base_path_large_dim)
     compute_gram_or_cov_errors(embeds, base_embeds_large_dim, True, 'gram-large-dim', results)
     return results
