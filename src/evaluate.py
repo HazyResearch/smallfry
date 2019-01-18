@@ -191,6 +191,7 @@ def evaluate_synthetics_large_dim(embed_path):
     return results
 
 def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str, results):
+    logging.info('Beginning compute_gram_or_cov_errors')
     if use_gram:
         n = 10000
         embeds = embeds[:n]
@@ -203,20 +204,24 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str, results)
         base = base_embeds.T @ base_embeds
 
     # compute spectrum of base_embeds to extract minimum eigenvalue of X^T X
+    logging.info('Beginning SVD of base_embeds')
     base_sing_vals = np.linalg.svd(base_embeds, compute_uv=False)
     base_eigs = base_sing_vals**2
     eig_min = base_eigs[-1]
     lambdas = [eig_min/100, eig_min/10, eig_min, eig_min*10, eig_min*100]
 
     # Frob error
+    logging.info('Beginning Frobenius error computations')
     results[type_str + '-frob-error'] = np.linalg.norm(base-compressed)
     results[type_str + '-frob-norm'] = np.linalg.norm(compressed)
     results[type_str + '-base-frob-norm'] = np.linalg.norm(base)
     # Spec Error
+    logging.info('Beginning spectral error computations')
     results[type_str + '-spec-error'] = np.linalg.norm(base-compressed, 2)
     results[type_str + '-spec-norm'] = np.linalg.norm(compressed,  2)
     results[type_str + '-base-spec-norm'] = np.linalg.norm(base, 2)
     # Delta1,Delta2
+    logging.info('Beginning (Delta1,Delta2) computations')
     results[type_str + '-base-eig-min'] = eig_min
     results[type_str + '-lambdas'] = lambdas
     delta1_results = [0] * len(lambdas)
@@ -225,6 +230,7 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str, results)
         delta1_results[i], delta2_results[i], _ = utils.delta_approximation(base, compressed,  lambda_ = lam)
     results[type_str + '-delta1s'] = delta1_results
     results[type_str + '-delta2s'] = delta2_results
+    logging.info('Finished compute_gram_or_cov_errors')
 
 def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=-1):
     if tunelr:
