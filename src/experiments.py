@@ -6,9 +6,8 @@ import utils
 import pathlib
 
 def save_plot(plot_filename):
-    output_file_str = str(pathlib.PurePath(utils.get_git_dir(),
+    plot_file = str(pathlib.PurePath(utils.get_git_dir(),
         'paper', 'figures', plot_filename))
-    plot_file = output_file_str + '.pdf'
     plt.savefig(plot_file)
     plt.close()
 
@@ -103,6 +102,10 @@ def deltas_vs_precision_and_lambda(gaussian, use_adapt):
     bools = [False,True]
     delta1s = np.zeros((len(bools), len(bs), len(lambdas)))
     delta2s = np.zeros((len(bools), len(bs), len(lambdas)))
+    base_sing_vals = np.linalg.svd(X, compute_uv=False)
+    base_eigs = base_sing_vals**2
+    # eig_min = base_eigs[-1]
+    eig_max = base_eigs[0]
 
     # Gather delta1 and delta2 for different precisions and lambdas
     for i_bl,bool_ in enumerate(bools):
@@ -116,10 +119,10 @@ def deltas_vs_precision_and_lambda(gaussian, use_adapt):
             for i_l,lam in enumerate(lambdas):
                 delta1s[i_bl,i_b,i_l], delta2s[i_bl,i_b,i_l], _ = utils.delta_approximation(K, Kq, lambda_ = lam)
     plt.figure(1)
-    plot_deltas_v2(delta1s, bs, lambdas, n, d, 'Delta_1', gaussian, use_adapt)
+    plot_deltas_v2(delta1s, bs, lambdas, n, d, 'Delta_1', gaussian, use_adapt, eig_max=eig_max)
     save_plot('micro_{}_{}_delta1_vs_2_b_lambda.pdf'.format(gaussian_str, adapt_str))
     plt.figure(2)
-    plot_deltas_v2(delta2s, bs, lambdas, n, d, 'Delta_2', gaussian, use_adapt)
+    plot_deltas_v2(delta2s, bs, lambdas, n, d, 'Delta_2', gaussian, use_adapt, eig_max=eig_max)
     save_plot('micro_{}_{}_delta2_vs_2_b_lambda.pdf'.format(gaussian_str, adapt_str))
     # plt.subplot(211)
     # plot_deltas_v2(delta1s, bs, lambdas, n, d, 'Delta_1', gaussian, use_adapt)
@@ -161,7 +164,7 @@ def plot_deltas(delta_results, bs, lambdas, n, d, ylabel, gaussian, stoch, xlog=
     title = '{} ({}): {} vs. {}'.format(gaussian_str, stoch_str, ylabel, '2^b * lambda')
     plt.title(title)
 
-def plot_deltas_v2(delta_results, bs, lambdas, n, d, ylabel, gaussian, use_adapt, xlog=True, ylog=True):
+def plot_deltas_v2(delta_results, bs, lambdas, n, d, ylabel, gaussian, use_adapt, eig_min=-1, eig_max=-1, xlog=True, ylog=True):
     nplams = np.array(lambdas)
     x = 2**16 * nplams
     gaussian_str = 'Gaussian' if gaussian else 'Uniform'
@@ -178,6 +181,19 @@ def plot_deltas_v2(delta_results, bs, lambdas, n, d, ylabel, gaussian, use_adapt
         # plt.plot(nplams, delta2s[i_b,:])
     plt.plot(x, np.sqrt(2*np.log(n/0.1)/d) * 5 * n / x, marker='s', linestyle='dashed', color='m')
     leg.append('bound')
+    if eig_min != -1:
+        for b in bs:
+            # plt.plot(2**b * nplams, nplams/eig_min)
+            # leg.append('lam/eig_min (b={})'.format(b))
+            plt.plot(2**b * nplams, eig_min/(eig_min + nplams))
+            leg.append('eig_min/(eig_min + nplams) (b={})'.format(b))
+    if eig_max != -1:
+        for b in bs:
+            # plt.plot(2**b * nplams, nplams/eig_min)
+            # leg.append('lam/eig_min (b={})'.format(b))
+            plt.plot(2**b * nplams, eig_max/(eig_max + nplams))
+            leg.append('eig_max/(eig_max + nplams) (b={})'.format(b))   
+
     plt.legend(leg)
     if xlog: plt.xscale('log')
     if ylog: plt.yscale('log')
@@ -185,6 +201,7 @@ def plot_deltas_v2(delta_results, bs, lambdas, n, d, ylabel, gaussian, use_adapt
     plt.ylabel(ylabel)
     title = '{} ({}): {} vs. {}'.format(gaussian_str, bool_str, ylabel, '2^b * lambda')
     plt.title(title)
+    plt.ylim(10**-2,10**2)
 
 def clipping_effect():
     n = 1000
@@ -314,7 +331,7 @@ if __name__ == '__main__':
 
     # MICRO #1: Delta1 and Delta2 vs. 2^b lambda. Can specify whether data should
     # be Gaussian or uniform, and whether range should be chosen adaptively.
-    # deltas_vs_precision_and_lambda(False, False)
+    deltas_vs_precision_and_lambda(False, False)
 
     # MICRO #2: Show that when sigma_min is large, one can use a large regularizer.
     # flat_spectrum_vs_generalization(True)
@@ -326,4 +343,4 @@ if __name__ == '__main__':
     # clipping_with_quantization_effect()
 
     # This looks at deltas between two similar matrices.
-    delta_experiment()
+    # delta_experiment()
