@@ -183,14 +183,12 @@ def plot_deltas_v2(delta_results, bs, lambdas, n, d, ylabel, gaussian, use_adapt
     leg.append('bound')
     if eig_min != -1:
         for b in bs:
-            # plt.plot(2**b * nplams, nplams/eig_min)
-            # leg.append('lam/eig_min (b={})'.format(b))
-            plt.plot(2**b * nplams, eig_min/(eig_min + nplams))
-            leg.append('eig_min/(eig_min + nplams) (b={})'.format(b))
+            plt.plot(2**b * nplams, nplams/eig_min)
+            leg.append('lam/eig_min (b={})'.format(b))
+            # plt.plot(2**b * nplams, eig_min/(eig_min + nplams))
+            # leg.append('eig_min/(eig_min + nplams) (b={})'.format(b))
     if eig_max != -1:
         for b in bs:
-            # plt.plot(2**b * nplams, nplams/eig_min)
-            # leg.append('lam/eig_min (b={})'.format(b))
             plt.plot(2**b * nplams, eig_max/(eig_max + nplams))
             leg.append('eig_max/(eig_max + nplams) (b={})'.format(b))   
 
@@ -201,7 +199,7 @@ def plot_deltas_v2(delta_results, bs, lambdas, n, d, ylabel, gaussian, use_adapt
     plt.ylabel(ylabel)
     title = '{} ({}): {} vs. {}'.format(gaussian_str, bool_str, ylabel, '2^b * lambda')
     plt.title(title)
-    plt.ylim(10**-2,10**2)
+    plt.ylim(10**-3,10**3)
 
 def clipping_effect():
     n = 1000
@@ -326,12 +324,58 @@ def delta_experiment():
         # assert delta1 >= delta1_lower_bound
         print(delta1,delta2,delta1_lower_bound)
 
+def deltas_vs_precision(gaussian):
+    # gaussian_str = 'gaussian' if gaussian else 'uniform'
+    # adapt_str = 'adapt' if use_adapt else 'nonadapt'
+    n = 1000
+    d = 30
+    lim = 1.0/np.sqrt(d)
+    X = (np.random.randn(n,d) * 0.5 * lim if gaussian else
+        np.random.uniform(low=-lim, high=lim, size=(n,d)))
+    K = X @ X.T
+
+    base_sing_vals = np.linalg.svd(X, compute_uv=False)
+    base_eigs = base_sing_vals**2
+    eig_min = base_eigs[-1]
+
+    b_list = [1,2,4,8,16,32]
+    a_list = [10**(-1),1,10,10**2]
+
+    delta1s = np.zeros((len(a_list), len(b_list)))
+    delta2s = np.zeros((len(a_list), len(b_list)))
+    
+    for j,b in enumerate(b_list):
+        Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
+        Kq = Xq @ Xq.T
+        for i,a in enumerate(a_list):
+            lam = a * eig_min
+            delta1s[i,j], delta2s[i,j], _ = utils.delta_approximation(K, Kq, lambda_ = lam)
+
+    deltas = [delta1s, delta2s]
+    plt.figure(1)
+    for i,delta in enumerate(deltas):
+        plt.subplot(211 + i)
+        leg = []
+        for i,a in enumerate(a_list):
+            plt.plot(b_list, delta[i,:])
+            leg.append('a = {}'.format(a))
+        plt.xlabel('Precision (b)')
+        plt.ylabel('Delta_{}'.format(i))
+        plt.title('Delta{} vs. Precision'.format(i))
+        plt.xscale('log')
+        plt.xticks(b_list,b_list)
+        plt.legend(leg)
+    plt.show()
+
+    # save_plot('micro_{}_{}_delta1_vs_2_b_lambda.pdf'.format(gaussian_str, adapt_str))
+    # save_plot('micro_{}_{}_delta2_vs_2_b_lambda.pdf'.format(gaussian_str, adapt_str))
+
 if __name__ == '__main__':
     # ppmi_spectrum()
 
     # MICRO #1: Delta1 and Delta2 vs. 2^b lambda. Can specify whether data should
     # be Gaussian or uniform, and whether range should be chosen adaptively.
-    deltas_vs_precision_and_lambda(False, False)
+    #deltas_vs_precision_and_lambda(False, False)
 
     # MICRO #2: Show that when sigma_min is large, one can use a large regularizer.
     # flat_spectrum_vs_generalization(True)
@@ -344,3 +388,6 @@ if __name__ == '__main__':
 
     # This looks at deltas between two similar matrices.
     # delta_experiment()
+
+    # Plot deltas vs. precision for fixed dimension, several lambdas:
+    deltas_vs_precision(False)

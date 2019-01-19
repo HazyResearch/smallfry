@@ -16,6 +16,33 @@ def clean_results(results):
     cleaned = []
     for result in results:
         result = flatten_dict(result)
+        if result['evaltype'] == 'synthetics-large-dim':
+            delta1_list = result['gram-large-dim-delta1s']
+            delta2_list = result['gram-large-dim-delta2s']
+            for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
+                result['gram-large-dim-delta1-' + str(i)] = delta1
+                result['gram-large-dim-delta2-' + str(i)] = delta2
+                result['gram-large-dim-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
+        if result['evaltype'] == 'synthetics':
+            delta1_list = result['gram-delta1s']
+            delta2_list = result['gram-delta2s']
+            for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
+                result['gram-delta1-' + str(i)] = delta1
+                result['gram-delta2-' + str(i)] = delta2
+                result['gram-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
+            delta1_list = result['cov-delta1s']
+            delta2_list = result['cov-delta2s']
+            for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
+                result['cov-delta1-' + str(i)] = delta1
+                result['cov-delta2-' + str(i)] = delta2
+                result['cov-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
+        # if result['evaltype'] == 'synthetics-large-dim':
+            # delta1_list = result['gram-delta1s']
+            # delta2_list = result['gram-delta2s']
+            # for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
+            #     result['gram-delta1-' + str(i)] = delta1
+            #     result['gram-delta2-' + str(i)] = delta2
+            #     result['gram-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
         if result['compresstype'] == 'nocompress' and result['embedtype'] == 'glove400k':
             # NOTE: This assumes all other compression methods are compressing
             # a 300 dimensional embedding
@@ -55,19 +82,74 @@ def extract_result_subset(all_results, key_values_to_match):
 # return True if result[key] in values for all key-value pairs in key_values_to_match
 def matches_all_key_values(result, key_values_to_match):
     for key,values in key_values_to_match.items():
+        assert type(values) == list
         if result[key] not in values: return False
     return True
 
 # TODO: add error bar support
 def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_metric,
                 logx=False, logy=False, title=None, var_info=default_var_info,
-                csv_file=None):
-    if len(key_values_to_match) == 0:
-        subset = all_results
+                csv_file=None, y_metric2=None, y_metric2_evaltype=None, scatter=False):
+    
+    if scatter:
+        assert len(key_values_to_match) != 0
+        assert len(key_values_to_match['embedtype']) == 1
+        assert y_metric2 and y_metric2_evaltype
+        # key_values_to_match['evaltype'] = 'synthetics'
+        key_values_to_match['evaltype'] = ['synthetics']
+        subset_x = extract_result_subset(all_results, key_values_to_match)
+        key_values_to_match['evaltype'] = [y_metric2_evaltype]
+        subset_y = extract_result_subset(all_results, key_values_to_match)
+        lines_x = extract_x_y_foreach_line(subset_x, info_per_line, x_metric, y_metric, var_info=var_info)
+        lines_y = extract_x_y_foreach_line(subset_y, info_per_line, x_metric, y_metric2, var_info=var_info)
+        title = '{}: {} perf. ({}) vs. {}'.format(key_values_to_match['embedtype'][0], 'qa', y_metric2, y_metric)
+        plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=logx, logy=logy, title=title, csv_file=csv_file)
     else:
-        subset = extract_result_subset(all_results, key_values_to_match)
-    lines = extract_x_y_foreach_line(subset, info_per_line, x_metric, y_metric, var_info=var_info)
-    plot_lines(lines, x_metric, y_metric, logx=logx, logy=logy, title=title, csv_file=csv_file)
+        if len(key_values_to_match) == 0:
+            subset = all_results
+        else:
+            subset = extract_result_subset(all_results, key_values_to_match)
+# if scatter:
+#     # we reuse the extract_x_y_foreach_line to extract values
+#     subset['evaltype'] = 'synthetics'
+#     lines_x = extract_x_y_foreach_line(subset, info_per_line, x_metric, y_metric, var_info=var_info)
+#     subset['evaltype'] = 'qa'
+#     lines_y = extract_x_y_foreach_line(subset, info_per_line, x_metric, y_metric='best-f1', var_info=var_info)
+#     evaltype = 'qa'
+#     title = '{}: {} perf. (best-f1) vs. {}'.format(embedtype, evaltype, y_metric)
+#     plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=logx, logy=logy, title=title, csv_file=csv_file)
+# else:
+        lines = extract_x_y_foreach_line(subset, info_per_line, x_metric, y_metric, var_info=var_info)
+        plot_lines(lines, x_metric, y_metric, logx=logx, logy=logy, title=title, csv_file=csv_file)
+
+
+# lines_x, y contains values for x and y in the scatter plot
+def plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=False, logy=False, title=None, csv_file=None):
+    print("scatter function")
+    f = None
+    if csv_file:
+        f = open(csv_file,'w+')
+    legend = []
+    ax = plt.gcf().add_subplot(111)
+    for (line_name_x,xy_x), (line_name_y,xy_y) in zip(lines_x.items(), lines_y.items()):
+        assert line_name_x == line_name_y
+        legend.append(line_name_x)
+        # make sure the data points has the same order in lines_x
+        np.testing.assert_array_equal(xy_x[0], xy_y[0])
+        x_array = xy_x[1]
+        y_array = xy_y[1]
+        ax.scatter(x_array.ravel(), y_array.ravel())
+
+    plt.legend(legend)
+    plt.xlabel(x_metric)
+    plt.ylabel(y_metric)
+    if logx: plt.xscale('log')
+    if logy: plt.yscale('log')
+    if title:
+        plt.title(title)
+    else:
+        plt.title('{} vs {}'.format(y_metric, x_metric))
+
 
 # lines is a dictionary of {line_name:(x,y)} pairs, where x and y are numpy
 # arrays with the x and y values to be plotted.
@@ -327,7 +409,7 @@ def get_best_lr_sentiment():
     return lr_tuning_results
 
 
-def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
+def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=None, y_metric2_evaltype=None, scatter=False):
     # load and clean all results
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results', 'ICML_results.json'))
     all_results = utils.load_from_json(results_file)
@@ -346,6 +428,9 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
     else:
         output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
             '{}_{}_{}_vs_compression'.format(embedtype, evaltype, y_metric)))
+    if scatter:
+        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+            '{}_{}_best-f1_vs_{}'.format(embedtype, evaltype, y_metric)))
 
     # prepare filenames of output csv and pdf files.
     csv_file = output_file_str + '.csv'
@@ -404,11 +489,14 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None):
         logx=True,
         title='{}: {} perf. ({}) vs. memory'.format(embedtype, evaltype, y_metric),
         var_info=var_info,
-        csv_file=csv_file
+        csv_file=csv_file,
+        y_metric2=y_metric2,
+        y_metric2_evaltype=y_metric2_evaltype,
+        scatter=scatter
     )
     # plt.show()
     # plt.ylim(70.5,74.5)
-    if embedtype in ['glove400k','fasttext1m']:
+    if embedtype in ['glove400k','fasttext1m'] and not scatter:
         plt.xticks(crs,crs)
     plt.savefig(plot_file)
     plt.close()
@@ -508,6 +596,56 @@ def plot_embedding_standard_deviation():
 #         for i,embedtype in enumerate(embedtypes):
 #             table_str = 
 
+def plot_metric_vs_performance():
+    # embedtypes = ['fasttext1m']
+    # evaltype = 'synthetics' # this is used in clean results
+    
+    # y_metrics = ['gram-frob-error', 
+    #              'gram-delta1-0', 'gram-delta1-1', 'gram-delta1-2', 'gram-delta1-3', 'gram-delta1-4',
+    #              'gram-delta1-0-trans', 'gram-delta1-1-trans', 'gram-delta1-2-trans', 'gram-delta1-3-trans', 'gram-delta1-4-trans']
+
+    # GRAM DELTA PLOTS: SYNTHETICS-LARGE-DIM    
+    # embedtypes = ['glove400k']
+    # evaltype = 'synthetics-large-dim' # this is used in clean results
+    # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
+    #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
+
+    # COV DELTA PLOTS: SYNTHETICS
+    embedtypes = ['glove-wiki400k-am']
+    evaltype = 'synthetics'
+    y_metrics = ['cov-frob-error', 'cov-delta1-0', 'cov-delta1-1', 'cov-delta1-2', 'cov-delta1-3', 'cov-delta1-4',
+                 'cov-delta1-0-trans', 'cov-delta1-1-trans', 'cov-delta1-2-trans', 'cov-delta1-3-trans', 'cov-delta1-4-trans']
+    y_metric2 = 'best-f1'
+    y_metric2_evaltype = 'qa'
+    for embedtype in embedtypes:
+        for y_metric in y_metrics:
+            plot_ICML_results(embedtype, evaltype, y_metric, y_metric2=y_metric2, y_metric2_evaltype=y_metric2_evaltype, scatter=True)
+
+def plot_theorem3_tighter_bound():
+    dims = [300,300,200,100,50]
+    embedtypes = ['fasttext1m'] + ['glove400k'] * 4
+    # dims = [300]
+    # embedtypes = ['glove400k']
+    plt.figure()
+    for i,dim in enumerate(dims):
+        embedtype = embedtypes[i]
+        embedpath,_ = utils.get_base_embed_info(embedtype,dim)
+        base_embeds,_ = utils.load_embeddings(embedpath)
+        base_sing_vals = np.linalg.svd(base_embeds, compute_uv=False)
+        base_eigs = base_sing_vals**2
+        eig_min = base_eigs[-1]
+        scaled_eigs = base_eigs/eig_min
+        n = 50
+        a_list = np.logspace(-4,4, num=n)
+        factors = np.zeros(n)
+        for j,a in enumerate(a_list):
+            factors[j] = np.average(a**2/(scaled_eigs + a)**2)   
+        plt.subplot(511 + i)
+        plt.plot(a_list, factors)
+        plt.title('{}: dim = {}'.format(embedtype, dim))
+        plt.xscale('log')
+    plt.show()
+
 def plot_all_ICML_results():
     plot_qa_results()
     plot_sentiment_results()
@@ -529,4 +667,6 @@ if __name__ == '__main__':
     #gather_ICML_results()
     # plot_ICML_qa_results()
     # plot_all_ICML_sentiment_results()
-    plot_all_ICML_results()
+    # plot_all_ICML_results()
+    # plot_metric_vs_performance()
+    plot_theorem3_tighter_bound()
