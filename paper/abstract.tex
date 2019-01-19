@@ -1,9 +1,27 @@
-Compressing word embeddings is critical to their deployment on memory-constrained devices such as mobile phones.
-State-of-the-art embedding compression methods attains strong empirical performance by learning compressed representations using deep architectures.
-In this paper, we work on a simple and fast embedding compression method based on uniform quantization, which can match the empirical performance of state-of-the-art compression methods across different compression rates and tasks.
-Theoretically, we analyze how the precision and dimensionality of the quantized word embeddings jointly impact their generalization performance in the context of linear ridge regression.
-Our analysis reveals that one can attain better performance under memory constraints by using lower-precision embeddings whose dimension approaches but does not exceed the optimal embedding dimension.
+%Compressing word embeddings is critical to their deployment on memory-constrained devices such as mobile phones.
+%State-of-the-art embedding compression methods attains strong empirical performance by learning compressed representations using deep architectures.
+%In this paper, we work on a simple and fast embedding compression method based on uniform quantization, which can match the empirical performance of state-of-the-art compression methods across different compression rates and tasks.
+%Theoretically, we analyze how the precision and dimensionality of the quantized word embeddings jointly impact their generalization performance in the context of linear ridge regression.
+%Our analysis reveals that one can attain better performance under memory constraints by using lower-precision embeddings whose dimension approaches but does not exceed the optimal embedding dimension.
 
+
+Compressing word embeddings is critical to their deployment on memory-constrained devices such as mobile phones.
+State-of-the-art embedding compression methods attain strong empirical performance by learning compressed representations using deep architectures.
+In this paper, we work on a simple and fast embedding compression method based on uniform quantization that matches the empirical performance of state-of-the-art compression methods across different compression rates and tasks.
+To shed light on the settings in which this compression method is guaranteed to perform well, we analyze the impact of compression on generalization performance.
+This analysis reveals that if the number of bits per embedding entry is chosen appropriately, strong generalization performance is guaranteed.
+
+%
+%To shed light on the settings in which this compression method is guaranteed to perform well, we analyze the
+%
+%To lever
+%
+%To shed light on the settings in which this compression method is guaranteed to perform well, we present generalization bounds leveraging a notion of spectral approximation between matrices.
+%
+%This analysis that 
+%
+%To shed light on settings where uniformly quantized embeddings attain strong performance in downstream tasks, we theoretically analyze how quantization precision impact generalization performance in the context of linear ridge regression.
+%Our analysis reveals that when quantization error is small relative to regularization, uniformly quantized embeddings can achieve similar performance as the uncompressed embeddings in downstream tasks.
 
 %This method first determines a threshold value to clip extreme values in the embedding matrix using simple golden section search; it then uniformly quantizes the clipped embedding into fixed-point representation. 
 %Without computationally expensive training, the uniform quantization approach can empirically match the performance of state-of-the-art compression methods across different compression rates.

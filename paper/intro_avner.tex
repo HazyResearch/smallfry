@@ -1,37 +1,188 @@
-%\subsection{Joint Version}
 In recent years, \textit{word embeddings} \citep{word2vec13,glove14,fasttext18} have brought large improvements to a wide range of applications in natural language processing (NLP) \citep{collins16,drqa17}.
-%By encoding words as low-dimensional dense vectors, word embeddings allow NLP tasks to be framed as pattern recognition problems over dense continuous spaces, which can then be tackled using the powerful machinery of neural networks.
-However, these word embeddings can occupy a very large amount of memory, making it expensive to deploy them in data centers, and impractical to use them in memory-constrained environments like smart phones.
+However, these word embeddings can occupy a very large amount of memory, making it expensive to deploy them in data centers, and impractical to use them in memory-constrained environments like smart phones. %\citep{reference?}.
 Thus, compressing these embeddings is an important problem.
 
-Although there have been numerous methods proposed for compressing embeddings \citep{sparse16,andrews16,dccl17,kway18}, these methods are generally quite computationally expensive and require tuning many hyperparameters.
+While there have been numerous successful methods proposed recently for compressing embeddings \citep{sparse16,andrews16,dccl17,kway18}, these methods share a couple of important shortcomings.
+First, these methods are generally quite computationally expensive and training them requires tuning many hyperparameters, costing valuable computation and developer time to use.
 The current state-of-the-art methods, for example, train neural network models to represent each word as a sum of vectors from learned dictionaries \citep{dccl17,kway18}.
-In addition to being expensive to train and tune, these compression schemes are difficult to analyze; for example, no guarantees exist for when the algorithms will produce embeddings with strong downstream performance.
+Second, these methods lack theoretical guarantees for determining when compression is likely to produce embeddings which perform well.
+This makes it difficult for practitioners to confidently use these methods without extensive downstream verification.
 
-In this work, we show that a simple compression method based on uniform quantization can empirically compete with the state-of-the-art methods, while being orders of magnitude faster and requiring no hyperparameter tuning.
-This method's speed and simplicity thus save valuable developer and compute time.
-This compression scheme is also amenable to theoretical analysis;
-%we present conditions under which the quantized embeddings will perform on par with the uncompressed embeddings in the context of linear ridge regression.
-we show that the spectrum of the word embedding matrix plays an important role in determining whether its compressed representation will perform well, with slow spectral decay being more amenable to quantization.
-Though this is a simplified setting, it is an important first step toward understanding how compression impacts generalization performance, and provides important insights on when compression is possible.
-%The compression method has two parts: It first determines the optimal threshold at which to clip the extreme values in the word embedding matrix, and then uniformly quantizes the embeddings within the clipped interval.
-%This simple approach can compress large embeddings in under a minute on a single CPU core.
+In this work, we address both of these shortcomings.
+First, we show that a simple and fast compression method based on uniform quantization can empirically compete with the state-of-the-art methods, while being orders of magnitude faster and requiring no hyperparameter tuning.
+This method can compress a large embedding matrix in less than a minute on a single CPU core.
+Second, we present generalization bounds for our compressed embeddings, revealing settings where strong generalization performance is guaranteed.
 
-Empirically, we demonstrate that uniform quantization can match the performance of the state-of-the-art compression schemes on a variety of tasks and compression ratios.
+%Second, we present theoretical guarantees for our method, building on recent work in kernel ridge regression to understand how compression affects generalization performance in the context of linear ridge regression \citep{avron17,lprff18}.
+%This analysis reveals settings where the uniformly quantized embeddings 
+%In particular, we leverage a recent notion of spectral distance between matrices \citep{avron17,lprff18}
+%In particular, we leverage the proposed notion of approximation between matrices, $(\Delta_1,\Delta_2)$-spectral approximation, to prove that when the compressed embedding is a close spectral approximation of the uncompressed embedding, strong generalization performance is guaranteed.
+
+%This analysis reveals important settings under which compression can give large memory savings while provably retaining strong generalization performance.
+%Together, these results show that compression can 
+%analysis for how compression impacts generalization performance in the context of linear ridge regression.
+
+%Second, we present generalization bounds for our compressed embeddings in the context of linear ridge regression.
+%We leverage \citet{lprff18}'s notion of approximation between matrices called $(\Delta_1,\Delta_2)$-spectral approximation, and show that when the compressed embedding is close to the uncompressed embedding in this sense they are guaranteed to attain similar generalization performance.
+
+
+%Second, we present generalization bounds for our compressed embeddings in the context of linear ridge regression, leveraging \citet{lprff18}'s notion of approximation between matrices called $(\Delta_1,\Delta_2)$-spectral approximation.
+%We show that when the compressed embedding is close to the uncompressed embedding in this sense, they are guaranteed to attain similar generalization performance.
+
+
+%Second, we present theoretical guarantees for our method, building on recent work in kernel ridge regression to understand how compression affects generalization performance in the context of linear ridge regression.
+%\citet{lprff18} define a notion of approximation between matrices called $(\Delta_1,\Delta_2)$-spectral approximation, and we show that when the compressed embedding is close to the uncompressed embedding in this sense, they are guaranteed to attain similar generalization performance.
+
+Empirically, we demonstrate that our compression method can match the performance of the state-of-the-art compression schemes on a variety of tasks and compression ratios.
 We evaluate performance on question answering, sentiment analysis, and word analogy and similarity tasks, for both GloVe \citep{glove14} and fastText \citep{fasttext18} embeddings.
-Using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, for example, uniform quantization attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the deep dictionary learning method of \citet{dccl17} is 0.43\% below.
-%For the fixed memory budget experiments, we show that 400-dimensional GloVe embeddings quantized to 1 bit per entry attain an average DrQA F1 score of 77.2\%, while 25-dimensional embeddings quantized to 16 bits per entry get 70.1\%.
+We observe that across tasks, our compression method can attain 32x compression within \todo{XX\%}-\todo{YY\%} performance relative to those attained by the state-of-the-art deep composition code learning (DCCL) approach~\citep{dccl17}.
+%with \todo{XX\%}-\todo{YY\%} absolute performance loss, while DCCL attains \todo{XX\%}-\todo{YY\%}.
+As an example, using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, uniform quantization attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the DCCL performance is 0.43\% below at the same compression rate.
 
-Theoretically, we show that quantization has a negligible effect on generalization performance when the quantization noise is small relative to the regularization parameter, in the context of linear ridge regression.
-Furthermore, we show that when the spectrum of the word embedding matrix decays slowly, strong regularization has minimal impact on generalization performance.
-Combined, these two results imply that when a word embedding matrix has a slow spectral decay (which we empirically observe to be true), it's quantized representation will perform similarly to the uncompressed embeddings at high compression rates.
-These results provide a novel framework for understanding when compression is likely to succeed.
+Theoretically, we analyze the generalization performance for our compressed embeddings in the context of linear ridge regression, revealing settings where the compressed embeddings are guaranteed to match the performance of the uncompressed ones.
+Specifically, we leverage a recent notion of spectral approximation between matrices \citep{avron17,lprff18}, and show that when the compressed embeddings are a close approximation to the uncompressed ones, strong generalization performance is guaranteed.
+We then show that our method will with high probability produce embeddings which are a close spectral approximation of the uncompressed embeddings, if the number of bits per matrix entry is chosen appropriately.
+This analysis provides a sufficient condition---close spectral approximation---for guaranteeing strong performance.
+Though our analysis is specific to linear ridge regression, we believe this is an important first step toward understanding compression's impact on generalization, and hope this work inspires further analysis.
+
+
+%
+%We then show that our embeddings will be a close spectral approximation with high probability when the quantization noise is small relative to the regularization parameter.
+%
+%
+%
+%We prove that our compression method produces th
+%
+%- First, if close approximation -> strong performance
+%- Importantly, when 
+%
+%
+%Noticeably, when pl
+%
+%This requires two steps: First, we leverage a recent notion of spectral approximation between matrices
+%
+%
+%Toward this end, we leverage a recent notion of spectral approximation between matrices ,
+%and prove that when this approximation is close strong generalization peformance is guaranteed.
+%
+%
+%
+%Theoretically, we 
+%
+%%As a first step toward understanding the generalization performance of our compressed embeddings, 
+%
+%
+%Theoretically, we present generalization bounds for our compressed embeddings in the context of linear ridge regression.
+%Specifically, we show that our method will with high probability produce embeddings which are a close $(\Delta_1,\Delta_2)$-spectral approximation of the uncompressed embeddings, if the number of bits per matrix entry is chosen appropriately.
+%This analysis provides a sufficient condition---small $\Delta_1$ and $\Delta_2$ values---which practitioners can use to certify the quality of their compressed embeddings.
+%%Furthermore, it reveals settings under which one can attain large memory savings while provably retaining strong generalization performance.
+%Though our analysis is specific to linear ridge regression, we believe this is an important first step toward understanding compression's impact on generalization, and hope this work inspires further analysis.
+%Though linear regression is admittedly a simplified setting, we believe our analysis is an important first step toward understanding compression's impact on generalization, and hope this work inspires further analysis.
+
+%We hope this work inspires further analysis on how compression impacts generalization performance in more complex settings.
+
+%
+%Leveraging \citet{lprff18}'s notion of approximation between matrices called $(\Delta_1,\Delta_2)$-spectral approximation, we show that when the compressed embedding is close to the uncompressed embedding in this sense they are guaranteed to attain similar generalization performance.
+%Then, we show that our compression method will with high probability produce embeddings which are a close spectral approximation of the uncompressed embeddings, if the number of bits per matrix entry is chosen appropriately.
 
 The rest of this paper is organized as follows:
 In Section~\ref{sec:relwork} we review related work, including existing methods for compressing word embeddings.
 In Section~\ref{sec:uniform} we present our uniform quantization method for compressing embeddings.
 We discuss our large-scale experiments in Section~\ref{sec:experiments}, and the theoretical analysis for our method in Section~\ref{sec:theory}.
 We conclude in Section~\ref{sec:conclusion}.
+
+%we expose to practitioners settings under which our compressed embeddings attain similar generalization performance to the the uncompressed embeddings.
+%Leveraging \citep{lprff18}'s notion of $(\Delta_1,\Delta_2)$-spectral approximation between matrices, we show that when the compressed embedding are a close spectral approximation of the uncompressed embeddings, they will attain similar generalization performance.
+%We then show that this condition holds with high probability for our compressed embeddings when the quantization noise is small relative to the generalization parameter.
+
+
+
+
+
+
+
+%
+%
+%
+%Theretically 
+%
+%
+%Theoretically, we present novel analysis on the impact of compression on generalization ,
+%
+%Theoretically, we study the impact of compression on generalization performance for our method.
+%In the context of linear ridge regression,
+%
+%we present an in-depth analysis of the way compression affects generalization performance, 
+%
+%
+%
+%
+%Second, we present theoretical guarantees for when our method will succeed
+%Second, we propose using a recent notion of spectral distance between matrices to determine when a compressed embedding is ``close'' to the uncompressed embedding.
+%We present generalization bounds guaranteeing that the 
+%
+%
+%Second, leverage recent generalization bounds from the context of ridge regression 
+%
+%Second, we propose a theoretical framework for understanding the generalization performance of compressed embeddings based on recent work in kernel ridge regression \citep{lprff18}.
+%
+%
+%
+%
+%There are a couple shortcomings with the existing methods for compressing embeddings.
+%First, these compression ds proposed for compressing embeddings \citep{sparse16,andrews16,dccl17,kway18} 
+%
+%First, these compression methods are generally quite computationally expensive and require tuning many hyperparameters.
+%The current state-of-the-art methods, for example, train neural network models to represent each word as a sum of vectors from learned dictionaries \citep{dccl17,kway18}.
+%Second, there is currently no theoretical framework to understand whether a compressed embedding will perform similarly to the uncompressed embedding on a downstream task.
+%This absence of a framework makes it difficult to predict how a compressed embedding will perform without running a full downstream evaluation.
+%%In addition to being expensive to train and tune, these compression schemes are difficult to analyze; for example, no guarantees exist for when the algorithms will produce embeddings with strong downstream performance.
+%
+%
+%
+%
+%
+%
+%Furthermore, we present a theoretical framework 
+%%This compression scheme is also amenable to theoretical analysis;
+%%we present conditions under which the quantized embeddings will perform on par with the uncompressed embeddings in the context of linear ridge regression.
+%%we show that the spectrum of the word embedding matrix plays an important role in determining whether its compressed representation will perform well, with slow spectral decay being more amenable to quantization.
+%%The compression method has two parts: It first determines the optimal threshold at which to clip the extreme values in the word embedding matrix, and then uniformly quantizes the embeddings within the clipped interval.
+%%This simple approach can compress large embeddings in under a minute on a single CPU core.
+%
+%Empirically, we demonstrate that uniform quantization can match the performance of the state-of-the-art compression schemes on a variety of tasks and compression ratios.
+%We evaluate performance on question answering, sentiment analysis, and word analogy and similarity tasks, for both GloVe \citep{glove14} and fastText \citep{fasttext18} embeddings.
+%Using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, for example, uniform quantization attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the deep dictionary learning method of \citet{dccl17} is 0.43\% below.
+%%For the fixed memory budget experiments, we show that 400-dimensional GloVe embeddings quantized to 1 bit per entry attain an average DrQA F1 score of 77.2\%, while 25-dimensional embeddings quantized to 16 bits per entry get 70.1\%.
+%
+%Theoretically, we show that quantization has a negligible effect on generalization performance when the quantization noise is small relative to the regularization parameter, in the context of linear ridge regression.
+%Furthermore, we show that when the spectrum of the word embedding matrix decays slowly, strong regularization has minimal impact on generalization performance.
+%Combined, these two results imply that when a word embedding matrix has a slow spectral decay (which we empirically observe to be true), it's quantized representation will perform similarly to the uncompressed embeddings at high compression rates.
+%These results provide a novel framework for understanding when compression is likely to succeed.
+%Though this is a simplified setting, it is an important first step toward understanding how compression impacts generalization performance, and provides important insights on when compression is possible.
+%
+%
+%Theoretically, we show that when the spectral distance between the compressed and uncompressed embeddings is small, they will attain similar generalization performance.
+%
+%leverage a recent notion of spectral distance between matrices to show that when this distance is small, 
+%
+%
+%
+%Theoretically, we expose to practitioners settings under which our compressed embeddings attain similar generalization performance to the the uncompressed embeddings.
+%Leveraging \citep{lprff18}'s notion of $(\Delta_1,\Delta_2)$-spectral approximation between matrices, we show that when the compressed embedding are a close spectral approximation of the uncompressed embeddings, they will attain similar generalization performance.
+%We then show that this condition holds with high probability for our compressed embeddings when the quantization noise is small relative to the generalization parameter.
+%Though linear regression is a simplified setting, it is an important first step toward understanding how compression impacts generalization performance, and provides important insights on when compression will succeed.
+%
+%
+%
+%
+%
+%
+%The rest of this paper is organized as follows:
+%In Section~\ref{sec:relwork} we review related work, including existing methods for compressing word embeddings.
+%In Section~\ref{sec:uniform} we present our uniform quantization method for compressing embeddings.
+%We discuss our large-scale experiments in Section~\ref{sec:experiments}, and the theoretical analysis for our method in Section~\ref{sec:theory}.
+%We conclude in Section~\ref{sec:conclusion}.
 
 %Designing simple and fast embedding compression methods with strong empirical performance is challenging.
 %There have been numerous important works proposing compression schemes for word embeddings and studying their empirical performance \citep{sparse16,andrews16,dccl17,kway18};
