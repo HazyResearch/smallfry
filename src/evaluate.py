@@ -196,7 +196,7 @@ def evaluate_synthetics_large_dim(embed_path):
     results['subspace-dist'] = large_dim - np.linalg.norm(Uq.T @ U)**2
     angles = np.rad2deg(subspace_angles(U,Uq))
     results['subspace-largest-angle'] = angles[0]
-    results['subspace-angles'] = angles
+    results['subspace-angles'] = angles.tolist()
     return results
 
 def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str, results):
