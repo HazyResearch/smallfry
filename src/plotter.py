@@ -23,6 +23,16 @@ def clean_results(results):
                 result['gram-large-dim-delta1-' + str(i)] = delta1
                 result['gram-large-dim-delta2-' + str(i)] = delta2
                 result['gram-large-dim-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
+            # FIX SUBSPACE-DIST
+            if result['embedtype'] in ['glove400k','fasttext1m']:
+                large_dim = 300
+            else:
+                assert result['embedtype'] == 'glove-wiki400k-am'
+                large_dim = 400
+            eig_overlap = large_dim - result['subspace-dist']
+            new_dist = large_dim + result['embeddim'] - 2 * eig_overlap
+            result['subspace-eig-distance'] = new_dist
+            result['subspace-eig-overlap'] = eig_overlap
         if result['evaltype'] == 'synthetics':
             delta1_list = result['gram-delta1s']
             delta2_list = result['gram-delta2s']
@@ -614,7 +624,7 @@ def plot_metric_vs_performance():
     # GRAM DELTA PLOTS: SYNTHETICS-LARGE-DIM
     embedtypes = ['glove-wiki400k-am']
     evaltype = 'synthetics-large-dim'
-    y_metrics = ['gram-large-dim-frob-error', 'subspace-dist', 'subspace-largest-angle',
+    y_metrics = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
                  'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
                  'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans']
     y_metric2 = 'best-f1'
