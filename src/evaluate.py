@@ -234,7 +234,7 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str, results)
     logging.info('Beginning (Delta1,Delta2) computations')
     results[type_str + '-base-eig-min'] = eig_min
     results[type_str + '-base-eig-max'] = eig_max
-    results[type_str + '-base-eigs'] = base_eigs
+    results[type_str + '-base-eigs'] = base_eigs.tolist()
     results[type_str + '-lambdas'] = lambdas
     delta1_results = [0] * len(lambdas)
     delta2_results = [0] * len(lambdas)
