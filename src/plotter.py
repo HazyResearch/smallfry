@@ -619,9 +619,11 @@ def plot_metric_vs_performance():
                  'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans']
     y_metric2 = 'best-f1'
     y_metric2_evaltype = 'qa'
+    logxs = [True,False]
     for embedtype in embedtypes:
         for y_metric in y_metrics:
-            plot_ICML_results(embedtype, evaltype, y_metric, y_metric2=y_metric2, y_metric2_evaltype=y_metric2_evaltype, scatter=True)
+            for logx in logxs:
+                plot_ICML_results(embedtype, evaltype, y_metric, y_metric2=y_metric2, y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx)
 
 def plot_theorem3_tighter_bound():
     dims = [300,300,200,100,50]
