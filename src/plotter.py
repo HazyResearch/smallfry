@@ -95,15 +95,14 @@ def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_met
         assert len(key_values_to_match) != 0
         assert len(key_values_to_match['embedtype']) == 1
         assert y_metric2 and y_metric2_evaltype
-        # key_values_to_match['evaltype'] = 'synthetics'
-        key_values_to_match['evaltype'] = ['synthetics']
+        # key_values_to_match['evaltype'] = ['synthetics']
         subset_x = extract_result_subset(all_results, key_values_to_match)
         key_values_to_match['evaltype'] = [y_metric2_evaltype]
         subset_y = extract_result_subset(all_results, key_values_to_match)
         lines_x = extract_x_y_foreach_line(subset_x, info_per_line, x_metric, y_metric, var_info=var_info)
         lines_y = extract_x_y_foreach_line(subset_y, info_per_line, x_metric, y_metric2, var_info=var_info)
-        title = '{}: {} perf. ({}) vs. {}'.format(key_values_to_match['embedtype'][0], 'qa', y_metric2, y_metric)
-        plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=logx, logy=logy, title=title, csv_file=csv_file)
+        title = '{}: {} perf. ({}) vs. {}'.format(key_values_to_match['embedtype'][0], y_metric2_evaltype, y_metric2, y_metric)
+        plot_scatter(lines_x, lines_y, y_metric, y_metric2, logx=logx, logy=logy, title=title, csv_file=csv_file)
     else:
         if len(key_values_to_match) == 0:
             subset = all_results
@@ -614,8 +613,9 @@ def plot_metric_vs_performance():
     # COV DELTA PLOTS: SYNTHETICS
     embedtypes = ['glove-wiki400k-am']
     evaltype = 'synthetics'
-    y_metrics = ['cov-frob-error', 'cov-delta1-0', 'cov-delta1-1', 'cov-delta1-2', 'cov-delta1-3', 'cov-delta1-4',
-                 'cov-delta1-0-trans', 'cov-delta1-1-trans', 'cov-delta1-2-trans', 'cov-delta1-3-trans', 'cov-delta1-4-trans']
+    y_metrics = ['cov-frob-error', 'cov-delta1-0', 'cov-delta1-1', 'cov-delta1-2', 'cov-delta1-3', 'cov-delta1-4', 'cov-delta1-5', 'cov-delta1-6',
+                 'cov-delta1-0-trans', 'cov-delta1-1-trans', 'cov-delta1-2-trans', 'cov-delta1-3-trans', 'cov-delta1-4-trans', 'cov-delta1-5-trans', 'cov-delta1-6-trans',
+                 'subspace-dist', 'subspace-largest-angle']
     y_metric2 = 'best-f1'
     y_metric2_evaltype = 'qa'
     for embedtype in embedtypes:
@@ -670,4 +670,5 @@ if __name__ == '__main__':
     # plot_all_ICML_results()
     # plot_metric_vs_performance()
     # plot_theorem3_tighter_bound()
-    gather_ICML_results()
+    # gather_ICML_results()
+    plot_metric_vs_performance()
