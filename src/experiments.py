@@ -394,6 +394,116 @@ def deltas_vs_precision(gaussian):
     save_plot("Delta2_vs_precision.pdf")
 
 
+def eigenvector_overlap():
+    # gaussian_str = 'gaussian' if gaussian else 'uniform'
+    # adapt_str = 'adapt' if use_adapt else 'nonadapt'
+    n = 1000
+    d = 30
+    lim = 1.0/np.sqrt(d)
+    X = np.random.uniform(low=-lim, high=lim, size=(n,d))
+    K = X @ X.T
+    base_sing_vals = np.linalg.svd(X, compute_uv=False)
+    base_eigs = base_sing_vals**2
+    eig_min = base_eigs[-1]
+    eig_max = base_eigs[0]
+    print('eig_min = {}, eig_max = {}'.format(eig_min,eig_max))
+    U,S,V = np.linalg.svd(X,full_matrices=False)
+    # Uq,Sq,Vq = np.linalg.svd(Xq,full_matrices=False)
+    # print(U.shape)
+    # C = Uq.T @ U
+
+    w = np.ones(d)
+    y = X@w
+    y_norm = np.sum(y**2)
+    bs = [1,2,3,4,5,6,7,8,32]
+    leg = []
+    for b in bs:
+        leg.append('b={}'.format(b))
+    ks = [5,10,15,20,25,30]
+    lambdas = [eig_min/100, eig_min, eig_max]
+    delta1s = np.zeros((len(bs),len(ks),len(lambdas)))
+    delta2s = np.zeros((len(bs),len(ks),len(lambdas)))
+    # specs_X = np.zeros((len(bs),len(ks)))
+    # frobs_X = np.zeros((len(bs),len(ks)))
+    specs_K = np.zeros((len(bs),len(ks)))
+    frobs_K = np.zeros((len(bs),len(ks)))
+    eig_overlap = np.zeros((len(bs),len(ks)))
+
+    rel_err = np.zeros((len(bs),len(ks)))
+    for i_b,b in enumerate(bs):
+        for i_k,k in enumerate(ks):
+            Xq,_,_ = compress.compress_uniform(X[:,:k], b, adaptive_range=False, stochastic_round=True)
+            Uq,Sq,Vq = np.linalg.svd(Xq,full_matrices=False)
+            Kq = Xq @ Xq.T
+            y_pred = Xq @ np.linalg.inv(Xq.T @ Xq) @ Xq.T @ y
+            rel_err[i_b,i_k] = np.sum((y_pred-y)**2) / y_norm
+            # print('b={},k={}, relative error = {}'.format(b, k, rel_err[i_b,i_k]))
+            for i_lam,lam in enumerate(lambdas):
+                delta1s[i_b,i_k,i_lam], delta2s[i_b,i_k,i_lam],_ = utils.delta_approximation(K,Xq @ Xq.T, lambda_=lam)
+            # specs_X[i_b,i_k] = np.linalg.norm(X-Xq,2)
+            # frobs_X[i_b,i_k] = np.linalg.norm(X-Xq)
+            specs_K[i_b,i_k] = np.linalg.norm(K-Kq,2)
+            frobs_K[i_b,i_k] = np.linalg.norm(K-Kq)
+            eig_overlap[i_b,i_k] = np.linalg.norm(Uq.T @ U)
+    
+
+    for i_lam in range(3):
+        plt.figure(1)
+        # plt.subplot(231+i_lam)
+        for i_b,b in enumerate(bs):
+            plt.scatter(1/(1-delta1s[i_b,:,i_lam]), rel_err[i_b,:])
+        plt.title('Relative error vs. Delta1 (lam = {:.2f})'.format(lambdas[i_lam]))
+        plt.legend(leg)
+        plt.xscale('log')
+        save_plot('Error_vs_delta1_{}.pdf'.format(i_lam))
+        plt.figure(1)
+        # plt.subplot(234+i_lam)
+        for i_b,b in enumerate(bs):
+            plt.scatter(delta2s[i_b,:,i_lam], rel_err[i_b,:])
+        plt.title('Relative error vs. Delta2 (lam = {:.2f})'.format(lambdas[i_lam]))
+        plt.legend(leg)
+        plt.xscale('log')
+        save_plot('Error_vs_delta2_{}.pdf'.format(i_lam))
+    # save_plot('Error_vs_delta1_delta2.pdf')
+
+    plt.figure(1)
+    # metrics = ['Spectral (X)', 'Frob (X)', 'Spectral (K)', 'Frob (K)']
+    # results = [specs_X, frobs_X, specs_K, frobs_K]
+    metrics = ['Spectral (K)', 'Frob (K)']
+    results = [specs_K, frobs_K]
+    for i_m,metric in enumerate(metrics):
+        result = results[i_m]
+        plt.subplot(121 + i_m)
+        for i_b,b in enumerate(bs):
+            plt.scatter(result[i_b,:], rel_err[i_b,:])
+        plt.title('Relative error vs. {}'.format(metric))
+        plt.legend(leg)
+    save_plot('Error_vs_frob_spec.pdf')
+
+    plt.figure(1)
+    for i_b,b in enumerate(bs):
+        plt.scatter(eig_overlap[i_b,:], rel_err[i_b,:])
+    plt.title('Relative error vs. eig-overlap')
+    plt.legend(leg)
+    save_plot('Error_vs_eig_overlap.pdf')
+
+def eigenvector_overlap2():
+    # gaussian_str = 'gaussian' if gaussian else 'uniform'
+    # adapt_str = 'adapt' if use_adapt else 'nonadapt'
+    n = 1000
+    d = 30
+    lim = 1.0/np.sqrt(d)
+    X = np.random.uniform(low=-lim, high=lim, size=(n,d))
+    U,S,V = np.linalg.svd(X,full_matrices=False)
+    bs = [1,2,3,4,8]
+    for b in bs:
+        Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
+        Uq,Sq,Vq = np.linalg.svd(Xq,full_matrices=False)
+        eig_overlap = np.linalg.norm(Uq.T @ U)**2
+        s_overlap = np.linalg.svd(Uq.T @ U,compute_uv=False)
+        print(s_overlap)
+        print('b={},eig-overlap={}'.format(b,eig_overlap))
+
 if __name__ == '__main__':
     # ppmi_spectrum()
 
