@@ -409,7 +409,7 @@ def get_best_lr_sentiment():
     return lr_tuning_results
 
 
-def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=None, y_metric2_evaltype=None, scatter=False):
+def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=None, y_metric2_evaltype=None, scatter=False, logx=False):
     # load and clean all results
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results', 'ICML_results.json'))
     all_results = utils.load_from_json(results_file)
@@ -420,17 +420,18 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=Non
         'evaltype':[evaltype],
         'embedtype':[embedtype]
     }
+    xcale_str = 'logx' if logx else 'linx'
     if evaltype == 'sentiment':
         assert dataset, 'Must specify dataset for sentiment analysis plots.'
         subset_info['dataset'] = [dataset]
         output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-            '{}_{}_{}_{}_vs_compression'.format(embedtype, evaltype, dataset, y_metric)))
+            '{}_{}_{}_{}_vs_compression_{}'.format(embedtype, evaltype, dataset, y_metric, xcale_str)))
     else:
         output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-            '{}_{}_{}_vs_compression'.format(embedtype, evaltype, y_metric)))
+            '{}_{}_{}_vs_compression_{}'.format(embedtype, evaltype, y_metric, xcale_str)))
     if scatter:
         output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-            '{}_{}_best-f1_vs_{}'.format(embedtype, evaltype, y_metric)))
+            '{}_{}_{}_vs_{}_{}'.format(embedtype, y_metric2_evaltype, y_metric2, y_metric, xcale_str)))
 
     # prepare filenames of output csv and pdf files.
     csv_file = output_file_str + '.csv'
@@ -486,7 +487,7 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=Non
         info_per_line,
         x_metric,
         y_metric,
-        logx=True,
+        logx=logx,
         title='{}: {} perf. ({}) vs. memory'.format(embedtype, evaltype, y_metric),
         var_info=var_info,
         csv_file=csv_file,
