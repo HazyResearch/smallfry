@@ -355,7 +355,8 @@ def plot_embedding_spectra():
 def gather_ICML_results():
     embedtypes = ['glove-wiki400k-am','glove400k','fasttext1m']
     result_file_regexes = ['*evaltype,qa*final.json', '*evaltype,sent*lr,0*final.json',
-            '*evaltype,intrinsics*final.json', '*evaltype,synthetics*final.json']
+            '*evaltype,intrinsics*final.json', '*evaltype,synthetics_*final.json',
+            '*2019-01-20-eval-*evaltype,synthetics-large-dim*final.json']
     # if we want the compression config file, use 'embedtype,*final.json'
     path_regex = '/proj/smallfry/embeddings/{}/*/*/{}'
     all_results = []
@@ -664,9 +665,9 @@ if __name__ == '__main__':
     #plot_embedding_spectra()
     # plot_ICML_qa_results()
     # get_best_lr_sentiment()
-    #gather_ICML_results()
     # plot_ICML_qa_results()
     # plot_all_ICML_sentiment_results()
     # plot_all_ICML_results()
     # plot_metric_vs_performance()
-    plot_theorem3_tighter_bound()
+    # plot_theorem3_tighter_bound()
+    gather_ICML_results()
