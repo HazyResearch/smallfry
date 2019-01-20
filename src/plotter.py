@@ -610,12 +610,12 @@ def plot_metric_vs_performance():
     # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
-    # COV DELTA PLOTS: SYNTHETICS
+    # GRAM DELTA PLOTS: SYNTHETICS-LARGE-DIM
     embedtypes = ['glove-wiki400k-am']
-    evaltype = 'synthetics'
-    y_metrics = ['cov-frob-error', 'cov-delta1-0', 'cov-delta1-1', 'cov-delta1-2', 'cov-delta1-3', 'cov-delta1-4', 'cov-delta1-5', 'cov-delta1-6',
-                 'cov-delta1-0-trans', 'cov-delta1-1-trans', 'cov-delta1-2-trans', 'cov-delta1-3-trans', 'cov-delta1-4-trans', 'cov-delta1-5-trans', 'cov-delta1-6-trans',
-                 'subspace-dist', 'subspace-largest-angle']
+    evaltype = 'synthetics-large-dim'
+    y_metrics = ['gram-large-dim-frob-error', 'subspace-dist', 'subspace-largest-angle',
+                 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
+                 'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans']
     y_metric2 = 'best-f1'
     y_metric2_evaltype = 'qa'
     for embedtype in embedtypes:
