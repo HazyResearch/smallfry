@@ -9,6 +9,7 @@ import pathlib
 import numpy as np
 import subprocess
 from scipy.spatial import distance
+from scipy.linalg import subspace_angles
 from third_party.hyperwords.hyperwords import ws_eval, analogy_eval
 from third_party.hyperwords.hyperwords.representations.embedding import Embedding
 from third_party.DrQA.scripts.reader.train import train_drqa
@@ -188,6 +189,14 @@ def evaluate_synthetics_large_dim(embed_path):
     base_path_large_dim,_ = utils.get_base_embed_info(embedtype, large_dim)
     base_embeds_large_dim,_ = utils.load_embeddings(base_path_large_dim)
     compute_gram_or_cov_errors(embeds, base_embeds_large_dim, True, 'gram-large-dim', results)
+
+    # Measure the distance between the subspaces of eigenvectors of K and K_tilde.
+    Uq,Sq,Vq = np.linalg.svd(embeds,full_matrices=False)
+    U,S,V = np.linalg.svd(base_embeds_large_dim,full_matrices=False)
+    results['subspace-dist'] = large_dim - np.linalg.norm(Uq.T @ U)**2
+    angles = np.rad2deg(subspace_angles(U,Uq))
+    results['subspace-largest-angle'] = angles[0]
+    results['subspace-angles'] = angles
     return results
 
 def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str, results):
@@ -208,7 +217,8 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str, results)
     base_sing_vals = np.linalg.svd(base_embeds, compute_uv=False)
     base_eigs = base_sing_vals**2
     eig_min = base_eigs[-1]
-    lambdas = [eig_min/100, eig_min/10, eig_min, eig_min*10, eig_min*100]
+    eig_max = base_eigs[0]
+    lambdas = [eig_min/100, eig_min/10, eig_min, eig_min*10, eig_min*100, eig_min*1000, eig_max]
 
     # Frob error
     logging.info('Beginning Frobenius error computations')
@@ -223,6 +233,8 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str, results)
     # Delta1,Delta2
     logging.info('Beginning (Delta1,Delta2) computations')
     results[type_str + '-base-eig-min'] = eig_min
+    results[type_str + '-base-eig-max'] = eig_max
+    results[type_str + '-base-eigs'] = base_eigs
     results[type_str + '-lambdas'] = lambdas
     delta1_results = [0] * len(lambdas)
     delta2_results = [0] * len(lambdas)
