@@ -1,5 +1,10 @@
 import numpy as np
 from scipy.sparse import coo_matrix, csr_matrix, save_npz, load_npz
+from matplotlib import rc
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+## for Palatino and other serif fonts use:
+#rc('font',**{'family':'serif','serif':['Palatino']})
+# rc('text', usetex=True)
 import matplotlib.pyplot as plt
 import compress
 import utils
@@ -339,7 +344,7 @@ def deltas_vs_precision(gaussian):
     eig_min = base_eigs[-1]
 
     b_list = [1,2,4,8,16,32]
-    a_list = [10**(-1),1,10,10**2]
+    a_list = [10**(-2),1,10**2]
 
     delta1s = np.zeros((len(a_list), len(b_list)))
     delta2s = np.zeros((len(a_list), len(b_list)))
@@ -351,24 +356,43 @@ def deltas_vs_precision(gaussian):
             lam = a * eig_min
             delta1s[i,j], delta2s[i,j], _ = utils.delta_approximation(K, Kq, lambda_ = lam)
 
-    deltas = [delta1s, delta2s]
-    plt.figure(1)
-    for i,delta in enumerate(deltas):
-        plt.subplot(211 + i)
-        leg = []
-        for i,a in enumerate(a_list):
-            plt.plot(b_list, delta[i,:])
-            leg.append('a = {}'.format(a))
-        plt.xlabel('Precision (b)')
-        plt.ylabel('Delta_{}'.format(i))
-        plt.title('Delta{} vs. Precision'.format(i))
-        plt.xscale('log')
-        plt.xticks(b_list,b_list)
-        plt.legend(leg)
-    plt.show()
+    plt.rc('text', usetex=True)
+    plt.figure()
+    leg = []
+    for i,a in enumerate(a_list):
+        plt.plot(b_list, delta1s[i,:], label=r'$\lambda / \sigma_{min} = '+ str(a) + '$')
+        # leg.append(r'$\lambda / \sigma_\min = {}$'.format(a))
+    plt.xlabel(r'Precision $(b)$')
+    plt.ylabel(r'$\Delta_{}$'.format(1))
+    # plt.yscale('log')
+    plt.xscale('log')
+    plt.xlim([1, 32])
+    plt.ylim([0, 1])
+    plt.title(r'$\Delta_{}$ vs. Precision'.format(1))
+    plt.grid()
+    plt.xticks(b_list,b_list)
+    plt.legend(loc="upper right")
+    # plt.show()
+    save_plot("Delta1_vs_precision.pdf")
 
-    # save_plot('micro_{}_{}_delta1_vs_2_b_lambda.pdf'.format(gaussian_str, adapt_str))
-    # save_plot('micro_{}_{}_delta2_vs_2_b_lambda.pdf'.format(gaussian_str, adapt_str))
+    plt.figure()
+    leg = []
+    for i,a in enumerate(a_list):
+        plt.plot(b_list, delta2s[i,:], label=r'$\lambda / \sigma_{min} = '+ str(a) + '$')
+        # leg.append(r'$\lambda / \sigma_\min = {}$'.format(a))
+    plt.xlabel(r'Precision $(b)$')
+    plt.ylabel(r'$\Delta_{}$'.format(2))
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.xlim([1, 32])
+    plt.ylim([1e-14, 1e2])
+    plt.title(r'$\Delta_{}$ vs. Precision'.format(2))
+    plt.grid()
+    plt.xticks(b_list,b_list)
+    plt.legend(loc="lower left")
+    # plt.show()
+    save_plot("Delta2_vs_precision.pdf")
+
 
 if __name__ == '__main__':
     # ppmi_spectrum()
