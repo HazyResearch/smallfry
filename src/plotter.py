@@ -712,4 +712,7 @@ if __name__ == '__main__':
     # plot_metric_vs_performance()
     # plot_theorem3_tighter_bound()
     # gather_ICML_results()
-    plot_metric_vs_performance('intrinsics', False)
+    use_large_dim = False
+    plot_metric_vs_performance('qa', use_large_dim)
+    plot_metric_vs_performance('sentiment', use_large_dim)
+    plot_metric_vs_performance('intrinsics', use_large_dim)
