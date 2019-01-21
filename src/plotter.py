@@ -622,18 +622,23 @@ def plot_metric_vs_performance():
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
     # GRAM DELTA PLOTS: SYNTHETICS-LARGE-DIM
-    embedtypes = ['glove-wiki400k-am']
+    embedtypes = ['glove-wiki400k-am','glove400k']
     evaltype = 'synthetics-large-dim'
     y_metrics = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
                  'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
                  'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans']
-    y_metric2 = 'best-f1'
-    y_metric2_evaltype = 'qa'
+    # y_metric2 = 'best-f1'
+    # y_metric2_evaltype = 'qa'
+    dataset = 'trec'
+    y_metric2 = 'test-acc'
+    y_metric2_evaltype = 'sentiment'
     logxs = [True,False]
     for embedtype in embedtypes:
         for y_metric in y_metrics:
             for logx in logxs:
-                plot_ICML_results(embedtype, evaltype, y_metric, y_metric2=y_metric2, y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx)
+                plot_ICML_results(embedtype, evaltype, y_metric, y_metric2=y_metric2,
+                    y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
+                    dataset=dataset)
 
 def plot_theorem3_tighter_bound():
     dims = [300,300,200,100,50]
