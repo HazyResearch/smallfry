@@ -99,7 +99,8 @@ def matches_all_key_values(result, key_values_to_match):
 # TODO: add error bar support
 def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_metric,
                 logx=False, logy=False, title=None, var_info=default_var_info,
-                csv_file=None, y_metric2=None, y_metric2_evaltype=None, scatter=False):
+                csv_file=None, y_metric2=None, y_metric2_evaltype=None, y_metric2_dataset=None,
+                scatter=False):
     
     if scatter:
         assert len(key_values_to_match) != 0
@@ -108,6 +109,8 @@ def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_met
         # key_values_to_match['evaltype'] = ['synthetics']
         subset_x = extract_result_subset(all_results, key_values_to_match)
         key_values_to_match['evaltype'] = [y_metric2_evaltype]
+        if y_metric2_dataset:
+            key_values_to_match['dataset'] = [y_metric2_dataset]
         subset_y = extract_result_subset(all_results, key_values_to_match)
         lines_x = extract_x_y_foreach_line(subset_x, info_per_line, x_metric, y_metric, var_info=var_info)
         lines_y = extract_x_y_foreach_line(subset_y, info_per_line, x_metric, y_metric2, var_info=var_info)
@@ -419,7 +422,8 @@ def get_best_lr_sentiment():
     return lr_tuning_results
 
 
-def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=None, y_metric2_evaltype=None, scatter=False, logx=False):
+def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
+                      y_metric2=None, y_metric2_evaltype=None, scatter=False, logx=False):
     # load and clean all results
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results', 'ICML_results.json'))
     all_results = utils.load_from_json(results_file)
@@ -431,17 +435,22 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=Non
         'embedtype':[embedtype]
     }
     xcale_str = 'logx' if logx else 'linx'
-    if evaltype == 'sentiment':
-        assert dataset, 'Must specify dataset for sentiment analysis plots.'
-        subset_info['dataset'] = [dataset]
-        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-            '{}_{}_{}_{}_vs_compression_{}'.format(embedtype, evaltype, dataset, y_metric, xcale_str)))
-    else:
-        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-            '{}_{}_{}_vs_compression_{}'.format(embedtype, evaltype, y_metric, xcale_str)))
     if scatter:
-        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-            '{}_{}_{}_vs_{}_{}'.format(embedtype, y_metric2_evaltype, y_metric2, y_metric, xcale_str)))
+        if y_metric2_evaltype == 'sentiment':
+            output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+                '{}_{}_{}_{}_vs_{}_{}'.format(embedtype, y_metric2_evaltype, dataset, y_metric2, y_metric, xcale_str)))
+        else:
+            output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+                '{}_{}_{}_vs_{}_{}'.format(embedtype, y_metric2_evaltype, y_metric2, y_metric, xcale_str)))
+    else:
+        if evaltype == 'sentiment':
+            assert dataset, 'Must specify dataset for sentiment analysis plots.'
+            subset_info['dataset'] = [dataset]
+            output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+                '{}_{}_{}_{}_vs_compression_{}'.format(embedtype, evaltype, dataset, y_metric, xcale_str)))
+        else:
+            output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+                '{}_{}_{}_vs_compression_{}'.format(embedtype, evaltype, y_metric, xcale_str)))
 
     # prepare filenames of output csv and pdf files.
     csv_file = output_file_str + '.csv'
@@ -503,6 +512,7 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=Non
         csv_file=csv_file,
         y_metric2=y_metric2,
         y_metric2_evaltype=y_metric2_evaltype,
+        y_metric2_dataset=dataset,
         scatter=scatter
     )
     # plt.show()
