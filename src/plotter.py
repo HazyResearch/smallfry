@@ -631,7 +631,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim):
     # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
-    embedtypes = ['glove-wiki400k-am','glove400k']
+    embedtypes = ['fasttext1m','glove-wiki400k-am','glove400k']
 
     # SET Y_METRIC1 PARAMS
     if use_large_dim:
@@ -646,22 +646,23 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim):
     # SET Y_METRIC2 PARAMS
     if y_metric2_evaltype == 'qa':
         y_metric2s = ['best-f1']
-        dataset = None
+        datasets = [None]
     elif y_metric2_evaltype == 'sentiment':
         y_metric2s = ['test-acc']
-        dataset = 'trec'
+        datasets = ['mr','subj','cr','sst','trec','mpqa']
     elif y_metric2_evaltype == 'intrinsics':
         y_metric2s = ['analogy-avg-score','similarity-avg-score']
-        dataset = None
+        datasets = [None]
 
     logxs = [True,False]
     for embedtype in embedtypes:
         for y_metric1 in y_metric1s:
             for y_metric2 in y_metric2s:
                 for logx in logxs:
-                    plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
-                        y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
-                        dataset=dataset)
+                    for dataset in datasets:
+                        plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
+                            y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
+                            dataset=dataset)
 
 def plot_theorem3_tighter_bound():
     dims = [300,300,200,100,50]
@@ -712,7 +713,8 @@ if __name__ == '__main__':
     # plot_metric_vs_performance()
     # plot_theorem3_tighter_bound()
     # gather_ICML_results()
-    use_large_dim = False
-    plot_metric_vs_performance('qa', use_large_dim)
-    plot_metric_vs_performance('sentiment', use_large_dim)
-    plot_metric_vs_performance('intrinsics', use_large_dim)
+    use_large_dims = [True, False]
+    for use_large_dim in use_large_dims:
+        plot_metric_vs_performance('qa', use_large_dim)
+        plot_metric_vs_performance('sentiment', use_large_dim)
+        plot_metric_vs_performance('intrinsics', use_large_dim)
