@@ -137,7 +137,7 @@ def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_met
 
 # lines_x, y contains values for x and y in the scatter plot
 def plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=False, logy=False, title=None, csv_file=None):
-    print("scatter function")
+    # print("scatter function")
     f = None
     if csv_file:
         f = open(csv_file,'w+')
@@ -617,7 +617,7 @@ def plot_embedding_standard_deviation():
 #         for i,embedtype in enumerate(embedtypes):
 #             table_str = 
 
-def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim):
+def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
     # embedtypes = ['fasttext1m']
     # evaltype = 'synthetics' # this is used in clean results
     
@@ -654,15 +654,17 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim):
         y_metric2s = ['analogy-avg-score','similarity-avg-score']
         datasets = [None]
 
-    logxs = [True,False]
+    # logxs = [True,False]
     for embedtype in embedtypes:
         for y_metric1 in y_metric1s:
             for y_metric2 in y_metric2s:
-                for logx in logxs:
-                    for dataset in datasets:
-                        plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
-                            y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
-                            dataset=dataset)
+                # for logx in logxs:
+                for dataset in datasets:
+                    print('Embedtype = {}, {} vs {}, dataset = {}'.format(
+                          embedtype, y_metric1, y_metric2, dataset))
+                    plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
+                        y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
+                        dataset=dataset)
 
 def plot_theorem3_tighter_bound():
     dims = [300,300,200,100,50]
@@ -713,8 +715,9 @@ if __name__ == '__main__':
     # plot_metric_vs_performance()
     # plot_theorem3_tighter_bound()
     # gather_ICML_results()
+    logx = False
     use_large_dims = [True, False]
     for use_large_dim in use_large_dims:
-        plot_metric_vs_performance('qa', use_large_dim)
-        plot_metric_vs_performance('sentiment', use_large_dim)
-        plot_metric_vs_performance('intrinsics', use_large_dim)
+        plot_metric_vs_performance('qa', use_large_dim, logx)
+        plot_metric_vs_performance('sentiment', use_large_dim, logx)
+        plot_metric_vs_performance('intrinsics', use_large_dim, logx)
