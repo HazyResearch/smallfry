@@ -617,7 +617,7 @@ def plot_embedding_standard_deviation():
 #         for i,embedtype in enumerate(embedtypes):
 #             table_str = 
 
-def plot_metric_vs_performance(y_metric2_evaltype):
+def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim):
     # embedtypes = ['fasttext1m']
     # evaltype = 'synthetics' # this is used in clean results
     
@@ -631,12 +631,19 @@ def plot_metric_vs_performance(y_metric2_evaltype):
     # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
-    # GRAM DELTA PLOTS: SYNTHETICS-LARGE-DIM
     embedtypes = ['glove-wiki400k-am','glove400k']
-    evaltype = 'synthetics-large-dim'
-    y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
-                 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
-                 'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans']
+
+    # SET Y_METRIC1 PARAMS
+    if use_large_dim:
+        evaltype = 'synthetics-large-dim'
+        y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
+                    'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
+                    'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans']
+    else:
+        evaltype = 'synthetics'
+        y_metric1s = ['embed-frob-error', 'embed-spec-error', 'embed-mean-euclidean-dist', 'semantic-dist']
+
+    # SET Y_METRIC2 PARAMS
     if y_metric2_evaltype == 'qa':
         y_metric2s = ['best-f1']
         dataset = None
@@ -705,4 +712,4 @@ if __name__ == '__main__':
     # plot_metric_vs_performance()
     # plot_theorem3_tighter_bound()
     # gather_ICML_results()
-    plot_metric_vs_performance()
+    plot_metric_vs_performance('intrinsics', False)
