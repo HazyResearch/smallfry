@@ -23,6 +23,16 @@ def clean_results(results):
                 result['gram-large-dim-delta1-' + str(i)] = delta1
                 result['gram-large-dim-delta2-' + str(i)] = delta2
                 result['gram-large-dim-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
+            # FIX SUBSPACE-DIST
+            if result['embedtype'] in ['glove400k','fasttext1m']:
+                large_dim = 300
+            else:
+                assert result['embedtype'] == 'glove-wiki400k-am'
+                large_dim = 400
+            eig_overlap = large_dim - result['subspace-dist']
+            new_dist = large_dim + result['embeddim'] - 2 * eig_overlap
+            result['subspace-eig-distance'] = new_dist
+            result['subspace-eig-overlap'] = eig_overlap
         if result['evaltype'] == 'synthetics':
             delta1_list = result['gram-delta1s']
             delta2_list = result['gram-delta2s']
@@ -89,21 +99,23 @@ def matches_all_key_values(result, key_values_to_match):
 # TODO: add error bar support
 def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_metric,
                 logx=False, logy=False, title=None, var_info=default_var_info,
-                csv_file=None, y_metric2=None, y_metric2_evaltype=None, scatter=False):
+                csv_file=None, y_metric2=None, y_metric2_evaltype=None, y_metric2_dataset=None,
+                scatter=False):
     
     if scatter:
         assert len(key_values_to_match) != 0
         assert len(key_values_to_match['embedtype']) == 1
         assert y_metric2 and y_metric2_evaltype
-        # key_values_to_match['evaltype'] = 'synthetics'
-        key_values_to_match['evaltype'] = ['synthetics']
+        # key_values_to_match['evaltype'] = ['synthetics']
         subset_x = extract_result_subset(all_results, key_values_to_match)
         key_values_to_match['evaltype'] = [y_metric2_evaltype]
+        if y_metric2_dataset:
+            key_values_to_match['dataset'] = [y_metric2_dataset]
         subset_y = extract_result_subset(all_results, key_values_to_match)
         lines_x = extract_x_y_foreach_line(subset_x, info_per_line, x_metric, y_metric, var_info=var_info)
         lines_y = extract_x_y_foreach_line(subset_y, info_per_line, x_metric, y_metric2, var_info=var_info)
-        title = '{}: {} perf. ({}) vs. {}'.format(key_values_to_match['embedtype'][0], 'qa', y_metric2, y_metric)
-        plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=logx, logy=logy, title=title, csv_file=csv_file)
+        title = '{}: {} perf. ({}) vs. {}'.format(key_values_to_match['embedtype'][0], y_metric2_evaltype, y_metric2, y_metric)
+        plot_scatter(lines_x, lines_y, y_metric, y_metric2, logx=logx, logy=logy, title=title, csv_file=csv_file)
     else:
         if len(key_values_to_match) == 0:
             subset = all_results
@@ -355,7 +367,8 @@ def plot_embedding_spectra():
 def gather_ICML_results():
     embedtypes = ['glove-wiki400k-am','glove400k','fasttext1m']
     result_file_regexes = ['*evaltype,qa*final.json', '*evaltype,sent*lr,0*final.json',
-            '*evaltype,intrinsics*final.json', '*evaltype,synthetics*final.json']
+            '*evaltype,intrinsics*final.json', '*evaltype,synthetics_*final.json',
+            '*2019-01-20-eval-*evaltype,synthetics-large-dim*final.json']
     # if we want the compression config file, use 'embedtype,*final.json'
     path_regex = '/proj/smallfry/embeddings/{}/*/*/{}'
     all_results = []
@@ -409,7 +422,8 @@ def get_best_lr_sentiment():
     return lr_tuning_results
 
 
-def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=None, y_metric2_evaltype=None, scatter=False):
+def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
+                      y_metric2=None, y_metric2_evaltype=None, scatter=False, logx=False):
     # load and clean all results
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results', 'ICML_results.json'))
     all_results = utils.load_from_json(results_file)
@@ -420,17 +434,23 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=Non
         'evaltype':[evaltype],
         'embedtype':[embedtype]
     }
-    if evaltype == 'sentiment':
-        assert dataset, 'Must specify dataset for sentiment analysis plots.'
-        subset_info['dataset'] = [dataset]
-        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-            '{}_{}_{}_{}_vs_compression'.format(embedtype, evaltype, dataset, y_metric)))
-    else:
-        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-            '{}_{}_{}_vs_compression'.format(embedtype, evaltype, y_metric)))
+    xcale_str = 'logx' if logx else 'linx'
     if scatter:
-        output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
-            '{}_{}_best-f1_vs_{}'.format(embedtype, evaltype, y_metric)))
+        if y_metric2_evaltype == 'sentiment':
+            output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+                '{}_{}_{}_{}_vs_{}_{}'.format(embedtype, y_metric2_evaltype, dataset, y_metric2, y_metric, xcale_str)))
+        else:
+            output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+                '{}_{}_{}_vs_{}_{}'.format(embedtype, y_metric2_evaltype, y_metric2, y_metric, xcale_str)))
+    else:
+        if evaltype == 'sentiment':
+            assert dataset, 'Must specify dataset for sentiment analysis plots.'
+            subset_info['dataset'] = [dataset]
+            output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+                '{}_{}_{}_{}_vs_compression_{}'.format(embedtype, evaltype, dataset, y_metric, xcale_str)))
+        else:
+            output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
+                '{}_{}_{}_vs_compression_{}'.format(embedtype, evaltype, y_metric, xcale_str)))
 
     # prepare filenames of output csv and pdf files.
     csv_file = output_file_str + '.csv'
@@ -486,12 +506,13 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None, y_metric2=Non
         info_per_line,
         x_metric,
         y_metric,
-        logx=True,
+        logx=logx,
         title='{}: {} perf. ({}) vs. memory'.format(embedtype, evaltype, y_metric),
         var_info=var_info,
         csv_file=csv_file,
         y_metric2=y_metric2,
         y_metric2_evaltype=y_metric2_evaltype,
+        y_metric2_dataset=dataset,
         scatter=scatter
     )
     # plt.show()
@@ -610,16 +631,24 @@ def plot_metric_vs_performance():
     # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
-    # COV DELTA PLOTS: SYNTHETICS
-    embedtypes = ['glove-wiki400k-am']
-    evaltype = 'synthetics'
-    y_metrics = ['cov-frob-error', 'cov-delta1-0', 'cov-delta1-1', 'cov-delta1-2', 'cov-delta1-3', 'cov-delta1-4',
-                 'cov-delta1-0-trans', 'cov-delta1-1-trans', 'cov-delta1-2-trans', 'cov-delta1-3-trans', 'cov-delta1-4-trans']
-    y_metric2 = 'best-f1'
-    y_metric2_evaltype = 'qa'
+    # GRAM DELTA PLOTS: SYNTHETICS-LARGE-DIM
+    embedtypes = ['glove-wiki400k-am','glove400k']
+    evaltype = 'synthetics-large-dim'
+    y_metrics = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
+                 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
+                 'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans']
+    # y_metric2 = 'best-f1'
+    # y_metric2_evaltype = 'qa'
+    dataset = 'trec'
+    y_metric2 = 'test-acc'
+    y_metric2_evaltype = 'sentiment'
+    logxs = [True,False]
     for embedtype in embedtypes:
         for y_metric in y_metrics:
-            plot_ICML_results(embedtype, evaltype, y_metric, y_metric2=y_metric2, y_metric2_evaltype=y_metric2_evaltype, scatter=True)
+            for logx in logxs:
+                plot_ICML_results(embedtype, evaltype, y_metric, y_metric2=y_metric2,
+                    y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
+                    dataset=dataset)
 
 def plot_theorem3_tighter_bound():
     dims = [300,300,200,100,50]
@@ -664,9 +693,10 @@ if __name__ == '__main__':
     #plot_embedding_spectra()
     # plot_ICML_qa_results()
     # get_best_lr_sentiment()
-    #gather_ICML_results()
     # plot_ICML_qa_results()
     # plot_all_ICML_sentiment_results()
     # plot_all_ICML_results()
     # plot_metric_vs_performance()
-    plot_theorem3_tighter_bound()
+    # plot_theorem3_tighter_bound()
+    # gather_ICML_results()
+    plot_metric_vs_performance()
