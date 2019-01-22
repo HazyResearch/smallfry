@@ -1,3 +1,104 @@
+\subsection{NEW THEORY}
+Assume $K = USU^T \in \RR^{n \times n}$ (rank $d$), $\tK = VRV^T\in \RR^{n \times n}$ (rank $k$).
+Let $\{U_1,\ldots,U_n\}$ be the eigenvectors of $K$ in decreasing eigenvalue order, with the first $d$ having non-zero eigenvalue.
+Similarly, let $\{V_1,\ldots,V_n\}$ be the eigenvectors of $\tK$ in decreasing eigenvalue order, with the first $k$ having non-zero eigenvalue.
+Let $U = [U_1,\ldots U_d]$, $U_{\perp} = [U_{d+1},\ldots,U_n]$, $V = [V_1,\ldots V_k]$, $V_{\perp} = [V_{k+1},\ldots,V_n]$.
+
+\begin{eqnarray*}
+	R(K) &=& \frac{\lambda^2}{n}y^T (K+\lambda I)^{-2} y + \frac{\sigma^2}{n} \tr\bigg(K^2(K+\lambda I)^{-2}\bigg) \\
+	n\cdot R(K) &=& \sum_{i=1}^d \Big(\frac{\lambda}{\sigma_i + \lambda}\Big)^2(U_i^T y)^2 + \sum_{i=d+1}^n (U_i^T y)^2 + \sigma^2 \sum_{i=1}^d \Big(\frac{\sigma_i}{\sigma_i + \lambda}\Big)^2 \\
+\end{eqnarray*}
+If we assume that we are in the noiseless linear regression setting ($\sigma=0$, $\lambda=0$), instead of the noisy linear ridge regression setting, this simplifies:
+\begin{eqnarray*}
+	n\cdot R(K) &=& \sum_{i=d+1}^n (U_i^T y)^2 \\
+	&=& y^T U_{\perp} U_{\perp}^T y \\
+	&=& y^T (I - UU^T) y \\
+	&=& \|y\|^2 - y^T UU^T y \\
+	n\cdot R(\tK) &=& \|y\|^2 - y^T VV^T y \\
+	n(R(\tK) - R(K)) &=& \Big(\|y\|^2 - y^T VV^T y\Big) - \Big(\|y\|^2 - y^T UU^T y\Big)\\
+	&=& y^T (UU^T - VV^T) y \\
+	&\leq& \|y\|^2 \|UU^T - VV^T\|_2 \\
+	&\leq& \|y\|^2 \|UU^T - VV^T\|_F \\
+	&\leq& \|y\|^2 \sqrt{d + k - 2 \|U^T V\|_F^2} \quad \text{(by Lemma\ref{lemma1})}\\
+\end{eqnarray*}
+
+ANOTHER VERSION\\
+Here we consider a random $y \in \RR^n$ vector with identity covariance.
+\begin{eqnarray*}
+	\expect{y}{n(R(\tK) - R(K))} &=& \expect{y}{\Big(\|y\|^2 - y^T VV^T y\Big) - \Big(\|y\|^2 - y^T UU^T y\Big)}\\
+	&=& \expect{y}{y^T (UU^T - VV^T) y} \\
+	&=& \expect{y}{y^T UU^T y - y^TVV^T y} \\
+	&=& \|U\|_F^2  - \expect{y}{y^TVV^T y} \\
+	&\leq& d - \|V^T U\|_F^2 \quad \text{by derivation below.} \\
+	\expect{y}{n(R(K) - R(\tK))} &\leq& k - \|V^T U\|_F^2 \\
+	\expect{y}{y^T VV^T y} &=& \expect{y}{\|V^T y\|_2^2} \\
+	&=& \expect{y}{\|VV^T y\|_2^2} \\
+	&\geq&  \expect{y}{\|VV^T UU^T y\|_2^2}  \quad\text{(projecting onto $U$ first makes $y$ magnitude smaller)}\\
+	&=& \|VV^T UU^T\|_F^2 \quad \text{(by Lemma\ref{lemma2})}\\
+	&=& \tr\Big(UU^TVV^TVV^TUU^T \Big) \\
+	&=& \tr\Big((U^TV) V^TV (V^TU) U^TU \Big) \\
+	&=& \tr \Big( (V^T U)^T (V^T U)\Big) \\
+	&=& \|V^T U\|_F^2
+\end{eqnarray*}
+
+ONE MORE VERSION
+\begin{eqnarray*}
+	n(R(\tK) - R(K)) &=& \Big(\|y\|^2 - y^T VV^T y\Big) - \Big(\|y\|^2 - y^T UU^T y\Big)\\
+	&=& y^T (UU^T - VV^T) y \\
+	&=& y^T UU^T y - y^TVV^T y \\
+	&=& \text{add line here.} \\
+	y^T VV^T y &=& \|V^T y\|_2^2 \\
+	&=& \|VV^T y\|_2^2 \\
+	&\geq&  \|VV^T UU^T y\|_2^2  \quad\text{(projecting onto $U$ first makes $y$ magnitude smaller)}\\
+	&=&  \|(V^T U) (U^T y)\|_2^2 \\
+	&\geq& \sigma_{min}(V^T U)^2 \|U^T y\|^2 \\
+%	&=& \tr\Big(y^T UU^TVV^TVV^TUU^T y \Big) \\
+%	&=& \tr\Big(UU^TVV^TVV^TUU^T yy^T \Big) \\
+%	&=& \tr\Big(U (U^TV) (V^TU) U^T yy^T \Big) \\
+%	&=& \tr\Big((U^TV) (V^TU) (U^T y)(U^T y)^T \Big) \\
+%	&\geq& \text{NOT SURE HOW TO LOWER BOUND}
+%	&=& \tr\Big((U^TV) V^TV (V^TU) U^TU \Big) \\
+%	&=& \tr \Big( (V^T U)^T (V^T U)\Big) \\
+%	&=& \|V^T U\|_F^2
+\end{eqnarray*}
+So the worst case analysis cares about the minimum singular value of $V^T U$. \todo{But this will be 0 if rank of $V$ is smaller than rank of $U$, right??}
+
+ONE MORE:\\
+Tri says we can use the fact that the singular values of $UU^T-VV^T$ are the same as those of $U^{\perp} U^{\perp T} VV^T$ (but repeated twice).  And then use sin(theta) theorem to argue that $\|U^{\perp} U^{\perp T} VV^T\|$ is small
+
+
+\begin{lemma}
+\label{lemma1}
+\begin{eqnarray*}
+	\|UU^T - VV^T \|_F^2 &=& \tr\Big( (UU^T - VV^T)^T (UU^T - VV^T)  \Big)\\
+	&=& \tr(UU^TUU^T) + \tr(VV^T VV^T) - \tr(VV^T UU^T) - \tr(UU^T VV^T) \\
+	&=& d + k - 2 \tr((U^T V)^T (U^T V)) \\
+	&=& d + k - 2 \|U^T V\|_F^2
+\end{eqnarray*}
+\end{lemma}
+
+\begin{lemma}
+\label{lemma2}
+Let $A \in \RR^{n\times d}$ be an arbitrary matrix. If a random vector $x \in \RR^d$ is drawn from a distribution with identiy covariance matrix, then $\|A\|_F^2 = \expect{x}{\|Ax\|_2^2}$.
+\end{lemma}
+\begin{proof}
+\begin{eqnarray*}
+\expect{x}{\|Ax\|_2^2} &=& \expect{x}{(Ax)^T (Ax)} \\
+&=& \expect{x}{x^T A^T A x} \\
+&=& \expect{x}{\tr \Big(x^T A^T A x\Big)} \\
+&=& \expect{x}{\tr \Big(A^T A x x^T\Big)} \\
+&=& \tr \Big(A^T A \cdot \expect{x}{x x^T}\Big) \\
+&=& \tr \Big(A^T A\Big) \\
+&=& \|A\|_F^2 \\
+\end{eqnarray*}
+\end{proof}
+
+Let $\{a_i\}_{i=1}^r$ be an orthonormal basis of $U \backslash V$, $\{b_j\}_{i=1}^s$ be an orthonormal basis of $V / U$, and $\{c_k\}_{i=1}^t$ be an orthonormal basis of $U \cap V$.
+\begin{eqnarray*}
+	\|UU^T - VV^T \|_F^2 &=& \sum_{i=1}^r \|(UU^T - VV^T)a_i\|^2 + \sum_{j=1}^s \|(UU^T - VV^T)b_j\|^2 + \sum_{k=1}^t \|(UU^T - VV^T)c_k\|^2 \\
+	&=& r + s
+\end{eqnarray*}
+
 \subsection{Theory Summary}
 We have observed that word embedding matrices have pretty flat spectra, with large smallest non-zero singular values.  Here, we show that this implies that one can use a large regularizer $\lambda$ while attaining similar generalization performance to smaller $\lambda$.  We then show that large $\lambda$ implies small relative spectral distance between the full-precision embedding matrix and the low-precision embedding matrix with high probability.  We know from prior work that small relative spectral distance gives tight generalization bounds.
 
