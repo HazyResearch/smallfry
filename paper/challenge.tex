@@ -1,5 +1,13 @@
-\subsection{Matrix Approximation Error and Generalization}
-\label{subsec:error_gen}
+\subsection{Preliminary}
+\label{subsec:prel}
+\paragraph{Word Embedding Compression Methods}
+\begin{itemize}
+	\item Briefly describe DCCL and k-means approach
+	\item Present uniform quantization with Pseudo-code
+\end{itemize}
+
+\paragraph{Matrix Approximation Error and Generalization}
+%\label{subsec:error_gen}
 	\begin{itemize}
 		\item PIP Loss: introduce pip loss
 		\item Delta 1 and Delta 2: introduce Deltas
@@ -9,4 +17,7 @@
 \label{subsec:hard_explain}
 	\begin{itemize}
 		\item Empirically demonstrate existing matrix approximation error does not correlate well with the generalization performance of compressed embeddings.
+		\begin{itemize}
+			\item Glove and Fasttext: show correlation between performance and Frob norm (PIP) / Deltas (maybe the combination of delta1 and delta2) 
+		\end{itemize}
 	\end{itemize}

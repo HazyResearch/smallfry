@@ -1,26 +1,29 @@
-\subsection{Method Details}
-\label{subsec:method}
-	\begin{itemize}
-		\item Give the method descriptions
-		\item The pseudo-code.
-	\end{itemize}
+%\subsection{Method Details}
+%\label{subsec:method}
+%	\begin{itemize}
+%		\item Give the method descriptions
+%		\item The pseudo-code.
+%	\end{itemize}
 	
-\subsection{Generalization Performance}
-\label{subsec:gen_perf}
+\subsection{Theoretical Results}
+%\label{subsec:gen_perf}
 	\begin{itemize}
 		\item Theorem on quantization achieve strong subspace overlap with high probability
 		\item Corollary on the bits to achieve a specific subspace overlap value
-		\item Theory validation
+	\end{itemize}
+	
+\subsection{Theory validation}
+	\begin{itemize}
+		\item Impact of quantization on overlap 
 			\begin{itemize}
-				\item Exp1: overlap vs dimensionality for different precision. Expectation: overlap increases with dimensionality.
- 				\item Exp 2: overlap vs precision for different dimensionality. Expectation: overlap increases with higher precision.
+ 				\item Exp 1: overlap vs precision for different dimensionality. Expectation: overlap increases with higher precision.
+				\item \todo{Maybe optional} Exp2: overlap vs dimensionality for different precision. Expectation: overlap increases with dimensionality.
 			\end{itemize}
 		\item The impact of clipping on eigen-subspace overlap
 			\begin{itemize}
 				\item Simulation based experiments on subspace overlap as a function of different clipping threshold and precision. 
 			\end{itemize}
 	\end{itemize}
-
 
 %In this section, we present our word embedding compression algorithm.
 %At a high-level, our algorithm clips the embedding matrix into the range $[-r,r]$, and then uniformly quantizes the entries of the clipped matrix;
