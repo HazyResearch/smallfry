@@ -137,7 +137,7 @@ def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_met
 
 # lines_x, y contains values for x and y in the scatter plot
 def plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=False, logy=False, title=None, csv_file=None):
-    print("scatter function")
+    # print("scatter function")
     f = None
     if csv_file:
         f = open(csv_file,'w+')
@@ -617,7 +617,7 @@ def plot_embedding_standard_deviation():
 #         for i,embedtype in enumerate(embedtypes):
 #             table_str = 
 
-def plot_metric_vs_performance():
+def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
     # embedtypes = ['fasttext1m']
     # evaltype = 'synthetics' # this is used in clean results
     
@@ -631,24 +631,40 @@ def plot_metric_vs_performance():
     # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
-    # GRAM DELTA PLOTS: SYNTHETICS-LARGE-DIM
-    embedtypes = ['glove-wiki400k-am','glove400k']
-    evaltype = 'synthetics-large-dim'
-    y_metrics = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
-                 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
-                 'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans']
-    # y_metric2 = 'best-f1'
-    # y_metric2_evaltype = 'qa'
-    dataset = 'trec'
-    y_metric2 = 'test-acc'
-    y_metric2_evaltype = 'sentiment'
-    logxs = [True,False]
+    embedtypes = ['fasttext1m','glove-wiki400k-am','glove400k']
+
+    # SET Y_METRIC1 PARAMS
+    if use_large_dim:
+        evaltype = 'synthetics-large-dim'
+        y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
+                    'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
+                    'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans']
+    else:
+        evaltype = 'synthetics'
+        y_metric1s = ['embed-frob-error', 'embed-spec-error', 'embed-mean-euclidean-dist', 'semantic-dist']
+
+    # SET Y_METRIC2 PARAMS
+    if y_metric2_evaltype == 'qa':
+        y_metric2s = ['best-f1']
+        datasets = [None]
+    elif y_metric2_evaltype == 'sentiment':
+        y_metric2s = ['test-acc']
+        datasets = ['mr','subj','cr','sst','trec','mpqa']
+    elif y_metric2_evaltype == 'intrinsics':
+        y_metric2s = ['analogy-avg-score','similarity-avg-score']
+        datasets = [None]
+
+    # logxs = [True,False]
     for embedtype in embedtypes:
-        for y_metric in y_metrics:
-            for logx in logxs:
-                plot_ICML_results(embedtype, evaltype, y_metric, y_metric2=y_metric2,
-                    y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
-                    dataset=dataset)
+        for y_metric1 in y_metric1s:
+            for y_metric2 in y_metric2s:
+                # for logx in logxs:
+                for dataset in datasets:
+                    print('Embedtype = {}, {} vs {}, dataset = {}'.format(
+                          embedtype, y_metric1, y_metric2, dataset))
+                    plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
+                        y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
+                        dataset=dataset)
 
 def plot_theorem3_tighter_bound():
     dims = [300,300,200,100,50]
@@ -699,4 +715,9 @@ if __name__ == '__main__':
     # plot_metric_vs_performance()
     # plot_theorem3_tighter_bound()
     # gather_ICML_results()
-    plot_metric_vs_performance()
+    logx = False
+    use_large_dims = [True, False]
+    for use_large_dim in use_large_dims:
+        plot_metric_vs_performance('qa', use_large_dim, logx)
+        plot_metric_vs_performance('sentiment', use_large_dim, logx)
+        plot_metric_vs_performance('intrinsics', use_large_dim, logx)
