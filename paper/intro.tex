@@ -1,25 +1,40 @@
 In recent years, \textit{word embeddings} \citep{word2vec13,glove14,fasttext18} have brought large improvements to a wide range of applications in natural language processing (NLP) \citep{collins16,drqa17}.
 However, these word embeddings can occupy a very large amount of memory, making it expensive to deploy them in data centers, and impractical to use them in memory-constrained environments like smart phones.
-Recently, there have been numerous successful methods proposed for compressing embeddings; these methods build on drastically different machineries, ranging from dictionary learning \citep{sparse16,dccl17,kway18} using neural networks to simple fixed point quantization \citep{lam2018word2bits,andrews16}. %\todo{more concise?}
+Recently, there have been numerous successful methods proposed for compressing embeddings;
+these methods build on drastically different machineries, ranging from dictionary learning \citep{sparse16,dccl17,kway18} using neural networks to simple fixed point quantization \citep{andrews16,lam2018word2bits}. %\todo{more concise?}
 %, costing valuable computation and developer time to use.
 
-To understand the performance of compressed embeddings in a principled way, we begin by empirically compare different embedding compression methods in across downstream tasks. 
-Surprisingly, we observe that a simple uniform quantization method can compete with state-of-the-art deep compositional code learning method \citep{dccl17} and k-means clustering \citep{andrews16}. 
+Our goal in this work is to gain a deeper understanding of what makes compression methods perform well on downstream tasks.
+As a first step, we compare the empirical performance of different embedding compression methods on several downstream tasks.
+Surprisingly, we observe that a simple uniform quantization method can compete with state-of-the-art deep compositional code learning method \citep{dccl17} and k-means clustering \citep{andrews16}, and perform similarly to uncompressed embeddings at low precision.
 %For example, using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, uniform quantization attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the state-of-the-art deep compositional code learning method \cite{dccl17} is 0.43\% below. \todo{should we keep the example?}. 
 %\todo{Discuss other tasks}
-However, we find that existing metrics for evaluating the quality of the compressed embeddings fail to explain the relative performance between these different methods.
-In particular, we observe that the reconstruction error of the embeddings, the Pairwise Inner Product (PIP) loss \citep{yin18}, and spectral measures of approximation between the pairwise inner product matrices of the embeddings \citep{avron17,lprff18} all correlate poorly with the downstream performance of the compressed embeddings. \todo{do we want an example here?}
+Furthermore, we find that existing metrics for evaluating the quality of the compressed embeddings fail to explain the relative performance between these different methods.
+In particular, we observe that the reconstruction error of the embeddings, the Pairwise Inner Product (PIP) loss \citep{yin18}, and spectral measures of approximation between the pairwise inner product (Gram) matrices of the embeddings \citep{avron17,lprff18} all correlate poorly with the downstream performance of the compressed embeddings. 
+%\todo{do we want an example here?}
 These observations suggest that we need a new metric better capturing what makes a compressed embedding perform well in downstream tasks.
 
-Toward this end, we introduce the \textit{eigenspace overlap metric} which correlates strongly with downstream performance of compressed embeddings across a variety of tasks, and prove a generalization bound in terms of this metric for compressed embeddings in the context of linear regression. \todo{supervised learning?}
+Toward this end, we introduce the \textit{eigenspace overlap metric} which we show correlates strongly with downstream performance of compressed embeddings across a variety of tasks, and prove a generalization bound in terms of this metric for compressed embeddings in the context of linear regression.
 %\todo{Defend linear regression?}
-This metric measures the degree of overlap between the subspaces spanned by the singular vectors of the compressed and uncompressed embedding matrices. \todo{technically clear?}
+This metric measures the degree of overlap between the subspaces spanned by the eigenvectors of the nonzero eigenvalues of the Gram matrices of the compressed and uncompressed embedding matrices. %\todo{technically clear?}
 %subspaces spanned by the eigenvectors of the pairwise inner product matrices of the compressed and uncompressed embeddings.
-Intuitively, this is a natural metric because a linear regressor, for example, is only able to capture the part of the label vector contained within the space spanned by singular vectors of the data matrix. Our generalization bound reveals that when compressed and uncompressed embeddings have small eigenspace overlap, they can perform similarly in downstream tasks. 
+Intuitively, this is a natural metric because a linear regressor is only able to capture the part of the label vector in the span of the eigenvectors of the nonzero eigenvalues of the Gram matrix.
+Our generalization bound reveals that when compressed and uncompressed embeddings have small eigenspace overlap, they can perform similarly in downstream tasks.
+Though our generalization bounds are specific to linear regression, we believe this is an important step toward understanding the generalization performance of compressed word embeddings.
+
+To further demonstrate the utility of the eigenspace overlap metric, we show that we can use it to better understand why the uniformly quantized embeddings perform similarly to the uncompressed embeddings at relatively low precision.
+In particular, we prove that the uniformly quantized embeddings with high probability attain high eigenspace overlap with the uncompressed embeddings at relatively low precision.
+Combining this result with the generalization bounds with respect to eigenspace overlap directly provides a guarantee on the performance of the uniformly quantized embeddings.
+These theoretical results demonstrate how our eigenspace overlap based analysis can provide insight on when and why compression methods succeed.
+We hope these insights inspire further advances to compression methods.
 
 
-Though our generalization bounds are specific to linear regression, we believe this is an important step toward understanding the generalization performance of compressed word embeddings. In particular, as a first step, we build on our analysis to explain why simple uniformly quantized embeddings with limited precision attains strong performance in downstream tasks. Theoretically, we show that with high probability, uniformly quantized embeddings can achieve a high eigenspace overlap with the uncompressed counterparts given sufficient precision. Thus it can attain provably close performance to uncompressed embeddings in downstream tasks. Empirically, we evaluate uniform quantization for embedding compression  across a variety of tasks, including questins answering, sentiment analysis, word analogy and word similarity, with two different embeddings types (GloVe and FastText). We demonstrate that uniformly quantized embedding can achieve competing performance to uncompressed embedding with \todo{bla to bla X} compression rate. In these experiments, we observe that downstream task performance correlates strongly with the eigenspace overlap between compressed and uncompressed embeddings.
-We hope this work inspires further analysis on the generalization of compressed embeddings.
+%In particular, as a first step, we build on our analysis to explain why simple uniformly quantized embeddings with limited precision attains strong performance in downstream tasks.
+%Theoretically, we show that with high probability, uniformly quantized embeddings can achieve a high eigenspace overlap with the uncompressed counterparts given sufficient precision.
+%Thus it can attain provably close performance to uncompressed embeddings in downstream tasks. Empirically, we evaluate uniform quantization for embedding compression across a variety of tasks, including questins answering, sentiment analysis, word analogy and word similarity, with two different embeddings types (GloVe and FastText).
+%We demonstrate that uniformly quantized embedding can achieve competing performance to uncompressed embedding with \todo{bla to bla X} compression rate.
+%In these experiments, we observe that downstream task performance correlates strongly with the eigenspace overlap between compressed and uncompressed embeddings.
+%We hope this work inspires further analysis on the generalization of compressed embeddings.
 
 In Section~\ref{sec:relwork} we review related work, including existing methods for compressing word embeddings.
 In Section~\ref{sec:challenge} we discuss existing metrics for evaluating embedding quality, and show they do not align well with downstream performance.
