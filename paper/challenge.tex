@@ -3,7 +3,7 @@ To study the performance of compressed word embeddings in downstream tasks, we b
 \subsection{Preliminary: Embedding Compression Methods}
 \label{subsec:prel}
 %\paragraph{Word Embedding Compression Methods.} 
-To deploy word embedding to memory constraint settings in data center and edge devices, many methods has been proposed to compress the word embedding. \todo{(we should consider whether we can say kmeans is stoa.)}. Among these methods, state-of-the-art \emph{DCCL approach} \citep{dccl17}\footnote{This idea is also independently adopted by \citet{kway18}.} adopts dictionary learning to represent a large number of word vectors with fewer basis vectors. These basis vectors are organized into multiple dictionaries, and each word is represented as a hash code to discretely combine basis from the dictionaries. In particular, the discrete combination hash code is attained by training an autoencoder with Gumbel-softmax reparameterization \citep{maddison2016concrete,jang2016categorical} to minimize the embedding vector reconstruction error. 
+\todo{(we should pull prelim as a separate paragraph)}To deploy word embedding to memory constraint settings in data center and edge devices, many methods has been proposed to compress the word embedding. \todo{(we should consider whether we can say kmeans is stoa.)}. Among these methods, state-of-the-art \emph{DCCL approach} \citep{dccl17}\footnote{This idea is also independently adopted by \citet{kway18}.} adopts dictionary learning to represent a large number of word vectors with fewer basis vectors. These basis vectors are organized into multiple dictionaries, and each word is represented as a hash code to discretely combine basis from the dictionaries. In particular, the discrete combination hash code is attained by training an autoencoder with Gumbel-softmax reparameterization \citep{maddison2016concrete,jang2016categorical} to minimize the embedding vector reconstruction error. 
 
 Built on a significantly different machinery, embeddings compressed by a \emph{k-mean method} also demonstrates strong empirical performance in downstream tasks \citep{andrews16}. This k-means method assigns embedding matrix entry values into clusters, and each embedding entries is the approximated by the corresponding cluster center. In this way, one can achieve compression by only storing the cluster id instead of the original value for each embedding matrix entry. 
 
@@ -31,7 +31,7 @@ In particular, our analysis will focus on the stochastic rounding scheme, while 
 %using this fact, we can see that the variances of these rounding schemes are at most $\frac{1}{4} \cdot \Big(\frac{2r}{(2^b-1)}\Big)^2 = \frac{4r^2}{(2^b-1)^2}$.
 
 
-We are now ready to present our compression algorithm, which we express in pseudo-code in Algorithm~\ref{alg:smallfry}.
+We are now ready to present the uniform quantization compression algorithm, which we express in pseudo-code in Algorithm~\ref{alg:smallfry}.
 The input to the algorithm is an embedding matrix $X \in \RR^{n\times d}$, where $n$ is the size of the vocabulary, and $d$ is the dimension of the embeddings.
 We define the function $\clip_r(x) = \max(\min(x,r),-r)$ for any non-negative $r$; when matrices are passed in as inputs to this function, it clips the entries in an element-wise fashion.
 The first step in our algorithm is to find the value of $r \in [0,\max(|X|)]$ which minimizes the reconstruction error of the quantized embeddings after $X$ is clipped to $[-r,r]$.
@@ -55,13 +55,24 @@ To avoid stochasticity impacting the search process, we always use deterministic
 \end{algorithm}
 
 
+\subsection{Matrix Approximation Error and Generalization}
+Many main stream word embedding generation problem can be casted matrix decomposition \citep{levy2014neural}. For example, Skip-gram Word2Vec \citep{word2vec13} implicitly factorizes the Pointwise Mutual Information (PMI) matrix while GloVe \citep{glove14} decomposes the word co-occurrence matrix. In this paper, given an uncompressed embedding $X\in\mathbb{R}^{n\times d}$ and its compressed version $\tilde{X}\in\mathbb{R}^{n\times \tilde{d}}$, we consider the reconstruction error between Gram matrices $G = XX^T$ and $\tilde{G} = \tilde{X}\tilde{X}^T$ as the proxy metrics of compression quality. Recently, there has been substantial progress in understanding the matrix reconstruction error and generalization for models derived from matrix factorization. Particularly in our empirical evaluation, we consider the \emph{Pointwise Inner Product (PIP)} loss \citep{yin18} and \emph{spectral approximation error} \citep{avron17,lprff18} as the metrics for word embedding compression quality. 
 
-\paragraph{Matrix Approximation Error and Generalization}
+\paragraph{Pointwise Inner Product Loss}
+Given $G$ and $\tilde{G}$, the Gram matrix of the uncompressed and compressed embeddings, Pointwise Inner Product (PIP) Loss is defined as $\|G - \tilde{G}\|_F^2$. It is first proposed to reveal the bias-variance trade-off when selecting the optimal embedding dimensionality. Though PIP loss does not explicitly consider the generalization performance of downstream tasks,  \citet{yin18} show that select embedding dimensionality by PIP loss minimization can attain strong downstream NLP task performance.
+
+
+
+\paragraph{Spectral Approximation Error}
+Built on recent theoretical work on kernel approximation \citep{avron17}, \citet{lprff18} propose the notion of \textit{$(\Delta_1,\Delta_2)$-spectral approximation} to understand the generalization performance of kernel method on supervised learning problems. In the context of uncompressed embedding $X$ and compressed embeddings $\tilde{X}$, the Gram matrix $\tilde{G} = \tilde{X}\tilde{X}^T$ is a $(\Delta_1,\Delta_2)$-spectral approximation to $G = XX^T$ if it satisfies 
+\[(1-\Delta_1) G \preceq \tilde{G} \preceq (1-\Delta_2) G.\]
+Though PIP loss and $(\Delta_1,\Delta_2)$-spectral approximation can roughly imply the generalization performance by examining the matrix reconstruction error in previous works \citep{avron17,yin18,lprff18}, we observe in Section\ref{subsec:hard_explain} these two metrics, as a measure of compression quality, can poorly correlate with the downstream task performance across different compressed embedding types.
+%\paragraph{Matrix Approximation Error and Generalization}
 %\label{subsec:error_gen}
-	\begin{itemize}
-		\item PIP Loss: introduce pip loss
-		\item Delta 1 and Delta 2: introduce Deltas
-	\end{itemize}
+%	\begin{itemize}
+%		\item PIP Loss: introduce pip loss
+%		\item Delta 1 and Delta 2: introduce Deltas
+%	\end{itemize}
 	
 \subsection{Hardness in Explaining Generalization}
 \label{subsec:hard_explain}
