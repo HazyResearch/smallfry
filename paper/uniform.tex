@@ -17,12 +17,14 @@
 		\item Impact of quantization on overlap 
 			\begin{itemize}
  				\item Exp 1: overlap vs precision for different dimensionality. Expectation: overlap increases with higher precision.
-				\item \todo{Maybe optional} Exp2: overlap vs dimensionality for different precision. Expectation: overlap increases with dimensionality.
+				\item Exp2: overlap vs dimensionality for different precision. Expectation: overlap increases with dimensionality. This explains that under fix memory budget, using lower bits quantization can be beneficial
 			\end{itemize}
 		\item The impact of clipping on eigen-subspace overlap
 			\begin{itemize}
 				\item Simulation based experiments on subspace overlap as a function of different clipping threshold and precision. 
+				\item The way we introduce this in: in our main theorem, we assume the dynamic range is $O(1/\sqrt{d})$ as a consequence of the automatic clipping. We want to show here this is the case in practice and then discuss the specific way clipping influence eigenspace overlap.
 			\end{itemize}
+		\item Loop-back discussion on the large scale empirical experiments in Section~\ref{subsec:hard_explain}
 	\end{itemize}
 
 %In this section, we present our word embedding compression algorithm.
