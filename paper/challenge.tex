@@ -16,8 +16,15 @@
 \subsection{Hardness in Explaining Generalization}
 \label{subsec:hard_explain}
 	\begin{itemize}
-		\item Empirically demonstrate existing matrix approximation error does not correlate well with the generalization performance of compressed embeddings.
+		\item Results and claim 1: uniform quantization method can compete well with the state-of-the-art, and it can match uncompressed embedding with high compression rate.
 		\begin{itemize}
-			\item Glove and Fasttext: show correlation between performance and Frob norm (PIP) / Deltas (maybe the combination of delta1 and delta2) 
+			\item show the generalization performance for quantized embedding and other baselines at different bit rate. (DCCL, kmeans, dimension reduction and uniform quantization)
+			\item Figures on 4 tasks: DrQa, one sentiment, one word analogy and one word similarity
+			\item Tables on tasks performance and time
+		\end{itemize}
+		\item Results and claim 2: Existing matrix reconstruction errors (PIP, spectral approximation error--delta1, delta2) do not correlate well with the generalization performance of compressed embeddings.
+		\begin{itemize}
+			\item Show correlation between performance and Frob norm (PIP) / Deltas (maybe the combination of delta1 and delta2) across a few tasks.
+			\item We can optionally do R2 measurements reliably
 		\end{itemize}
 	\end{itemize}
