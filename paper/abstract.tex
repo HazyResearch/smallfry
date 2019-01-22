@@ -1,17 +1,51 @@
+%Compressing word embeddings is critical to their deployment on memory-constrained devices.
+We study the principles governing the downstream performance of compressed word embeddings.
+We empirically demonstrate that existing metrics for evaluating compression performance align poorly with downstream performance, and propose a new metric---the \textit{eigenspace overlap metric}---which aligns much better.
+%This metric measures the degree of overlap between the subspaces spanned by the eigenvectors of the nonzero eigenvalues of the Gram matrices of the compressed and uncompressed embeddings.
+To explain this metric's influence on downstream performance, we prove bounds on the generalization performance of compressed embeddings in terms of this metric in the linear regression setting.
+We then use this metric to better understand the empirical success of a simple compression based on uniform quantization, by proving explicit bounds on its eigenspace overlap.
+
+
+%We explicitly relate this metric with the downstream performance of embeddings by 
+%
+%We show that this metric is closely connected to downstream performance by proving bounds on the generalization performance of compressed embeddings in the linear regression setting in terms of this metric.
+%
+%
+%
+%To explain the downstream performance of compressed embeddings using this metric,
+%
+%To explain the impact of eigenspace overlap on downstream performance,
+%
+%We directly connect this metric with the downstream performance
+%
+%show that we can bound the generalization performance of compressed embeddings in the linear regression setting in terms of this metric.
+
+%We then show that we can use this metric to better understand the performance of specific compression methods by proving explicit bounds on the eigenspace overlap of a simple compression method based on uniform quantization.
+
+
+
+
 %Compressing word embeddings is critical to their deployment on memory-constrained devices such as mobile phones.
 %State-of-the-art embedding compression methods attains strong empirical performance by learning compressed representations using deep architectures.
 %In this paper, we work on a simple and fast embedding compression method based on uniform quantization, which can match the empirical performance of state-of-the-art compression methods across different compression rates and tasks.
 %Theoretically, we analyze how the precision and dimensionality of the quantized word embeddings jointly impact their generalization performance in the context of linear ridge regression.
 %Our analysis reveals that one can attain better performance under memory constraints by using lower-precision embeddings whose dimension approaches but does not exceed the optimal embedding dimension.
 
+%First, we perform an empirical analysis of the downstream performance of several compression methods. 
+%Surprisingly, we find that simple baselines, including one based on uniform quantization, can compete with the state-of-the-art neural compression algorithms, and that their success cannot be explained with existing metrics.
 
-We investigate how to design simple and fast compression methods for word embeddings.
-We first propose a new metric---the \textit{eigenspace overlap metric}---for evaluating the quality of a compressed embedding. 
-We prove generalization bounds in terms of this metric, and demonstrate that it aligns much better with the embedding's downstream performance than existing metrics.
-For a compressed embedding to have high eigenspace overlap, its rank must be similar to that of the uncompressed embedding.
-This motivates our design of a simple compression method which preserves the embedding rank by uniformly quantizing the entries of the original embedding matrix.
-Theoretically, we show that uniform quantization has a small impact on the eigenspace overlap when \todo{$<$include condition here$>$}.
-Empirically, we demonstrate that our compression method is orders of magnitude faster than existing methods, and can match their downstream performance \todo{$<$include numbers here$>$}.
+
+%We then use this metric to provide explicit bounds on the generalization performance of embeddings compressed with uniform quantization.
+
+%To explain these empirical results, we propose a new metric---the eigenspace overlap metric---which we show better explains the downstream performance of embeddings.
+%
+%We investigate how to design simple and fast compression methods for word embeddings with strong downstream performance.
+%To better reveal the impact of compression on downstream performance, we first propose a new metric---the \textit{eigenspace overlap metric}---for evaluating the quality of a compressed embedding.
+%We prove generalization bounds in terms of this metric, and demonstrate that it aligns much better with the embedding's downstream performance than existing metrics.
+%For a compressed embedding to have high eigenspace overlap, its rank must be similar to that of the uncompressed embedding.
+%This motivates our design of a simple and fast compression method which preserves the embedding rank by uniformly quantizing the entries of the original embedding matrix.
+%Theoretically, we show that uniform quantization has a small impact on the eigenspace overlap when \todo{$<$include condition here$>$}.
+%Empirically, we demonstrate that our compression method is orders of magnitude faster than existing methods, and can match their downstream performance \todo{$<$include numbers here$>$}.
 
 
 %Compressing word embeddings is critical to their deployment on memory-constrained devices such as mobile phones.

@@ -36,11 +36,11 @@ We hope these insights inspire further advances to compression methods.
 %In these experiments, we observe that downstream task performance correlates strongly with the eigenspace overlap between compressed and uncompressed embeddings.
 %We hope this work inspires further analysis on the generalization of compressed embeddings.
 
-In Section~\ref{sec:relwork} we review related work, including existing methods for compressing word embeddings.
-In Section~\ref{sec:challenge} we discuss existing metrics for evaluating embedding quality, and show they do not align well with downstream performance.
+The rest of this paper is organized as follows:
+In Section~\ref{sec:challenge} we discuss existing compression methods and metrics for evaluating embedding quality, and show that the metrics do not align well with downstream performance.
 To address this poor alignment, we introduce the eigenspace overlap metric in Section~\ref{sec:new_metric}, along with corresponding generalization bounds and experiments.
-Motivated by this metric, in Section~\ref{sec:quant_embed} we present our compression method and its theoretical guarantees, and we discuss our large scale experiments using this method in Section~\ref{sec:exp}.
-We conclude in Section~\ref{sec:conclusion}.
+In Section~\ref{sec:quant_embed} we show that we can bound the eigenspace overlap of uniformly quantized embeddings, thus helping to explain their strong downstream performance.
+In Section~\ref{sec:relwork} we review related work, and we conclude in Section~\ref{sec:conclusion}.
 
 
 %In recent years, \textit{word embeddings} \citep{word2vec13,glove14,fasttext18} have brought large improvements to a wide range of applications in natural language processing (NLP) \citep{collins16,drqa17}.
