@@ -4,6 +4,7 @@ Let $\{U_1,\ldots,U_n\}$ be the eigenvectors of $K$ in decreasing eigenvalue ord
 Similarly, let $\{V_1,\ldots,V_n\}$ be the eigenvectors of $\tK$ in decreasing eigenvalue order, with the first $k$ having non-zero eigenvalue.
 Let $U = [U_1,\ldots U_d]$, $U_{\perp} = [U_{d+1},\ldots,U_n]$, $V = [V_1,\ldots V_k]$, $V_{\perp} = [V_{k+1},\ldots,V_n]$.
 
+\subsubsection{VERSION 1}
 \begin{eqnarray*}
 	R(K) &=& \frac{\lambda^2}{n}y^T (K+\lambda I)^{-2} y + \frac{\sigma^2}{n} \tr\bigg(K^2(K+\lambda I)^{-2}\bigg) \\
 	n\cdot R(K) &=& \sum_{i=1}^d \Big(\frac{\lambda}{\sigma_i + \lambda}\Big)^2(U_i^T y)^2 + \sum_{i=d+1}^n (U_i^T y)^2 + \sigma^2 \sum_{i=1}^d \Big(\frac{\sigma_i}{\sigma_i + \lambda}\Big)^2 \\
@@ -21,37 +22,48 @@ If we assume that we are in the noiseless linear regression setting ($\sigma=0$,
 	&\leq& \|y\|^2 \|UU^T - VV^T\|_F \\
 	&\leq& \|y\|^2 \sqrt{d + k - 2 \|U^T V\|_F^2} \quad \text{(by Lemma\ref{lemma1})}\\
 \end{eqnarray*}
+\textbf{PROBLEM}: (1) This bound is only meaningful when $\|UU^T - VV^T\|_2 < 1$, which can only happen if $k=d$. (2) The final Frobenius bound is only meaningful when  $\sqrt{d + k - 2 \|U^T V\|_F^2} < 1$, which only happens if $k=d$ and $\|U^T V\|_F^2 \approx d$.
+This is the same problem we were having with $\Delta_1$,$\Delta_2$ bounds.
+If $y \in nullspace(V^T) \cap span(U)$ (which is always non-empty if $k<d$), then learning with $\tK$ can perform arbitrarily poorly relative to learning with $K$.
 
-ANOTHER VERSION\\
+\subsubsection{VERSION 2}
 Here we consider a random $y \in \RR^n$ vector with identity covariance.
 \begin{eqnarray*}
 	\expect{y}{n(R(\tK) - R(K))} &=& \expect{y}{\Big(\|y\|^2 - y^T VV^T y\Big) - \Big(\|y\|^2 - y^T UU^T y\Big)}\\
 	&=& \expect{y}{y^T (UU^T - VV^T) y} \\
 	&=& \expect{y}{y^T UU^T y - y^TVV^T y} \\
-	&=& \|U\|_F^2  - \expect{y}{y^TVV^T y} \\
-	&\leq& d - \|V^T U\|_F^2 \quad \text{by derivation below.} \\
-	\expect{y}{n(R(K) - R(\tK))} &\leq& k - \|V^T U\|_F^2 \\
-	\expect{y}{y^T VV^T y} &=& \expect{y}{\|V^T y\|_2^2} \\
-	&=& \expect{y}{\|VV^T y\|_2^2} \\
-	&\geq&  \expect{y}{\|VV^T UU^T y\|_2^2}  \quad\text{(projecting onto $U$ first makes $y$ magnitude smaller)}\\
-	&=& \|VV^T UU^T\|_F^2 \quad \text{(by Lemma\ref{lemma2})}\\
-	&=& \tr\Big(UU^TVV^TVV^TUU^T \Big) \\
-	&=& \tr\Big((U^TV) V^TV (V^TU) U^TU \Big) \\
-	&=& \tr \Big( (V^T U)^T (V^T U)\Big) \\
-	&=& \|V^T U\|_F^2
+	&=&  \|U\|_F^2  -  \|V\|_F^2 \\
+	&=& d-k \\
+	&\leq& d  -  \|U^T V\|_F^2 \\
+	\|V\|_F^2 &=& \|[U,U_{\perp}]^T V\|_F^2 \quad \text{(because $[U,U_{\perp}]$ is an orthogonal projection).} \\
+	&=& \|U^T V\|_F^2 + \|U_{\perp}^T V\|_F^2 \\
+	&\geq& \|U^T V\|_F^2 \\
+%	OLD && \\
+%	&=& \|U\|_F^2  - \expect{y}{y^TVV^T y} \\
+%	&\leq& d - \|V^T U\|_F^2 \quad \text{by derivation below.} \\
+%	\expect{y}{n(R(K) - R(\tK))} &\leq& k - \|V^T U\|_F^2 \\
+%	\expect{y}{y^T VV^T y} &=& \expect{y}{\|V^T y\|_2^2} \\
+%	&=& \expect{y}{\|VV^T y\|_2^2} \\
+%	&\geq&  \expect{y}{\|VV^T UU^T y\|_2^2}  \quad\text{(projecting onto $U$ first makes $y$ magnitude smaller)}\\
+%	&=& \|VV^T UU^T\|_F^2 \quad \text{(by Lemma\ref{lemma2})}\\
+%	&=& \tr\Big(UU^TVV^TVV^TUU^T \Big) \\
+%	&=& \tr\Big((U^TV) V^TV (V^TU) U^TU \Big) \\
+%	&=& \tr \Big( (V^T U)^T (V^T U)\Big) \\
+%	&=& \|V^T U\|_F^2
 \end{eqnarray*}
+\textbf{PROBLEM}: I think this bound is pretty meaningless, since $\expect{y}{n(R(\tK) - R(K))}$ is always exactly equal to $d-k$ if $y$ is random vector with identity covariance.
 
-ONE MORE VERSION
-\begin{eqnarray*}
-	n(R(\tK) - R(K)) &=& \Big(\|y\|^2 - y^T VV^T y\Big) - \Big(\|y\|^2 - y^T UU^T y\Big)\\
-	&=& y^T (UU^T - VV^T) y \\
-	&=& y^T UU^T y - y^TVV^T y \\
-	&=& \text{add line here.} \\
-	y^T VV^T y &=& \|V^T y\|_2^2 \\
-	&=& \|VV^T y\|_2^2 \\
-	&\geq&  \|VV^T UU^T y\|_2^2  \quad\text{(projecting onto $U$ first makes $y$ magnitude smaller)}\\
-	&=&  \|(V^T U) (U^T y)\|_2^2 \\
-	&\geq& \sigma_{min}(V^T U)^2 \|U^T y\|^2 \\
+%\subsubsection{VERSION 3}
+%\begin{eqnarray*}
+%	n(R(\tK) - R(K)) &=& \Big(\|y\|^2 - y^T VV^T y\Big) - \Big(\|y\|^2 - y^T UU^T y\Big)\\
+%	&=& y^T (UU^T - VV^T) y \\
+%	&=& y^T UU^T y - y^TVV^T y \\
+%	&\leq& \text{add line here.} \\
+%	y^T VV^T y &=& \|V^T y\|_2^2 \\
+%	&=& \|VV^T y\|_2^2 \\
+%	&\geq&  \|VV^T UU^T y\|_2^2  \quad\text{(projecting onto $U$ first makes $y$ magnitude smaller)}\\
+%	&=&  \|(V^T U) (U^T y)\|_2^2 \\
+%	&\geq& \sigma_{min}(V^T U)^2 \|U^T y\|^2 \\
 %	&=& \tr\Big(y^T UU^TVV^TVV^TUU^T y \Big) \\
 %	&=& \tr\Big(UU^TVV^TVV^TUU^T yy^T \Big) \\
 %	&=& \tr\Big(U (U^TV) (V^TU) U^T yy^T \Big) \\
@@ -60,11 +72,64 @@ ONE MORE VERSION
 %	&=& \tr\Big((U^TV) V^TV (V^TU) U^TU \Big) \\
 %	&=& \tr \Big( (V^T U)^T (V^T U)\Big) \\
 %	&=& \|V^T U\|_F^2
-\end{eqnarray*}
-So the worst case analysis cares about the minimum singular value of $V^T U$. \todo{But this will be 0 if rank of $V$ is smaller than rank of $U$, right??}
+%\end{eqnarray*}
+%So the worst case analysis cares about the minimum singular value of $V^T U$. \todo{But this will be 0 if rank of $V$ is smaller than rank of $U$, right??}
 
-ONE MORE:\\
+\subsubsection{VERSION 3}
 Tri says we can use the fact that the singular values of $UU^T-VV^T$ are the same as those of $U^{\perp} U^{\perp T} VV^T$ (but repeated twice).  And then use sin(theta) theorem to argue that $\|U^{\perp} U^{\perp T} VV^T\|$ is small
+
+\subsubsection{VERSION 4}
+We will assume $y$ is a random vector in the span of $U$.
+Specifically, $y = \sum_{i=1}^d z_i U_i$, where the $z_i$ are i.i.d. zero mean random variable with variance 1.
+\begin{eqnarray*}
+	\expect{y}{\|U^T y\|_2^2} &=& \expect{y}{\sum_{j=1}^d \bigg( U_j^T \Big(\sum_{i=1}^d z_i U_i\Big)\bigg)^2} \\
+	&=& \expect{y}{\sum_{j=1}^d z_j^2} \\
+	&=& d \\
+	\expect{y}{\|V^T y\|_2^2} &=& \expect{y}{\sum_{j=1}^k \bigg( V_j^T \Big(\sum_{i=1}^d z_i U_i\Big)\bigg)^2} \\
+	&=& \expect{y}{\sum_{j=1}^k \bigg(\sum_{i=1}^d z_i V_j^TU_i\bigg)^2} \\
+	&=& \expect{y}{\sum_{j=1}^k \sum_{i,l=1}^d (z_i V_j^TU_i) (z_l V_j^TU_l) }\\
+	&=& \sum_{j=1}^k \sum_{i,l=1}^d \expect{y}{z_i z_l} (V_j^TU_i) (V_j^TU_l) \\
+	&=& \sum_{j=1}^k \sum_{i=1}^d (V_j^TU_i)^2 \\
+	&=& \|V^T U\|_F^2\\
+\end{eqnarray*}
+
+\subsubsection{Davis-Kahan sin($\Theta$) Theorem}
+The Davis-Kahan sin($\Theta$) Theorem (adapted to bour setting) states the following:
+\begin{theorem}{(Davis-Kahan sin($\Theta$) Theorem (adapted))}
+Let $K=U_0 S_0 U_0^T + U_1 S_1 U_1^T$ be the eigendecomposition of $K$ such that $U_0 \in \RR^{n \times d}$ are the first $d$ eigenvectors of $K=USU^T$, $S_0$ the first $d$ eigenvalues, $U_1,S_1$ the rest.
+Similarly, let $\tK = V_0 R_0 V_0^T + V_1 R_1 V_1^T$ be the equivalent eigendecomposition for $\tk$, for $\tK = K + H$.
+If the eigenvalues of $S_0$ are contained in the interval $(a,b)$, and the eigenvalues of $R_1$ are excluded from the interval $(a-\delta,b+\delta)$ for some $\delta>0$, then
+\begin{eqnarray}
+\|V_1^T U_0\| \leq \frac{\|V_1^T H U_0\|}{\delta}
+\end{eqnarray}
+for any unitarily invariant norm $\|\cdot \|$.
+\end{theorem}
+
+We will apply this theorem to the setting $K = XX^T = USU^T$, $\tK = (X+C)(X+C)^T = VRV^T$,
+for $X \in \RR^{n \times d}$, $X_{ij}\in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$,
+where $\expect{}{C_{ij}} = 0$, $\expect{}{C_{ij}^2} \leq \frac{1}{d(2^b-1)^2} \defeq \delta_b^2/d$.
+In this setting, $a=\sigma_{min}(K)$, $b=\infty$, $\delta=\sigma_{min}(K)$.
+Note also the $H = \tK-K = (X+C)(X+C)^T - XX^T = XC^T + CX^T + CC^T$.
+
+Using the sin($\Theta$) Theorem, we can show the following:
+
+\begin{eqnarray*}
+\|V_1^T U_0\|_F &\leq& \frac{\|V_1^T H U_0\|_F}{\sigma_{min}(K)}\\
+&\leq& \frac{\|V_1^T (XC^T + CX^T + CC^T) U_0\|_F}{\sigma_{min}(K)}\\
+&\leq& \frac{\|V_1^T\|_2 \|XC^T + CX^T + CC^T\|_F \|U_0\|_2}{\sigma_{min}(K)} \quad \text{(using $\|AB\|_F \leq \|A\|_2 \|B\|_F$ twice.)}\\
+&\leq& \frac{\|XC^T\|_F + \|CX^T\|_F + \|CC^T\|_F}{\sigma_{min}(K)} \quad \text{(using $\|V_1^T\|_2 = \|U_0\|_F = 1$, and triangular inequality.)}\\
+&\leq& \frac{2\|X\|_2\|C\|_F + \|C\|_2 \|C\|_F}{\sigma_{min}(K)} \quad \text{(using $\|AB\|_F \leq \|A\|_2 \|B\|_F$)}\\
+&=& \frac{2\sigma_{max}(X)\|C\|_F + \|C\|_2 \|C\|_F}{\sigma_{min}(K)} \\
+&\leq& \|C\|_F \cdot \frac{2\sqrt{\sigma_{max}(K)} + \|C\|_F }{\sigma_{min}(K)}  \quad \text{(loosened $\|C\|_2$ to  $\|C\|_F$.)}\\
+&\leq& \frac{2\sqrt{n}}{2^b-1} \cdot \frac{2\sqrt{\sigma_{max}(K)} + \frac{2\sqrt{n}}{2^b-1} }{\sigma_{min}(K)} \quad \text{(using bound on $\|C\|_F$ shown below.)} \\
+\end{eqnarray*}
+
+Here we use the fact that $|C_{ij}| \leq \frac{2}{\sqrt{d}(2^b-1)}$ to bound $\|C\|_F$.
+\begin{eqnarray*}
+\|C\|_F &\leq& \sqrt{nd \cdot \frac{4}{d(2^b-1)^2}} \\
+&=& \frac{2\sqrt{n}}{2^b-1} \\
+\end{eqnarray*}
+\todo{Can we get a tighter bound? Perhaps by bounding $\|C\|_2$ with high probability, instead of bounding the $\|C\|_F$ in the numerator?}
 
 
 \begin{lemma}
@@ -93,11 +158,11 @@ Let $A \in \RR^{n\times d}$ be an arbitrary matrix. If a random vector $x \in \R
 \end{eqnarray*}
 \end{proof}
 
-Let $\{a_i\}_{i=1}^r$ be an orthonormal basis of $U \backslash V$, $\{b_j\}_{i=1}^s$ be an orthonormal basis of $V / U$, and $\{c_k\}_{i=1}^t$ be an orthonormal basis of $U \cap V$.
-\begin{eqnarray*}
-	\|UU^T - VV^T \|_F^2 &=& \sum_{i=1}^r \|(UU^T - VV^T)a_i\|^2 + \sum_{j=1}^s \|(UU^T - VV^T)b_j\|^2 + \sum_{k=1}^t \|(UU^T - VV^T)c_k\|^2 \\
-	&=& r + s
-\end{eqnarray*}
+%Let $\{a_i\}_{i=1}^r$ be an orthonormal basis of $U \backslash V$, $\{b_j\}_{i=1}^s$ be an orthonormal basis of $V / U$, and $\{c_k\}_{i=1}^t$ be an orthonormal basis of $U \cap V$.
+%\begin{eqnarray*}
+%	\|UU^T - VV^T \|_F^2 &=& \sum_{i=1}^r \|(UU^T - VV^T)a_i\|^2 + \sum_{j=1}^s \|(UU^T - VV^T)b_j\|^2 + \sum_{k=1}^t \|(UU^T - VV^T)c_k\|^2 \\
+%	&=& r + s
+%\end{eqnarray*}
 
 \subsection{Theory Summary}
 We have observed that word embedding matrices have pretty flat spectra, with large smallest non-zero singular values.  Here, we show that this implies that one can use a large regularizer $\lambda$ while attaining similar generalization performance to smaller $\lambda$.  We then show that large $\lambda$ implies small relative spectral distance between the full-precision embedding matrix and the low-precision embedding matrix with high probability.  We know from prior work that small relative spectral distance gives tight generalization bounds.
