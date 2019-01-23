@@ -7,6 +7,7 @@
 \subsection{Extended Results}
 \label{app:experiment_results}
 In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results, for our different embedding types and the different sentiment analysis datasets.
+%\todo{I commented out large figure}
 \begin{figure}
 	\centering
 	\begin{tabular} {c c c}
@@ -40,3 +41,350 @@ In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results,
 	}
 	\label{fig:all_sentiment}
 \end{figure}
+
+\begin{figure*}
+	\centering
+	%	\begin{tabular}{c c c c}
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		EIG-OVERLAP & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_subspace-eig-overlap_linx.pdf} \\
+		
+		EIG-DISTANCE & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_subspace-eig-distance_linx.pdf} \\
+		
+		FROBENIUS ERROR & . & . & . \\		
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_gram-large-dim-frob-error_linx.pdf} \\
+		
+		RECONSTRUCTION ERROR (FROB) & . & . & . \\		
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_embed-frob-error_linx.pdf} \\
+		
+		
+		%DELTA1 (Lambda = sigma min/100) & . & . & . \\
+		%\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_gram-large-dim-delta1-0-trans_linx.pdf} \\
+		
+		DELTA1 (Lambda = sigma min) & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_gram-large-dim-delta1-2-trans_linx.pdf} \\		
+		
+		DELTA1 (lambda = sigma max) & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_gram-large-dim-delta1-6-trans_linx.pdf} \\		
+		
+		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d)
+	\end{tabular}
+	\caption{GLOVE400k: Performance vs. metrics. (a) QA, (b) Sentiment (TREC), (c) Analogy average, (d) Similarity average.
+	}
+	\label{fig:glove400k_comparison_results}
+\end{figure*}
+
+
+\begin{figure*}
+	\centering
+	%	\begin{tabular}{c c c c}
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		EIG-OVERLAP & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_subspace-eig-overlap_linx.pdf} \\
+		
+		EIG-DISTANCE & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_subspace-eig-distance_linx.pdf} \\
+		
+		FROBENIUS ERROR & . & . & . \\		
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_gram-large-dim-frob-error_linx.pdf} \\
+		
+		
+		RECONSTRUCTION ERROR (FROB) & . & . & . \\		
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_embed-frob-error_linx.pdf} \\
+		%		DELTA1 (Lambda = sigma min/100) & . & . & . \\
+		%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_gram-large-dim-delta1-0-trans_linx.pdf} \\		
+		
+		DELTA1 (Lambda = sigma min) & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_gram-large-dim-delta1-2-trans_linx.pdf} \\		
+		
+		DELTA1 (lambda = sigma max) & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_gram-large-dim-delta1-6-trans_linx.pdf} \\		
+		
+		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d)
+	\end{tabular}
+	\caption{glove-wiki400k-am: Performance vs. metrics. (a) QA, (b) Sentiment (TREC), (c) Analogy average, (d) Similarity average.
+	}
+	\label{fig:glove_wiki400k_am_comparison_results}
+\end{figure*}
+
+
+\begin{figure*}
+	\centering
+	%	\begin{tabular}{c c c c}
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		EIG-OVERLAP & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_trec_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_subspace-eig-overlap_linx.pdf} \\
+		
+		EIG-DISTANCE & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_trec_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_subspace-eig-distance_linx.pdf} \\
+		
+		FROBENIUS ERROR & . & . & . \\		
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_trec_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_gram-large-dim-frob-error_linx.pdf} \\
+		
+		
+		RECONSTRUCTION ERROR (FROB) & . & . & . \\		
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_trec_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_embed-frob-error_linx.pdf} \\
+		%		DELTA1 (Tiny lambda) & . & . & . \\
+		%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_trec_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_gram-large-dim-delta1-0-trans_linx.pdf} \\		
+		
+		DELTA1 (Tiny lambda) & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_trec_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_gram-large-dim-delta1-2-trans_linx.pdf} \\		
+		
+		DELTA1 (lambda = sigma max) & . & . & . \\
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_trec_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_gram-large-dim-delta1-6-trans_linx.pdf} \\		
+		
+		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d)
+	\end{tabular}
+	\caption{fasttext1m: Performance vs. metrics. (a) QA, (b) Sentiment (TREC), (c) Analogy average, (d) Similarity average.
+	}
+	\label{fig:fasttext1m_comparison_results}
+\end{figure*}
+
+
+
+% SENTIMENT ANALYSIS
+
+\begin{figure*}
+	\centering
+	%	\begin{tabular}{c c c c}
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		EIG-OVERLAP & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mr_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_subj_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_cr_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mpqa_test-acc_vs_subspace-eig-overlap_linx.pdf} \\
+		
+		EIG-DISTANCE & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mr_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_subj_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_cr_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mpqa_test-acc_vs_subspace-eig-distance_linx.pdf} \\
+		
+		
+		FROBENIUS ERROR & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mr_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_subj_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_cr_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mpqa_test-acc_vs_gram-large-dim-frob-error_linx.pdf} \\
+		
+		RECONSTRUCTION ERROR (FROB) & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mr_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_subj_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_cr_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mpqa_test-acc_vs_embed-frob-error_linx.pdf} \\
+		
+		%		DELTA1 (Lambda = sigma min/100) & . & . & . & .\\
+		%		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mr_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_subj_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_cr_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mpqa_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} \\
+		
+		DELTA1 (Lambda = sigma min) & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mr_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_subj_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_cr_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mpqa_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} \\
+		
+		DELTA1 (Lambda = sigma max) & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mr_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_subj_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_cr_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove400k_sentiment_mpqa_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} \\	
+		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d) & \;\;\;\;\;\;(e)
+	\end{tabular}
+	\caption{GLOVE400k: Performance vs. metrics, five sentiment tasks (MR, SUBJ, CR, SST, MPQA).
+	}
+	\label{fig:glove400k_sent_comparison_results}
+\end{figure*}
+
+
+
+\begin{figure*}
+	\centering
+	%	\begin{tabular}{c c c c}
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		EIG-OVERLAP & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mr_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_subj_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_cr_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mpqa_test-acc_vs_subspace-eig-overlap_linx.pdf} \\
+		
+		EIG-DISTANCE & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mr_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_subj_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_cr_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mpqa_test-acc_vs_subspace-eig-distance_linx.pdf} \\
+		
+		
+		FROBENIUS ERROR & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mr_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_subj_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_cr_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mpqa_test-acc_vs_gram-large-dim-frob-error_linx.pdf} \\
+		
+		RECONSTRUCTION ERROR (FROB) & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mr_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_subj_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_cr_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mpqa_test-acc_vs_embed-frob-error_linx.pdf} \\
+		
+		%		DELTA1 (Lambda = sigma min/100) & . & . & . & .\\
+		%		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mr_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_subj_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_cr_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mpqa_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} \\
+		
+		DELTA1 (Lambda = sigma min) & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mr_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_subj_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_cr_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mpqa_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} \\
+		
+		DELTA1 (Lambda = sigma max) & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mr_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_subj_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_cr_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/glove-wiki400k-am_sentiment_mpqa_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} \\	
+		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d) & \;\;\;\;\;\;(e)
+	\end{tabular}
+	\caption{glove-wiki400k-am: Performance vs. metrics, five sentiment tasks (MR, SUBJ, CR, SST, MPQA).
+	}
+	\label{fig:glove_wiki400k_am_sent_comparison_results}
+\end{figure*}
+
+\begin{figure*}
+	\centering
+	%	\begin{tabular}{c c c c}
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		EIG-OVERLAP & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mr_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_subj_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_cr_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mpqa_test-acc_vs_subspace-eig-overlap_linx.pdf} \\
+		
+		EIG-DISTANCE & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mr_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_subj_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_cr_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_subspace-eig-distance_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mpqa_test-acc_vs_subspace-eig-distance_linx.pdf} \\
+		
+		
+		FROBENIUS ERROR & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mr_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_subj_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_cr_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mpqa_test-acc_vs_gram-large-dim-frob-error_linx.pdf} \\
+		
+		RECONSTRUCTION ERROR (FROB) & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mr_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_subj_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_cr_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mpqa_test-acc_vs_embed-frob-error_linx.pdf} \\
+		%		DELTA1 (Lambda = sigma min/100) & . & . & . & .\\
+		%		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mr_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_subj_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_cr_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} &
+		%		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mpqa_test-acc_vs_gram-large-dim-delta1-0-trans_linx.pdf} \\
+		
+		DELTA1 (Lambda = sigma min) & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mr_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_subj_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_cr_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mpqa_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} \\
+		
+		DELTA1 (Lambda = sigma max) & . & . & . & .\\
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mr_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_subj_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_cr_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} &
+		\includegraphics[width=.2\linewidth]{figures/fasttext1m_sentiment_mpqa_test-acc_vs_gram-large-dim-delta1-6-trans_linx.pdf} \\	
+		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d) & \;\;\;\;\;\;(e)
+	\end{tabular}
+	\caption{fasttext1m: Performance vs. metrics, five sentiment tasks (MR, SUBJ, CR, SST, MPQA).
+	}
+	\label{fig:fastext1m_sent_comparison_results}
+\end{figure*}
