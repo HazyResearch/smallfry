@@ -19,11 +19,12 @@ We prove average-case generalization bounds for this metric in the context of li
 \subsection{Eigenspace Overlap and Generalization}
 \label{subsec:eigen_overlap}
 \begin{definition}
-Given two embedding matrices $X \in \RR^{n \times d}$, $\tX \in \RR^{n \times k}$, whose Gram matrices have eigendecompositions $XX^T = USU^T$, $\tX\tX^T = VRV^T$ for $U \in \RR^{n\times d}$, $V\in \RR^{n \times k}$, we define the eigenspace overlap metric $\eigover(X,\tX) \defeq  \|V^T U\|_F^2$.
+Given two embedding matrices $X \in \RR^{n \times d}$, $\tX \in \RR^{n \times k}$, whose Gram matrices have eigendecompositions $XX^T = USU^T$, $\tX\tX^T = VRV^T$ for $U \in \RR^{n\times d}$, $V\in \RR^{n \times k}$, we define the eigenspace overlap metric $\eigover(X,\tX) \defeq  \frac{1}{\max(d,k)}\|U^T V\|_F^2$.\footnote{We normalize by $\max(d,k)$ in order}
 \end{definition}
 
-This metric measures the degree to which the span of the eigenvectors with nonzero eigenvalue of $\tX\tX^T$ agree with those of $XX^T$.
-In particular, if the span $\Span(V)$ of the columns of $V$ is a subspace of $\Span(U)$, then $\eigover(X,\tX) =\|U^T V\|_F^2 = \|UU^T V\|_F^2 = \|V\|_F^2 = \dim(V)$.
+This metric measures the degree to which the span of the eigenvectors with nonzero eigenvalue of $\tX\tX^T$ agrees with that of $XX^T$.
+In particular, assuming $k\leq d$, it measures the ratio between the squared Frobenius norm of $U$ before and after being projected onto $V$.
+As an example, if the span $\Span(V)$ of the columns of $V$ is a subspace of $\Span(U)$, then $\eigover(X,\tX) = \frac{1}{d}\|U^T V\|_F^2 = \frac{1}{d}\|UU^T V\|_F^2 = \frac{1}{d}\|V\|_F^2 = \frac{k}{d}$.
 In contrast, if $\Span(V)$ is orthogonal to $\Span(U)$, then $\eigover(X,\tX) = 0$.
 
 We now show that this metric is closely related to the generalization performance of the linear regression model trained using the compressed embeddings $\tX$ in place of $X$.
@@ -41,7 +42,7 @@ We now present our average-case result:
 \begin{proposition}
 If $y = Uz$ for a random vector $z \in \RR^d$ with zero mean and identity covariance, then
 \begin{eqnarray}
-\expect{y}{\cR(\tX) - \cR(X)} &=& d - \eigover(X,\tX)
+\expect{y}{\cR(\tX) - \cR(X)} &=& d\cdot(1 - \eigover(X,\tX))
 \end{eqnarray}
 \end{proposition}
 
