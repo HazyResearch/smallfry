@@ -19,7 +19,7 @@ We prove average-case generalization bounds for this metric in the context of li
 \subsection{Eigenspace Overlap and Generalization}
 \label{subsec:eigen_overlap}
 \begin{definition}
-Given two embedding matrices $X \in \RR^{n \times d}$, $\tX \in \RR^{n \times k}$, whose Gram matrices have eigendecompositions $XX^T = USU^T$, $\tX\tX^T = VRV^T$ for $U \in \RR^{n\times d}$, $V\in \RR^{n \times k}$, we define the eigenspace overlap metric $\eigover(X,\tX) \defeq  \frac{1}{\max(d,k)}\|U^T V\|_F^2$.\footnote{We normalize by $\max(d,k)$ in order}
+Given two embedding matrices $X \in \RR^{n \times d}$, $\tX \in \RR^{n \times k}$, whose Gram matrices have eigendecompositions $XX^T = USU^T$, $\tX\tX^T = VRV^T$ for $U \in \RR^{n\times d}$, $V\in \RR^{n \times k}$, we define the eigenspace overlap metric $\eigover(X,\tX) \defeq  \frac{1}{\max(d,k)}\|U^T V\|_F^2$.
 \end{definition}
 
 This metric measures the degree to which the span of the eigenvectors with nonzero eigenvalue of $\tX\tX^T$ agrees with that of $XX^T$.
@@ -36,7 +36,7 @@ To expose the influence of the eigenspace overlap on the generalation performanc
 This is necessary because in worst-case analysis, if there exists a single direction in $\Span(U)$ orthogonal to $\Span(V)$ (which always occurs when $\dim(V) < \dim(U)$) the label vector $y$ can simply be equal to this direction.
 In this case $\cR(X) = \|y\|^2 - \|U^T y\|^2 = 0$, while $\cR(\tX) = \|y\|^2 - \|V^T y\|^2 = \|y\|^2$.
 Thus, the setting we will consider instead is one where $y$ is a random vector in $\Span(U)$.
-We consider this setting for simplicity because we are most interested in the situation where we know the uncompressed embedding matrix $X$ performs well \todo{might want to explain why y in span of U means performing well.}, and we would like to understand how well $\tX$ will do.
+We consider this setting for simplicity because we are most interested in the situation where we know the uncompressed embedding matrix $X$ performs well \todo{(explain better why y in span of U means performing well.)}, and we would like to understand how well $\tX$ will do.
 We now present our average-case result:
 
 \begin{proposition}
@@ -50,7 +50,7 @@ This proposition reveals that a larger eigenspace overlap value results in bette
 
 \subsection{Revisit Performance of Compressed Embeddings}
 \label{subsec:revisit}
-We now demonstrate that unlike the metrics we discussed in Section~\ref{sec:background}, this metric empirically aligns very well with the performance of compressed embeddings on downstream tasks.
+We now demonstrate that unlike the metrics we discussed in Section~\ref{sec:prelim}, this metric empirically aligns very well with the performance of compressed embeddings on downstream tasks.
 In Figure~\ref{fig:good_correlation} we show scatter plots of downstream performance vs.\ eigenspace overlap, and see that in general higher eigenspace overlap corresponds to better performance.
 Thus, even though our analysis is for a linear regression setting, we can see that this metric predicts performance well on a variety of downstream tasks which use neural networks for training.
 
@@ -64,6 +64,6 @@ Thus, even though our analysis is for a linear regression setting, we can see th
 		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_subspace-eig-overlap_linx.pdf}	\\
 		(a) GloVe, QA & (b) GloVe Wiki, QA  & (c) GloVe, sentiment & (d) GloVe Wiki, sentiment
 	\end{tabular}
+	\caption{Our proposed compression quality metric eigenspace overlap correlates strongly with the downstream task performance of compressed embeddings.  On both the question answering and sentiment analysis task, we demonstrate that eigenspace overlap consistently achieves strong correlation 1) across different compression methods (shown in (a), (c)) and 2) across different precision for the uniform quantization methods (shown in (b), (d)). In other words, embeddings compressed by different methods using different configurations can performs similarly in downstream tasks, when they have similar eigenspace overlap with the same reference uncompressed embedding.}
 	\label{fig:good_correlation}
-	\caption{Our proposed compression quality metric eigenspace overlap correlates strongly with the downstream task performance of compressed embeddings. \todo{explain what does adaptive-det mean?} On both the question answering and sentiment analysis task, we demonstrate that eigenspace overlap consistently achieves strong correlation 1) across different compression methods (shown in (a), (c)) and 2) across different precision for the uniform quantization methods (shown in (b), (d)). In other words, embeddings compressed by different methods using different configurations can performs similarly in downstream tasks, when they have similar eigenspace overlap with the same reference uncompressed embedding.}
 \end{figure*}

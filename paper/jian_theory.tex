@@ -144,7 +144,7 @@ In addition, we show that in general word embedding matrices have a relatively l
 \begin{figure}
 	\begin{center}
 		\centerline{\includegraphics[width=0.8\columnwidth]{figures/micro_large_sigma_min.pdf}}
-		\caption{We show that the ratio $a=\frac{\lambda}{\sigma_{min}}$ between the regularization parameter $\lambda$ and the smallest eigenvalue $\sigma_{min}$ of $X^T X$ is very predictive of the degradation in generalization performance $\|\by - y_{pred}\|^2/\|\by\|^2$, as predicted by Theorem~\ref{thm:large_lambda}.
+		\caption{We show that the ratio $a=\frac{\lambda}{\sigma_{\min}}$ between the regularization parameter $\lambda$ and the smallest eigenvalue $\sigma_{\min}$ of $X^T X$ is very predictive of the degradation in generalization performance $\|\by - y_{pred}\|^2/\|\by\|^2$, as predicted by Theorem~\ref{thm:large_lambda}.
 		In particular, we generate an i.i.d. Gaussian matrix $X\in \RR^{1000\times 2}$ for various standard deviations $\sigma$, and consider the noiseless model $\by_i = [0,1]^T x_i$.
 		We then solve for the optimal ridge regression model for various values of $\lambda$, and plot $a$ vs.\ the normalized degradation in generalization performance of this model. \todo{TODO: Perhaps plot a more realistic example?}
 		}
@@ -172,7 +172,7 @@ We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}
 \begin{figure}
 	\begin{center}
 		\centerline{\includegraphics[width=0.8\columnwidth]{figures/deltas_vs_clip_and_quant.pdf}}
-		\caption{On random Gaussian data $X \in \RR^{1000\times 30}$, we demonstrate the joint effect of clipping and quantizing on $\Delta_1$ and $\Delta_2$, where we take $\lambda = \sigma_{min}(X^T X)/10$.
+		\caption{On random Gaussian data $X \in \RR^{1000\times 30}$, we demonstrate the joint effect of clipping and quantizing on $\Delta_1$ and $\Delta_2$, where we take $\lambda = \sigma_{\min}(X^T X)/10$.
 		A large clipping value gives large $\Delta_2$, whereas a small clipping values gives large $\Delta_1$.
 		This reveals the importance of choosing a clipping value which balances these two considerations.
 		}

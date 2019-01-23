@@ -97,7 +97,7 @@ To better understand the implications of the above theorem, we present the follo
 		\includegraphics[width=0.45\linewidth]{figures/Delta2_vs_precision.pdf}
 	\end{tabular}
 	\label{fig:delta_vs_b}
-	\caption{$\Delta1$ and $\Delta2$ as a function of quantization precision $b$ for uncompressed embedding $X$ and quantized embedding $\tilde{X}$. We can observe that $\Delta1$ and $\Delta2$ decreases as regularization strength $\lambda$ increases relative to $\sigma_{min}$, the smallest eigenvalue of $XX^T$.}
+	\caption{$\Delta1$ and $\Delta2$ as a function of quantization precision $b$ for uncompressed embedding $X$ and quantized embedding $\tilde{X}$. We can observe that $\Delta1$ and $\Delta2$ decreases as regularization strength $\lambda$ increases relative to $sigma_{\min}$, the smallest eigenvalue of $XX^T$.}
 \end{figure}
 
 
@@ -150,10 +150,10 @@ As we can see, the values of $\Delta_1$ and $\Delta_2$ are largely governed by t
 
 To validate the second prediction, we measure how the generalization error of a simple linear model grows as a function of the ratio between the regularization parameter $\lambda$ and the smallest eigenvalue of the covariance matrix $X^T X$.
 Specifically, we consider the noiseless model $y = Xw^*$, where each entry of $X \in \RR^{1000 \times 2}$ is drawn from a zero-mean Gaussian with variance $\sigma^2$, and $w^*=[0,1]$.
-Then, for various values of $\sigma$, and various values of $\lambda$, we learn the linear ridge regression model $w = (X^T X + \lambda I_d)^{-1}X^Ty$, and measure the mean-squared error $\|Xw-y\|_2^2$ as well as $\sigma_{min}(X^T X)$.
+Then, for various values of $\sigma$, and various values of $\lambda$, we learn the linear ridge regression model $w = (X^T X + \lambda I_d)^{-1}X^Ty$, and measure the mean-squared error $\|Xw-y\|_2^2$ as well as $sigma_{\min}(X^T X)$.
 Because we are in the noiseless setting, $\lambda'=0$ attains a mean-squared error of zero.
 We are thus interested in understanding how quickly generalization performance degrades as $\lambda$ is increased to larger positive values.
-In Figure~\ref{fig:micro_large_sigma_min} we plot the LHS of Equation~\eqref{eq1} as a function of the ratio $a \defeq \lambda/\sigma_{min}$ for the various settings discussed above.
+In Figure~\ref{fig:micro_large_sigma_min} we plot the LHS of Equation~\eqref{eq1} as a function of the ratio $a \defeq \lambda/sigma_{\min}$ for the various settings discussed above.
 We see that when $a$ is small, the mean-squared error of the model trained with $\lambda$ performs similarly to using $\lambda'=0$, as predicted by the theory.
 
 Lastly, in Figure~\ref{fig:real_spectra} we show that for real word embedding matrices the spectra decay quite slowly, such that the smallest eigenvalue is relatively large.
@@ -173,7 +173,7 @@ Combining this empirical observations with the theorems discussed above provides
 \begin{figure}
 	\begin{center}
 		\centerline{\includegraphics[width=0.8\columnwidth]{figures/micro_large_sigma_min.pdf}}
-		\caption{We show that the ratio $a=\frac{\lambda}{\sigma_{min}}$ between the regularization parameter $\lambda$ and the smallest eigenvalue $\sigma_{min}$ of $X^T X$ is very predictive of the degradation in generalization performance $\|\by - y_{pred}\|^2/\|\by\|^2$, as predicted by Theorem~\ref{thm:large_lambda}.
+		\caption{We show that the ratio $a=\frac{\lambda}{sigma_{\min}}$ between the regularization parameter $\lambda$ and the smallest eigenvalue $sigma_{\min}$ of $X^T X$ is very predictive of the degradation in generalization performance $\|\by - y_{pred}\|^2/\|\by\|^2$, as predicted by Theorem~\ref{thm:large_lambda}.
 		In particular, we generate an i.i.d. Gaussian matrix $X\in \RR^{1000\times 2}$ for various standard deviations $\sigma$, and consider the noiseless model $\by_i = [0,1]^T x_i$.
 		We then solve for the optimal ridge regression model for various values of $\lambda$, and plot $a$ vs.\ the normalized degradation in generalization performance of this model. \todo{TODO: Perhaps plot a more realistic example?  And use $\|\by - y_{pred}\|^2/(\|\by\|^2/n)$ as y-axis.}
 		}
@@ -204,7 +204,7 @@ We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}.
 \begin{figure}
 	\begin{center}
 		\centerline{\includegraphics[width=0.8\columnwidth]{figures/deltas_vs_clip_and_quant.pdf}}
-		\caption{On random Gaussian data $X \in \RR^{1000\times 30}$, we demonstrate the joint effect of clipping and quantizing on $\Delta_1$ and $\Delta_2$, where we take $\lambda = \sigma_{min}(X^T X)/10$.
+		\caption{On random Gaussian data $X \in \RR^{1000\times 30}$, we demonstrate the joint effect of clipping and quantizing on $\Delta_1$ and $\Delta_2$, where we take $\lambda = sigma_{\min}(X^T X)/10$.
 		A large clipping value gives large $\Delta_2$, whereas a small clipping values gives large $\Delta_1$.
 		This reveals the importance of choosing a clipping value which balances these two considerations.
 		}
@@ -378,10 +378,10 @@ We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}.
 %
 %To validate the second prediction, we measure how the generalization error of a simple linear model grows as a function of the ratio between the regularization parameter $\lambda$ and the smallest eigenvalue of the covariance matrix $X^T X$.
 %Specifically, we consider the noiseless model $y = Xw^*$, where each entry of $X \in \RR^{1000 \times 2}$ is drawn from a zero-mean Gaussian with variance $\sigma^2$, and $w^*=[0,1]$.
-%Then, for various values of $\sigma$, and various values of $\lambda$, we learn the linear ridge regression model $w = (X^T X + \lambda I_d)^{-1}X^Ty$, and measure the mean-squared error $\|Xw-y\|_2^2$ as well as $\sigma_{min}(X^T X)$.
+%Then, for various values of $\sigma$, and various values of $\lambda$, we learn the linear ridge regression model $w = (X^T X + \lambda I_d)^{-1}X^Ty$, and measure the mean-squared error $\|Xw-y\|_2^2$ as well as $sigma_{\min}(X^T X)$.
 %Because we are in the noiseless setting, $\lambda'=0$ attains a mean-squared error of zero.
 %We are thus interested in understanding how quickly generalization performance degrades as $\lambda$ is increased to larger positive values.
-%In Figure~\ref{fig:micro_large_sigma_min} we plot the LHS of Equation~\eqref{eq1} as a function of the ratio $a \defeq \lambda/\sigma_{min}$ for the various settings discussed above.
+%In Figure~\ref{fig:micro_large_sigma_min} we plot the LHS of Equation~\eqref{eq1} as a function of the ratio $a \defeq \lambda/sigma_{\min}$ for the various settings discussed above.
 %We see that when $a$ is small, the mean-squared error of the model trained with $\lambda$ performs similarly to using $\lambda'=0$, as predicted by the theory.
 %
 %Lastly, in Figure~\ref{fig:real_spectra} we show that for real word embedding matrices the spectra decay quite slowly, such that the smallest eigenvalue is relatively large.
@@ -401,7 +401,7 @@ We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}.
 %\begin{figure}
 %	\begin{center}
 %		\centerline{\includegraphics[width=0.8\columnwidth]{figures/micro_large_sigma_min.pdf}}
-%		\caption{We show that the ratio $a=\frac{\lambda}{\sigma_{min}}$ between the regularization parameter $\lambda$ and the smallest eigenvalue $\sigma_{min}$ of $X^T X$ is very predictive of the degradation in generalization performance $\|\by - y_{pred}\|^2/\|\by\|^2$, as predicted by Theorem~\ref{thm:large_lambda}.
+%		\caption{We show that the ratio $a=\frac{\lambda}{sigma_{\min}}$ between the regularization parameter $\lambda$ and the smallest eigenvalue $sigma_{\min}$ of $X^T X$ is very predictive of the degradation in generalization performance $\|\by - y_{pred}\|^2/\|\by\|^2$, as predicted by Theorem~\ref{thm:large_lambda}.
 %		In particular, we generate an i.i.d. Gaussian matrix $X\in \RR^{1000\times 2}$ for various standard deviations $\sigma$, and consider the noiseless model $\by_i = [0,1]^T x_i$.
 %		We then solve for the optimal ridge regression model for various values of $\lambda$, and plot $a$ vs.\ the normalized degradation in generalization performance of this model. \todo{TODO: Perhaps plot a more realistic example?  And use $\|\by - y_{pred}\|^2/(\|\by\|^2/n)$ as y-axis.}
 %		}
@@ -432,7 +432,7 @@ We demonstrate this in Figure~\ref{fig:deltas_vs_clip_quant}.
 %\begin{figure}
 %	\begin{center}
 %		\centerline{\includegraphics[width=0.8\columnwidth]{figures/deltas_vs_clip_and_quant.pdf}}
-%		\caption{On random Gaussian data $X \in \RR^{1000\times 30}$, we demonstrate the joint effect of clipping and quantizing on $\Delta_1$ and $\Delta_2$, where we take $\lambda = \sigma_{min}(X^T X)/10$.
+%		\caption{On random Gaussian data $X \in \RR^{1000\times 30}$, we demonstrate the joint effect of clipping and quantizing on $\Delta_1$ and $\Delta_2$, where we take $\lambda = sigma_{\min}(X^T X)/10$.
 %		A large clipping value gives large $\Delta_2$, whereas a small clipping values gives large $\Delta_1$.
 %		This reveals the importance of choosing a clipping value which balances these two considerations.
 %		}

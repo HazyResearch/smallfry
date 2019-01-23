@@ -1,20 +1,20 @@
 To further demonstrate how the eigenspace overlap metric can be used to better understand the performance of compressed embeddings, in this section we show that we can upper bound the eigenspace overlap for uniformly quantized embeddings.
 Given the above theoretical and empirical connections between eigenspace overlap and generalization performance, these bounds help explain why the uniformly quantized embeddings perform so well.
-To prove these bounds, we leverage the classic Davis-Kahan $sin(\Theta)$ theorem from matrix perturbation analysis \citep{sintheta70}.
+To prove these bounds, we leverage the classic Davis-Kahan $\sin(\Theta)$ theorem from matrix perturbation analysis \citep{sintheta70}.
 Because we know exactly what the noise structure of the uniform quantization method is, we can use this knowledge to bound how much the eigenspace of the compressed embeddings can differ from the uncompressed embeddings.
 
 We now present the result:
 \begin{theorem}
-	Let $X \in \RR^{n\times d}$ be a bounded embedding matrix with $X_{ij} \in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$ with largest and smallest singular values $\sigma_{max}$ and $\sigma_{min}$.
+	Let $X \in \RR^{n\times d}$ be a bounded embedding matrix with $X_{ij} \in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$ with largest and smallest singular values $\sigma_{\max}$ and $\sigma_{\min}$.
 	Then the eigenspace overlap of the corresponding $b$-bit uniformly quantized embedding matrix can be lower bounded as follows:
 	\begin{eqnarray*}
-		\eigover(X,\tX) &\geq& 1 - \Bigg(\frac{4\sqrt{n}}{\sqrt{d}(2^b-1)} \cdot \frac{\sigma_{max} + \frac{\sqrt{n}}{2^b-1} }{\sqrt{\sigma_{min}}} \Bigg)^2
+		\eigover(X,\tX) &\geq& 1 - \Bigg(\frac{4\sqrt{n}}{\sqrt{d}(2^b-1)} \cdot \frac{\sigma_{\max} + \frac{\sqrt{n}}{2^b-1} }{\sqrt{\sigma_{\min}}} \Bigg)^2
 	\end{eqnarray*}
 \label{thm1}
 \end{theorem}
-We can further simplify this expression using the fact that $\sigma_{max} = \|X\|_2 \leq \sqrt{n}$; using this fact, we get the following corollary:
+We can further simplify this expression using the fact that $\sigma_{\max} = \|X\|_2 \leq \sqrt{n}$; using this fact, we get the following corollary:
 \begin{corollary}
-If $b \geq \log_2\bigg(\frac{8n}{\sqrt{\rho \, d\, \sigma_{min}}} + 1\bigg)$, then the $b$-bit uniformly quantized embedding matrix $\tX$ satisfies $\eigover(X,\tX) \geq 1-\rho$.
+If $b \geq \log_2\bigg(\frac{8n}{\sqrt{\rho \, d\, \sigma_{\min}}} + 1\bigg)$, then the $b$-bit uniformly quantized embedding matrix $\tX$ satisfies $\eigover(X,\tX) \geq 1-\rho$.
 \end{corollary}
 
 The corollary shows that one can attain an eigenspace overlap arbitrarily close to $1$ if a sufficient number of bits $b$ are used.
@@ -23,17 +23,17 @@ The corollary shows that one can attain an eigenspace overlap arbitrarily close 
 We now validate the above theory by showing how the eigenspace overlap grows as the precision of the uniformly quantized embeddings is increased.
 For this experiment, we generate a random matrix $X \in \RR^{10^5 \times 300}$, with each entry drawn uniformly at random in the interval $[-\frac{1}{\sqrt{300}}, \frac{1}{\sqrt{300}}]$.
 We then measure the eigenspace overlap of quantized versions of $X$, for precisions $b \in \{1,2,4,8,16,32\}$.
-As we can see, the eigenspace overlap grows quite quickly as the precision grows, attaining a value of approximately $0.8$ at $b=2$, and $0.99$ at $b=4$.
-This helps explain the strong empirical performance of the uniformly quantized embeddings which we observed at low precisions on the real word embedding experiments (Figur\ref{fig:perf_comp}).
+As we can see in Figure~\ref{fig:micro_eigoverlap_vs_prec}, the eigenspace overlap grows quite quickly as the precision grows, attaining a value of approximately $0.82$ at $b=2$, and $0.99$ at $b=4$.
+This helps explain the strong empirical performance of the uniformly quantized embeddings which we observed at low precisions on the real word embedding experiments (Figure~\ref{fig:perf_comp}).
 
-\todo{Add section on clippings effect on the eigenspace overlap.}
+\todo{Add section on clippings effect on the eigenspace overlap?}
 
 \begin{figure}
 	\begin{tabular}{c}
 		\includegraphics[width=\linewidth]{figures/micro_eig_overlap_vs_precision.pdf} 
 \end{tabular}
-\label{fig:micro_eigoverlap_vs_prec}
 \caption{Empirical Validation of Theorem~\ref{thm1}. We measure the eigenspace overlap of uniformly quantized embeddings with the uncompressed embedding for various precisions ($b\in\{1,2,4,8,16,32\}$), and observe the eigenspace overlap grows quickly as the precision grows.  For the uncompressed embedding, we generate a random matrix $X \in \RR^{10^5 \times 300}$, with each entry drawn uniformly at random in $[-\frac{1}{\sqrt{300}}, \frac{1}{\sqrt{300}}]$.}
+\label{fig:micro_eigoverlap_vs_prec}
 \end{figure}
 
 %\subsection{Theory validation}
