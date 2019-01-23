@@ -5,12 +5,11 @@ One approach to learning these sparse representations is to use non-negative spa
 Recently, deep compositional code learning (DCCL) \cite{dccl17} and K-way D-dimensional discrete code learning \cite{kway18} independently proposed using deep architectures in order to learn a set of dictionaries, where each word is represented as a sum of one vector from each dictionary.
 This approach to compressing word embeddings attains high compression rates while matching the state-of-the-art performance on tasks such as machine translation and sentiment analysis.
 An alternative compression approach proposed by \citet{andrews16} is to run k-means clustering on the entries of the embedding matrix, and then represent each entry by the index of the closest centroid.
-In this paper, we compare the performance of these existing compression methods with a simple and fast method based on uniform quantization.
-We show this simple approach can match the empirical performance of the state-of-the-art approaches, and does not require expensive training or hyperparameter tuning.
+In this paper, we compare the performance of these compression methods including a simple and fast method based on uniform quantization. Based on these observations, we propose a new compression quality metric to gain deeper understanding on the downstream task performance of compressed word embeddings.
 
-Our analysis on how quantization impacts generalization performance builds on recent work on kernel ridge regression \citep{avron17, lprff18}.
-In those papers, the authors study the impact of approximating the kernel matrix on the performance of the trained model.
-Similarly, in this work we study the impact of approximating the embedding matrix with uniform quantization, and analyze the impact this approximation has on generalization performance. \todo{if we are going to talk about different methods in section 3, we then should move related work to the end of the paper.}
+The generation of many word embedding types \cite{levy14, levy15} can be cast as implicit matrix factorization based on word co-occurrence statistics. Recently, there has been numerous progresses on understanding the connection between approximated matrix decomposition and the performance of machine learning models. For example, \citet{udell2017big} analyze data matrix generated from a class of latent variable models. They show low rank factorization can keep the maximum per entry approximation error sufficiently low. In the context of kernel methods, \citet{avron17, lprff18} proposed spectral approximation error metrics for different kernel approximation methods. They build on these metrics to explicitly understand the generalization of kernel ridge regression models.
+Similarly, in this work we study the impact of approximating the Gram of a embedding matrix across different compression method, and analyze the impact this approximation has on generalization performance. 
+%\todo{if we are going to talk about different methods in section 3, we then should move related work to the end of the paper.}
 
 %\begin{itemize}
 %	\item Existing compression methods: DCCL paper \citep{dccl17}, K-way code \citep{chen2018learning}, k-means \citep{andrews16}, and sparse representations \citep{sparse16}

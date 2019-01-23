@@ -103,7 +103,6 @@ def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_met
                 logx=False, logy=False, title=None, var_info=default_var_info,
                 csv_file=None, y_metric2=None, y_metric2_evaltype=None, y_metric2_dataset=None,
                 scatter=False):
-    
     if scatter:
         assert len(key_values_to_match) != 0
         assert len(key_values_to_match['embedtype']) == 1
@@ -114,8 +113,11 @@ def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_met
         if y_metric2_dataset:
             key_values_to_match['dataset'] = [y_metric2_dataset]
         subset_y = extract_result_subset(all_results, key_values_to_match)
+        # print(key_values_to_match)
         lines_x = extract_x_y_foreach_line(subset_x, info_per_line, x_metric, y_metric, var_info=var_info)
+        # print(lines_x)
         lines_y = extract_x_y_foreach_line(subset_y, info_per_line, x_metric, y_metric2, var_info=var_info)
+        # print(lines_y)
         title = '{}: {} perf. ({}) vs. {}'.format(key_values_to_match['embedtype'][0], y_metric2_evaltype, y_metric2, y_metric)
         plot_scatter(lines_x, lines_y, y_metric, y_metric2, logx=logx, logy=logy, title=title, csv_file=csv_file)
     else:
@@ -494,7 +496,7 @@ def latexify_finalize_fig(ax, config=None):
             plt.minorticks_off()
     format_axes(ax)
     plt.tight_layout()
-    
+
 
 def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
                       y_metric2=None, y_metric2_evaltype=None, scatter=False, 
@@ -559,7 +561,7 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
             crs = [8,16,32]
         if y_metric == "embed-frob-error" and scatter == True:
             subset_info['embeddim'] = [300]
-            print(subset_info)
+            # print(subset_info)
     else:
         x_metric = 'memory'
         info_per_line = {}
@@ -578,7 +580,7 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
         }
         if y_metric == "embed-frob-error" and scatter == True:
             subset_info['embeddim'] = [400]
-            print(subset_info)
+            # print(subset_info)
         else:
             subset_info['embeddim'] = [25,50,100,200,400]
 
@@ -782,7 +784,8 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
     # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
-    embedtypes = ['glove-wiki400k-am','glove400k', 'fasttext1m',]
+    # embedtypes = ['glove-wiki400k-am','glove400k', 'fasttext1m',]
+    embedtypes = ['glove400k']
     latexify_config = default_latexify_config
     embedtype_name_map = get_embedtype_name_map()
     # SET Y_METRIC1 PARAMS
@@ -792,11 +795,11 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
         if only_compute_delta2:
             y_metric1s = ['gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6']
         else:
-            # y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-overlap', 
-            #         'gram-large-dim-delta1-2-trans', 
-            #         'gram-large-dim-delta2-2',
-            #         ]
-            y_metric1s = ['embed-frob-error']
+            y_metric1s = ['embed-frob-error', 'gram-large-dim-frob-error', 'subspace-eig-overlap', 
+                    'gram-large-dim-delta1-2-trans', 
+                    'gram-large-dim-delta2-2',
+                    ]
+            # y_metric1s = ['embed-frob-error']
 
             # y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
             #         'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
@@ -837,6 +840,8 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
         for y_metric1 in y_metric1s:
             if y_metric1 == 'embed-frob-error':
                 evaltype = 'synthetics'
+            else:
+                evaltype = 'synthetics-large-dim'
             if "gram" in y_metric1 and "frob" in y_metric1: 
                 latexify_config["xlabel"] = "PIP loss"
             elif "embed" in y_metric1 and "frob" in y_metric1: 
@@ -902,6 +907,7 @@ def plot_all_ICML_results():
     plot_embedding_standard_deviation()
 
 if __name__ == '__main__':
+    # lines
     plot_qa_results()
     plot_sentiment_results()
     plot_intrinsic_results()
@@ -922,10 +928,12 @@ if __name__ == '__main__':
     # # plot_metric_vs_performance()
     # # plot_theorem3_tighter_bound()
     # # gather_ICML_results()
-    logx = False
-    # # use_large_dims = [True, False]
-    use_large_dims = [True]
-    for use_large_dim in use_large_dims:
-        plot_metric_vs_performance('qa', use_large_dim, logx)
-        # plot_metric_vs_performance('sentiment', use_large_dim, logx)
-        # plot_metric_vs_performance('intrinsics', use_large_dim, logx)
+
+    # scatter plots
+    # logx = False
+    # # # use_large_dims = [True, False]
+    # use_large_dims = [True]
+    # for use_large_dim in use_large_dims:
+    #     plot_metric_vs_performance('qa', use_large_dim, logx)
+    #     plot_metric_vs_performance('sentiment', use_large_dim, logx)
+    #     # plot_metric_vs_performance('intrinsics', use_large_dim, logx)
