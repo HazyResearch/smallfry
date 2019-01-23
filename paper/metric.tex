@@ -13,6 +13,18 @@
 %	\end{itemize}
 
 
+\begin{figure*}
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_subspace-eig-overlap_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_subspace-eig-overlap_linx.pdf}	\\
+		(a) GloVe, QA & (b) GloVe Wiki, QA  & (c) GloVe, sentiment & (d) GloVe Wiki, sentiment
+	\end{tabular}
+	\caption{Our proposed compression quality metric eigenspace overlap correlates strongly with the downstream task performance of compressed embeddings.  On both the question answering and sentiment analysis task, we demonstrate that eigenspace overlap consistently achieves strong correlation 1) across different compression methods (shown in (a), (c)) and 2) across different precision for the uniform quantization methods (shown in (b), (d)). In other words, embeddings compressed by different methods using different configurations can performs similarly in downstream tasks, when they have similar eigenspace overlap with the same reference uncompressed embedding.}
+	\label{fig:good_correlation}
+\end{figure*}
+
 In this section, we introduce the \textit{eigenspace overlap metric} to measure the quality of a compressed embedding relative to the uncompressed embedding.
 We prove average-case generalization bounds for this metric in the context of linear regression, and show that this metric indeed aligns very well with the downstream performance of the compressed embeddings.
 
@@ -48,6 +60,8 @@ If $y = Uz$ for a random vector $z \in \RR^d$ with zero mean and identity covari
 
 This proposition reveals that a larger eigenspace overlap value results in better generalization performance for the compressed embedding.
 
+
+
 \subsection{Revisit Performance of Compressed Embeddings}
 \label{subsec:revisit}
 We now demonstrate that unlike the metrics we discussed in Section~\ref{sec:prelim}, this metric empirically aligns very well with the performance of compressed embeddings on downstream tasks.
@@ -56,14 +70,4 @@ Thus, even though our analysis is for a linear regression setting, we can see th
 
 \todo{Discuss performance relative to $\Delta_1$,$\Delta_2$?}
 
-\begin{figure*}
-	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_subspace-eig-overlap_linx.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_subspace-eig-overlap_linx.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_subspace-eig-overlap_linx.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_subspace-eig-overlap_linx.pdf}	\\
-		(a) GloVe, QA & (b) GloVe Wiki, QA  & (c) GloVe, sentiment & (d) GloVe Wiki, sentiment
-	\end{tabular}
-	\caption{Our proposed compression quality metric eigenspace overlap correlates strongly with the downstream task performance of compressed embeddings.  On both the question answering and sentiment analysis task, we demonstrate that eigenspace overlap consistently achieves strong correlation 1) across different compression methods (shown in (a), (c)) and 2) across different precision for the uniform quantization methods (shown in (b), (d)). In other words, embeddings compressed by different methods using different configurations can performs similarly in downstream tasks, when they have similar eigenspace overlap with the same reference uncompressed embedding.}
-	\label{fig:good_correlation}
-\end{figure*}
+
