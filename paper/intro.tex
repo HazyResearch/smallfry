@@ -37,7 +37,8 @@ We hope these insights inspire further advances to compression methods.
 %We hope this work inspires further analysis on the generalization of compressed embeddings.
 
 The rest of this paper is organized as follows:
-In Section~\ref{sec:challenge} we discuss existing compression methods and metrics for evaluating embedding quality, and show that the metrics do not align well with downstream performance.
+In Section~\ref{sec:background} we expose background on word embedding compression methods and existing compression quality metrics.
+In Section~\ref{sec:challenge} we empirically show that these existing metrics do not align well with downstream performance across different compressed embedding types.
 To address this poor alignment, we introduce the eigenspace overlap metric in Section~\ref{sec:new_metric}, along with corresponding generalization bounds and experiments.
 In Section~\ref{sec:quant_embed} we show that we can bound the eigenspace overlap of uniformly quantized embeddings, thus helping to explain their strong downstream performance.
 In Section~\ref{sec:relwork} we review related work, and we conclude in Section~\ref{sec:conclusion}.
