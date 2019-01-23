@@ -487,22 +487,47 @@ def eigenvector_overlap():
     plt.legend(leg)
     save_plot('Error_vs_eig_overlap.pdf')
 
-def eigenvector_overlap2():
+def eigenspace_overlap_micro():
     # gaussian_str = 'gaussian' if gaussian else 'uniform'
     # adapt_str = 'adapt' if use_adapt else 'nonadapt'
-    n = 1000
-    d = 30
-    lim = 1.0/np.sqrt(d)
-    X = np.random.uniform(low=-lim, high=lim, size=(n,d))
-    U,S,V = np.linalg.svd(X,full_matrices=False)
-    bs = [1,2,3,4,8]
-    for b in bs:
-        Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
-        Uq,Sq,Vq = np.linalg.svd(Xq,full_matrices=False)
-        eig_overlap = np.linalg.norm(Uq.T @ U)**2
-        s_overlap = np.linalg.svd(Uq.T @ U,compute_uv=False)
-        print(s_overlap)
-        print('b={},eig-overlap={}'.format(b,eig_overlap))
+    # ns = [10000,1000,100]
+    # ns = [10000,3000,1000]
+    ns = [100000]
+    ds = [300]
+    bs = [1,2,4,8,16,32]
+    plt.figure(1)
+    leg = []
+    for n in ns:
+        for d in ds:
+            lim = 1.0/np.sqrt(d)
+            X = np.random.uniform(low=-lim, high=lim, size=(n,d))
+            U,S,_ = np.linalg.svd(X,full_matrices=False)
+            # leg.append('n = {}, d = {}'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound)'.format(n,d))
+            overlaps = np.zeros(len(bs))
+            # bounds = np.zeros(len(bs))
+            # s_max = S[0]
+            # s_min = S[-1]
+            for i,b in enumerate(bs):
+                Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
+                Uq,_,_ = np.linalg.svd(Xq,full_matrices=False)
+                overlaps[i] = np.linalg.norm(Uq.T @ U)**2 /d
+                print('b = {}, overlap = {}'.format(b,overlaps[i]))
+                # prec = 2**b - 1
+                # bounds[i] = max(1 - (1/d) * 16 * n * (s_max + np.sqrt(n)/prec)**2 / (prec**2 * s_min),0)
+            plt.plot(bs,overlaps)
+            # plt.plot(bs,bounds)
+    plt.xscale('log')
+    # plt.yscale('log')
+    plt.xticks(bs,bs)
+    plt.ylim(0,1)
+    # plt.title('Normalized eigenvector overlap vs. Precision (b)')
+    plt.title('Eigenspace Overlap vs. Precision (b)')
+    plt.xlabel('Precision (b)')
+    plt.ylabel('Eigenspace overlap')
+    # plt.legend(leg)
+    save_plot('micro_eig_overlap_vs_precision.pdf')
+    
 
 if __name__ == '__main__':
     # ppmi_spectrum()
@@ -524,4 +549,7 @@ if __name__ == '__main__':
     # delta_experiment()
 
     # Plot deltas vs. precision for fixed dimension, several lambdas:
-    deltas_vs_precision(False)
+    # deltas_vs_precision(False)
+
+    # Eigenvector overlap micros
+    eigenspace_overlap_micro()
