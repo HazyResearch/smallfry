@@ -636,9 +636,15 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
     # SET Y_METRIC1 PARAMS
     if use_large_dim:
         evaltype = 'synthetics-large-dim'
-        y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
+        only_compute_delta2 = True
+        if only_compute_delta2:
+            y_metric1s = ['gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6']
+        else:
+            y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
                     'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
-                    'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans']
+                    'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
+                    'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
+                    ]
     else:
         evaltype = 'synthetics'
         y_metric1s = ['embed-frob-error', 'embed-spec-error', 'embed-mean-euclidean-dist', 'semantic-dist']
@@ -716,7 +722,8 @@ if __name__ == '__main__':
     # plot_theorem3_tighter_bound()
     # gather_ICML_results()
     logx = False
-    use_large_dims = [True, False]
+    # use_large_dims = [True, False]
+    use_large_dims = [True]
     for use_large_dim in use_large_dims:
         plot_metric_vs_performance('qa', use_large_dim, logx)
         plot_metric_vs_performance('sentiment', use_large_dim, logx)
