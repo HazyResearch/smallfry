@@ -69,7 +69,6 @@ Several of these metrics are based on comparing the pairwise inner product (Gram
 The Gram matrices of embeddings are natural to consider for a couple reasons:
 First, the loss function for training word embeddings typically only considers dot-products between embedding vectors \citep{word2vec13,glove14}.
 Second, one can view word embedding training as implicit matrix factorization \citep{levy2014neural}, and thus comparing the Gram matrices of two embedding matrices is similar to comparing the matrices these embeddings are implicitly factoring.
-\todo{Do we need this much detail?}
 
 %Recently, there has been substantial progress in understanding the matrix reconstruction error and generalization for models derived from matrix factorization. Particularly in our empirical evaluation, we consider the \emph{Pointwise Inner Product (PIP)} loss \citep{yin18} and \emph{spectral approximation error} \citep{avron17,lprff18} as the metrics for word embedding compression quality.
 
