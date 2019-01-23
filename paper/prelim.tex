@@ -26,9 +26,26 @@ Using $k=2^b$ allows for storing each matrix entry using only $b$ bits.
 Uniform quantization is a classic compression method which divides an interval into a fixed number of sub-intervals of equal size, and then rounds the values in each sub-interval to one of the boundaries of the sub-interval \citep{quant77} (for a review of uniform quantization, see Appendix \todo{XX}).
 We apply this method to compress word embeddings as follows:
 We first determine the optimal threshold at which to clip the extreme values in the word embedding matrix, and we then uniformly quantize the clipped embeddings within the clipped interval.
-This algorithm is summarized in Algorithm~\ref{alg:smallfry}, where we denote by $Q_{b,r}$ the function which quantizes the interval $[-r,r]$ using $b$-bits per value.
+This compression method is summarized in Algorithm~\ref{alg:smallfry}, where we denote by $Q_{b,r}$ the function which quantizes the interval $[-r,r]$ using $b$-bits per value.
 Note that in our experiments, we find the optimal clipping threshold $r^*$ to within a specified tolerance $\eps > 0$ using the golden-section search algorithm \citep{golden53}.
+Other than $\eps$ (which can simply be set to a small fraction of the data standard deviation), this method has no hyperparameters, and can compress a large embedding matrix in under a minute on a single CPU core.
 
+\begin{algorithm}[tb]
+	\caption{Uniform quantization for word embeddings}
+	\label{alg:smallfry}
+	\begin{algorithmic}[1]
+		\STATE {\bfseries Input:}  Embedding matrix $X \in \RR^{n \times d}$, quantization function $Q_{b,r}$, clipping function $\clip_r\colon\RR\rightarrow[-r,r]$.
+		\STATE {\bfseries Output:} Quantized embeddings $\hat{X}$.
+		\STATE $r^* \defeq \argmin_{r \in [0,\max(|X|)} \|Q_{b,r}(\clip_r(X))-X\|_F$.
+		%Search for $r^* \in [0,\max(|X|)]$ minimizing $\|Q_{b,r}(\clip_r(X))-X\|_F$.
+		\STATE {\bfseries Return:} $Q_{b,r^*}(\clip_{r^*}(X))$.
+	\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Dimensionality Reduction}
+Another simple baseline to consider for compression embeddings is dimensionality reduction.
+In particular, one can simply train an embedding with a lower dimension, or using a dimensionality reduction method like principal component analysis (PCA).
+In this work, we evaluate the performance of full-precision embeddings trained at lower dimensions, relative to the higher dimensional embeddings compressed using the above methods.
 
 %In contrast to the DCCL and k-mean approach, \emph{uniform quantization} is a simple method requiring no computationally expensive training. This method, as shown in at a high-level in Algorithm~\ref{alg:smallfry}, first clips the embedding matrix into the range $[-r,r]$, and then uniformly quantizes the entries of the clipped matrix; we choose the value of $r$ which minimizes the reconstruction error of the quantized matrix.
 %Because our algorithm uses uniform quantization, we first review uniform quantization, and then describe in more detail how our algorithm uses it to compress word embeddings.
@@ -42,20 +59,8 @@ Note that in our experiments, we find the optimal clipping threshold $r^*$ to wi
 %we choose the value of $r$ which minimizes the reconstruction error of the quantized matrix.
 %Because our algorithm uses uniform quantization, we first review uniform quantization, and then describe in more detail how our algorithm uses it to compress word embeddings.
 
-\begin{algorithm}[tb]
-   \caption{Uniform quantization for word embeddings}
-   \label{alg:smallfry}
-\begin{algorithmic}[1]
-	\STATE {\bfseries Input:}  Embedding matrix $X \in \RR^{n \times d}$, quantization function $Q_{b,r}$, clipping function $\clip_r\colon\RR\rightarrow[-r,r]$.
-	\STATE {\bfseries Output:} Quantized embeddings $\hat{X}$.
-	\STATE $r^* \defeq \argmin_{r \in [0,\max(|X|)} \|Q_{b,r}(\clip_r(X))-X\|_F$.
-	%Search for $r^* \in [0,\max(|X|)]$ minimizing $\|Q_{b,r}(\clip_r(X))-X\|_F$.
-	\STATE {\bfseries Return:} $Q_{b,r^*}(\clip_{r^*}(X))$.
-\end{algorithmic}
-\end{algorithm}
 
-
-\subsection{Matrix Approximation Error and Generalization}
+\subsection{Metrics for Evaluating Compression Quality}
 \label{subsec:existing_metrics}
 \todo{Do we need more top-down here? What to say?}
 Here we review a number of existing metrics which we use in order to evaluate the quality of a compressed word embedding relative to the uncompressed embedding.
@@ -95,7 +100,7 @@ in the supervised learning setting, the $\lambda$ value corresponds to the regul
 \citet{lprff18} show that if $\tX\tX^T+\lambda I$ is a $(\Delta_1,\Delta_2)$-spectral approximation of $XX^T + \lambda$, then the linear model trained using $\tX$ will attain similar generalization performance to the linear model trained using $X$.
 
 Although all of these metrics have strong theoretical foundations, in Section~\ref{subsec:hard_explain} we show that when these metrics are measured on compressed word embeddings, the resulting values align poorly with the downstream performance of the compressed embeddings.
-This suggests that these metrics are poor indicators of the quality of the compressed embeddings.
+This poor alignment suggests that these metrics are poor indicators of the quality of the compressed embeddings.
 
 %Building on recent theoretical work \citep{avron17}, \citet{lprff18} propose the notion of \textit{$(\Delta_1,\Delta_2)$-spectral approximation} between Gram matrices to understand the generalization performance of kernel approximation methods on supervised learning problems.
 %This metric is defined as 
