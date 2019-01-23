@@ -44,14 +44,14 @@ Surprisingly, as we show in the next section, none of these metrics aligns well 
 	\centering
 	%	\begin{tabular}{c c c c}
 	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_compression.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_compression.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_compression.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_compression.pdf} \\
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_compression.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_compression.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_compression.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_compression.pdf} \\
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_compression_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_compression_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_compression_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_compression_linx.pdf} \\
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_compression_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_compression_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_compression_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_compression_linx.pdf} \\
 		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d)
 	\end{tabular}
 \caption{Performance of compressed GloVe (top) and fastText (bottom) embeddings on question answering (a), sentiment analysis (TREC dataset) (b), word analogy (c), and word similarity (d) tasks.
@@ -66,20 +66,24 @@ For the GloVe experiments, we are also able to compare with pre-trained embeddin
 
 \begin{figure*}
 \centering
-	\begin{tabular}{c c c c}
-		\includegraphics[width=0.23\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-frob-error_linx.pdf} &
-		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-frob-error_linx.pdf} &
-		\includegraphics[width=0.23\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
-		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-frob-error_linx.pdf} \\
-		\includegraphics[width=0.23\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
-		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
-		\includegraphics[width=0.23\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
-		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} \\
-		\includegraphics[width=0.23\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-2_linx.pdf} &
-		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta2-2_linx.pdf} &
-		\includegraphics[width=0.23\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-delta2-2_linx.pdf} &
-		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-delta2-2_linx.pdf} \\
-		(a) & (b) & (c) & (d) 
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_embed-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_embed-frob-error_linx.pdf} \\
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-frob-error_linx.pdf} \\
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} \\
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-2_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta2-2_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-delta2-2_linx.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-delta2-2_linx.pdf} \\
+		(a) GloVe, QA & (b) GloVe Wiki, QA  & (c) GloVe, sentiment & (d) GloVe Wiki, sentiment
 	\end{tabular}
 	\caption{Existing compression quality metric PIP loss and $(\Delta_1, \Delta_2)$-spectral approximation error poorly correlate with the downstream task performance of compressed embeddings. \todo{explain what does adaptive-det mean?} On both the question answering and sentiment analysis task, we demonstrate the PIP loss, $\Delta_1$ and $\Delta_2$ value across different compression method (shown in (a)(c)) and across different precision for the uniform quantization methods (shown in (b)(d)). We can observe in both settings, for example, higher dimensional 1-bit uniform quantization can perform better than lower dimensional uncompressed embeddings (``Dim. reduction''). As another example, uniformly quantized embeddings with different precision can results in similar downstream performance while the compression quality metrics are drastically different.}
 	\label{fig:bad_correlation}

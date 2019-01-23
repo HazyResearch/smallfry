@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 import utils
+from latexifypaper import *
 
 default_var_info = ['gitdiff',['']]
 
@@ -96,6 +97,7 @@ def matches_all_key_values(result, key_values_to_match):
         if result[key] not in values: return False
     return True
 
+
 # TODO: add error bar support
 def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_metric,
                 logx=False, logy=False, title=None, var_info=default_var_info,
@@ -135,9 +137,36 @@ def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_met
         plot_lines(lines, x_metric, y_metric, logx=logx, logy=logy, title=title, csv_file=csv_file)
 
 
+def get_legend_name_map():
+    legend_name_map = {
+        'kmeans': 'K-means',
+        'uniform (adaptive-det)': 'Uniform',
+        'DCCL' : 'DCCL',
+        'Dim. reduction': "Dim. reduction",
+    }
+    for i in [1, 2, 4, 8, 16, 32]:
+        legend_name_map["b={}".format(str(i))] = "$b={}$".format(str(i))
+    return legend_name_map
+
+# def get_label_name_map():
+#     label_name_map = {
+#         'best-f1': 'F1 Score',
+#         'compression-ratio': 'Compression Rate',
+#     }
+
+def get_embedtype_name_map():
+    embedtype_name_map = {
+        'glove400k': "GloVe",
+        'fasttext1m': "FastText",
+        'glove-wiki400k-am': "GloVe-Wiki"
+    }
+    return embedtype_name_map
+
+
 # lines_x, y contains values for x and y in the scatter plot
 def plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=False, logy=False, title=None, csv_file=None):
     # print("scatter function")
+    legend_name_map = get_legend_name_map()
     f = None
     if csv_file:
         f = open(csv_file,'w+')
@@ -145,7 +174,7 @@ def plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=False, logy=False, t
     ax = plt.gcf().add_subplot(111)
     for (line_name_x,xy_x), (line_name_y,xy_y) in zip(lines_x.items(), lines_y.items()):
         assert line_name_x == line_name_y
-        legend.append(line_name_x)
+        legend.append(legend_name_map[line_name_x])
         # make sure the data points has the same order in lines_x
         np.testing.assert_array_equal(xy_x[0], xy_y[0])
         x_array = xy_x[1]
@@ -166,12 +195,13 @@ def plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=False, logy=False, t
 # lines is a dictionary of {line_name:(x,y)} pairs, where x and y are numpy
 # arrays with the x and y values to be plotted.
 def plot_lines(lines, x_metric, y_metric, logx=False, logy=False, title=None, csv_file=None):
+    legend_name_map = get_legend_name_map()    
     f = None
     if csv_file:
         f = open(csv_file,'w+')
     legend = []
     for line_name,xy in lines.items():
-        legend.append(line_name)
+        legend.append(legend_name_map[line_name])
         # plt.plot(xy[0],xy[1],'o--')
         sorted_x = xy[0]
         y_array = xy[1]
@@ -180,7 +210,7 @@ def plot_lines(lines, x_metric, y_metric, logx=False, logy=False, title=None, cs
         # if line_name == 'Dim. reduction':
         #     plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o', capthick=4, capsize=10000)
         # else:
-        plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o', capthick=4, capsize=10)
+        plt.errorbar(sorted_x, y_avg, yerr=y_std, marker='o', markersize=5, capthick=2, capsize=5)
         if f:
             f.write('{}\n'.format(line_name))
             f.write(x_metric + ',' + ','.join([str(a) for a in sorted_x.tolist()]) + '\n')
@@ -421,9 +451,54 @@ def get_best_lr_sentiment():
     }
     return lr_tuning_results
 
+# setup latexify papre
+default_latexify_config = {
+    'aspect_ratio': [3.3, 2.8],
+    'legend_frame_alpha': 0.25,
+}
+
+def latexify_setup_fig(config=None):
+        latexify(columns=1)
+        if ('aspect_ratio' in config.keys()) and (config['aspect_ratio'] is not None):
+            plt.figure(figsize=config['aspect_ratio'])
+        else:
+            plt.figure()
+        ax = plt.subplot(111)
+        return ax
+
+def latexify_finalize_fig(ax, config=None):
+    plt.grid()
+    leg = plt.gca().legend_
+    leg.get_frame().set_linewidth(0.0)
+    if "logx" in config.keys() and (config['logx'] is not None):
+        if config["logx"]:
+            plt.xscale('log')
+        else:
+            plt.xscale('linear')
+    if "legend_frame_alpha" in config.keys() and (config["legend_frame_alpha"] is not None):
+        leg.framealpha = config["legend_frame_alpha"]
+    if "xlim" in config.keys() and (config["xlim"] is not None):
+        plt.xlim(config["xlim"])
+    if "ylim" in config.keys() and (config["ylim"] is not None):
+        plt.ylim(config["ylim"])
+    if "xlabel" in config.keys() and (config['xlabel'] is not None):
+        plt.xlabel(config["xlabel"])
+    if "ylabel" in config.keys() and (config['ylabel'] is not None):
+        plt.ylabel(config["ylabel"])
+    if "title" in config.keys() and (config['title'] is not None):
+        plt.title(config["title"])
+    if "xtick_pos" in config.keys() and (config['xtick_pos'] is not None):
+        plt.xticks(config["xtick_pos"], config["xtick_label"])
+    if "minor_tick_off" in config.keys() and (config['minor_tick_off'] is not None):
+        if config['minor_tick_off']:
+            plt.minorticks_off()
+    format_axes(ax)
+    plt.tight_layout()
+    
 
 def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
-                      y_metric2=None, y_metric2_evaltype=None, scatter=False, logx=False):
+                      y_metric2=None, y_metric2_evaltype=None, scatter=False, 
+                      logx=False, latexify_config=default_latexify_config):
     # load and clean all results
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results', 'ICML_results.json'))
     all_results = utils.load_from_json(results_file)
@@ -482,6 +557,9 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
             }
         else:
             crs = [8,16,32]
+        if y_metric == "embed-frob-error" and scatter == True:
+            subset_info['embeddim'] = [300]
+            print(subset_info)
     else:
         x_metric = 'memory'
         info_per_line = {}
@@ -498,9 +576,15 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
             'bitrate':[32],
             'compresstype':['nocompress'],
         }
-        subset_info['embeddim'] = [25,50,100,200,400]
+        if y_metric == "embed-frob-error" and scatter == True:
+            subset_info['embeddim'] = [400]
+            print(subset_info)
+        else:
+            subset_info['embeddim'] = [25,50,100,200,400]
 
-    plt.figure()
+
+    ax = latexify_setup_fig(latexify_config)
+    # plt.figure()
     plot_driver(all_results,
         subset_info,
         info_per_line,
@@ -517,8 +601,12 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
     )
     # plt.show()
     # plt.ylim(70.5,74.5)
-    if embedtype in ['glove400k','fasttext1m'] and not scatter:
-        plt.xticks(crs,crs)
+    # if embedtype in ['glove400k','fasttext1m'] and not scatter:
+    #     plt.xticks(crs,crs)
+    latexify_finalize_fig(ax, latexify_config)
+
+    print(plot_file)
+
     plt.savefig(plot_file)
     plt.close()
 
@@ -526,38 +614,101 @@ def plot_qa_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
     evaltype = 'qa'
     y_metric = 'best-f1'
+    latexify_config = default_latexify_config
+    embedtype_name_map = get_embedtype_name_map()
     for embedtype in embedtypes:
-        plot_ICML_results(embedtype, evaltype, y_metric)
+        if embedtype == "glove400k" or embedtype == "glove-wiki400k-am":
+            latexify_config["xlim"] = [1,32]
+            latexify_config["ylim"] = [70.4, None]
+            latexify_config["ylabel"] = "F1 score"
+            latexify_config["xlabel"] = "Compression rate"
+            latexify_config["xtick_pos"] = [1,2,4,8,16,32]
+            latexify_config["xtick_label"] = [1,2,4,8,16,32]
+        elif embedtype == "fasttext1m":
+            latexify_config["xlim"] = [8,32]
+            latexify_config["ylim"] = [None, None]
+            latexify_config["ylabel"] = "F1 score"
+            latexify_config["xlabel"] = "Compression rate"
+            latexify_config["xtick_pos"] = [8,16,32]
+            latexify_config["xtick_label"] = [8,16,32]
+        latexify_config["title"] = embedtype_name_map[embedtype] + ", QA"
+        latexify_config["logx"] = True
+        latexify_config["minor_tick_off"] = True
+        plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config)
 
 def plot_sentiment_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
     evaltype = 'sentiment'
     y_metrics = ['val-acc','test-acc']
+    latexify_config = default_latexify_config
+    embedtype_name_map = get_embedtype_name_map()
     datasets = ['mr','subj','cr','sst','trec','mpqa']
     for embedtype in embedtypes:
+        if embedtype == "glove400k" or embedtype == "glove-wiki400k-am":
+            latexify_config["xlim"] = [1,32]
+            latexify_config["ylim"] = [None, None]
+            latexify_config["xtick_pos"] = [1,2,4,8,16,32]
+            latexify_config["xtick_label"] = [1,2,4,8,16,32]
+        elif embedtype == "fasttext1m":
+            latexify_config["xlim"] = [8,32]
+            latexify_config["ylim"] = [None, None]
+            latexify_config["ylabel"] = "F1 score"
+            latexify_config["xtick_pos"] = [8,16,32]
+            latexify_config["xtick_label"] = [8,16,32]
+        latexify_config["xlabel"] = "Compression rate"
+        latexify_config["logx"] = True
+        latexify_config["minor_tick_off"] = True
         for y_metric in y_metrics:
+            if y_metric == "val-acc":
+                latexify_config["ylabel"] = "Validation acc."
+            elif y_metric == "test-acc":
+                latexify_config["ylabel"] = "Test acc."
             for dataset in datasets:
-                plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset)
+                latexify_config["title"] = embedtype_name_map[embedtype] + ", sentiment"
+                plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset, latexify_config=latexify_config)
 
 def plot_intrinsic_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
     evaltype = 'intrinsics'
-    y_metrics = ['bruni_men',
-                 'luong_rare',
-                 'radinsky_mturk',
-                 'simlex999',
-                 'ws353',
-                 'ws353_relatedness',
-                 'ws353_similarity',
-                 'google-add',
-                 'google-mul',
-                 'msr-add',
-                 'msr-mul',
-                 'analogy-avg-score',
-                 'similarity-avg-score']
+    # y_metrics = ['bruni_men',
+    #              'luong_rare',
+    #              'radinsky_mturk',
+    #              'simlex999',
+    #              'ws353',
+    #              'ws353_relatedness',
+    #              'ws353_similarity',
+    #              'google-add',
+    #              'google-mul',
+    #              'msr-add',
+    #              'msr-mul',
+    #              'analogy-avg-score',
+    #              'similarity-avg-score']
+    y_metrics = [r'analogy-avg-score',
+                 r'similarity-avg-score']
+    latexify_config = default_latexify_config
+    embedtype_name_map = get_embedtype_name_map()
     for embedtype in embedtypes:
+        if embedtype == "glove400k" or embedtype == "glove-wiki400k-am":
+            latexify_config["xlim"] = [1,32]
+            latexify_config["ylim"] = [None, None]
+            latexify_config["xtick_pos"] = [1,2,4,8,16,32]
+            latexify_config["xtick_label"] = [1,2,4,8,16,32]
+        elif embedtype == "fasttext1m":
+            latexify_config["xlim"] = [8,32]
+            latexify_config["ylim"] = [None, None]
+            latexify_config["xtick_pos"] = [8,16,32]
+            latexify_config["xtick_label"] = [8,16,32]
+        latexify_config["xlabel"] = "Compression rate"
+        latexify_config["logx"] = True
+        latexify_config["minor_tick_off"] = True
         for y_metric in y_metrics:
-            plot_ICML_results(embedtype, evaltype, y_metric)
+            if y_metric == r"analogy-avg-score":
+                latexify_config["title"] = embedtype_name_map[embedtype] + ", analogy"
+                latexify_config["ylabel"] = "Analogy average score"
+            elif y_metric == r"similarity-avg-score":
+                latexify_config["title"] = embedtype_name_map[embedtype] + ", similarity"
+                latexify_config["ylabel"] = "Similarity average score"
+            plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config)
 
 def plot_synthetic_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
@@ -631,20 +782,27 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
     # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
-    embedtypes = ['fasttext1m','glove-wiki400k-am','glove400k']
-
+    embedtypes = ['glove-wiki400k-am','glove400k', 'fasttext1m',]
+    latexify_config = default_latexify_config
+    embedtype_name_map = get_embedtype_name_map()
     # SET Y_METRIC1 PARAMS
     if use_large_dim:
         evaltype = 'synthetics-large-dim'
-        only_compute_delta2 = True
+        only_compute_delta2 = False
         if only_compute_delta2:
             y_metric1s = ['gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6']
         else:
-            y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
-                    'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
-                    'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
-                    'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
-                    ]
+            # y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-overlap', 
+            #         'gram-large-dim-delta1-2-trans', 
+            #         'gram-large-dim-delta2-2',
+            #         ]
+            y_metric1s = ['embed-frob-error']
+
+            # y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
+            #         'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
+            #         'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
+            #         'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
+            #         ]            
     else:
         evaltype = 'synthetics'
         y_metric1s = ['embed-frob-error', 'embed-spec-error', 'embed-mean-euclidean-dist', 'semantic-dist']
@@ -662,15 +820,54 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
 
     # logxs = [True,False]
     for embedtype in embedtypes:
+        if embedtype == "glove400k" or embedtype == "glove-wiki400k-am":
+            latexify_config["xlim"] = [0,None]
+            latexify_config["ylim"] = [None, None]
+            # latexify_config["xtick_pos"] = [1,2,4,8,16,32]
+            # latexify_config["xtick_label"] = [1,2,4,8,16,32]
+        elif embedtype == "fasttext1m":
+            latexify_config["xlim"] = [0,None]
+            latexify_config["ylim"] = [None, None]
+            # latexify_config["xtick_pos"] = [8,16,32]
+            # latexify_config["xtick_label"] = [8,16,32]
+        # latexify_config["xlabel"] = "Compression rate"
+        # latexify_config["logx"] = True
+        latexify_config["minor_tick_off"] = True
+        # latexify_config["title"] = embedtype_name_map[embedtype]
         for y_metric1 in y_metric1s:
+            if y_metric1 == 'embed-frob-error':
+                evaltype = 'synthetics'
+            if "gram" in y_metric1 and "frob" in y_metric1: 
+                latexify_config["xlabel"] = "PIP loss"
+            elif "embed" in y_metric1 and "frob" in y_metric1: 
+                latexify_config["xlabel"] = "Embed. Frob. error"
+            elif "delta1" in y_metric1 and "trans" in y_metric1: 
+                latexify_config["xlabel"] = r"$1/(1 - \Delta_1)$" 
+            elif "delta2" in y_metric1: 
+                latexify_config["xlabel"] = r"$\Delta_2$"  
+            elif y_metric1 == "subspace-eig-overlap":
+                latexify_config["xlabel"] = r"Eigenspace overlap $\mathcal{E}$"  
             for y_metric2 in y_metric2s:
                 # for logx in logxs:
+                if y_metric2_evaltype == 'qa':
+                    latexify_config["ylabel"] = "F1 score"
+                    latexify_config["title"] = embedtype_name_map[embedtype] + ", QA"
+                elif y_metric2_evaltype == 'sentiment':
+                    latexify_config["ylabel"] = "Test acc."
+                    latexify_config["title"] = embedtype_name_map[embedtype] + ", sentiment"
+                elif y_metric2_evaltype == 'intrinsics':
+                    if y_metric2 == "analogy-avg-score":
+                        latexify_config["ylabel"] = "Analogy average score"
+                        latexify_config["title"] = embedtype_name_map[embedtype] + ", analogy"
+                    else:
+                        latexify_config["ylabel"] = "Similarity average score"
+                        latexify_config["title"] = embedtype_name_map[embedtype] + ", similarity"
                 for dataset in datasets:
                     print('Embedtype = {}, {} vs {}, dataset = {}'.format(
                           embedtype, y_metric1, y_metric2, dataset))
                     plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
                         y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
-                        dataset=dataset)
+                        dataset=dataset, latexify_config=latexify_config)
 
 def plot_theorem3_tighter_bound():
     dims = [300,300,200,100,50]
@@ -705,26 +902,30 @@ def plot_all_ICML_results():
     plot_embedding_standard_deviation()
 
 if __name__ == '__main__':
-    #plot_frob_squared_vs_bitrate()
-    #plot_dca_frob_squared_vs_lr()
-    #print(dca_get_best_k_lr_per_bitrate())
-    #plot_2018_11_29_fiveSeeds_QA_vs_bitrate()
-    #print('hello')
-    #results_path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\results\\2018-12-16-fasttextTuneDCA_all_results.json'
-    #plot_dca_frob_squared_vs_lr(results_path)
-    #plot_embedding_spectra()
-    # plot_ICML_qa_results()
-    # get_best_lr_sentiment()
-    # plot_ICML_qa_results()
-    # plot_all_ICML_sentiment_results()
-    # plot_all_ICML_results()
-    # plot_metric_vs_performance()
-    # plot_theorem3_tighter_bound()
-    # gather_ICML_results()
+    plot_qa_results()
+    plot_sentiment_results()
+    plot_intrinsic_results()
+    
+    # #plot_frob_squared_vs_bitrate()
+    # #plot_dca_frob_squared_vs_lr()
+    # #print(dca_get_best_k_lr_per_bitrate())
+    # #plot_2018_11_29_fiveSeeds_QA_vs_bitrate()
+    # #print('hello')
+    # #results_path = 'C:\\Users\\avnermay\\Babel_Files\\smallfry\\results\\2018-12-16-fasttextTuneDCA_all_results.json'
+    # #plot_dca_frob_squared_vs_lr(results_path)
+    # #plot_embedding_spectra()
+    # # plot_ICML_qa_results()
+    # # get_best_lr_sentiment()
+    # # plot_ICML_qa_results()
+    # # plot_all_ICML_sentiment_results()
+    # # plot_all_ICML_results()
+    # # plot_metric_vs_performance()
+    # # plot_theorem3_tighter_bound()
+    # # gather_ICML_results()
     logx = False
-    # use_large_dims = [True, False]
+    # # use_large_dims = [True, False]
     use_large_dims = [True]
     for use_large_dim in use_large_dims:
         plot_metric_vs_performance('qa', use_large_dim, logx)
-        plot_metric_vs_performance('sentiment', use_large_dim, logx)
-        plot_metric_vs_performance('intrinsics', use_large_dim, logx)
+        # plot_metric_vs_performance('sentiment', use_large_dim, logx)
+        # plot_metric_vs_performance('intrinsics', use_large_dim, logx)
