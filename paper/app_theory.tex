@@ -105,6 +105,14 @@ If the eigenvalues of $S_0$ are contained in the interval $(a,b)$, and the eigen
 for any unitarily invariant norm $\|\cdot \|$.
 \end{theorem}
 
+(This theorem reuses the notation above)
+\begin{theorem}
+If both $K$ and $\tK$ are rank $d$ matrices, then
+\begin{eqnarray*}
+\|V_0^T U_0\| &\geq& d - \Bigg(\frac{2\sqrt{n}}{2^b-1} \cdot \frac{2\sqrt{\sigma_{max}(K)} + \frac{2\sqrt{n}}{2^b-1} }{\sigma_{min}(K)} \Bigg)^2
+\end{eqnarray*}
+\end{theorem}
+\begin{proof}
 We will apply this theorem to the setting $K = XX^T = USU^T$, $\tK = (X+C)(X+C)^T = VRV^T$,
 for $X \in \RR^{n \times d}$, $X_{ij}\in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$,
 where $\expect{}{C_{ij}} = 0$, $\expect{}{C_{ij}^2} \leq \frac{1}{d(2^b-1)^2} \defeq \delta_b^2/d$.
@@ -131,6 +139,15 @@ Here we use the fact that $|C_{ij}| \leq \frac{2}{\sqrt{d}(2^b-1)}$ to bound $\|
 \end{eqnarray*}
 \todo{Can we get a tighter bound? Perhaps by bounding $\|C\|_2$ with high probability, instead of bounding the $\|C\|_F$ in the numerator?}
 
+To complete the theorem, we simply notice that:
+\begin{eqnarray}
+d &=& \|U_0\|_F^2 \\
+&=&\|[V_0,V_1]^T U_0\|_F^2 \\
+&=& \|V_0^T U_0\|_F^2 + \|V_1^T U_0\|_F^2\\
+\Longrightarrow\quad  \|V_0^T U_0\|_F^2 &=& d - \|V_1^T U_0\|_F^2 \\
+&\geq& d - \Bigg(\frac{2\sqrt{n}}{2^b-1} \cdot \frac{2\sqrt{\sigma_{max}(K)} + \frac{2\sqrt{n}}{2^b-1} }{\sigma_{min}(K)} \Bigg)^2
+\end{eqnarray}
+\end{proof}
 
 \begin{lemma}
 \label{lemma1}
