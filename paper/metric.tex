@@ -48,7 +48,7 @@ To expose the influence of the eigenspace overlap on the generalation performanc
 This is necessary because in worst-case analysis, if there exists a single direction in $\Span(U)$ orthogonal to $\Span(V)$ (which always occurs when $\dim(V) < \dim(U)$) the label vector $y$ can simply be equal to this direction.
 In this case $\cR(X) = \|y\|^2 - \|U^T y\|^2 = 0$, while $\cR(\tX) = \|y\|^2 - \|V^T y\|^2 = \|y\|^2$.
 Thus, the setting we will consider instead is one where $y$ is a random vector in $\Span(U)$.
-We consider this setting for simplicity because we are most interested in the situation where we know the uncompressed embedding matrix $X$ performs well \todo{(explain better why y in span of U means performing well.)}, and we would like to understand how well $\tX$ will do.
+We consider the setting $y \in \Span(U)$ (which implies $\cR(X) = 0$) for simplicity because we are most interested in the situation where we know the uncompressed embedding matrix $X$ performs well, and we would like to understand how well $\tX$ will do.
 We now present our average-case result (see Appendix~\ref{app:theory} for proof):
 
 \begin{proposition}
@@ -68,6 +68,6 @@ We now demonstrate that unlike the metrics we discussed in Section~\ref{sec:prel
 In Figure~\ref{fig:good_correlation} we show scatter plots of downstream performance vs.\ eigenspace overlap, and see that in general higher eigenspace overlap corresponds to better performance.
 Thus, even though our analysis is for a linear regression setting, we can see that this metric predicts performance well on a variety of downstream tasks which use neural networks for training.
 
-\todo{Discuss performance relative to $\Delta_1$,$\Delta_2$?}
+%\todo{Discuss performance relative to $\Delta_1$,$\Delta_2$?}
 
 

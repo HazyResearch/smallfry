@@ -12,7 +12,7 @@ We now present the result (see Appendix~\ref{app:theory} for proof):
 	\end{eqnarray*}
 \label{thm1}
 \end{theorem}
-The .
+
 We can further simplify this expression using the fact that $\sigma_{\max} = \|X\|_2 \leq \sqrt{n}$; using this fact, we get the following corollary:
 \begin{corollary}
 If $b \geq \log_2\bigg(\frac{8n}{\sqrt{\rho \, d\, \sigma_{\min}}} + 1\bigg)$, then the $b$-bit uniformly quantized embedding matrix $\tX$ satisfies $\eigover(X,\tX) \geq 1-\rho$.
@@ -27,7 +27,7 @@ We then measure the eigenspace overlap of quantized versions of $X$, for precisi
 As we can see in Figure~\ref{fig:micro_eigoverlap_vs_prec}, the eigenspace overlap grows quite quickly as the precision grows, attaining a value of approximately $0.82$ at $b=2$, and $0.99$ at $b=4$.
 This helps explain the strong empirical performance of the uniformly quantized embeddings which we observed at low precisions on the real word embedding experiments (Figure~\ref{fig:perf_comp}).
 
-\todo{Add section on clippings effect on the eigenspace overlap?}
+%\todo{Add section on clippings effect on the eigenspace overlap?}
 
 \begin{figure}
 	\begin{tabular}{c}
