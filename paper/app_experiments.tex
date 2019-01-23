@@ -1,7 +1,4 @@
-\subsection{Experiment Details}
-\label{app:experiment_details}
-
-\subsubsection{Uniform Quantization Review}
+\subsection{Uniform Quantization Review}
 A \textit{$b$-bit uniform quantization} $Q_{b,r}(x)$ of a real number $x \in [-r,r]$ is computed as follows:
 First, the interval $[-r,r]$ is divided into $2^b - 1$ sub-intervals of equal size.
 Then, $x$ is rounded to either the top or bottom of the sub-interval $[\ulx,\olx]$ containing $x$, where $\ulx = r + j\frac{2r}{2^b-1}$ and $\olx = r + (j+1)\frac{2r}{2^b-1}$, for $j\in\{0,1,\ldots,2^b-2\}$.
@@ -24,7 +21,17 @@ We then use this value $r^*$ to clip $X$, and then quantize the clipped embeddin
 
 In our experiments, we find $r^*$ to within a specified tolerance $\eps > 0$ using the golden-section search algorithm \citep{golden53}.
 To avoid stochasticity impacting the search process, we always use deterministic rounding in the search for $r^*$, even if we use stochastic quantization in the final quantization.
+
+\subsection{Experiment Details}
+\label{app:experiment_details}
+
+
 %this choice also allows us to more cleanly compare deterministic vs.\ stochastic rounding, since they will always use the same value of $r^*$.
+
+\subsubsection{Details about Uncomppressed Word Embeddings We Used}
+We use the Wikipedia 2014 + Gigaword 5 GloVe embeddings available at \url{http://nlp.stanford.edu/data/glove.6B.zip}, and the 300-dimensional fastText embeddings trained on Wikipedia 2017, UMBC webbase corpus and statmt.org news dataset, available at \url{https://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki-news-300d-1M.vec.zip}.
+For the GloVe embeddings which we trained, we used full English Wikimedia dump on Dec. 4, 2017 which was pre-processed by a fastText script~\footnote{https://github.com/facebookresearch/fastText/blob/master/get-wikimedia.sh} while keeping the letter cases and digits.
+This corpus has 4.5 billion tokens (vocab size of $400k$).
 
 
 \subsubsection{Empirical Comparison of Compression Methods}
@@ -34,7 +41,7 @@ To avoid stochasticity impacting the search process, we always use deterministic
 \subsection{Extended Results}
 \label{app:experiment_results}
 In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results, for our different embedding types and the different sentiment analysis datasets.
-%\todo{I commented out large figure}
+\todo{I commented out large figure}
 %\begin{figure}
 %	\centering
 %	\begin{tabular} {c c c}

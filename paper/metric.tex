@@ -30,14 +30,14 @@ In contrast, if $\Span(V)$ is orthogonal to $\Span(U)$, then $\eigover(X,\tX) = 
 We now show that this metric is closely related to the generalization performance of the linear regression model trained using the compressed embeddings $\tX$ in place of $X$.
 For simplicity, we will consider here the noiseless fixed design regression setting;
 In this setting, the training loss is equal to the generalization loss.
-Letting $y\in\RR^n$ denote the vector of labels and using the closed form solution for the optimal parameters $w^* = (X^T X)^{-1}X^Ty$, we can see that the generalization performance is equal to $\cR(X) = \|Xw^* - y\|^2 = \|y\|^2 - \|U^T y\|^2$ (derivation in Appendix \todo{XX}).
+Letting $y\in\RR^n$ denote the vector of labels and using the closed form solution for the optimal parameters $w^* = (X^T X)^{-1}X^Ty$, we can derive that the generalization performance is equal to $\cR(X) = \|Xw^* - y\|^2 = \|y\|^2 - \|U^T y\|^2$.
 
 To expose the influence of the eigenspace overlap on the generalation performance, it will be necessary for us to considering an average-case analysis.
 This is necessary because in worst-case analysis, if there exists a single direction in $\Span(U)$ orthogonal to $\Span(V)$ (which always occurs when $\dim(V) < \dim(U)$) the label vector $y$ can simply be equal to this direction.
 In this case $\cR(X) = \|y\|^2 - \|U^T y\|^2 = 0$, while $\cR(\tX) = \|y\|^2 - \|V^T y\|^2 = \|y\|^2$.
 Thus, the setting we will consider instead is one where $y$ is a random vector in $\Span(U)$.
 We consider this setting for simplicity because we are most interested in the situation where we know the uncompressed embedding matrix $X$ performs well \todo{(explain better why y in span of U means performing well.)}, and we would like to understand how well $\tX$ will do.
-We now present our average-case result:
+We now present our average-case result (see Appendix~\ref{app:theory} for proof):
 
 \begin{proposition}
 If $y = Uz$ for a random vector $z \in \RR^d$ with zero mean and identity covariance, then

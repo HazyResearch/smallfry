@@ -3,7 +3,7 @@ Given the above theoretical and empirical connections between eigenspace overlap
 To prove these bounds, we leverage the classic Davis-Kahan $\sin(\Theta)$ theorem from matrix perturbation analysis \citep{sintheta70}.
 Because we know exactly what the noise structure of the uniform quantization method is, we can use this knowledge to bound how much the eigenspace of the compressed embeddings can differ from the uncompressed embeddings.
 
-We now present the result:
+We now present the result (see Appendix~\ref{app:theory} for proof):
 \begin{theorem}
 	Let $X \in \RR^{n\times d}$ be a bounded embedding matrix with $X_{ij} \in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$ with largest and smallest singular values $\sigma_{\max}$ and $\sigma_{\min}$.
 	Then the eigenspace overlap of the corresponding $b$-bit uniformly quantized embedding matrix can be lower bounded as follows:
@@ -12,6 +12,7 @@ We now present the result:
 	\end{eqnarray*}
 \label{thm1}
 \end{theorem}
+The .
 We can further simplify this expression using the fact that $\sigma_{\max} = \|X\|_2 \leq \sqrt{n}$; using this fact, we get the following corollary:
 \begin{corollary}
 If $b \geq \log_2\bigg(\frac{8n}{\sqrt{\rho \, d\, \sigma_{\min}}} + 1\bigg)$, then the $b$-bit uniformly quantized embedding matrix $\tX$ satisfies $\eigover(X,\tX) \geq 1-\rho$.

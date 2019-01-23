@@ -24,7 +24,7 @@ Using $k=2^b$ allows for storing each matrix entry using only $b$ bits.
 %Built on a significantly different machinery, embeddings compressed by a \emph{k-mean method} also demonstrates strong empirical performance in downstream tasks \citep{andrews16}. This k-means method assigns embedding matrix entry values into clusters, and each embedding entries is the approximated by the corresponding cluster center. In this way, one can achieve compression by only storing the cluster id instead of the original value for each embedding matrix entry.
 
 \paragraph{Uniform Quantization}
-Uniform quantization is a classic compression method which divides an interval into a fixed number of sub-intervals of equal size, and then rounds the values in each sub-interval to one of the boundaries of the sub-interval \citep{quant77} (for a review of uniform quantization, see Appendix \todo{XX}).
+Uniform quantization is a classic compression method which divides an interval into a fixed number of sub-intervals of equal size, and then rounds the values in each sub-interval to one of the boundaries of the sub-interval \citep{quant77} (for a review of uniform quantization, see Appendix~\ref{app:experiments}).
 We apply this method to compress word embeddings as follows:
 We first determine the optimal threshold at which to clip the extreme values in the word embedding matrix, and we then uniformly quantize the clipped embeddings within the clipped interval.
 This compression method is summarized in Algorithm~\ref{alg:smallfry}, where we denote by $Q_{b,r}$ the function which quantizes the interval $[-r,r]$ using $b$-bits per value.
