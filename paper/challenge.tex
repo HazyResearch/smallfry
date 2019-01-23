@@ -1,8 +1,67 @@
 To study the performance of compressed word embeddings in downstream tasks, we begin by empirically comparing methods with different underlying machineries. In our attempt to understand what intrinsic characteristic determines the downstream performance across different compressed embedding types, we observe that PIP loss and $(\Delta_1, \Delta_2)$-spectral approximation error, as compression quality metrics, can poorly correlate with downstream performance across the simple uniform quantization and state-of-the-art methods. This impose challenges to understand what intrinsic characteristic determines the downstream performance of compressed embeddings in a principle.
-In particular, we observe the simple fast uniform quantization approach can compete with state-of-the-art deep compositional code learning (DCCL) \citep{dccl17} and k-means based compression \citep{andrews16} across various NLP tasks at different compression rates. However, the simple quantization method can have significantly worse compression quality metric while matching the downstream performance of the state-of-the-art methods. In this section, we discuss our empirical comparison of compression methods, and demonstrate the lack of correlation between existing metrics and downstream task performance. These observations motivates our new compression quality metric in Section~\ref{sec:new_metric} which correlates well with downstream performance; it leads to a more principled understanding on how compression impacts generalization.
+In particular, we observe the simple fast uniform quantization approach can compete with state-of-the-art deep compositional code learning (DCCL) \citep{dccl17} and k-means based compression \citep{andrews16} across various NLP tasks at different compression rates. However, the simple quantization method can have significantly worse compression quality metric while matching the downstream performance of the state-of-the-art methods. In this section, we discuss our empirical comparison of compression methods, and demonstrate the lack of correlation between existing metrics and downstream task performance. These observations motivates our new compression quality metric in Section~\ref{sec:new_metric} which correlates well with downstream performance; it leads to a more principled understanding on how compression impacts generalization. 
+
+
+\subsection{Performance Comparison}
+\label{sec:perf_comp}
+\todo{(dataset info might be need to be added)} In our empirical performance comparison of the different compression method, we evaluate the embeddings compressed by each method on a variety of tasks. We demonstrate that the compressed embeddings based on simple uniform quantization can match the the state-of-the-art DCCL and k-means method. To compare these methods on different uncompressed embedding types, we consider compressing both 300 dimensional GloVe pre-trained embedding and \todo{bla dim} FastText pretrained embeddings. In the experiment with GloVe uncompress embedding, we also include different dimensional GloVe pre-trained embeddings, and use it to compare the performance of compressing high dimensional embeddings and directly using lower dimensional pre-trained embeddings with the same memory footprint. In Figure~\ref{fig:perf_comp}, we can observe across the four tasks using both GloVe and FastText embeddings, the simple uniform quantization method can closely match the DCCL and k-means approach in downstream performance at high compression rate. For example, using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, uniform quantization attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the DCCL method of \citet{dccl17} is 0.43\% below. Additionally, we observe in Figure~\ref{fig:perf_comp} (top) that compressing higher dimensional word embeddings can perform significantly better than using lower dimensional pre-trained embeddings with the same memory consumption.
+
+\begin{figure*}
+	\centering
+	%	\begin{tabular}{c c c c}
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_compression.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_compression.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_compression.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_compression.pdf} \\
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_compression.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_compression.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_compression.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_compression.pdf} \\
+		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d)
+	\end{tabular}
+	\label{fig:perf_comp}
+\caption{Performance of compressed GloVe (top) and fastText (bottom) embeddings on question answering (a), sentiment analysis (TREC dataset) (b), word analogy (c), and word similarity (d) tasks.
+Uniform quantization performs similarly to k-means and DCCL on question answering and sentiment analysis;
+on the word analogy and similarity tasks, uniform quantization once again performs similarly to k-means, but outperforms the DCCL method.
+For the GloVe experiments, we are also able to compare with pre-trained embeddings of smaller dimensions ($d\in\{50,100,200,300\}$), and observe that compressing the 300-dimensional embeddings is significantly better than using lower-dimensional full-precision embeddings (``Dim. reduction'').
+}
+\end{figure*}
+
+
+\begin{figure*}
+	\begin{tabular}{c c c c}
+		\includegraphics[width=0.23\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-frob-error_linx.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-frob-error_linx.pdf} \\
+		\includegraphics[width=0.23\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-delta1-2-trans_linx.pdf} \\
+		\includegraphics[width=0.23\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-2_linx.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta2-2_linx.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_gram-large-dim-delta2-2_linx.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_gram-large-dim-delta2-2_linx.pdf} \\
+		(a) & (b) & (c) & (d) 
+	\end{tabular}
+	\label{fig:bad_correlation}
+	\caption{Existing compression quality metric PIP loss and $(\Delta_1, \Delta_2)$-spectral approximation error poorly correlate with the downstream task performance of compressed embeddings. \todo{explain what does adaptive-det mean?} On both the question answering and sentiment analysis task, we demonstrate the PIP loss, $\Delta_1$ and $\Delta_2$ value across different compression method in (a),(c) and across different precision for the uniform quantization methods in (b), (d). We can observe in both settings, for example, higher dimensional 1-bit uniform quantization can perform better than lower dimensional uncompressed embeddings (``Dim. reduction''). As another example, uniformly quantized embeddings with different precision can results in similar downstream performance while the compression quality metrics are drastically different.}
+\end{figure*}
+
 
 \subsection{Hardness in Explaining Generalization}
 \label{subsec:hard_explain}
+To understand why simple uniform quantization can perform as well as state-of-the-art in downstream tasks, we ask the question what intrinsic property of a compressed embedding determines its downstream performance. In particular, we analyze the correlation between existing compression quality metrics and the downstream performance. However, we observe that the metrics we considered in our experiments correlates poorly with the performance of downstream.
+Specifically, we consider the Pointwise Inner Product (PIP) Loss and the $(\Delta_1, \Delta_2)$-spectral approximation error. This is because many embedding generation methods are implicit matrix decomposition; these two metrics are previously used to understand questions regarding generalization performance for matrix decomposition based supervised learning models \citep{avron17,yin18,lprff18}. 
+
+In Figure~\ref{fig:bad_correlation}, we demonstrate the correlation between downstream task performance and quality metric PIP loss, $\Delta_1$, $\Delta_2$ on both the question answering and sentiment analysis tasks. In Figure~\ref{fig:bad_correlation} (a)(c) we can observe the metrics does not correlate well with generalization performance across different type of compressed embeddings. Particularly on both question answering and sentiment analysis, DCCL method and uniform quantization can demonstrate similar generalization performance, but up to 2x different compression quality metrics on both question answering and sentiment analysis. Strikingly higher dimensional 1-bit embeddings outperforms lower dimensional uncompressed embeddings at the same memory footprint with large margin but demonstrate significantly larger PIP loss and $\Delta_2$ values. Furthermore, we also demonstrate the correlation for uniformly quantized embeddings across different quantization precisions. In Figure \ref{fig:bad_correlation}(a)(c), though 1-bit quantized embeddings show significantly worse compression quality metric than 16-bit quantized embeddings, they can demonstrate similar performance on the downstream tasks. 
+
+An intrinsic characteristic which correlates well with downstream performance is critical to quantitatively understand the generalization of compressed embeddings. However the existing compression quality metrics fail to play this critical role due to poor correlations, which makes understanding the generalization performance challenging without an anchor characteristic. To overcome this problem, we propose a new metric in Section~\ref{sec:new_metric} which correlates well with downstream performance. In the context of linear regression, we prove a generalization bound in terms of this metric for compressed embeddings in Section~\ref{sec:new_metric}. Leverage these understanding built on the new metric, we can then explain why simple uniformly quantized embeddings performs well in a range of downstream tasks with high compression rate.
+
+ 
+
+
 	\begin{itemize}
 		\item Results and claim 1: uniform quantization method can compete well with the state-of-the-art, and it can match uncompressed embedding with high compression rate.
 		\begin{itemize}
