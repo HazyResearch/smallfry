@@ -12,17 +12,45 @@
 %		\item Discuss why it explains better than Deltas (if have not discuss the relation to Deltas, we should discuss here also).
 %	\end{itemize}
 
+
+In this section, we introduce the \textit{eigenspace overlap metric} to measure the quality of a compressed embedding relative to the uncompressed embedding.
+We prove average-case generalization bounds for this metric in the context of linear regression, and show that this metric indeed aligns very well with the downstream performance of the compressed embeddings.
+
 \subsection{Eigenspace Overlap and Generalization}
 \label{subsec:eigen_overlap}
-    \begin{itemize}
-        \item Introduce the eigenspace overlap metric.
-		\item Present generalization bounds in terms of overlap.
-        \item Discuss why it explains better than Deltas (if have not discuss the relation to Deltas, we should discuss here also).
-    \end{itemize}
+\begin{definition}
+Given two embedding matrices $X \in \RR^{n \times d}$, $\tX \in \RR^{n \times k}$, whose Gram matrices have eigendecompositions $XX^T = USU^T$, $\tX\tX^T = VRV^T$ for $U \in \RR^{n\times d}$, $V\in \RR^{n \times k}$, we define the eigenspace overlap metric $\eigover(X,\tX) \defeq  \|V^T U\|_F^2$.
+\end{definition}
 
-\subsection{Revisit Generalization of Compressed embeddings}
+This metric measures the degree to which the span of the eigenvectors with nonzero eigenvalue of $\tX\tX^T$ agree with those of $XX^T$.
+In particular, if the span $\Span(V)$ of the columns of $V$ is a subspace of $\Span(U)$, then $\eigover(X,\tX) =\|U^T V\|_F^2 = \|UU^T V\|_F^2 = \|V\|_F^2 = \dim(V)$.
+In contrast, if $\Span(V)$ is orthogonal to $\Span(U)$, then $\eigover(X,\tX) = 0$.
+
+We now show that this metric is closely related to the generalization performance of the linear regression model trained using the compressed embeddings $\tX$ in place of $X$.
+For simplicity, we will consider here the noiseless fixed design regression setting;
+In this setting, the training loss is equal to the generalization loss.
+Letting $y\in\RR^n$ denote the vector of labels and using the closed form solution for the optimal parameters $w^* = (X^T X)^{-1}X^Ty$, we can see that the generalization performance is equal to $\cR(X) = \|Xw^* - y\|^2 = \|y\|^2 - \|U^T y\|^2$ (derivation in Appendix \todo{XX}).
+
+To expose the influence of the eigenspace overlap on the generalation performance, it will be necessary for us to considering an average-case analysis.
+This is necessary because in worst-case analysis, if there exists a single direction in $\Span(U)$ orthogonal to $\Span(V)$ (which always occurs when $\dim(V) < \dim(U)$) the label vector $y$ can simply be equal to this direction.
+In this case $\cR(X) = \|y\|^2 - \|U^T y\|^2 = 0$, while $\cR(\tX) = \|y\|^2 - \|V^T y\|^2 = \|y\|^2$.
+Thus, the setting we will consider instead is one where $y$ is a random vector in $\Span(U)$.
+We consider this setting for simplicity because we are most interested in the situation where we know the uncompressed embedding matrix $X$ performs well, and we would like to understand how well $\tX$ will do.
+We now present our average-case result:
+
+\begin{proposition}
+If $y = Uz$ for a random vector $z \in \RR^d$ with zero mean and identity covariance, then
+\begin{eqnarray}
+\expect{y}{\cR(\tX) - \cR(X)} &=& d - \eigover(X,\tX)
+\end{eqnarray}
+\end{proposition}
+
+This proposition reveals that a larger eigenspace overlap value results in better generalization performance for the compressed embedding.
+
+\subsection{Revisit Performance of Compressed Embeddings}
 \label{subsec:revisit}
-\begin{itemize}
-    \item Empirically demonstrate the correlation with respect to generalization performance
-    \item Discuss why it explains better than Deltas (if have not discuss the relation to Deltas, we should discuss here also).
-\end{itemize}
+We now demonstrate that unlike the metrics we discussed in Section~\ref{sec:background}, this metric empirically aligns very well with the performance of compressed embeddings on downstream tasks.
+In Figure \todo{XX} we show scatter plots of downstream performance vs.\ eigenspace overlap, and see that in general higher eigenspace overlap corresponds to better performance.
+Thus, even though our analysis is for a linear regression setting, we can see that this metric predicts performance well on a variety of downstream tasks which use neural networks for training.
+
+\todo{Discuss performance relative to $\Delta_1$,$\Delta_2$?}
