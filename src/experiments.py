@@ -487,11 +487,18 @@ def eigenvector_overlap():
     plt.legend(leg)
     save_plot('Error_vs_eig_overlap.pdf')
 
+
+from plotter import latexify_setup_fig, latexify_finalize_fig, default_latexify_config
+from plotter import get_embedtype_name_map, get_legend_name_map
 def eigenspace_overlap_micro():
     # gaussian_str = 'gaussian' if gaussian else 'uniform'
     # adapt_str = 'adapt' if use_adapt else 'nonadapt'
     # ns = [10000,1000,100]
     # ns = [10000,3000,1000]
+    latexify_config = default_latexify_config
+    embedtype_name_map = get_embedtype_name_map()
+    latexify_config["minor_tick_off"] = True
+    ax = latexify_setup_fig(latexify_config)
     ns = [100000]
     ds = [300]
     bs = [1,2,4,8,16,32]
@@ -518,14 +525,17 @@ def eigenspace_overlap_micro():
             plt.plot(bs,overlaps)
             # plt.plot(bs,bounds)
     plt.xscale('log')
+    plt.legend()
     # plt.yscale('log')
     plt.xticks(bs,bs)
     plt.ylim(0,1)
+    plt.xlim(1,32)
     # plt.title('Normalized eigenvector overlap vs. Precision (b)')
-    plt.title('Eigenspace Overlap vs. Precision (b)')
-    plt.xlabel('Precision (b)')
-    plt.ylabel('Eigenspace overlap')
+    plt.title(r'Eigenspace Overlap vs. Precision')
+    plt.xlabel(r'Precision (b)')
+    plt.ylabel(r'Eigenspace overlap $\mathcal{E}$')
     # plt.legend(leg)
+    latexify_finalize_fig(ax, latexify_config)
     save_plot('micro_eig_overlap_vs_precision.pdf')
     
 

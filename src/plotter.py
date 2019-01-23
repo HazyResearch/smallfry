@@ -457,6 +457,45 @@ default_latexify_config = {
     'legend_frame_alpha': 0.25,
 }
 
+def latexify_setup_fig(config=None):
+        latexify(columns=1)
+        if ('aspect_ratio' in config.keys()) and (config['aspect_ratio'] is not None):
+            plt.figure(figsize=config['aspect_ratio'])
+        else:
+            plt.figure()
+        ax = plt.subplot(111)
+        return ax
+
+def latexify_finalize_fig(ax, config=None):
+    plt.grid()
+    leg = plt.gca().legend_
+    leg.get_frame().set_linewidth(0.0)
+    if "logx" in config.keys() and (config['logx'] is not None):
+        if config["logx"]:
+            plt.xscale('log')
+        else:
+            plt.xscale('linear')
+    if "legend_frame_alpha" in config.keys() and (config["legend_frame_alpha"] is not None):
+        leg.framealpha = config["legend_frame_alpha"]
+    if "xlim" in config.keys() and (config["xlim"] is not None):
+        plt.xlim(config["xlim"])
+    if "ylim" in config.keys() and (config["ylim"] is not None):
+        plt.ylim(config["ylim"])
+    if "xlabel" in config.keys() and (config['xlabel'] is not None):
+        plt.xlabel(config["xlabel"])
+    if "ylabel" in config.keys() and (config['ylabel'] is not None):
+        plt.ylabel(config["ylabel"])
+    if "title" in config.keys() and (config['title'] is not None):
+        plt.title(config["title"])
+    if "xtick_pos" in config.keys() and (config['xtick_pos'] is not None):
+        plt.xticks(config["xtick_pos"], config["xtick_label"])
+    if "minor_tick_off" in config.keys() and (config['minor_tick_off'] is not None):
+        if config['minor_tick_off']:
+            plt.minorticks_off()
+    format_axes(ax)
+    plt.tight_layout()
+    
+
 def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
                       y_metric2=None, y_metric2_evaltype=None, scatter=False, 
                       logx=False, latexify_config=default_latexify_config):
@@ -518,6 +557,9 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
             }
         else:
             crs = [8,16,32]
+        if y_metric == "embed-frob-error" and scatter == True:
+            subset_info['embeddim'] = [300]
+            print(subset_info)
     else:
         x_metric = 'memory'
         info_per_line = {}
@@ -534,46 +576,11 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
             'bitrate':[32],
             'compresstype':['nocompress'],
         }
-        subset_info['embeddim'] = [25,50,100,200,400]
-
-    def latexify_setup_fig(config=None):
-        latexify(columns=1)
-        if ('aspect_ratio' in config.keys()) and (config['aspect_ratio'] is not None):
-            plt.figure(figsize=config['aspect_ratio'])
+        if y_metric == "embed-frob-error" and scatter == True:
+            subset_info['embeddim'] = [400]
+            print(subset_info)
         else:
-            plt.figure()
-        ax = plt.subplot(111)
-        return ax
-
-    def latexify_finalize_fig(ax, config=None):
-        plt.grid()
-        leg = plt.gca().legend_
-        leg.get_frame().set_linewidth(0.0)
-        if "logx" in config.keys() and (config['logx'] is not None):
-            if config["logx"]:
-                plt.xscale('log')
-            else:
-                plt.xscale('linear')
-        if "legend_frame_alpha" in config.keys() and (config["legend_frame_alpha"] is not None):
-            leg.framealpha = config["legend_frame_alpha"]
-        if "xlim" in config.keys() and (config["xlim"] is not None):
-            plt.xlim(config["xlim"])
-        if "ylim" in config.keys() and (config["ylim"] is not None):
-            plt.ylim(config["ylim"])
-        if "xlabel" in config.keys() and (config['xlabel'] is not None):
-            plt.xlabel(config["xlabel"])
-        if "ylabel" in config.keys() and (config['ylabel'] is not None):
-            plt.ylabel(config["ylabel"])
-        if "title" in config.keys() and (config['title'] is not None):
-            plt.title(config["title"])
-        if "xtick_pos" in config.keys() and (config['xtick_pos'] is not None):
-            plt.xticks(config["xtick_pos"], config["xtick_label"])
-        if "minor_tick_off" in config.keys() and (config['minor_tick_off'] is not None):
-            if config['minor_tick_off']:
-                plt.minorticks_off()
-
-        format_axes(ax)
-        plt.tight_layout()
+            subset_info['embeddim'] = [25,50,100,200,400]
 
 
     ax = latexify_setup_fig(latexify_config)
@@ -775,20 +782,27 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
     # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
-    embedtypes = ['fasttext1m','glove-wiki400k-am','glove400k']
-
+    embedtypes = ['glove-wiki400k-am','glove400k', 'fasttext1m',]
+    latexify_config = default_latexify_config
+    embedtype_name_map = get_embedtype_name_map()
     # SET Y_METRIC1 PARAMS
     if use_large_dim:
         evaltype = 'synthetics-large-dim'
-        only_compute_delta2 = True
+        only_compute_delta2 = False
         if only_compute_delta2:
             y_metric1s = ['gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6']
         else:
-            y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
-                    'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
-                    'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
-                    'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
-                    ]
+            # y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-overlap', 
+            #         'gram-large-dim-delta1-2-trans', 
+            #         'gram-large-dim-delta2-2',
+            #         ]
+            y_metric1s = ['embed-frob-error']
+
+            # y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
+            #         'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
+            #         'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
+            #         'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
+            #         ]            
     else:
         evaltype = 'synthetics'
         y_metric1s = ['embed-frob-error', 'embed-spec-error', 'embed-mean-euclidean-dist', 'semantic-dist']
@@ -806,15 +820,54 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
 
     # logxs = [True,False]
     for embedtype in embedtypes:
+        if embedtype == "glove400k" or embedtype == "glove-wiki400k-am":
+            latexify_config["xlim"] = [0,None]
+            latexify_config["ylim"] = [None, None]
+            # latexify_config["xtick_pos"] = [1,2,4,8,16,32]
+            # latexify_config["xtick_label"] = [1,2,4,8,16,32]
+        elif embedtype == "fasttext1m":
+            latexify_config["xlim"] = [0,None]
+            latexify_config["ylim"] = [None, None]
+            # latexify_config["xtick_pos"] = [8,16,32]
+            # latexify_config["xtick_label"] = [8,16,32]
+        # latexify_config["xlabel"] = "Compression rate"
+        # latexify_config["logx"] = True
+        latexify_config["minor_tick_off"] = True
+        # latexify_config["title"] = embedtype_name_map[embedtype]
         for y_metric1 in y_metric1s:
+            if y_metric1 == 'embed-frob-error':
+                evaltype = 'synthetics'
+            if "gram" in y_metric1 and "frob" in y_metric1: 
+                latexify_config["xlabel"] = "PIP loss"
+            elif "embed" in y_metric1 and "frob" in y_metric1: 
+                latexify_config["xlabel"] = "Embed. Frob. error"
+            elif "delta1" in y_metric1 and "trans" in y_metric1: 
+                latexify_config["xlabel"] = r"$1/(1 - \Delta_1)$" 
+            elif "delta2" in y_metric1: 
+                latexify_config["xlabel"] = r"$\Delta_2$"  
+            elif y_metric1 == "subspace-eig-overlap":
+                latexify_config["xlabel"] = r"Eigenspace overlap $\mathcal{E}$"  
             for y_metric2 in y_metric2s:
                 # for logx in logxs:
+                if y_metric2_evaltype == 'qa':
+                    latexify_config["ylabel"] = "F1 score"
+                    latexify_config["title"] = embedtype_name_map[embedtype] + ", QA"
+                elif y_metric2_evaltype == 'sentiment':
+                    latexify_config["ylabel"] = "Test acc."
+                    latexify_config["title"] = embedtype_name_map[embedtype] + ", sentiment"
+                elif y_metric2_evaltype == 'intrinsics':
+                    if y_metric2 == "analogy-avg-score":
+                        latexify_config["ylabel"] = "Analogy average score"
+                        latexify_config["title"] = embedtype_name_map[embedtype] + ", analogy"
+                    else:
+                        latexify_config["ylabel"] = "Similarity average score"
+                        latexify_config["title"] = embedtype_name_map[embedtype] + ", similarity"
                 for dataset in datasets:
                     print('Embedtype = {}, {} vs {}, dataset = {}'.format(
                           embedtype, y_metric1, y_metric2, dataset))
                     plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
                         y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
-                        dataset=dataset)
+                        dataset=dataset, latexify_config=latexify_config)
 
 def plot_theorem3_tighter_bound():
     dims = [300,300,200,100,50]
@@ -851,7 +904,7 @@ def plot_all_ICML_results():
 if __name__ == '__main__':
     plot_qa_results()
     plot_sentiment_results()
-    # plot_intrinsic_results()
+    plot_intrinsic_results()
     
     # #plot_frob_squared_vs_bitrate()
     # #plot_dca_frob_squared_vs_lr()
@@ -869,10 +922,10 @@ if __name__ == '__main__':
     # # plot_metric_vs_performance()
     # # plot_theorem3_tighter_bound()
     # # gather_ICML_results()
-    # logx = False
+    logx = False
     # # use_large_dims = [True, False]
-    # use_large_dims = [True]
-    # for use_large_dim in use_large_dims:
-    #     plot_metric_vs_performance('qa', use_large_dim, logx)
-    #     plot_metric_vs_performance('sentiment', use_large_dim, logx)
-    #     plot_metric_vs_performance('intrinsics', use_large_dim, logx)
+    use_large_dims = [True]
+    for use_large_dim in use_large_dims:
+        plot_metric_vs_performance('qa', use_large_dim, logx)
+        # plot_metric_vs_performance('sentiment', use_large_dim, logx)
+        # plot_metric_vs_performance('intrinsics', use_large_dim, logx)
