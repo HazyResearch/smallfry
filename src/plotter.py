@@ -6,6 +6,8 @@ import matplotlib as mpl
 import utils
 from latexifypaper import *
 from scipy.stats import spearmanr
+import json
+import _pickle as cp
 # import warnings
 # warnings.filterwarnings("ignore")
 
@@ -514,6 +516,8 @@ def latexify_finalize_fig(ax, config=None):
     plt.tight_layout()
 
 
+spearman_dict = {}
+
 def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
                       y_metric2=None, y_metric2_evaltype=None, scatter=False, 
                       logx=False, latexify_config=default_latexify_config):
@@ -627,6 +631,16 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
     #     plt.xticks(crs,crs)
     if scatter:
         latexify_config["title"] += r", $\rho={0:.2f}$".format(return_info[0])
+        if y_metric2 == "test-acc":
+            if dataset == "sst":
+                save = True
+            else:
+                save = False
+        else:
+            save = True
+        if save:
+            key_name = embedtype + ", " + y_metric2 + ", " + y_metric
+            spearman_dict[key_name] = return_info[0]
     latexify_finalize_fig(ax, latexify_config)
 
     print(plot_file)
@@ -825,7 +839,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
     # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
-    embedtypes = ['glove-wiki400k-am','glove400k', 'fasttext1m',]
+    embedtypes = ['glove400k', 'glove-wiki400k-am', 'fasttext1m',]
     # embedtypes = ['glove400k']
     latexify_config = default_latexify_config
     embedtype_name_map = get_embedtype_name_map()
@@ -968,9 +982,31 @@ def plot_all_ICML_results():
     plot_synthetic_results()
     plot_embedding_standard_deviation()
 
+
+def print_spearrank_table_blob():
+    with open("./spearman_dict", "rb") as f:
+        spearman_dict = cp.load(f)
+    embedtypes = ['glove400k', 'glove-wiki400k-am', 'fasttext1m',]
+    x_metrics = ['embed-frob-error', 'gram-large-dim-frob-error', 
+                    'gram-large-dim-delta1-2-trans', 
+                    'gram-large-dim-delta2-2', 'subspace-eig-overlap']
+    y_metrics = ["best-f1", "test-acc", "analogy-avg-score", "similarity-avg-score"]
+    for x in x_metrics:
+        info = " "
+        for y in y_metrics:
+            for embed in embedtypes:
+                key = embed + ", " + y + ", " + x
+                if key in spearman_dict.keys():
+                    info += r"{0:.2f}/".format(spearman_dict[key])
+            info = info[:-1]
+            info += "  &  "
+        print(x, info)
+
+
+
 if __name__ == '__main__':
     # # lines
-    plot_qa_results()
+    # plot_qa_results()
     # plot_intrinsic_results()
     # plot_sentiment_results()
     
@@ -991,11 +1027,16 @@ if __name__ == '__main__':
     # # plot_theorem3_tighter_bound()
     # # gather_ICML_results()
 
-    # # scatter plots
-    # logx = False
-    # # # use_large_dims = [True, False]
-    # use_large_dims = [True]
-    # for use_large_dim in use_large_dims:
-    #     plot_metric_vs_performance('qa', use_large_dim, logx)
-    #     plot_metric_vs_performance('sentiment', use_large_dim, logx)
-    #     plot_metric_vs_performance('intrinsics', use_large_dim, logx)
+    # scatter plots
+    logx = False
+    # # use_large_dims = [True, False]
+    use_large_dims = [True]
+    for use_large_dim in use_large_dims:
+        # plot_metric_vs_performance('qa', use_large_dim, logx)
+        # plot_metric_vs_performance('sentiment', use_large_dim, logx)
+        plot_metric_vs_performance('intrinsics', use_large_dim, logx)
+    print(spearman_dict)
+    with open("./spearman_dict", "wb") as f:
+        cp.dump(spearman_dict, f)
+
+    print_spearrank_table_blob()
