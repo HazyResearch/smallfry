@@ -570,7 +570,7 @@ We assume $y = \sum_{i=1}^d z_i U_i + \sum_{j=d+1}^n w_j U_{j}$ and $\E\| U^{T} 
 	&=& \expect{y}{\sum_{p=1}^k \bigg(\sum_{i=1}^d z_i V_p^TU_i + \sum_{j=d+1}^n w_j V_p^TU_i\bigg)^2} \\
 	&=& \expect{y}{\sum_{j=1}^k \sum_{i,l=1}^d (z_i V_j^TU_i) (z_l V_j^TU_l) }\\
 	&=& \sum_{p=1}^k \Bigg( \sum_{i,\ip=1}^d \expect{y}{z_i z_\ip} (V_p^TU_i) (V_p^TU_\ip) + \sum_{j, \jp=d+1}^n \expect{y}{w_j w_\jp} (V_p^TU_j) (V_p^TU_\jp) \Bigg) \quad \text{($z_i$ is indep. of $w_j$)}\\
-	&=& \sum_{p=1}^k \Bigg( \sum_{i=0}^d \expect{y}{z_i^2} (V_p^TU_i)^2 + \sum_{j=d+1}^n \expect{y}{w_j} (V_p^TU_j)^2 \Bigg) \quad \text{($z_i$ is indep. of $w_j$)}\\
+	&=& \sum_{p=1}^k \Bigg( \sum_{i=0}^d \expect{y}{z_i^2} (V_p^TU_i)^2 + \sum_{j=d+1}^n \expect{y}{w_j} (V_p^TU_j)^2 \Bigg) \quad \text{($z_i$ is indep. of $z_j$)}\\
 	&=& \sum_{p=1}^k \sum_{i=0}^d \frac{(1-\alpha) \|y\|^2}{d}(V_p^TU_i)^2 + \sum_{p=1}^k \sum_{j=d + 1}^n \frac{\alpha \|y\|^2}{n - d}(V_p^TU_j)^2 \\
 	&=& \expect{y}{\frac{(1-\alpha)\|V^T U\|_F^2}{d} \| y \|^2 + \frac{\alpha \|V^TU_{\perp} \|^2_F}{n-d} \| y \|^2}\\
 	&=& \expect{y}{\frac{(1-\alpha)\|V^T U\|_F^2}{d} \| y \|^2 + \frac{\alpha (k - \|V^TU \|^2_F)}{n-d} \| y \|^2}\\
@@ -586,6 +586,96 @@ In the realistic setting, we have $n - d \gg d$ and $n -d \gg k$.
 
 Sanity check: Assume we have a fixed overlap, the smaller $\alpha$ is, the better the generalization performance of the compressed embedding is. If we want to be able to exactly recover the generalization when $V = U$, we can also make the last inequality an approximate equal as we can omit $\frac{\alpha}{n-d}$ because $n - d \gg d$.
 
+
+\subsection{Probabilistic bound for $\|V^T U\|_F^2$}
+\label{subsec:prob_overlap}
+
+In this section, we prove with high probability that quantized embedding can achieve high overlap $\|V^T U\|_F^2$. Comparing to the previous deterministic bound, this new probabilistic bound can better incorporate the fact in flat spectrum. Specifically, we will prove a high probability bound for $\|C\|$ where $C$ is the quantization error matrix; this analysis is based on the matrix Bernstein inequality in Theorem~\ref{thm:bernstein}.
+
+\begin{theorem}[Matrix Bernstein: Hermitian Case with Intrinsic Dimension] \label{thm:intdim-bernstein-herm}
+Consider a finite sequence $\{ S_k \}$ of random Hermitian matrices of the same size,
+and assume that
+\begin{equation*}
+  \E [S_k] = 0
+  \quad\text{and}\quad
+  \lambda_{\max}(S_k) \leq L
+  \quad\text{for each index $k$.}
+\end{equation*}
+Introduce the random matrix
+\begin{equation*}
+  Y = \sum\nolimits_k S_k.
+\end{equation*}
+Let $V$ be a semidefinite upper bound for the matrix-valued variance $\var{}{Y}$:
+\begin{equation*}
+  V \succeq \var{}{Y} = \E [Y^2] = \sum\nolimits_k \E [S_k^2].
+\end{equation*}
+Define the intrinsic dimension bound and variance bound
+\begin{equation*}
+  \operatorname{intdim}(V) = \frac{\tr(V)}{\norm{V}}
+  \quad\text{and}\quad
+  v = \norm{V}.
+\end{equation*}
+Then, for $t \geq 0$,
+\begin{equation} \label{eqn:intdim-bernstein-tail}
+\Prob \left( \lambda_{\max}(Y) \geq t \right)
+	\leq 4 \operatorname{intdim}(V) \cdot \exp\left( \frac{-t^2/2}{v + Lt/3} \right).
+\end{equation}
+\label{thm:bernstein}
+\end{theorem}
+
+%\begin{proposition}
+%ABCD
+%\begin{proof}
+In the next we prove $\| C \| = O(1)$ with high probability; this will help us get better bound on number of bits to achieve a specific overlap. The advantage of this new bound on $b$ can help emphasize the importance of slow-decaying spectrum. 
+	We notice that $C=\sum^d_{i=0}C_iC^T_i$ where $C_i$ is the ith column of $C$. In order to bound $\|C\|$ with high probability, we define $S_i = C_iC^T_i - \Lambda_i$ where $\Lambda_i = \E [C_iC^T_i]$ is diagonal. To apply Theorem~\ref{thm:bernstein}, because $\E S_i = 0$, we will only need to bound $\lambda_{\max}(S_i)$ and $\sum_{i=0}^d \E[S^2_i]$.
+	
+	
+\begin{eqnarray*}
+	\lambda_{\max}(S_i) &=& \|S_i \| \\
+			&=& \| C_iC^T_i - \Lambda_i \|	\\
+			& \leq & \| C_iC^T_i \| + \| \Lambda_i \| \\
+			&=& C_i^TC_i + \| \Lambda_i \| \\
+			&\leq& n \frac{4}{d(2^b - 1)^2} + \| \Lambda_i\| \quad \left(\text{Bounded elements} |C_{ij}| < \frac{2}{\sqrt{d}(2^b - 1)}\right)\\
+			&\leq& \frac{4n}{d(2^b - 1)^2} + \frac{1}{d(2^b - 1)^2} \quad \left( \Lambda_i \text{ is diagonal and } \sigma_{\max}(\Lambda_i) = \max_j \E [C^2_{ij}] \leq \frac{1}{d(2^b - 1)^2} \right) \\
+			&=& \frac{4n + 1}{d(2^b - 1)^2} = \frac{4n + 1}{d}\delta^2_b = L
+\end{eqnarray*}
+
+In the following, we upper bound $\sum\nolimits_{i=0}^d \E [S_i^2]$.
+\begin{eqnarray*}
+%	\lambda_{\max}(S_i) &=& \|S_i \| \\
+			\E [S^2_i] &=& \E [\left(C_iC^T_i\right)^2 ] - \E [\Lambda^2_i ]	\\
+			& \preceq & \E [\left(C_iC^T_i\right)^2 ] \\
+%			& \leq & \E [C_iC^T_i ] - \E \\
+			&=& \E [C_i\left(C^T_i C_i\right)C^T_i ] \\
+			&=& \|C_i\|^2 \E [C_iC^T_i ] \\
+			&=& \frac{4n}{d(2^b - 1)^2} \E [C_iC^T_i ]  \quad \left(\text{Bounded elements} |C_{ij}| < \frac{2}{\sqrt{d}(2^b - 1)}\right)\\
+			&=& \frac{4n}{d}\delta^2_b \Lambda_i \\
+			&\preceq& \frac{4n}{d}\delta^2_b\cdot \frac{\delta^2_b}{d} I \quad \left( \Lambda_i \text{ is diagonal and } \sigma_{\max}(\Lambda_i) = \max_j \E [C^2_{ij}] \leq \frac{1}{d(2^b - 1)^2} \right) \\
+			&=& \frac{4n}{d^2}\delta^4_b I
+%
+%			&\leq& n \frac{4}{d(2^b - 1)^2} + \| \Lambda_i\| \quad \left(\text{Bounded elements} |C_{ij}| < \frac{2}{\sqrt{d}(2^b - 1)}\right)\\
+%			&\leq& \frac{4n}{d(2^b - 1)^2} + \frac{1}{d(2^b - 1)^2} \quad \left( \Lambda_i \text{ is diagonal and } \sigma_{\max}(\Lambda_i) = \max_j \E [C^2_{ij}] \leq \frac{1}{d(2^b - 1)^2} \right) \\
+%			&=& \frac{4n + 1}{d(2^b - 1)^2} = \frac{4n + 1}{d}\delta^2_b
+\end{eqnarray*}
+By summing over $i$, we have $\sum^d_{i=0} \E [S^2_i] \preceq V$ where we define $V = \frac{4n}{d}\delta^4_b I$. Thus we have $\operatorname{intdim}(V) = \frac{\tr(V)}{\norm{V}}=n$ and $v=\norm{V}=\frac{4n}{d}\delta^4_b$. Now we substitute  $v$, $\operatorname{intdim}(V)$ as well as $L=\frac{4n + 1}{d}\delta^2_b$ and $Y=\sum^d_{i=0}S_i = CC^T - \sum^d_{i=0} \Lambda_i$ to $\Prob \left( \lambda_{\max}(Y) \geq t \right)
+	\leq 4 \operatorname{intdim}(V) \cdot \exp\left( \frac{-t^2/2}{v + Lt/3} \right)$, we have
+	
+\begin{eqnarray*}
+\Prob \left( \lambda_{\max}\left(C\right) \geq \delta_b + t \right) 
+	&=& \Prob \left( \lambda_{\max}\left(CC^T\right) \geq (\delta_b + t)^2 \right) \quad \left(\text{This is because }\lambda_{\max}(CC^T) = \lambda^2_{\max}(C) \right) \\
+	&\leq& \Prob \left( \lambda_{\max}\left(CC^T\right) \geq \delta^2_b + t^2 \right) \quad \left(\text{Because } \delta^2_b + t^2 \leq (\delta_b + t)^2, \forall t, \delta_b \geq 0 \right) \\
+	&=& \Prob \left( \lambda_{\max}\left(CC^T - \delta^2_b I\right) \geq t^2 \right)  \\
+	&\leq& \Prob \left( \lambda_{\max}\left(CC^T - \sum^d_{i=0} \Lambda_i\right) \geq t^2 \right) \quad \left(\text{This is because } \Lambda_i \preceq \frac{\delta^2_b}{d} I \right) \\
+	&\leq& 4 \operatorname{intdim}(V) \cdot \exp\left(\frac{-t^4/2}{v + Lt^2/3} \right) \\
+	&=& 4n\cdot \exp\left( \frac{-t^4/2}{\frac{4n}{d}\delta^4_b + \frac{4n+1}{3d}\delta^2_b t^2}\right) \\
+	&\leq& 4n\cdot \exp\left( \frac{-t^4/2}{\frac{4n + 1}{d}\delta^4_b + \frac{4n+1}{3d}\delta^2_b t^2}\right) \\
+	&=& 4n\cdot \exp\left( \frac{-dt^4}{(8n + 2)\delta^2_b\left(\delta^2_b + t^2/3 \right)}\right)
+\end{eqnarray*}
+	
+(TO BE DONE)
+
+%\end{proof}
+%\end{proposition}
 
 
 \end{document}
