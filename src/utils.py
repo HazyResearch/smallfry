@@ -291,7 +291,8 @@ def get_base_dir():
         username = ('Avner' if (hostname == 'Avner-X1Carbon')
                     else 'avnermay')
         path = 'C:\\Users\\{}\\Babel_Files\\smallfry'.format(username)
-    elif hostname == 'DN0a22a222.SUNet':
+    # elif hostname == 'DN0a22a222.SUNet':
+    elif 'DN0' in hostname and '.SUNet' in hostname:
         path = '/Users/Jian/Data/research/smallfry/'
     elif '.stanford.edu' in hostname:
         path = '/dfs/scratch0/avnermay/smallfry'
@@ -303,7 +304,8 @@ def get_home_dir():
     hostname = socket.gethostname()
     if is_windows() or '.stanford.edu' in hostname:
         return get_base_dir()
-    elif hostname == 'DN0a22a222.SUNet':
+    # elif hostname == 'DN0a22a222.SUNet':
+    elif 'DN0' in hostname and '.SUNet' in hostname:
         return get_base_dir()
     else:
         return '/home/ubuntu'
@@ -314,7 +316,8 @@ def get_git_dir():
         username = ('Avner' if (hostname == 'Avner-X1Carbon')
                     else 'avnermay')
         path = 'C:\\Users\\{}\\Git\\smallfry'.format(username)
-    elif hostname == 'DN0a22a222.SUNet':
+    # elif hostname == 'DN0a22a222.SUNet':
+    elif 'DN0' in hostname and '.SUNet' in hostname:
         path = '/Users/Jian/Data/research/smallfry/'
     else:
         path = '/proj/smallfry/git/smallfry'

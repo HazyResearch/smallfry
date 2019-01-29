@@ -204,7 +204,9 @@ def plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=False, logy=False, t
         full_x_list += x_array.ravel().tolist()
         full_y_list += y_array.ravel().tolist()
 
-    # print("spearman rank correlation\n", spearmanr(np.array(full_x_list), np.array(full_y_list)), "\n")
+    print("spearman rank correlation\n", spearmanr(np.array(full_x_list), np.array(full_y_list)), "\n")
+    print(len(full_x_list), len(full_y_list), np.array(full_x_list), np.array(full_y_list), np.unique(full_x_list), np.unique(full_y_list))
+    input("Press Enter to continue...")
 
     plt.legend(legend)
     plt.xlabel(x_metric)
@@ -839,8 +841,8 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
     # y_metrics = ['gram-large-dim-frob-error', 'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4',
     #              'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans']
 
-    embedtypes = ['glove400k', 'glove-wiki400k-am', 'fasttext1m',]
-    # embedtypes = ['glove400k']
+    # embedtypes = ['glove400k', 'glove-wiki400k-am', 'fasttext1m',]
+    embedtypes = ['glove-wiki400k-am']
     latexify_config = default_latexify_config
     embedtype_name_map = get_embedtype_name_map()
     # SET Y_METRIC1 PARAMS
@@ -850,11 +852,11 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
         if only_compute_delta2:
             y_metric1s = ['gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6']
         else:
-            y_metric1s = ['embed-frob-error', 'gram-large-dim-frob-error', 'subspace-eig-overlap', 
-                    'gram-large-dim-delta1-2-trans', 
-                    'gram-large-dim-delta2-2',
-                    ]
-            # y_metric1s = ['embed-frob-error']
+            # y_metric1s = ['embed-frob-error', 'gram-large-dim-frob-error', 'subspace-eig-overlap', 
+            #         'gram-large-dim-delta1-2-trans', 
+            #         'gram-large-dim-delta2-2',
+            #         ]
+            y_metric1s = ['embed-frob-error']
 
             # y_metric1s = ['gram-large-dim-frob-error', 'subspace-eig-distance', 'subspace-eig-overlap', 'subspace-largest-angle',
             #         'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
@@ -873,7 +875,9 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
         y_metric2s = ['test-acc']
         datasets = ['mr','subj','cr','sst','trec','mpqa']
     elif y_metric2_evaltype == 'intrinsics':
-        y_metric2s = ['analogy-avg-score','similarity-avg-score']
+        y_metric2s = ['analogy-avg-score','google-mul','google-add','msr-mul','msr-add']
+
+        # y_metric2s = ['analogy-avg-score','similarity-avg-score','google-mul','google-add','msr-mul','msr-add']
         datasets = [None]
 
     # logxs = [True,False]
@@ -990,14 +994,15 @@ def print_spearrank_table_blob():
     x_metrics = ['embed-frob-error', 'gram-large-dim-frob-error', 
                     'gram-large-dim-delta1-2-trans', 
                     'gram-large-dim-delta2-2', 'subspace-eig-overlap']
-    y_metrics = ["best-f1", "test-acc", "analogy-avg-score", "similarity-avg-score"]
+    y_metrics = ["best-f1", "test-acc", "analogy-avg-score", "similarity-avg-score", 'google-mul','google-add','msr-mul','msr-add']
     for x in x_metrics:
         info = " "
         for y in y_metrics:
             for embed in embedtypes:
                 key = embed + ", " + y + ", " + x
                 if key in spearman_dict.keys():
-                    info += r"{0:.2f}/".format(spearman_dict[key])
+                    # info += r"{0:.2f}/".format(spearman_dict[key])
+                    info += r"{0:.5f}/".format(spearman_dict[key])
             info = info[:-1]
             info += "  &  "
         print(x, info)

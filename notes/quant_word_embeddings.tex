@@ -17,7 +17,7 @@
 
 
 \title{Compressing Word Embeddings with Uniform Quantization}
-\author{Avner May}
+\author{Avner May, Jian Zhang}
 \onehalfspacing
 \maketitle
 
@@ -552,5 +552,40 @@ This makes it clear that as $2^b (\sigma_d + \lambda) \rightarrow \infty$, this 
 		&\geq& 1- 2d \exp \left(\frac{-\Big(t-\frac{n/d}{(2^b-1)^2(\sigma_d + \lambda)}\Big)^2}{2nL^2 + (2L/3)\Big(t-\frac{n/d}{(2^b-1)^2(\sigma_d + \lambda)}\Big)} \right)
 	\end{eqnarray*}
 \end{proof}
+
+\subsection{Average case analysis (with good baseline embedding assumption)}
+\label{subsec:average}
+
+In our average case analysis for linear regression, we assume the label vector $y$ all lies in the span of singular vectors of the uncompressed embedding. As a linear regression can only explain the components of $y$ that lie in this span of singular vectors, this assumption is implicitly assuming we focus on uncompressed embeddings with good performance. In this section, we work on relaxing the math formulation of this assumption by allowing $y$ to not be fully contained in the span of the singular values. In this way, an uncompressed embeddings performs well as long as large portion of $y$ is still in the span. 
+
+In our discussion, we assume $K = USU^T \in \RR^{n \times n}$ (rank $d$), $\tK = VRV^T\in \RR^{n \times n}$ (rank $k$).
+Let $\{U_1,\ldots,U_n\}$ be the eigenvectors of $K$ in decreasing eigenvalue order, with the first $d$ having non-zero eigenvalue.
+Similarly, let $\{V_1,\ldots,V_n\}$ be the eigenvectors of $\tK$ in decreasing eigenvalue order, with the first $k$ having non-zero eigenvalue.
+Let $U = [U_1,\ldots U_d]$, $U_{\perp} = [U_{d+1},\ldots,U_n]$, $V = [V_1,\ldots V_k]$, $V_{\perp} = [V_{k+1},\ldots,V_n]$.
+
+We assume $y = \sum_{i=1}^d z_i U_i + \sum_{j=d+1}^n w_j U_{j}$ and $\E\| U^{T} y \|^2 = (1-\alpha) \E \| y \|^2$ with $\alpha\in[0, 1]$ and $z_i, w_j$ being zero mean random variables. An uncompressed embedding performs well in the linear regression setting when $\alpha$ is small. Note our assumption is equivalent to say that $\sum_{i=0}^d \E[z_i^2] = (1-\alpha)\E \| y\|^2$ and $\sum_{j=d+1}^n \E[w_j^2] = \alpha \E \| y\|^2$. Because the generalization performance under 0 noise and 0 regularization setting, we know the expectation of the generalization performance of a compressed embedding is $\E R(f_{\tK}) = \E \| y \|^2 - \E \|V^T y \|^2$. The key term here is the $\E \|V^T y \|^2$. In the following, we reveal this term heavily depends on $\|U^T V \|^2$. As we are performing an average case analysis, we assume all $z_i$ have equal variance and all $w_j$ have equal variance.
+
+\begin{eqnarray*}
+	\expect{y}{\|V^T y\|_2^2} &=& \expect{y}{\sum_{p=1}^k \bigg( V_p^T \Big(\sum_{i=1}^d z_i U_i + \sum_{j=d+1}^n w_j U_j\Big)\bigg)^2} \\
+	&=& \expect{y}{\sum_{p=1}^k \bigg(\sum_{i=1}^d z_i V_p^TU_i + \sum_{j=d+1}^n w_j V_p^TU_i\bigg)^2} \\
+	&=& \expect{y}{\sum_{j=1}^k \sum_{i,l=1}^d (z_i V_j^TU_i) (z_l V_j^TU_l) }\\
+	&=& \sum_{p=1}^k \Bigg( \sum_{i,\ip=1}^d \expect{y}{z_i z_\ip} (V_p^TU_i) (V_p^TU_\ip) + \sum_{j, \jp=d+1}^n \expect{y}{w_j w_\jp} (V_p^TU_j) (V_p^TU_\jp) \Bigg) \quad \text{($z_i$ is indep. of $w_j$)}\\
+	&=& \sum_{p=1}^k \Bigg( \sum_{i=0}^d \expect{y}{z_i^2} (V_p^TU_i)^2 + \sum_{j=d+1}^n \expect{y}{w_j} (V_p^TU_j)^2 \Bigg) \quad \text{($z_i$ is indep. of $w_j$)}\\
+	&=& \sum_{p=1}^k \sum_{i=0}^d \frac{(1-\alpha) \|y\|^2}{d}(V_p^TU_i)^2 + \sum_{p=1}^k \sum_{j=d + 1}^n \frac{\alpha \|y\|^2}{n - d}(V_p^TU_j)^2 \\
+	&=& \expect{y}{\frac{(1-\alpha)\|V^T U\|_F^2}{d} \| y \|^2 + \frac{\alpha \|V^TU_{\perp} \|^2_F}{n-d} \| y \|^2}\\
+	&=& \expect{y}{\frac{(1-\alpha)\|V^T U\|_F^2}{d} \| y \|^2 + \frac{\alpha (k - \|V^TU \|^2_F)}{n-d} \| y \|^2}\\
+	&=& \expect{y}{(\frac{1-\alpha}{d} - \frac{\alpha}{n - d}) \|V^T U\|_F^2 \|y \|^2 + \frac{\alpha k}{n - d} \| y \|^2}
+\end{eqnarray*}
+In the realistic setting, we have $n - d \gg d$ and $n -d \gg k$.
+\begin{eqnarray*}
+	\E R(f_{\tK}) &=& \E \| y \|^2 - \E \|V^T y \|^2 \\
+		&=& \left(1 - \frac{\alpha k}{n - d}\right)\expect{y}{\| y \|^2} -  \left(\frac{1-\alpha}{d} - \frac{\alpha}{n - d}\right) \|V^T U\|_F^2 \expect{y}{\|y \|^2}\\
+		&\leq & \expect{y}{\| y \|^2} - \left(\frac{1-\alpha}{d} - \frac{\alpha}{n - d}\right) \|V^T U\|_F^2 \expect{y}{\|y \|^2} \quad \text{this is a tight relaxation as $n -d \gg k$}\\
+		&\leq & \expect{y}{\| y \|^2} - \frac{1-2\alpha}{d} \|V^T U\|_F^2 \expect{y}{\|y \|^2}
+\end{eqnarray*}
+
+Sanity check: Assume we have a fixed overlap, the smaller $\alpha$ is, the better the generalization performance of the compressed embedding is. If we want to be able to exactly recover the generalization when $V = U$, we can also make the last inequality an approximate equal as we can omit $\frac{\alpha}{n-d}$ because $n - d \gg d$.
+
+
 
 \end{document}
