@@ -141,7 +141,7 @@ Here we use the fact that $|C_{ij}| \leq \frac{2}{\sqrt{d}(2^b-1)}$ to bound $\|
 \|C\|_F &\leq& \sqrt{nd \cdot \frac{4}{d(2^b-1)^2}} \\
 &=& \frac{2\sqrt{n}}{2^b-1} \\
 \end{eqnarray*}
-\todo{Can we get a tighter bound? Perhaps by bounding $\|C\|_2$ with high probability, instead of bounding the $\|C\|_F$ in the numerator?}
+%\todo{Can we get a tighter bound? Perhaps by bounding $\|C\|_2$ with high probability, instead of bounding the $\|C\|_F$ in the numerator?}
 
 To complete the theorem, we simply notice that:
 \begin{eqnarray}
@@ -154,31 +154,78 @@ d &=& \|U_0\|_F^2 \\
 \end{eqnarray}
 \end{proof}
 
-\begin{lemma}
-\label{lemma1}
-\begin{eqnarray*}
-	\|UU^T - VV^T \|_F^2 &=& \tr\Big( (UU^T - VV^T)^T (UU^T - VV^T)  \Big)\\
-	&=& \tr(UU^TUU^T) + \tr(VV^T VV^T) - \tr(VV^T UU^T) - \tr(UU^T VV^T) \\
-	&=& d + k - 2 \tr((U^T V)^T (U^T V)) \\
-	&=& d + k - 2 \|U^T V\|_F^2
-\end{eqnarray*}
-\end{lemma}
+\subsubsection{Davis-Kahan $\sin(\Theta)$ Theorem: VERSION 2}
+We start as we did in the previous section: 
 
-\begin{lemma}
-\label{lemma2}
-Let $A \in \RR^{n\times d}$ be an arbitrary matrix. If a random vector $x \in \RR^d$ is drawn from a distribution with identiy covariance matrix, then $\|A\|_F^2 = \expect{x}{\|Ax\|_2^2}$.
-\end{lemma}
-\begin{proof}
 \begin{eqnarray*}
-\expect{x}{\|Ax\|_2^2} &=& \expect{x}{(Ax)^T (Ax)} \\
-&=& \expect{x}{x^T A^T A x} \\
-&=& \expect{x}{\tr \Big(x^T A^T A x\Big)} \\
-&=& \expect{x}{\tr \Big(A^T A x x^T\Big)} \\
-&=& \tr \Big(A^T A \cdot \expect{x}{x x^T}\Big) \\
-&=& \tr \Big(A^T A\Big) \\
-&=& \|A\|_F^2 \\
+	\|V_1^T U_0\|_F
+	&\leq& \frac{\|V_1^T H U_0\|_F}{\sigma_{\min}(K)}\\
+	&=& \frac{\|V_1^T (XC^T + CX^T + CC^T) U_0\|_F}{\sigma_{\min}(K)}\\
+	&\leq& \frac{\|V_1^T\|_2 \|XC^T + CX^T + CC^T\|_2 \|U_0\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|AB\|_F \leq \|A\|_2 \|B\|_F$ twice.)}\\
+	&=& \frac{\sqrt{d}\cdot \|XC^T + CX^T + CC^T\|_2}{\sigma_{\min}(K)} \quad \text{(using $\|V_1^T\|_2 = 1$, $\|U_0\|_F = \sqrt{d}$.)}\\
+	&\leq& \frac{\sqrt{d}\Big(\|XC^T\|_2 + \|CX^T\|_2 + \|CC^T\|_2\Big)}{\sigma_{\min}(K)} \quad \text{(using $\|V_1^T\|_2 = 1$, $\|U_0\|_F = \sqrt{d}$.)}\\
 \end{eqnarray*}
-\end{proof}
+Now we will consider the expected value of both sides.  This requires computing the expected value of $\|XC^T\|_2$, $\|CX^T\|_2$, and $\|CC^T\|_2$.  Toward this end, we leverage the Matrix Bernstein Theorem (Theorem 6.1.1 in \citep{tropp15}).
+
+We first note that $0 \preceq CC^T \preceq \delta_b^2 I$, and thus $\expect{}{\|CC^T\|_2} \leq \delta_b^2$.
+We now proceed to bound $\expect{}{\|XC^T\|_2} = \expect{}{\|CX^T\|_2} \eqdef B$.
+
+Using the notation from the Matrix Bernstein Theorem, we will let $S_k = x_k c_k^T$, where $x_k$ and $c_k$ are the $k^{th}$ columns of $X$ and $C$ respectively.
+We note that $|x_{ki}| \leq \frac{1}{\sqrt{d}}$, $|c_{ki}| \leq \frac{2}{\sqrt{d}(2^b-1)}$, and $\expect{}{c_{ki}^2} \leq \frac{1}{d(2^b-1)^2} = \delta_b^2/d$, for $\delta_b^2 = \frac{1}{(2^b-1)^2}$.
+It is easy to see that $\expect{}{S_k} = 0$ because $x_k$ is fixed and $c_k$ is random and zero mean.
+We now upper bound $\|S_k\|_2$.
+\begin{eqnarray*}
+\|S_k\|_2 &=& \|x_k c_k^T\|_2 \\
+&\leq&  \|x_k\|_2 \|c_k^T\|_2 \\
+&\leq& \sqrt{n \cdot \frac{1}{d}} \cdot \sqrt{n \cdot \frac{4}{d(2^b-1)^2}}\\
+&=& \frac{2n}{d(2^b-1)}\\
+&\eqdef& L\\
+\end{eqnarray*}
+
+Now, I must upper bound $\max\Big(\|\sum_{k=1}^d \expect{}{S_k S_k^T}\|, \|\sum_{k=1}^d \expect{}{S_k^T S_k}\|\Big)$.
+
+We do these one at a time:
+\begin{eqnarray*}
+\Big\|\sum_{k=1}^d \expect{}{S_k S_k^T}\Big\| &=& \Big\|\sum_{k=1}^d \expect{}{x_k c_k^T c_k x_k^T }\Big\|\\
+&=& \Big\|\sum_{k=1}^d x_k \expect{}{c_k^T c_k} x_k^T \Big\| \\
+&\leq& \frac{n\delta_b^2}{d}\Big\|\sum_{k=1}^d x_k x_k^T \Big\| \\
+&=&\frac{n\delta_b^2}{d}\Big\|XX^T \Big\| \\
+&=&\frac{n\delta_b^2}{d}\|X\|_2^2 \\
+\end{eqnarray*}
+\begin{eqnarray*}
+	\Big\|\sum_{k=1}^d \expect{}{S_k^T S_k}\Big\| &=& \Big\|\sum_{k=1}^d \expect{}{c_k x_k^T x_k c_k^T}\Big\|\\
+	&=& \Big\|\sum_{k=1}^d \|x_k\|^2 \expect{}{c_k c_k^T}\Big\| \\
+	&\leq& \Big\|\sum_{k=1}^d \|x_k\|^2 \frac{\delta_b^2}{d}I\Big\| \\
+	&\leq& \frac{\delta_b^2}{d} \sum_{k=1}^d \|x_k\|^2 \\
+	&=& \frac{\delta_b^2}{d} \|X\|_F^2 \\
+\end{eqnarray*}
+
+
+%\begin{lemma}
+%\label{lemma1}$
+%\begin{eqnarray*}
+%	\|UU^T - VV^T \|_F^2 &=& \tr\Big( (UU^T - VV^T)^T (UU^T - VV^T)  \Big)\\
+%	&=& \tr(UU^TUU^T) + \tr(VV^T VV^T) - \tr(VV^T UU^T) - \tr(UU^T VV^T) \\
+%	&=& d + k - 2 \tr((U^T V)^T (U^T V)) \\
+%	&=& d + k - 2 \|U^T V\|_F^2
+%\end{eqnarray*}
+%\end{lemma}
+%
+%\begin{lemma}
+%\label{lemma2}
+%Let $A \in \RR^{n\times d}$ be an arbitrary matrix. If a random vector $x \in \RR^d$ is drawn from a distribution with identiy covariance matrix, then $\|A\|_F^2 = \expect{x}{\|Ax\|_2^2}$.
+%\end{lemma}
+%\begin{proof}
+%\begin{eqnarray*}
+%\expect{x}{\|Ax\|_2^2} &=& \expect{x}{(Ax)^T (Ax)} \\
+%&=& \expect{x}{x^T A^T A x} \\
+%&=& \expect{x}{\tr \Big(x^T A^T A x\Big)} \\
+%&=& \expect{x}{\tr \Big(A^T A x x^T\Big)} \\
+%&=& \tr \Big(A^T A \cdot \expect{x}{x x^T}\Big) \\
+%&=& \tr \Big(A^T A\Big) \\
+%&=& \|A\|_F^2 \\
+%\end{eqnarray*}
+%\end{proof}
 
 %Let $\{a_i\}_{i=1}^r$ be an orthonormal basis of $U \backslash V$, $\{b_j\}_{i=1}^s$ be an orthonormal basis of $V / U$, and $\{c_k\}_{i=1}^t$ be an orthonormal basis of $U \cap V$.
 %\begin{eqnarray*}
