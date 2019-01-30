@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import compress
 import utils
 import pathlib
+import math
 
 def save_plot(plot_filename):
     plot_file = str(pathlib.PurePath(utils.get_git_dir(),
@@ -394,7 +395,7 @@ def deltas_vs_precision(gaussian):
     save_plot("Delta2_vs_precision.pdf")
 
 
-def eigenvector_overlap():
+def eigenspace_overlap():
     # gaussian_str = 'gaussian' if gaussian else 'uniform'
     # adapt_str = 'adapt' if use_adapt else 'nonadapt'
     n = 1000
@@ -455,7 +456,17 @@ def eigenvector_overlap():
         plt.title('Relative error vs. Delta1 (lam = {:.2f})'.format(lambdas[i_lam]))
         plt.legend(leg)
         plt.xscale('log')
+        save_plot('Error_vs_delta1_trans_{}.pdf'.format(i_lam))
+
+        plt.figure(1)
+        # plt.subplot(231+i_lam)
+        for i_b,b in enumerate(bs):
+            plt.scatter(delta1s[i_b,:,i_lam], rel_err[i_b,:])
+        plt.title('Relative error vs. Delta1 (lam = {:.2f})'.format(lambdas[i_lam]))
+        plt.legend(leg)
+        plt.xscale('log')
         save_plot('Error_vs_delta1_{}.pdf'.format(i_lam))
+
         plt.figure(1)
         # plt.subplot(234+i_lam)
         for i_b,b in enumerate(bs):
@@ -488,56 +499,130 @@ def eigenvector_overlap():
     save_plot('Error_vs_eig_overlap.pdf')
 
 
-from plotter import latexify_setup_fig, latexify_finalize_fig, default_latexify_config
-from plotter import get_embedtype_name_map, get_legend_name_map
+# from plotter import latexify_setup_fig, latexify_finalize_fig, default_latexify_config
+# from plotter import get_embedtype_name_map, get_legend_name_map
 def eigenspace_overlap_micro():
     # gaussian_str = 'gaussian' if gaussian else 'uniform'
     # adapt_str = 'adapt' if use_adapt else 'nonadapt'
     # ns = [10000,1000,100]
     # ns = [10000,3000,1000]
-    latexify_config = default_latexify_config
-    embedtype_name_map = get_embedtype_name_map()
-    latexify_config["minor_tick_off"] = True
-    ax = latexify_setup_fig(latexify_config)
-    ns = [100000]
-    ds = [300]
+    # latexify_config = default_latexify_config
+    # embedtype_name_map = get_embedtype_name_map()
+    # latexify_config["minor_tick_off"] = True
+    # ax = latexify_setup_fig(latexify_config)
+    # ns = [100000]
+    ns = [200,400,800,1600]
+    ds = [10,25,50,100]
     bs = [1,2,4,8,16,32]
     plt.figure(1)
     leg = []
+    full_matrices = False
     for n in ns:
         for d in ds:
             lim = 1.0/np.sqrt(d)
             X = np.random.uniform(low=-lim, high=lim, size=(n,d))
-            U,S,_ = np.linalg.svd(X,full_matrices=False)
-            # leg.append('n = {}, d = {}'.format(n,d))
-            # leg.append('n = {}, d = {} (Bound)'.format(n,d))
+            U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
+            leg.append('n = {}, d = {}'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 1)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 2)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 3)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 4)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 5)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 6)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 7)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 8)'.format(n,d))
             overlaps = np.zeros(len(bs))
             # bounds = np.zeros(len(bs))
-            # s_max = S[0]
-            # s_min = S[-1]
+            # bounds2 = np.zeros(len(bs))
+            # bounds3 = np.zeros(len(bs))
+            # bounds4 = np.zeros(len(bs))
+            # bounds5 = np.zeros(len(bs))
+            # bounds6 = np.zeros(len(bs))
+            # bounds7 = np.zeros(len(bs))
+            # bounds8 = np.zeros(len(bs))
+            s_max = S[0]
+            s_min = S[d-1]
             for i,b in enumerate(bs):
                 Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
-                Uq,_,_ = np.linalg.svd(Xq,full_matrices=False)
-                overlaps[i] = np.linalg.norm(Uq.T @ U)**2 /d
+                C = Xq - X
+                Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
+                overlaps[i] = np.linalg.norm(Uq[:,:d].T @ U[:,:d])**2 / d
                 print('b = {}, overlap = {}'.format(b,overlaps[i]))
                 # prec = 2**b - 1
-                # bounds[i] = max(1 - (1/d) * 16 * n * (s_max + np.sqrt(n)/prec)**2 / (prec**2 * s_min),0)
-            plt.plot(bs,overlaps)
-            # plt.plot(bs,bounds)
+                # H = Xq @ Xq.T - X @ X.T
+                # bounds[i] = max(0, d - np.linalg.norm(Uq[:,d:].T @ H @ U[:,:d])**2/s_min**4) / d
+                # bounds2[i] = max(0, d - np.linalg.norm(H)**2/s_min**4) / d
+                # bounds3[i] = max(0, d - 16 * n * (s_max + np.sqrt(n)/prec)**2 / (prec**2 * s_min)) / d
+                # bounds[i] = (d - np.linalg.norm(Uq[:,d:].T @ H @ U[:,:d])**2/s_min**4) / d
+                # bounds2[i] = (d - np.linalg.norm(H)**2/s_min**4) / d
+                # bounds3[i] = (d - (4*n**2/(d * (2**b-1)**2))/s_min**4) / d
+                # bounds4[i] = (d - (2 * np.linalg.norm(C @ X.T) + np.linalg.norm(C @ C.T))**2/s_min**4) / d
+                # bounds5[i] = (d - (2 * np.linalg.norm(X,2) * np.linalg.norm(C) + np.linalg.norm(C) * np.linalg.norm(C,2))**2/s_min**4) / d
+                # bounds6[i] = (d - (2 * np.linalg.norm(X,2) * np.linalg.norm(C) + np.linalg.norm(C)**2)**2/s_min**4) / d
+                # bounds7[i] = (d - (16 * n / prec**2) * ( s_max + np.sqrt(n)/prec )**2 / s_min**4) / d
+                # B = 2 * math.log(2 * n) * (s_max  + 1/3) / prec
+                # bounds8[i] = (d - d * (2*B + (1/prec)**2)**2 / s_min**4 ) / d
+            plt.plot(bs,1-overlaps, '-o')
+            # plt.plot(bs,bounds, '-o')
+            # plt.plot(bs,bounds2, '-o')
+            # plt.plot(bs,bounds3, '-o')
+            # plt.plot(bs,bounds4, '-o')
+            # plt.plot(bs,bounds5, '-o')
+            # plt.plot(bs,bounds6, '-o')
+            # plt.plot(bs,bounds7, '-o')
+            # plt.plot(bs,bounds8, '-o')
     plt.xscale('log')
-    plt.legend()
+    plt.yscale('log')
+    plt.legend(leg)
     # plt.yscale('log')
     plt.xticks(bs,bs)
     plt.ylim(0,1)
     plt.xlim(1,32)
     # plt.title('Normalized eigenvector overlap vs. Precision (b)')
-    plt.title(r'Eigenspace Overlap vs. Precision')
+    plt.title(r'1-Eigenspace Overlap vs. Precision')
     plt.xlabel(r'Precision (b)')
-    plt.ylabel(r'Eigenspace overlap $\mathcal{E}$')
+    plt.ylabel(r'1-Eigenspace overlap (E)')
     # plt.legend(leg)
-    latexify_finalize_fig(ax, latexify_config)
+    # latexify_finalize_fig(ax, latexify_config)
     save_plot('micro_eig_overlap_vs_precision.pdf')
     
+
+# from plotter import latexify_setup_fig, latexify_finalize_fig, default_latexify_config
+# from plotter import get_embedtype_name_map, get_legend_name_map
+def eigenspace_overlap_micro2():
+    ns = [200,400,800,1600]
+    ds = [10,25,50,100]
+    bs = [1,2,4,8,16,32]
+    plt.figure(1)
+    leg = []
+    full_matrices = False
+    for n in ns:
+        for d in ds:
+            lim = 1.0/np.sqrt(d)
+            X = np.random.uniform(low=-lim, high=lim, size=(n,d))
+            U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
+            leg.append('n = {}, d = {}'.format(n,d))
+            overlaps = np.zeros(len(bs))
+            s_max = S[0]
+            s_min = S[d-1]
+            for i,b in enumerate(bs):
+                Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
+                Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
+                overlaps[i] = np.linalg.norm(Uq[:,:d].T @ U[:,:d])**2 / d
+                print('n = {}, d = {}, b = {}, overlap = {}'.format(n, d, b, overlaps[i]))
+            plt.plot(bs,1-overlaps, '-o')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(leg)
+    plt.xticks(bs,bs)
+    plt.ylim(0,1)
+    plt.xlim(1,32)
+    plt.title(r'1-Eigenspace Overlap vs. Precision')
+    plt.xlabel(r'Precision (b)')
+    plt.ylabel(r'1-Eigenspace overlap (E)')
+    save_plot('micro_eig_overlap_vs_precision.pdf')
+
+
 
 if __name__ == '__main__':
     # ppmi_spectrum()
@@ -562,4 +647,5 @@ if __name__ == '__main__':
     # deltas_vs_precision(False)
 
     # Eigenvector overlap micros
-    eigenspace_overlap_micro()
+    eigenspace_overlap_micro2()
+    # eigenspace_overlap()
