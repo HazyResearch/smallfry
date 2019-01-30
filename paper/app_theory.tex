@@ -125,10 +125,11 @@ Note also the $H = \tK-K = (X+C)(X+C)^T - XX^T = XC^T + CX^T + CC^T$.
 Using the $\sin(\Theta)$ Theorem, we can show the following:
 
 \begin{eqnarray*}
-\|V_1^T U_0\|_F &\leq& \frac{\|V_1^T H U_0\|_F}{\sigma_{\min}(K)}\\
-&\leq& \frac{\|V_1^T (XC^T + CX^T + CC^T) U_0\|_F}{\sigma_{\min}(K)}\\
+\|V_1^T U_0\|_F
+&\leq& \frac{\|V_1^T H U_0\|_F}{\sigma_{\min}(K)}\\
+&=& \frac{\|V_1^T (XC^T + CX^T + CC^T) U_0\|_F}{\sigma_{\min}(K)}\\
 &\leq& \frac{\|V_1^T\|_2 \|XC^T + CX^T + CC^T\|_F \|U_0\|_2}{\sigma_{\min}(K)} \quad \text{(using $\|AB\|_F \leq \|A\|_2 \|B\|_F$ twice.)}\\
-&\leq& \frac{\|XC^T\|_F + \|CX^T\|_F + \|CC^T\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|V_1^T\|_2 = \|U_0\|_F = 1$, and triangular inequality.)}\\
+&\leq& \frac{\|XC^T\|_F + \|CX^T\|_F + \|CC^T\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|V_1^T\|_2 = \|U_0\|_2 = 1$, and triangular inequality.)}\\
 &\leq& \frac{2\|X\|_2\|C\|_F + \|C\|_2 \|C\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|AB\|_F \leq \|A\|_2 \|B\|_F$)}\\
 &=& \frac{2\sigma_{\max}(X)\|C\|_F + \|C\|_2 \|C\|_F}{\sigma_{\min}(K)} \\
 &\leq& \|C\|_F \cdot \frac{2\sqrt{\sigma_{\max}(K)} + \|C\|_F }{\sigma_{\min}(K)}  \quad \text{(loosened $\|C\|_2$ to  $\|C\|_F$.)}\\
@@ -148,7 +149,8 @@ d &=& \|U_0\|_F^2 \\
 &=&\|[V_0,V_1]^T U_0\|_F^2 \\
 &=& \|V_0^T U_0\|_F^2 + \|V_1^T U_0\|_F^2\\
 \Longrightarrow\quad  \|V_0^T U_0\|_F^2 &=& d - \|V_1^T U_0\|_F^2 \\
-&\geq& d - \Bigg(\frac{2\sqrt{n}}{2^b-1} \cdot \frac{2\sqrt{\sigma_{\max}(K)} + \frac{2\sqrt{n}}{2^b-1} }{\sigma_{\min}(K)} \Bigg)^2
+&\geq& d - \Bigg(\frac{2\sqrt{n}}{2^b-1} \cdot \frac{2\sqrt{\sigma_{\max}(K)} + \frac{2\sqrt{n}}{2^b-1} }{\sigma_{\min}(K)} \Bigg)^2 \\
+&=& d - \frac{16n}{(2^b-1)^2} \Bigg( \frac{\sqrt{\sigma_{\max}(K)} + \frac{\sqrt{n}}{2^b-1} }{\sigma_{\min}(K)} \Bigg)^2
 \end{eqnarray}
 \end{proof}
 

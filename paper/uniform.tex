@@ -8,14 +8,14 @@ We now present the result (see Appendix~\ref{app:theory} for proof):
 	Let $X \in \RR^{n\times d}$ be a bounded embedding matrix with $X_{ij} \in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$ with largest and smallest singular values $\sigma_{\max}$ and $\sigma_{\min}$.
 	Then the eigenspace overlap of the corresponding $b$-bit uniformly quantized embedding matrix can be lower bounded as follows:
 	\begin{eqnarray*}
-		\eigover(X,\tX) &\geq& 1 - \Bigg(\frac{4\sqrt{n}}{\sqrt{d}(2^b-1)} \cdot \frac{\sigma_{\max} + \frac{\sqrt{n}}{2^b-1} }{\sqrt{\sigma_{\min}}} \Bigg)^2
+		\eigover(X,\tX) &\geq& 1 - \frac{16n}{d(2^b-1)^2} \Bigg( \frac{\sigma_{\max} + \frac{\sqrt{n}}{2^b-1} }{\sigma_{\min}^2} \Bigg)^2
 	\end{eqnarray*}
 \label{thm1}
 \end{theorem}
 
 We can further simplify this expression using the fact that $\sigma_{\max} = \|X\|_2 \leq \sqrt{n}$; using this fact, we get the following corollary:
 \begin{corollary}
-If $b \geq \log_2\bigg(\frac{8n}{\sqrt{\rho \, d\, \sigma_{\min}}} + 1\bigg)$, then the $b$-bit uniformly quantized embedding matrix $\tX$ satisfies $\eigover(X,\tX) \geq 1-\rho$.
+If $b \geq \log_2\bigg(\frac{8n}{\sigma_{\min}^2 \sqrt{\rho \, d} }} + 1\bigg)$, then the $b$-bit uniformly quantized embedding matrix $\tX$ satisfies $\eigover(X,\tX) \geq 1-\rho$.
 \end{corollary}
 
 The corollary shows that one can attain an eigenspace overlap arbitrarily close to $1$ if a sufficient number of bits $b$ are used.
