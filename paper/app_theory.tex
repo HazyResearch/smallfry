@@ -129,7 +129,8 @@ Using the $\sin(\Theta)$ Theorem, we can show the following:
 &\leq& \frac{\|V_1^T H U_0\|_F}{\sigma_{\min}(K)}\\
 &=& \frac{\|V_1^T (XC^T + CX^T + CC^T) U_0\|_F}{\sigma_{\min}(K)}\\
 &\leq& \frac{\|V_1^T\|_2 \|XC^T + CX^T + CC^T\|_F \|U_0\|_2}{\sigma_{\min}(K)} \quad \text{(using $\|AB\|_F \leq \|A\|_2 \|B\|_F$ twice.)}\\
-&\leq& \frac{\|XC^T\|_F + \|CX^T\|_F + \|CC^T\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|V_1^T\|_2 = \|U_0\|_2 = 1$, and triangular inequality.)}\\
+&\leq& \frac{ \|XC^T + CX^T + CC^T\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|V_1^T\|_2 = \|U_0\|_2 = 1$.)}\\
+&\leq& \frac{\|XC^T\|_F + \|CX^T\|_F + \|CC^T\|_F}{\sigma_{\min}(K)} \\
 &\leq& \frac{2\|X\|_2\|C\|_F + \|C\|_2 \|C\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|AB\|_F \leq \|A\|_2 \|B\|_F$)}\\
 &=& \frac{2\sigma_{\max}(X)\|C\|_F + \|C\|_2 \|C\|_F}{\sigma_{\min}(K)} \\
 &\leq& \|C\|_F \cdot \frac{2\sqrt{\sigma_{\max}(K)} + \|C\|_F }{\sigma_{\min}(K)}  \quad \text{(loosened $\|C\|_2$ to  $\|C\|_F$.)}\\
@@ -141,7 +142,7 @@ Here we use the fact that $|C_{ij}| \leq \frac{2}{\sqrt{d}(2^b-1)}$ to bound $\|
 \|C\|_F &\leq& \sqrt{nd \cdot \frac{4}{d(2^b-1)^2}} \\
 &=& \frac{2\sqrt{n}}{2^b-1} \\
 \end{eqnarray*}
-\todo{Can we get a tighter bound? Perhaps by bounding $\|C\|_2$ with high probability, instead of bounding the $\|C\|_F$ in the numerator?}
+%\todo{Can we get a tighter bound? Perhaps by bounding $\|C\|_2$ with high probability, instead of bounding the $\|C\|_F$ in the numerator?}
 
 To complete the theorem, we simply notice that:
 \begin{eqnarray}
@@ -154,31 +155,137 @@ d &=& \|U_0\|_F^2 \\
 \end{eqnarray}
 \end{proof}
 
-\begin{lemma}
-\label{lemma1}
-\begin{eqnarray*}
-	\|UU^T - VV^T \|_F^2 &=& \tr\Big( (UU^T - VV^T)^T (UU^T - VV^T)  \Big)\\
-	&=& \tr(UU^TUU^T) + \tr(VV^T VV^T) - \tr(VV^T UU^T) - \tr(UU^T VV^T) \\
-	&=& d + k - 2 \tr((U^T V)^T (U^T V)) \\
-	&=& d + k - 2 \|U^T V\|_F^2
-\end{eqnarray*}
-\end{lemma}
+\subsubsection{Davis-Kahan $\sin(\Theta)$ Theorem: VERSION 2}
+We start as we did in the previous section: 
 
-\begin{lemma}
-\label{lemma2}
-Let $A \in \RR^{n\times d}$ be an arbitrary matrix. If a random vector $x \in \RR^d$ is drawn from a distribution with identiy covariance matrix, then $\|A\|_F^2 = \expect{x}{\|Ax\|_2^2}$.
-\end{lemma}
-\begin{proof}
 \begin{eqnarray*}
-\expect{x}{\|Ax\|_2^2} &=& \expect{x}{(Ax)^T (Ax)} \\
-&=& \expect{x}{x^T A^T A x} \\
-&=& \expect{x}{\tr \Big(x^T A^T A x\Big)} \\
-&=& \expect{x}{\tr \Big(A^T A x x^T\Big)} \\
-&=& \tr \Big(A^T A \cdot \expect{x}{x x^T}\Big) \\
-&=& \tr \Big(A^T A\Big) \\
-&=& \|A\|_F^2 \\
+	\|V_1^T U_0\|_F
+	&\leq& \frac{\|V_1^T H U_0\|_F}{\sigma_{\min}(K)}\\
+	&=& \frac{\|V_1^T (XC^T + CX^T + CC^T) U_0\|_F}{\sigma_{\min}(K)}\\
+	&\leq& \frac{\|V_1^T\|_2 \|XC^T + CX^T + CC^T\|_2 \|U_0\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|AB\|_F \leq \|A\|_2 \|B\|_F$ twice.)}\\
+	&=& \frac{\sqrt{d}\cdot \|XC^T + CX^T + CC^T\|_2}{\sigma_{\min}(K)} \quad \text{(using $\|V_1^T\|_2 = 1$, $\|U_0\|_F = \sqrt{d}$.)}\\
+	&\leq& \frac{\sqrt{d}\Big(\|XC^T\|_2 + \|CX^T\|_2 + \|CC^T\|_2\Big)}{\sigma_{\min}(K)} \quad \text{(using $\|V_1^T\|_2 = 1$, $\|U_0\|_F = \sqrt{d}$.)}\\
 \end{eqnarray*}
-\end{proof}
+Now we will consider the expected value of both sides.  This requires computing the expected value of $\|XC^T\|_2$, $\|CX^T\|_2$, and $\|CC^T\|_2$.  Toward this end, we leverage the Matrix Bernstein Theorem (Theorem 6.1.1 in \citep{tropp15}).
+
+We first note that $0 \preceq CC^T \preceq \delta_b^2 I$, and thus $\expect{}{\|CC^T\|_2} \leq \delta_b^2$.
+We now proceed to bound $\expect{}{\|XC^T\|_2} = \expect{}{\|CX^T\|_2} \eqdef B$.
+
+Using the notation from the Matrix Bernstein Theorem, we will let $S_k = x_k c_k^T$, where $x_k$ and $c_k$ are the $k^{th}$ columns of $X$ and $C$ respectively.
+We note that $|x_{ki}| \leq \frac{1}{\sqrt{d}}$, $|c_{ki}| \leq \frac{2}{\sqrt{d}(2^b-1)}$, and $\expect{}{c_{ki}^2} \leq \frac{1}{d(2^b-1)^2} = \delta_b^2/d$, for $\delta_b^2 = \frac{1}{(2^b-1)^2}$.
+It is easy to see that $\expect{}{S_k} = 0$ because $x_k$ is fixed and $c_k$ is random and zero mean.
+We now upper bound $\|S_k\|_2$.
+\begin{eqnarray*}
+\|S_k\|_2 &=& \|x_k c_k^T\|_2 \\
+&\leq&  \|x_k\|_2 \|c_k^T\|_2 \\
+&\leq& \sqrt{n \cdot \frac{1}{d}} \cdot \sqrt{n \cdot \frac{4}{d(2^b-1)^2}}\\
+&=& \frac{2n}{d(2^b-1)}\\
+&\eqdef& L\\
+\end{eqnarray*}
+
+Now, I must upper bound $\max\Big(\|\sum_{k=1}^d \expect{}{S_k S_k^T}\|, \|\sum_{k=1}^d \expect{}{S_k^T S_k}\|\Big)$.
+
+We do these one at a time:
+\begin{eqnarray*}
+\Big\|\sum_{k=1}^d \expect{}{S_k S_k^T}\Big\| &=& \Big\|\sum_{k=1}^d \expect{}{x_k c_k^T c_k x_k^T }\Big\|\\
+&=& \Big\|\sum_{k=1}^d x_k \expect{}{c_k^T c_k} x_k^T \Big\| \\
+&\leq& \frac{n\delta_b^2}{d}\Big\|\sum_{k=1}^d x_k x_k^T \Big\| \\
+&=&\frac{n\delta_b^2}{d}\Big\|XX^T \Big\| \\
+&=&\frac{n\delta_b^2}{d}\|X\|_2^2 \\
+\end{eqnarray*}
+\begin{eqnarray*}
+	\Big\|\sum_{k=1}^d \expect{}{S_k^T S_k}\Big\| &=& \Big\|\sum_{k=1}^d \expect{}{c_k x_k^T x_k c_k^T}\Big\|\\
+	&=& \Big\|\sum_{k=1}^d \|x_k\|^2 \expect{}{c_k c_k^T}\Big\| \\
+	&\leq& \Big\|\sum_{k=1}^d \|x_k\|^2 \frac{\delta_b^2}{d}I\Big\| \\
+	&\leq& \frac{\delta_b^2}{d} \sum_{k=1}^d \|x_k\|^2 \\
+	&=& \frac{\delta_b^2}{d} \|X\|_F^2 \\
+\end{eqnarray*}
+
+
+\subsubsection{Davis-Kahan $\sin(\Theta)$ Theorem: VERSION 3}
+We begin in the middle of the first derivation (see above):
+\begin{eqnarray*}
+	\|V_1^T U_0\|_F	&\leq& \frac{ \|XC^T + CX^T + CC^T\|_F}{\sigma_{\min}(K)} \\
+\end{eqnarray*}
+
+We will now consider $\expect{}{\|H\|_F^2} = \sum_{i,j=1}^n H_{ij}^2$, for $H = XC^T + CX^T + CC^T$.
+We will consider two cases: $H_{ij}$ for $i\neq j$ and $H_{ij}$ for $i=j$.
+We will let $x_i, c_i \in \RR^d$ denote the $i^{th}$ rows of $X$ and $C$ respectively.\\
+\begin{enumerate}
+\item \textbf{Case 1: $i\neq j$}\\
+\begin{eqnarray*}
+	\expect{}{H_{ij}^2} &=& \expect{}{(x_i^T c_j + c_i^T x_j + c_i^T c_j)^2} \\
+	&=& \expect{}{(x_i^T c_j)^2 + (c_i^T x_j)^2 + (c_i^T c_j)^2} \\
+	&=& \expect{}{\Big(\sum_{k=1}^d x_{ik} c_{jk}\Big)^2} + \expect{}{\Big(\sum_{k=1}^d c_{ik} x_{jk}\Big)^2} + \expect{}{\Big(\sum_{k=1}^d c_{ik} c_{jk}\Big)^2} \\
+	&=& \expect{}{\sum_{k=1}^d x_{ik}^2 c_{jk}^2} + \expect{}{\sum_{k=1}^d c_{ik}^2 x_{jk}^2} + \expect{}{\sum_{k=1}^d c_{ik}^2 c_{jk}^2}\\
+	&=& \sum_{k=1}^d x_{ik}^2 \expect{}{c_{jk}^2} + \sum_{k=1}^d \expect{}{c_{ik}^2} x_{jk}^2 + \sum_{k=1}^d \expect{}{c_{ik}^2} \expect{}{c_{jk}^2}\\
+	&\leq& \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{ik}^2 + \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{jk}^2 + \sum_{k=1}^d \Big(\frac{\delta_b^2}{d}\Big)^2 \\
+	&\leq& \frac{2\delta_b^2 + \delta_b^4}{d} \quad \text{(using $\|x_i\|^2 \leq 1$.)} \\
+	&\leq& \frac{3\delta_b^2}{d} \quad \text{(using $\delta_b \leq 1$.)} \\
+\end{eqnarray*}
+\item \textbf{Case 2: $i = j$}\\
+\begin{eqnarray*}
+	\expect{}{H_{ii}^2} &=& \expect{}{(x_i^T c_i + c_i^T x_i + c_i^T c_i)^2} \\
+	&=& \expect{}{\Big(2 \sum_{k=1}^d x_{ik} c_{ik}  + \sum_{l=1}^d c_{il}^2 \Big)^2} \\
+	&=& \expect{}{4 \Big(\sum_{k=1}^d x_{ik} c_{ik}\Big)^2  + 4 \Big(\sum_{k=1}^d x_{ik} c_{ik}\Big)\cdot \Big(\sum_{l=1}^d c_{il}^2 \Big) + \Big(\sum_{l=1}^d c_{il}^2 \Big)^2} \\
+	&=& \expect{}{4 \sum_{k=1}^d x_{ik}^2 c_{ik}^2  + 4 \sum_{k,l=1}^d x_{ik} c_{ik} c_{il}^2  + \sum_{k,l=1}^d c_{il}^2 c_{ik}^2 } \\
+	&=& 4 \sum_{k=1}^d x_{ik}^2 \expect{}{c_{ik}^2}  + 4 \sum_{k=1}^d x_{ik} \expect{}{c_{ik}^3}  + \sum_{k,l=1}^d \expect{}{c_{il}^2 c_{ik}^2} \\
+	&\leq& 4\cdot \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{ik}^2  + 4 \sum_{k=1}^d \frac{1}{\sqrt{d}} \bigg(\frac{2}{\sqrt{d}(2^b-1)}\bigg)^3  + \sum_{k,l=1}^d \bigg(\frac{2}{\sqrt{d}(2^b-1)}\bigg)^4 \\
+	&=& 4\cdot \frac{\delta_b^2}{d}\cdot \|x_i\|^2  + 4 d\cdot \frac{8}{d^2(2^b-1)^3}  + d^2 \cdot \frac{16}{d^2(2^b-1)^4} \\
+	&\leq&  \frac{4\delta_b^2}{d}  + \frac{32}{d(2^b-1)^3}  + \frac{16}{(2^b-1)^4} \\
+	&=& \frac{4\delta_b^2 + 32\delta_b^3}{d} + 16 \delta_b^4 \\
+	&\leq& \frac{36\delta_b^2}{d} + 16 \delta_b^4  \quad \text{(using $\delta_b \leq 1$.)} \\
+%	&=& \expect{}{(2 x_i^T c_i  + \|c_i\|^2)^2} \\
+%	&=& \expect{}{2(x_i^T c_j)^2 + (c_i^T x_j)^2 + (c_i^T c_j)^2} \\
+%	&=& \expect{}{\Big(\sum_{k=1}^d x_{ik} c_{jk}\Big)^2} + \expect{}{\Big(\sum_{k=1}^d c_{ik} x_{jk}\Big)^2} + \expect{}{\Big(\sum_{k=1}^d c_{ik} c_{jk}\Big)^2} \\
+%	&=& \expect{}{\sum_{k=1}^d x_{ik}^2 c_{jk}^2} + \expect{}{\sum_{k=1}^d c_{ik}^2 x_{jk}^2} + \expect{}{\sum_{k=1}^d c_{ik}^2 c_{jk}^2}\\
+%	&=& \sum_{k=1}^d x_{ik}^2 \expect{}{c_{jk}^2} + \sum_{k=1}^d \expect{}{c_{ik}^2} x_{jk}^2 + \sum_{k=1}^d \expect{}{c_{ik}^2} \expect{}{c_{jk}^2}\\
+%	&\leq& \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{ik}^2 + \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{jk}^2 + \sum_{k=1}^d \Big(\frac{\delta_b^2}{d}\Big)^2 \\
+%	&\leq& \frac{\delta_b^2}{d}\cdot \|x_i\|^2 + \frac{\delta_b^2}{d}\cdot \|x_j\|^2 + d\cdot \Big(\frac{\delta_b^2}{d}\Big)^2 \\
+\end{eqnarray*}
+\end{enumerate}
+Now we can combine the above results:
+\begin{eqnarray*}
+	\sum_{i,j=1}^n \expect{}{H_{ij}^2} &\leq& \sum_{i \neq j} \Bigg(\frac{3\delta_b^2}{d} \Bigg) 
+	+ \sum_{i=1}^n \Bigg(\frac{36\delta_b^2}{d} + 16 \delta_b^4\Bigg) \\
+	&=& n(n-1)\Bigg(\frac{3\delta_b^2}{d} \Bigg) 
+	+ n\Bigg(\frac{36\delta_b^2}{d} + 16 \delta_b^4\Bigg) \\
+	&=& \frac{3n^2\delta_b^2 - 3n \delta_b^2 + 36 n \delta_b^2}{d} + 16n \delta_b^4 \\
+	&=& \frac{3n^2\delta_b^2 + 33 n \delta_b^2}{d} + 16n \delta_b^4 \\
+	&\leq& \frac{4n^2\delta_b^2}{d} + 16n \delta_b^4  \quad \text{(assuming $n\geq 33$.)}\\
+	&\leq& \frac{4n^2\delta_b^2}{d} + \frac{16n^2\delta_b^2}{d}  \quad \text{(assuming $n\geq d$.)}\\
+	&=& \frac{20n^2\delta_b^2}{d}\\
+\end{eqnarray*}
+
+
+%We note that $|x_{ki}| \leq \frac{1}{\sqrt{d}}$, $|c_{ki}| \leq \frac{2}{\sqrt{d}(2^b-1)}$, and $\expect{}{c_{ki}^2} \leq \frac{1}{d(2^b-1)^2} = \delta_b^2/d$, for $\delta_b^2 = \frac{1}{(2^b-1)^2}$.
+
+
+%\begin{lemma}
+%\label{lemma1}$
+%\begin{eqnarray*}
+%	\|UU^T - VV^T \|_F^2 &=& \tr\Big( (UU^T - VV^T)^T (UU^T - VV^T)  \Big)\\
+%	&=& \tr(UU^TUU^T) + \tr(VV^T VV^T) - \tr(VV^T UU^T) - \tr(UU^T VV^T) \\
+%	&=& d + k - 2 \tr((U^T V)^T (U^T V)) \\
+%	&=& d + k - 2 \|U^T V\|_F^2
+%\end{eqnarray*}
+%\end{lemma}
+%
+%\begin{lemma}
+%\label{lemma2}
+%Let $A \in \RR^{n\times d}$ be an arbitrary matrix. If a random vector $x \in \RR^d$ is drawn from a distribution with identiy covariance matrix, then $\|A\|_F^2 = \expect{x}{\|Ax\|_2^2}$.
+%\end{lemma}
+%\begin{proof}
+%\begin{eqnarray*}
+%\expect{x}{\|Ax\|_2^2} &=& \expect{x}{(Ax)^T (Ax)} \\
+%&=& \expect{x}{x^T A^T A x} \\
+%&=& \expect{x}{\tr \Big(x^T A^T A x\Big)} \\
+%&=& \expect{x}{\tr \Big(A^T A x x^T\Big)} \\
+%&=& \tr \Big(A^T A \cdot \expect{x}{x x^T}\Big) \\
+%&=& \tr \Big(A^T A\Big) \\
+%&=& \|A\|_F^2 \\
+%\end{eqnarray*}
+%\end{proof}
 
 %Let $\{a_i\}_{i=1}^r$ be an orthonormal basis of $U \backslash V$, $\{b_j\}_{i=1}^s$ be an orthonormal basis of $V / U$, and $\{c_k\}_{i=1}^t$ be an orthonormal basis of $U \cap V$.
 %\begin{eqnarray*}
