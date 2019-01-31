@@ -129,7 +129,8 @@ Using the $\sin(\Theta)$ Theorem, we can show the following:
 &\leq& \frac{\|V_1^T H U_0\|_F}{\sigma_{\min}(K)}\\
 &=& \frac{\|V_1^T (XC^T + CX^T + CC^T) U_0\|_F}{\sigma_{\min}(K)}\\
 &\leq& \frac{\|V_1^T\|_2 \|XC^T + CX^T + CC^T\|_F \|U_0\|_2}{\sigma_{\min}(K)} \quad \text{(using $\|AB\|_F \leq \|A\|_2 \|B\|_F$ twice.)}\\
-&\leq& \frac{\|XC^T\|_F + \|CX^T\|_F + \|CC^T\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|V_1^T\|_2 = \|U_0\|_2 = 1$, and triangular inequality.)}\\
+&\leq& \frac{ \|XC^T + CX^T + CC^T\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|V_1^T\|_2 = \|U_0\|_2 = 1$.)}\\
+&\leq& \frac{\|XC^T\|_F + \|CX^T\|_F + \|CC^T\|_F}{\sigma_{\min}(K)} \\
 &\leq& \frac{2\|X\|_2\|C\|_F + \|C\|_2 \|C\|_F}{\sigma_{\min}(K)} \quad \text{(using $\|AB\|_F \leq \|A\|_2 \|B\|_F$)}\\
 &=& \frac{2\sigma_{\max}(X)\|C\|_F + \|C\|_2 \|C\|_F}{\sigma_{\min}(K)} \\
 &\leq& \|C\|_F \cdot \frac{2\sqrt{\sigma_{\max}(K)} + \|C\|_F }{\sigma_{\min}(K)}  \quad \text{(loosened $\|C\|_2$ to  $\|C\|_F$.)}\\
@@ -199,6 +200,65 @@ We do these one at a time:
 	&\leq& \frac{\delta_b^2}{d} \sum_{k=1}^d \|x_k\|^2 \\
 	&=& \frac{\delta_b^2}{d} \|X\|_F^2 \\
 \end{eqnarray*}
+
+
+\subsubsection{Davis-Kahan $\sin(\Theta)$ Theorem: VERSION 3}
+We begin in the middle of the first derivation (see above):
+\begin{eqnarray*}
+	\|V_1^T U_0\|_F	&\leq& \frac{ \|XC^T + CX^T + CC^T\|_F}{\sigma_{\min}(K)} \\
+\end{eqnarray*}
+
+We will now consider $\expect{}{\|H\|_F^2} = \sum_{i,j=1}^n H_{ij}^2$, for $H = XC^T + CX^T + CC^T$.
+We will consider two cases: $H_{ij}$ for $i\neq j$ and $H_{ij}$ for $i=j$.
+We will let $x_i, c_i \in \RR^d$ denote the $i^{th}$ rows of $X$ and $C$ respectively.\\
+\begin{enumerate}
+\item \textbf{Case 1: $i\neq j$}\\
+\begin{eqnarray*}
+	\expect{}{H_{ij}^2} &=& \expect{}{(x_i^T c_j + c_i^T x_j + c_i^T c_j)^2} \\
+	&=& \expect{}{(x_i^T c_j)^2 + (c_i^T x_j)^2 + (c_i^T c_j)^2} \\
+	&=& \expect{}{\Big(\sum_{k=1}^d x_{ik} c_{jk}\Big)^2} + \expect{}{\Big(\sum_{k=1}^d c_{ik} x_{jk}\Big)^2} + \expect{}{\Big(\sum_{k=1}^d c_{ik} c_{jk}\Big)^2} \\
+	&=& \expect{}{\sum_{k=1}^d x_{ik}^2 c_{jk}^2} + \expect{}{\sum_{k=1}^d c_{ik}^2 x_{jk}^2} + \expect{}{\sum_{k=1}^d c_{ik}^2 c_{jk}^2}\\
+	&=& \sum_{k=1}^d x_{ik}^2 \expect{}{c_{jk}^2} + \sum_{k=1}^d \expect{}{c_{ik}^2} x_{jk}^2 + \sum_{k=1}^d \expect{}{c_{ik}^2} \expect{}{c_{jk}^2}\\
+	&\leq& \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{ik}^2 + \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{jk}^2 + \sum_{k=1}^d \Big(\frac{\delta_b^2}{d}\Big)^2 \\
+	&\leq& \frac{2\delta_b^2 + \delta_b^4}{d} \quad \text{(using $\|x_i\|^2 \leq 1$.)} \\
+	&\leq& \frac{3\delta_b^2}{d} \quad \text{(using $\delta_b \leq 1$.)} \\
+\end{eqnarray*}
+\item \textbf{Case 2: $i = j$}\\
+\begin{eqnarray*}
+	\expect{}{H_{ii}^2} &=& \expect{}{(x_i^T c_i + c_i^T x_i + c_i^T c_i)^2} \\
+	&=& \expect{}{\Big(2 \sum_{k=1}^d x_{ik} c_{ik}  + \sum_{l=1}^d c_{il}^2 \Big)^2} \\
+	&=& \expect{}{4 \Big(\sum_{k=1}^d x_{ik} c_{ik}\Big)^2  + 4 \Big(\sum_{k=1}^d x_{ik} c_{ik}\Big)\cdot \Big(\sum_{l=1}^d c_{il}^2 \Big) + \Big(\sum_{l=1}^d c_{il}^2 \Big)^2} \\
+	&=& \expect{}{4 \sum_{k=1}^d x_{ik}^2 c_{ik}^2  + 4 \sum_{k,l=1}^d x_{ik} c_{ik} c_{il}^2  + \sum_{k,l=1}^d c_{il}^2 c_{ik}^2 } \\
+	&=& 4 \sum_{k=1}^d x_{ik}^2 \expect{}{c_{ik}^2}  + 4 \sum_{k=1}^d x_{ik} \expect{}{c_{ik}^3}  + \sum_{k,l=1}^d \expect{}{c_{il}^2 c_{ik}^2} \\
+	&\leq& 4\cdot \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{ik}^2  + 4 \sum_{k=1}^d \frac{1}{\sqrt{d}} \bigg(\frac{2}{\sqrt{d}(2^b-1)}\bigg)^3  + \sum_{k,l=1}^d \bigg(\frac{2}{\sqrt{d}(2^b-1)}\bigg)^4 \\
+	&=& 4\cdot \frac{\delta_b^2}{d}\cdot \|x_i\|^2  + 4 d\cdot \frac{8}{d^2(2^b-1)^3}  + d^2 \cdot \frac{16}{d^2(2^b-1)^4} \\
+	&\leq&  \frac{4\delta_b^2}{d}  + \frac{32}{d(2^b-1)^3}  + \frac{16}{(2^b-1)^4} \\
+	&=& \frac{4\delta_b^2 + 32\delta_b^3}{d} + 16 \delta_b^4 \\
+	&\leq& \frac{36\delta_b^2}{d} + 16 \delta_b^4  \quad \text{(using $\delta_b \leq 1$.)} \\
+%	&=& \expect{}{(2 x_i^T c_i  + \|c_i\|^2)^2} \\
+%	&=& \expect{}{2(x_i^T c_j)^2 + (c_i^T x_j)^2 + (c_i^T c_j)^2} \\
+%	&=& \expect{}{\Big(\sum_{k=1}^d x_{ik} c_{jk}\Big)^2} + \expect{}{\Big(\sum_{k=1}^d c_{ik} x_{jk}\Big)^2} + \expect{}{\Big(\sum_{k=1}^d c_{ik} c_{jk}\Big)^2} \\
+%	&=& \expect{}{\sum_{k=1}^d x_{ik}^2 c_{jk}^2} + \expect{}{\sum_{k=1}^d c_{ik}^2 x_{jk}^2} + \expect{}{\sum_{k=1}^d c_{ik}^2 c_{jk}^2}\\
+%	&=& \sum_{k=1}^d x_{ik}^2 \expect{}{c_{jk}^2} + \sum_{k=1}^d \expect{}{c_{ik}^2} x_{jk}^2 + \sum_{k=1}^d \expect{}{c_{ik}^2} \expect{}{c_{jk}^2}\\
+%	&\leq& \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{ik}^2 + \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{jk}^2 + \sum_{k=1}^d \Big(\frac{\delta_b^2}{d}\Big)^2 \\
+%	&\leq& \frac{\delta_b^2}{d}\cdot \|x_i\|^2 + \frac{\delta_b^2}{d}\cdot \|x_j\|^2 + d\cdot \Big(\frac{\delta_b^2}{d}\Big)^2 \\
+\end{eqnarray*}
+\end{enumerate}
+Now we can combine the above results:
+\begin{eqnarray*}
+	\sum_{i,j=1}^n \expect{}{H_{ij}^2} &\leq& \sum_{i \neq j} \Bigg(\frac{3\delta_b^2}{d} \Bigg) 
+	+ \sum_{i=1}^n \Bigg(\frac{36\delta_b^2}{d} + 16 \delta_b^4\Bigg) \\
+	&=& n(n-1)\Bigg(\frac{3\delta_b^2}{d} \Bigg) 
+	+ n\Bigg(\frac{36\delta_b^2}{d} + 16 \delta_b^4\Bigg) \\
+	&=& \frac{3n^2\delta_b^2 - 3n \delta_b^2 + 36 n \delta_b^2}{d} + 16n \delta_b^4 \\
+	&=& \frac{3n^2\delta_b^2 + 33 n \delta_b^2}{d} + 16n \delta_b^4 \\
+	&\leq& \frac{4n^2\delta_b^2}{d} + 16n \delta_b^4  \quad \text{(assuming $n\geq 33$.)}\\
+	&\leq& \frac{4n^2\delta_b^2}{d} + \frac{16n^2\delta_b^2}{d}  \quad \text{(assuming $n\geq d$.)}\\
+	&=& \frac{20n^2\delta_b^2}{d}\\
+\end{eqnarray*}
+
+
+%We note that $|x_{ki}| \leq \frac{1}{\sqrt{d}}$, $|c_{ki}| \leq \frac{2}{\sqrt{d}(2^b-1)}$, and $\expect{}{c_{ki}^2} \leq \frac{1}{d(2^b-1)^2} = \delta_b^2/d$, for $\delta_b^2 = \frac{1}{(2^b-1)^2}$.
 
 
 %\begin{lemma}
