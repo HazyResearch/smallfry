@@ -537,6 +537,394 @@ def eigenspace_overlap_micro():
     # plt.legend(leg)
     latexify_finalize_fig(ax, latexify_config)
     save_plot('micro_eig_overlap_vs_precision.pdf')
+
+
+def eigenspace_overlap_micro():
+    # gaussian_str = 'gaussian' if gaussian else 'uniform'
+    # adapt_str = 'adapt' if use_adapt else 'nonadapt'
+    # ns = [10000,1000,100]
+    # ns = [10000,3000,1000]
+    # latexify_config = default_latexify_config
+    # embedtype_name_map = get_embedtype_name_map()
+    # latexify_config["minor_tick_off"] = True
+    # ax = latexify_setup_fig(latexify_config)
+    # ns = [100000]
+    # ns = [200,400,800,1600,3200]
+    # ns = [200,400,800]
+    ns = [800]
+    ds = [25,50,100]
+    # ds = [50,]
+    bs = [1,2,4,8,16]
+    # bs = [2,]
+    plt.figure(1)
+    leg = []
+    full_matrices = False
+    for n in ns:
+        for d in ds:
+            lim = 1.0/np.sqrt(d)
+            X = np.random.uniform(low=-lim, high=lim, size=(n,d))
+            U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
+            leg.append('n = {}, d = {}'.format(n,d))
+            leg.append('n = {}, d = {} (Bound 1)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 2)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 3)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 4)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 5)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 6)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 7)'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 8)'.format(n,d))
+            overlaps = np.zeros(len(bs))
+            bounds = np.zeros(len(bs))
+            # bounds2 = np.zeros(len(bs))
+            # bounds3 = np.zeros(len(bs))
+            # bounds4 = np.zeros(len(bs))
+            # bounds5 = np.zeros(len(bs))
+            # bounds6 = np.zeros(len(bs))
+            # bounds7 = np.zeros(len(bs))
+            # bounds8 = np.zeros(len(bs))
+            s_max = S[0]
+            s_min = S[d-1]
+            for i,b in enumerate(bs):
+                Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
+                C = Xq - X
+                Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
+                overlaps[i] = np.linalg.norm(Uq[:,:d].T @ U[:,:d], ord='fro')**2 / d
+                prec = 2**b - 1
+                H = Xq @ Xq.T - X @ X.T
+                # bounds[i] = max(0, d - np.linalg.norm(Uq[:,d:].T @ H @ U[:,:d])**2/s_min**4) / d
+                # bounds2[i] = max(0, d - np.linalg.norm(H)**2/s_min**4) / d
+                # bounds3[i] = max(0, d - 16 * n * (s_max + np.sqrt(n)/prec)**2 / (prec**2 * s_min)) / d
+                bounds[i] = np.linalg.norm(Uq[:,:d].T @ H @ U[:,:d])**2/s_min**4 / d
+                # print(np.linalg.norm(Uq), Uq.shape, s_min, d, s_max)
+
+
+                # bounds2[i] = (d - np.linalg.norm(H)**2/s_min**4) / d
+                # bounds3[i] = (d - (4*n**2/(d * (2**b-1)**2))/s_min**4) / d
+                # bounds4[i] = (d - (2 * np.linalg.norm(C @ X.T) + np.linalg.norm(C @ C.T))**2/s_min**4) / d
+                # bounds5[i] = (d - (2 * np.linalg.norm(X,2) * np.linalg.norm(C) + np.linalg.norm(C) * np.linalg.norm(C,2))**2/s_min**4) / d
+                # bounds6[i] = (d - (2 * np.linalg.norm(X,2) * np.linalg.norm(C) + np.linalg.norm(C)**2)**2/s_min**4) / d
+                # bounds7[i] = (d - (16 * n / prec**2) * ( s_max + np.sqrt(n)/prec )**2 / s_min**4) / d
+                # B = 2 * math.log(2 * n) * (s_max  + 1/3) / prec
+                # bounds8[i] = (d - d * (2*B + (1/prec)**2)**2 / s_min**4 ) / d
+                print('n = {}, d = {}, b = {}, overlap = {}, bound1 = {}'.format(n,d,b,overlaps[i], bounds[i]))
+                # print('n = {}, d = {}, b = {}, max = {}, min={}'.format(n,d,b,s_max,s_min))
+            plt.plot(bs,1-overlaps, '-o')
+            # plt.plot(bs, overlaps, '-o')
+            plt.plot(bs,bounds, '-o')
+            # plt.plot(bs,bounds2, '-o')
+            # plt.plot(bs,bounds3, '-o')
+            # plt.plot(bs,bounds4, '-o')
+            # plt.plot(bs,bounds5, '-o')
+            # plt.plot(bs,bounds6, '-o')
+            # plt.plot(bs,bounds7, '-o')
+            # plt.plot(bs,bounds8, '-o')
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(leg)
+    # plt.yscale('log')
+    plt.xticks(bs,bs)
+    plt.ylim(0,1)
+    plt.xlim(1,32)
+    # plt.title('Normalized eigenvector overlap vs. Precision (b)')
+    plt.title(r'1-Eigenspace Overlap vs. Precision')
+    plt.xlabel(r'Precision (b)')
+    plt.ylabel(r'1-Eigenspace overlap (E)')
+    plt.show()
+
+
+def eigenspace_overlap_micro2():
+    # gaussian_str = 'gaussian' if gaussian else 'uniform'
+    # adapt_str = 'adapt' if use_adapt else 'nonadapt'
+    # ns = [10000,1000,100]
+    # ns = [10000,3000,1000]
+    # latexify_config = default_latexify_config
+    # embedtype_name_map = get_embedtype_name_map()
+    # latexify_config["minor_tick_off"] = True
+    # ax = latexify_setup_fig(latexify_config)
+    ns = [6400]
+    du_s = [1600,]
+    ds = [400, 800, 1600]
+    bs = [1,2,4,8,16,32]
+    # bs = [2,4,]
+    plt.figure(1)
+    leg = []
+    full_matrices = False
+    for n in ns:
+        for d_u in du_s:
+            lim = 1.0/np.sqrt(d_u)
+            X = np.random.uniform(low=-lim, high=lim, size=(n,d_u))
+            U,S_u,_ = np.linalg.svd(X,full_matrices=full_matrices)
+            # leg.append('n = {}, d = {}'.format(n,d))
+            # leg.append('n = {}, d = {} (Bound 1)'.format(n,d))
+            # # leg.append('n = {}, d = {} (Bound 2)'.format(n,d))
+            # # leg.append('n = {}, d = {} (Bound 3)'.format(n,d))
+            # # leg.append('n = {}, d = {} (Bound 4)'.format(n,d))
+            # # leg.append('n = {}, d = {} (Bound 5)'.format(n,d))
+            # # leg.append('n = {}, d = {} (Bound 6)'.format(n,d))
+            # # leg.append('n = {}, d = {} (Bound 7)'.format(n,d))
+            # # leg.append('n = {}, d = {} (Bound 8)'.format(n,d))
+            # overlaps = np.zeros(len(bs))
+            # bounds = np.zeros(len(bs))
+            # # bounds2 = np.zeros(len(bs))
+            # # bounds3 = np.zeros(len(bs))
+            # # bounds4 = np.zeros(len(bs))
+            # # bounds5 = np.zeros(len(bs))
+            # # bounds6 = np.zeros(len(bs))
+            # # bounds7 = np.zeros(len(bs))
+            # # bounds8 = np.zeros(len(bs))
+            s_max = S_u[0]
+            s_min = S_u[d_u-1]
+
+            for d in ds:
+
+                leg.append('n = {}, du = {}, d = {}'.format(n,d_u,d))
+                leg.append('n = {}, du = {}, d = {} (Bound 1)'.format(n,d_u,d))
+                # leg.append('n = {}, d = {} (Bound 2)'.format(n,d))
+                # leg.append('n = {}, d = {} (Bound 3)'.format(n,d))
+                # leg.append('n = {}, d = {} (Bound 4)'.format(n,d))
+                # leg.append('n = {}, d = {} (Bound 5)'.format(n,d))
+                # leg.append('n = {}, d = {} (Bound 6)'.format(n,d))
+                # leg.append('n = {}, d = {} (Bound 7)'.format(n,d))
+                # leg.append('n = {}, d = {} (Bound 8)'.format(n,d))
+                overlaps = np.zeros(len(bs))
+                bounds = np.zeros(len(bs))
+                # bounds2 = np.zeros(len(bs))
+                # bounds3 = np.zeros(len(bs))
+                # bounds4 = np.zeros(len(bs))
+                # bounds5 = np.zeros(len(bs))
+                # bounds6 = np.zeros(len(bs))
+                # bounds7 = np.zeros(len(bs))
+                # bounds8 = np.zeros(len(bs))
+
+
+                for i,b in enumerate(bs):
+                    Xq,_,_ = compress.compress_uniform(X[:, :d], b, adaptive_range=False, stochastic_round=True)
+                    # C = Xq - X
+                    Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
+                    overlaps[i] = np.linalg.norm(Uq[:,:d].T @ U[:,:d_u], ord='fro')**2 / d_u
+                    prec = 2**b - 1
+                    H = Xq @ Xq.T - X @ X.T
+                    # bounds[i] = max(0, d - np.linalg.norm(Uq[:,d:].T @ H @ U[:,:d])**2/s_min**4) / d
+                    # bounds2[i] = max(0, d - np.linalg.norm(H)**2/s_min**4) / d
+                    # bounds3[i] = max(0, d - 16 * n * (s_max + np.sqrt(n)/prec)**2 / (prec**2 * s_min)) / d
+                    bounds[i] = np.linalg.norm(Uq[:,:d].T @ H @ U[:,:d_u])**2/S_u[d-1]**4 / d_u
+                    # print(np.linalg.norm(Uq), Uq.shape, s_min, d, s_max)
+
+
+                    # bounds2[i] = (d - np.linalg.norm(H)**2/s_min**4) / d
+                    # bounds3[i] = (d - (4*n**2/(d * (2**b-1)**2))/s_min**4) / d
+                    # bounds4[i] = (d - (2 * np.linalg.norm(C @ X.T) + np.linalg.norm(C @ C.T))**2/s_min**4) / d
+                    # bounds5[i] = (d - (2 * np.linalg.norm(X,2) * np.linalg.norm(C) + np.linalg.norm(C) * np.linalg.norm(C,2))**2/s_min**4) / d
+                    # bounds6[i] = (d - (2 * np.linalg.norm(X,2) * np.linalg.norm(C) + np.linalg.norm(C)**2)**2/s_min**4) / d
+                    # bounds7[i] = (d - (16 * n / prec**2) * ( s_max + np.sqrt(n)/prec )**2 / s_min**4) / d
+                    # B = 2 * math.log(2 * n) * (s_max  + 1/3) / prec
+                    # bounds8[i] = (d - d * (2*B + (1/prec)**2)**2 / s_min**4 ) / d
+                    print('n = {}, d = {}, b = {}, du = {}, overlap = {}, bound1 = {}'.format(n,d,b,d_u, overlaps[i], bounds[i]))
+                    # print('n = {}, d = {}, b = {}, max = {}, min={}'.format(n,d,b,s_max,s_min))
+                plt.plot(bs,1-overlaps, '-o')
+                # plt.plot(bs, overlaps, '-o')
+                plt.plot(bs,bounds, '-o')
+                # plt.plot(bs,bounds2, '-o')
+                # plt.plot(bs,bounds3, '-o')
+                # plt.plot(bs,bounds4, '-o')
+                # plt.plot(bs,bounds5, '-o')
+                # plt.plot(bs,bounds6, '-o')
+                # plt.plot(bs,bounds7, '-o')
+                # plt.plot(bs,bounds8, '-o')
+    plt.xscale('log')
+    # plt.yscale('log')
+    plt.legend(leg)
+    # plt.yscale('log')
+    plt.xticks(bs,bs)
+    plt.ylim(0,3)
+    plt.xlim(1,32)
+    # plt.title('Normalized eigenvector overlap vs. Precision (b)')
+    plt.title(r'1-Eigenspace Overlap vs. Precision')
+    plt.xlabel(r'Precision (b)')
+    plt.ylabel(r'1-Eigenspace overlap (E)')
+    plt.show()
+
+
+def eigenspace_overlap_VHU_scaling_d(logy=False):
+    # plot scaling sigma_min(K)
+    ns = [1600]
+    ds = [1, 2, 4, 8, 32,128, 256, 512]
+    # bs = [1,2,4,8]
+    bs = [2, 4, 8]
+    plt.figure(1)
+    leg = []
+    full_matrices = True
+    for n in ns:
+        for b in bs:
+            leg.append('n = {}, b = {}'.format(n,b))
+            sigma = np.zeros(len(ds))
+            for i, d in enumerate(ds):
+                lim = 1.0/np.sqrt(d)
+                X = np.random.uniform(low=-lim, high=lim, size=(n,d))
+                U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
+                s_max = S[0]
+                s_min = S[d-1]
+                sigma[i] = s_min**2
+            # print(sigma)
+            # print((np.sqrt(ns[0]) - np.sqrt(ds)) / np.sqrt(ds))
+            plt.plot(ds, sigma, '-o')
+    leg.append("scaling")
+    plt.plot(ds, (np.sqrt(ns[0]) - np.sqrt(ds))**2 / np.sqrt(ds)**2)
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(leg)
+    # plt.yscale('log')
+    # plt.xticks(bs,bs)
+    # plt.ylim(0,1)
+    plt.xlim(1,32)
+    # plt.title('Normalized eigenvector overlap vs. Precision (b)')
+    plt.title(r'sigma_min_K vs d')
+    plt.xlabel(r'd')
+    plt.ylabel(r'sigma_min_K')
+    plt.show(block=False)
+
+
+    # plot frob norm(V^THU) log scale
+    plt.figure()
+    leg = []
+    rep = 10
+    color = ["r", "g", "b", "y", "k"]
+    for n in ns:
+        for p, b in enumerate(bs):
+            leg.append('exact n = {}, b = {}'.format(n,b))
+            leg.append('frob n = {}, b = {}'.format(n,b))
+            leg.append('frob H n = {}, b = {}'.format(n,b))
+            leg.append('frob H bound n = {}, b = {}'.format(n,b))
+            # leg.append('frob sum_3 n = {}, b = {}'.format(n,b))
+            # leg.append('frob l2 n = {}, b = {}'.format(n,b))
+            exact = np.zeros((len(ds), rep))
+            frob = np.zeros((len(ds), rep))
+            frob_H = np.zeros((len(ds), rep))
+            frob_H_bound = np.zeros((len(ds), rep))
+            frob_sum_3 = np.zeros((len(ds), rep))
+            frob_l2 = np.zeros((len(ds),rep))
+            for i, d in enumerate(ds):
+                for j in range(rep):
+                    lim = 1.0/np.sqrt(d)
+                    X = np.random.uniform(low=-lim, high=lim, size=(n,d))
+                    U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
+                    s_max = S[0]
+                    s_min = S[d-1]
+                    Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
+                    C = Xq - X
+                    Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
+                    exact[i, j] = np.linalg.norm(Uq[:,d:].T @ U[:,:d], ord='fro')**2 / d
+                    prec = 2**b - 1
+                    delta_b2 = 1.0/float(prec)**2
+                    H = Xq @ Xq.T - X @ X.T
+                    frob[i, j] = np.linalg.norm(Uq[:,d:].T @ H @ U[:,:d])**2 / s_min**4 / float(d)
+                    frob_H[i, j] = np.linalg.norm(H)**2 / s_min**4 / float(d)
+                    frob_H_bound[i, j] = ((3 * ns[0]**2 + 33 * ns[0]) * delta_b2/float(d) + 16 * ns[0] * delta_b2**2) / s_min**4 / float(d)
+                    frob_sum_3[i, j] = (np.linalg.norm(X @ C.T) 
+                        + np.linalg.norm(C @ X.T) + np.linalg.norm(C @ C.T))**2  / s_min**4 / float(d)
+                    frob_l2[i, j] = (2 * np.linalg.norm(X, ord=2) * np.linalg.norm(C) \
+                        + np.linalg.norm(C, ord=2) * np.linalg.norm(C))**2  / s_min**4 / float(d)
+
+            # print(frob)
+            # print(frob_H / frob)
+            # print(frob_sum_3 / frob)
+            # print(frob_l2 / frob)
+            # print((np.sqrt(ns[0]) - np.sqrt(ds)) / np.sqrt(ds))
+            # plt.plot(ds, frob, '-o')
+            # plt.plot(ds, frob_H, '--')
+            # plt.plot(ds, frob_sum_3, '-o')
+            # plt.plot(ds, frob_l2, '--')
+
+            # print(np.array(ds).shape, np.mean(frob, axis=1).shape, np.std(frob, axis=1).shape)
+            plt.errorbar(np.array(ds), np.mean(exact, axis=1), yerr=np.std(exact, axis=1), fmt=color[p] + '-^')
+            plt.errorbar(np.array(ds), np.mean(frob, axis=1), yerr=np.std(frob, axis=1), fmt=color[p] + '-o')
+            plt.errorbar(np.array(ds), np.mean(frob_H, axis=1), yerr=np.std(frob_H, axis=1), fmt=color[p] + '--')
+            plt.errorbar(np.array(ds), np.mean(frob_H_bound, axis=1), yerr=np.std(frob_H_bound, axis=1), fmt=color[p] + '-.')
+
+    # leg.append("d^-0.5")
+    # plt.plot(ds, 1.0/np.array(ds)**0.5)
+    # leg.append("d^-1")
+    # plt.plot(ds, 1.0/np.array(ds))
+    # leg.append("d^-2")
+    # plt.plot(ds, 1.0/np.array(ds)**2)
+    plt.xscale('log')
+    if logy:
+        plt.yscale('log')
+    plt.legend(leg)
+    # plt.yscale('log')
+    # plt.xticks(bs,bs)
+    # if logy:
+    plt.ylim(0,1)
+    plt.xlim(1,32)
+    # plt.title('Normalized eigenvector overlap vs. Precision (b)')
+    plt.title(r'overlap vs d')
+    plt.xlabel(r'd')
+    plt.ylabel(r'overlap')
+    plt.show(block=False)
+
+
+
+def eigenspace_overlap_VHU_scaling_n():
+    # plot scaling sigma_min(K)
+    ds = [16, ]
+    ns = [16, 32, 64, 128, 256, 512, 1024, 4096]
+    bs = [2, 4, 8]
+    plt.figure(1)
+    leg = []
+    full_matrices = True
+    color = ["r", "g", "b", "y", "k"]
+    for d in ds:
+        for p, b in enumerate(bs):
+            # leg.append('exact d = {}, b = {}'.format(d,b))
+            leg.append('frob d = {}, b = {}'.format(d,b))
+            leg.append('frob H d = {}, b = {}'.format(d,b))
+            exact = np.zeros(len(ns))
+            frob = np.zeros(len(ns))
+            frob_H = np.zeros(len(ns))
+            for i, n in enumerate(ns):
+                lim = 1.0/np.sqrt(d)
+                X = np.random.uniform(low=-lim, high=lim, size=(n,d))
+                U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
+                s_max = S[0]
+                s_min = S[d-1]
+
+                Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
+                C = Xq - X
+                Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
+                # exact[i] = np.linalg.norm(Uq[:,d:].T @ U[:,:d], ord='fro')**2 / d
+                prec = 2**b - 1
+                delta_b2 = 1.0/float(prec)**2
+                H = Xq @ Xq.T - X @ X.T
+                frob[i] = np.linalg.norm(Uq[:,d:].T @ H @ U[:,:d])**2 / float(d)
+                frob_H[i] = np.linalg.norm(H)**2 / float(d)
+
+            # print(sigma)
+            # print((np.sqrt(ns[0]) - np.sqrt(ds)) / np.sqrt(ds))
+            # plt.plot(np.array(ns), exact, color[p] + '-^')
+            plt.plot(np.array(ns), frob, color[p] + '-o')
+            plt.plot(np.array(ns), frob_H, color[p] + '--')
+
+    leg.append("n^0.5")
+    plt.plot(ns, np.array(ns)**0.5)
+    leg.append("n^1")
+    plt.plot(ns, np.array(ns))
+    leg.append("n^2")
+    plt.plot(ns, np.array(ns)**2)
+    # leg.append("scaling")
+    # plt.plot(ds, (np.sqrt(ns[0]) - np.sqrt(ds))**2 / np.sqrt(ds)**2)
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.legend(leg)
+    # plt.yscale('log')
+    # plt.xticks(bs,bs)
+    # plt.ylim(0,1)
+    # plt.xlim(1,32)
+    # plt.title('Normalized eigenvector overlap vs. Precision (b)')
+    plt.title(r'numerator vs d')
+    plt.xlabel(r'n')
+    plt.ylabel(r'numerator')
+    plt.show(block=False)
+
     
 
 if __name__ == '__main__':
@@ -561,5 +949,9 @@ if __name__ == '__main__':
     # Plot deltas vs. precision for fixed dimension, several lambdas:
     # deltas_vs_precision(False)
 
-    # Eigenvector overlap micros
-    eigenspace_overlap_micro()
+    # Eigenvector overlap micros--Jian
+    # eigenspace_overlap_VHU_scaling_d(logy=False)
+    # eigenspace_overlap_VHU_scaling_d(logy=True)
+    eigenspace_overlap_VHU_scaling_n()
+    input("before save")
+    # print((np.sqrt(800) - 1.0)**2 / 1.0 / ((np.sqrt(800) - np.sqrt(100))**2 / 100.0))
