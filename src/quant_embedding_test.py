@@ -71,7 +71,7 @@ class QuantEmbeddingTest(TestCase):
         assert quant_embedding.embedding_dim == ref_embedding.size(-1)
         return ref_embedding, embedding, quant_embedding
 
-    def test_forward(self):
+    def forward(self, cuda=False):
         ref_embedding, embedding, quant_embedding = self.get_embeddings_for_test(
             embedding_file=EMBEDDING_TEST_FILE)
         n_dim = embedding.weight.size(-1)
@@ -79,11 +79,22 @@ class QuantEmbeddingTest(TestCase):
         batch_size = np.random.randint(low=3, high=16)
         length = np.random.randint(low=10, high=50)
         input = torch.LongTensor(batch_size, length, n_dim).random_(to=n_word)
+        if cuda:
+            ref_embedding = ref_embedding.cuda()
+            embedding = embedding.cuda()
+            quant_embedding = quant_embedding.cuda()
+            input = input.cuda()
         ref_out = ref_embedding[input]
         out = embedding(input)
         quant_out = quant_embedding(input)
         assert torch.all(torch.eq(ref_out, out))
         assert torch.all(torch.eq(out, quant_out))
+
+    def test_forward_cpu(self):
+        self.forward(cuda=False)
+
+    def test_forward_gpu(self):
+        self.forward(cuda=True)
 
 if __name__ == "__main__":
     unittest.main()

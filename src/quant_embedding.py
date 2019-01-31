@@ -65,6 +65,18 @@ b. make the underlying tensor compression into another function
 c. for a and b, implement both for the tensor and file interface.
 d. If necessary, can switch to int32 underlying representation. But not necessary now.
 e. Test on GPU
+
+
+
+Design of interface
+1. if loading a quantized file
+2. if input a quantized tensor
+2. if input a full precision file and then quantize
+3. if input a full precision tensor and then quantize
+Step design:
+    
+
+TODO test if the initialization is the correct thing
 """
 
 class QuantEmbedding(nn.Embedding):
@@ -99,18 +111,16 @@ class QuantEmbedding(nn.Embedding):
             self.tensor_dim = embedding_dim
         else:
             self.tensor_dim = math.ceil(embedding_dim * nbit / LONG_BITS)
-            # weight = torch.zeros(
-            #     num_embeddings, self.tensor_dim, dtype=torch.int32)
         nn.Embedding.__init__(
             self,
             num_embeddings, # we use the actual tensor dim here, otherwise will raise error
             self.tensor_dim,
-            padding_idx,
-            max_norm=None,
-            norm_type=2.,
-            scale_grad_by_freq=False,
-            sparse=False,
-            _weight=None)
+            padding_idx=padding_idx,
+            max_norm=max_norm,
+            norm_type=norm_type,
+            scale_grad_by_freq=scale_grad_by_freq,
+            sparse=sparse,
+            _weight=_weight)
 
         if self.nbit != 32:
             self.weight = nn.Parameter(torch.zeros(
