@@ -203,13 +203,46 @@ We do these one at a time:
 
 
 \subsubsection{Davis-Kahan $\sin(\Theta)$ Theorem: VERSION 3}
-We begin in the middle of the first derivation (see above):
+We begin in the middle of the first derivation (see above).
+We will let $a\in [0,1]$ be the scalar such that $\sigma_{\min}(X) = a \sqrt{\frac{n}{d}}$ (equivalently, $\sigma_{\min}(K) = a^2 \frac{n}{d}$).
 \begin{eqnarray*}
 	\|V_1^T U_0\|_F	&\leq& \frac{ \|XC^T + CX^T + CC^T\|_F}{\sigma_{\min}(K)} \\
+	\Longrightarrow \frac{1}{d}	\|V_1^T U_0\|_F^2 &\leq& \frac{ \|XC^T + CX^T + CC^T\|_F^2}{d \cdot \sigma_{\min}(K)^2} \\
+	\Longleftrightarrow 1-\frac{1}{d}\|V_0^T U_0\|_F^2 &\leq&  \frac{ \|XC^T + CX^T + CC^T\|_F^2}{d \cdot \sigma_{\min}(K)^2} \\
+	\Longleftrightarrow 1-\eigover(X,\tX) &\leq&  \frac{ \|XC^T + CX^T + CC^T\|_F^2}{d \cdot \sigma_{\min}(K)^2} \\
+	\Longrightarrow \expect{}{1-\eigover(X,\tX)} &\leq&  \expect{}{\frac{ \|XC^T + CX^T + CC^T\|_F^2}{d \cdot \sigma_{\min}(K)^2}} \\
+	&=&  \frac{ \expect{}{\|XC^T + CX^T + CC^T\|_F^2}}{d \cdot \sigma_{\min}(K)^2}\\
+	&\leq& \frac{\frac{20n^2\delta_b^2}{d}}{d \cdot \sigma_{\min}(K)^2} \quad \text{(by Lemma~\ref{lem:expect_h}).} \\
+	&=& \frac{\frac{20n^2\delta_b^2}{d}}{d a^4 (n^2/d^2)} \\
+	&=& \frac{20 \delta_b^2}{a^4}
 \end{eqnarray*}
 
-We will now consider $\expect{}{\|H\|_F^2} = \sum_{i,j=1}^n H_{ij}^2$, for $H = XC^T + CX^T + CC^T$.
-We will consider two cases: $H_{ij}$ for $i\neq j$ and $H_{ij}$ for $i=j$.
+\begin{corollary}
+$\expect{}{1-\eigover(X,\tX)} \leq \eps$ if $b \geq \log_2\bigg(\frac{\sqrt{20}}{a^2\sqrt{\eps}}+1\bigg)$.
+\end{corollary}
+\begin{proof}
+	We set $\frac{20 \delta_b^2}{a^4} = \eps$ and solve for $b$, using $\delta_b^2 = \frac{1}{(2^b-1)^2}$.
+\begin{eqnarray*}
+	\frac{20 \delta_b^2}{a^4} &=& \eps \\
+	\frac{20}{a^4(2^b-1)^2} &=& \eps \\
+	\frac{20}{a^4\eps} &=& (2^b-1)^2 \\
+	\frac{\sqrt{20}}{a^2\sqrt{\eps}} &=& 2^b-1 \\
+	\log_2\bigg(\frac{\sqrt{20}}{a^2\sqrt{\eps}} + 1\bigg) &=& b \\
+\end{eqnarray*}
+\end{proof}
+
+We now present and prove Lemma~\ref{lem:expect_h}.
+
+\begin{lemma}
+Letting $\tX = X+C$ denote the uniformly quantized embedding matrix, it follows that:
+\begin{eqnarray}
+\expect{}{\|XC^T + CX^T + CC^T\|_F^2} &\leq& \frac{20n^2\delta_b^2}{d}
+\end{eqnarray}
+\label{lem:expect_h}
+\end{lemma}
+\begin{proof}
+We will let $H \defeq XC^T + CX^T + CC^T$.
+To bound $\expect{}{\|H\|_F^2} = \sum_{i,j=1}^n \expect{}{H_{ij}^2}$, we will consider two cases: $H_{ij}$ for $i\neq j$ and $H_{ij}$ for $i=j$.
 We will let $x_i, c_i \in \RR^d$ denote the $i^{th}$ rows of $X$ and $C$ respectively.\\
 \begin{enumerate}
 \item \textbf{Case 1: $i\neq j$}\\
@@ -220,6 +253,7 @@ We will let $x_i, c_i \in \RR^d$ denote the $i^{th}$ rows of $X$ and $C$ respect
 	&=& \expect{}{\sum_{k=1}^d x_{ik}^2 c_{jk}^2} + \expect{}{\sum_{k=1}^d c_{ik}^2 x_{jk}^2} + \expect{}{\sum_{k=1}^d c_{ik}^2 c_{jk}^2}\\
 	&=& \sum_{k=1}^d x_{ik}^2 \expect{}{c_{jk}^2} + \sum_{k=1}^d \expect{}{c_{ik}^2} x_{jk}^2 + \sum_{k=1}^d \expect{}{c_{ik}^2} \expect{}{c_{jk}^2}\\
 	&\leq& \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{ik}^2 + \frac{\delta_b^2}{d}\cdot \sum_{k=1}^d x_{jk}^2 + \sum_{k=1}^d \Big(\frac{\delta_b^2}{d}\Big)^2 \\
+	&\leq& \frac{\delta_b^2}{d}\cdot \|x_i\|^2 + \frac{\delta_b^2}{d}\cdot \|x_j\|^2 + \sum_{k=1}^d \Big(\frac{\delta_b^2}{d}\Big)^2 \\
 	&\leq& \frac{2\delta_b^2 + \delta_b^4}{d} \quad \text{(using $\|x_i\|^2 \leq 1$.)} \\
 	&\leq& \frac{3\delta_b^2}{d} \quad \text{(using $\delta_b \leq 1$.)} \\
 \end{eqnarray*}
@@ -256,7 +290,7 @@ Now we can combine the above results:
 	&\leq& \frac{4n^2\delta_b^2}{d} + \frac{16n^2\delta_b^2}{d}  \quad \text{(assuming $n\geq d$.)}\\
 	&=& \frac{20n^2\delta_b^2}{d}\\
 \end{eqnarray*}
-
+\end{proof}
 
 %We note that $|x_{ki}| \leq \frac{1}{\sqrt{d}}$, $|c_{ki}| \leq \frac{2}{\sqrt{d}(2^b-1)}$, and $\expect{}{c_{ki}^2} \leq \frac{1}{d(2^b-1)^2} = \delta_b^2/d$, for $\delta_b^2 = \frac{1}{(2^b-1)^2}$.
 

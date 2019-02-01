@@ -1236,6 +1236,7 @@ def eigenspace_overlap_micro_vs_sigma_min():
     plt.legend(leg1)
     plt.yscale('log')
     plt.xscale('log')
+    plt.ylim((10**(-5), 1))
     plt.title('1-overlap vs. sigma_min')
     save_plot('micro_eig_overlap_vs_sigma_min.pdf')
 

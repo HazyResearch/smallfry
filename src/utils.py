@@ -95,7 +95,7 @@ def init_compress_parser():
         help='Clipping of gradient norm for DCA training.')
     ### End DCA hyperparameters
     ### PCA hyperparameters
-    parser.add_argument('--pcadim', type=int, required=False, default=-1.
+    parser.add_argument('--pcadim', type=int, required=False, default=-1,
         help='Dimension of embeddings to use for compressed PCA embeddings.')
     return parser
 
