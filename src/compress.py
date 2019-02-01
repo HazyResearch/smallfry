@@ -134,7 +134,7 @@ def _compress_uniform(X, bit_rate, range_limit, stochastic_round=False,
     Internal uniform quantization function (ADD MORE DESCRIPTION)
     '''
     assert range_limit >= 0, 'range_limit must be non-negative.'
-    assert X.dtype == np.float or X.dtype == np.float64,\
+    assert X.dtype == np.float or X.dtype == np.float64 or X.dtype == np.float32,\
                 'Only floating point inputs allowed.'
     Xq = np.copy(X)
     if get_max_abs(Xq) > range_limit:
