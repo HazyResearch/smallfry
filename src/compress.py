@@ -60,6 +60,8 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
             grad_clip=utils.config['gradclip'], tau=utils.config['tau']
         )
         results['dca-results-per-epoch'] = results_per_epoch
+    elif utils.config['compresstype'] == 'pca':
+        Xq, frob_squared_error, elapsed = compress_pca(X, utils.config['pca_dim'])
     elif utils.config['compresstype'] == 'nocompress':
         Xq = X
         frob_squared_error = 0
@@ -76,6 +78,15 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
     utils.config['compressed-embed-path'] = utils.get_filename('_compressed_embeds.txt')
     logging.info('Finished making embeddings. It took {} min.'.format(elapsed/60))
     utils.save_embeddings(utils.config['compressed-embed-path'], Xq, wordlist)
+
+# Compress X in R^(n x d) into X' in R^(n x k) using PCA
+def compress_pca(X, pca_dim):
+    start = time.time()
+    U,S,_ = np.linalg.svd(X,full_matrices=False)
+    Xq = U[:,:pca_dim] * S[:pca_dim]
+    elapsed = time.time() - start
+    frob_squared_error = 0
+    return Xq, frob_squared_error, elapsed
 
 def compress_kmeans(X, bit_rate, random_seed=None, n_init=1):
     # Tony's params for k-means: max_iter=70, n_init=1, tol=0.01.
