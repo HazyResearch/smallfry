@@ -99,8 +99,7 @@ class QuantEmbedding(nn.Embedding):
                  sparse=False,
                  _weight=None,
                  nbit=32,
-                 embedding_file=None,
-                 quantized_input=False):
+                 embedding_file=None):
         """
         Impelmentation of the quantized embedding layer. This layer
         memory efficient embedding storage during inference. Currently,
@@ -146,33 +145,59 @@ class QuantEmbedding(nn.Embedding):
             scale_grad_by_freq=scale_grad_by_freq,
             sparse=sparse)
 
-        if self.nbit != 32:
+        if self.nbit == 32:
+            # we only support forward pass
+            self.weight.requires_grad = False
+            if embedding_file is not None:
+                _weight = self._load_from_unquant_file_to_uncompressed_tensor(embedding_file)
+            self.weight.copy_(_weight)
+        else:
             self.weight = nn.Parameter(
                 torch.zeros(
                     num_embeddings, self.tensor_dim, dtype=torch.int64),
                 requires_grad=False)
+            # record the true embeding_dim
+            self.embedding_dim = embedding_dim
+            # load the quantized values from file / tensor to the int64 tensor
+            if self._quantized_input(_weight, embedding_file):
+                if _weight is not None:
+                    assert isinstance(_weight, torch.FloatTensor)
+                    # the input weight is already quantized and does not need clipping/quantization
+                    self._compress_tensor(_weight, do_quant=False)
+                elif embedding_file is not None:
+                    # the functionality of compress tensor is included in the loading function here
+                    self._load_from_quant_file_to_compressed_tensor(embedding_file)
+            else:
+                if _weight is not None:
+                    assert isinstance(_weight, torch.FloatTensor)
+                elif embedding_file is not None:
+                    _weight = self._load_from_unquant_file_to_uncompressed_tensor(
+                        embedding_file)
+                # compress _weight into self.weight
+                self._compress_tensor(_weight)
+
+    def _get_value_list_from_tensor(self, weight):
+        # get the unique values into a list
+        if isinstance(weight, torch.FloatTensor):
+            weight = weight.cpu().numpy()
+        sorted_vals = sorted(np.unique(weight).tolist())
+        return sorted_vals
+
+    def _get_value_list_from_file(self, file_name):
+        value_set = set([])
+        with open(file_name, "r") as f:
+            for line_id, line in enumerate(f.readlines()):
+                for value in line.strip('\n').split(" ")[1:]:
+                    value_set.add(float(value))
+        sorted_vals = sorted(list(value_set))
+        return sorted_vals
+
+    def _quantized_input(self, weight, embedding_file):
+        assert weight is None or embedding_file is None, " Can only use one out of Tensor or File as input!"
+        if weight is not None:
+            return len(self._get_value_list_from_tensor(weight)) <= 2**self.nbit
         else:
-            # we only support forward pass
-            self.weight.requires_grad = False
-        # record the true embeding_dim
-        self.embedding_dim = embedding_dim
-        # load the quantized values from file / tensor to the int64 tensor
-        if quantized_input:
-            if _weight is not None:
-                assert isinstance(_weight, torch.FloatTensor)
-                # the input weight is already quantized and does not need clipping/quantization
-                self._compress_tensor(_weight, do_quant=False)
-            elif embedding_file is not None:
-                # the functionality of compress tensor is included in the loading function here
-                self._load_from_quant_file_to_compressed_tensor(embedding_file)
-        else:
-            if _weight is not None:
-                assert isinstance(_weight, torch.FloatTensor)
-            elif embedding_file is not None:
-                _weight = self._load_from_unquant_file_to_uncompressed_tensor(
-                    embedding_file)
-            # compress _weight into self.weight
-            self._compress_tensor(_weight)
+            return len(self._get_value_list_from_file(embedding_file)) <= 2**self.nbit
 
     def _load_from_unquant_file_to_uncompressed_tensor(self, file_name):
         weight = torch.zeros(self.num_embeddings, self.embedding_dim)
@@ -196,53 +221,49 @@ class QuantEmbedding(nn.Embedding):
             raise Exception(
                 "The shape of the input embedding does not match the compressed tensor!"
             )
-        if self.nbit != 32:
-            if do_quant:
-                weight, _, _ = compress.compress_uniform(
-                    weight.cpu().numpy(),
-                    self.nbit,
-                    adaptive_range=True,
-                    stochastic_round=False)
-            else:
-                weight = weight.cpu().numpy()
-            # construct value dict
-            sorted_vals = sorted(np.unique(weight).tolist())
-            self.register_buffer("value_list", torch.FloatTensor(sorted_vals))
-            self.value_dict = {
-                float(value): i
-                for i, value in enumerate(sorted_vals)
-            }
-            weight = np.vectorize(self.value_dict.get)(weight)
-            # compress vectors into quantized embeddings
-            self.weight.copy_(
-                compress_long_mat(torch.LongTensor(weight), nbit=self.nbit))
+        assert self.nbit != 32, "_compress_tensor should only be called when nbit < 32"
+        if do_quant:
+            weight, _, _ = compress.compress_uniform(
+                weight.cpu().numpy(),
+                self.nbit,
+                adaptive_range=True,
+                stochastic_round=False)
         else:
-            self.weight.copy_(weight)
+            weight = weight.cpu().numpy()
+        # construct value dict
+        sorted_vals = self._get_value_list_from_tensor(weight)
+        self.register_buffer("value_list", torch.FloatTensor(sorted_vals))
+        self.value_dict = {
+            float(value): i
+            for i, value in enumerate(sorted_vals)
+        }
+        assert len(sorted_vals) <= 2**self.nbit
+        if len(sorted_vals) < 2**self.nbit:
+            logger.warning(
+                "Set of actual values is smaller than set of possible values."
+            )
+        weight = np.vectorize(self.value_dict.get)(weight)
+        # compress vectors into quantized embeddings
+        self.weight.copy_(
+            compress_long_mat(torch.LongTensor(weight), nbit=self.nbit))
 
     def _load_from_quant_file_to_compressed_tensor(self, file_name):
         if self.nbit != 32:
-            self.value_set = set([])
             # construct the mapping between quantized index and quantized value
-            with open(file_name, "r") as f:
-                for line_id, line in enumerate(f.readlines()):
-                    for value in line.strip('\n').split(" ")[1:]:
-                        self.value_set.add(float(value))
-            sorted_vals = sorted(list(self.value_set))
+            sorted_vals = self._get_value_list_from_file(file_name)
             self.register_buffer("value_list", torch.FloatTensor(sorted_vals))
             self.value_dict = {
                 float(value): i
                 for i, value in enumerate(sorted_vals)
             }
-            line_cnt = line_id + 1
-            assert len(self.value_set) <= 2**self.nbit
-            if len(self.value_set) < 2**self.nbit:
+            assert len(sorted_vals) <= 2**self.nbit
+            if len(sorted_vals) < 2**self.nbit:
                 logger.warning(
                     "Set of actual values is smaller than set of possible values."
                 )
         else:
             with open(file_name, "r") as f:
                 line_cnt = len(f.readlines())
-        assert self.num_embeddings == line_cnt
 
         # put vectors into int64 tensor
         with open(file_name, "r") as f:
@@ -256,6 +277,9 @@ class QuantEmbedding(nn.Embedding):
                         torch.tensor(
                             [float(value) for value in line.split(" ")[1:]],
                             dtype=self.weight.dtype))
+        if self.num_embeddings > line_id + 1:
+            logger.warning("The input vocab is smaller then the specified vocab size")
+
 
     def forward(self, input):
         embedding = F.embedding(input, self.weight, self.padding_idx,

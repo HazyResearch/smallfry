@@ -76,8 +76,7 @@ class QuantEmbeddingTest(TestCase):
             padding_idx=0,
             nbit=32,
             _weight=weight,
-            embedding_file=embedding_file,
-            quantized_input=quantized_input)
+            embedding_file=embedding_file)
 
         # test non 32 bit representation
         quant_embedding = QuantEmbedding(
@@ -86,12 +85,12 @@ class QuantEmbeddingTest(TestCase):
             padding_idx=0,
             nbit=n_bit,
             _weight=weight,
-            embedding_file=embedding_file,
-            quantized_input=quantized_input)
+            embedding_file=embedding_file)
 
-        if quantized_input:
+        if quantized_input or np.unique(input_embedding).size <= 2**n_bit:
             ref_embedding = input_embedding.clone()
         else:
+            # we only quantize when there is not enough bits
             ref_embedding, _, _ = compress.compress_uniform(
                 input_embedding.cpu().numpy(),
                 n_bit,
