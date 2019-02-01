@@ -1001,20 +1001,19 @@ def eigenspace_overlap_micro_vs_n():
                 Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
                 Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
                 H = Xq @ Xq.T - X @ X.T
-                if i_n == 1:
-                    leg1.append('1-overlap, b = {}, d = {}'.format(b,d))
-                    leg1.append('bound1, b = {}, d = {}'.format(b,d))
-                    leg1.append('bound2, b = {}, d = {}'.format(b,d))
-                    leg2.append('b = {}, d = {}'.format(b,d))
                 overlaps[i_b,i_n] = 1 - np.linalg.norm(Uq[:,:d].T @ U[:,:d])**2 / d
                 bound1[i_b,i_n] = np.linalg.norm(H)**2 / (d * s_min**4)
-                bound2[i_b,i_n] = np.linalg.norm(H)**2 / (0.4 * n**2/d)
+                bound2[i_b,i_n] = np.linalg.norm(H)**2 / (0.2 * n**2/d)
                 numerator[i_b,i_n] = np.linalg.norm(H)**2
                 denominator[i_b,i_n] = d * s_min**4
                 print('n = {}, d = {}, b = {}, overlap = {}'.format(n, d, b, overlaps[i_b,i_n]))
     plt.figure(1)
     colors = ['r','g','b']
+    leg1 = []
     for i_b,b in enumerate(bs):
+        leg1.append('1-overlap, b = {}, d = {}'.format(b,ds[0]))
+        leg1.append('bound1, b = {}, d = {}'.format(b,ds[0]))
+        leg1.append('bound2, b = {}, d = {}'.format(b,ds[0]))
         plt.plot(ns,overlaps[i_b,:], colors[i_b] + 'o-')
         plt.plot(ns,bound1[i_b,:], colors[i_b] + 'x--')
         plt.plot(ns,bound2[i_b,:], colors[i_b] + 's:')
@@ -1025,7 +1024,9 @@ def eigenspace_overlap_micro_vs_n():
     save_plot('micro_eig_overlap_vs_n.pdf')
 
     plt.figure(1)
+    leg2 = []
     for i_b,b in enumerate(bs):
+        leg2.append('b = {}, d = {}'.format(b,ds[0]))
         plt.plot(ns,numerator[i_b,:],'bo-')
     plt.plot(ns,np.array(ns)**2,'bx-')
     leg2.append('n^2')
@@ -1039,7 +1040,6 @@ def eigenspace_overlap_micro_vs_n():
     for i_b,b in enumerate(bs):
         plt.plot(ns,denominator[i_b,:],'bo-')
     plt.plot(ns,np.array(ns)**2,'bx-')
-    leg2.append('n^2')
     plt.legend(leg2)
     plt.yscale('log')
     plt.xscale('log')
@@ -1051,8 +1051,6 @@ def eigenspace_overlap_micro_vs_d():
     ns = [3200]
     ds = [10,25,50,100,200,400,800]
     bs = [1,2,4]
-    leg1 = []
-    leg2 = []
     full_matrices = False
     overlaps = np.zeros((len(bs), len(ds)))
     numerator = np.zeros((len(bs), len(ds)))
@@ -1065,26 +1063,25 @@ def eigenspace_overlap_micro_vs_d():
             lim = 1.0/np.sqrt(d)
             X = np.random.uniform(low=-lim, high=lim, size=(n,d))
             U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
-            s_max = S[0]
+            # s_max = S[0]
             s_min = S[d-1]
             for i_b,b in enumerate(bs):
                 Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
                 Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
                 H = Xq @ Xq.T - X @ X.T
-                if i_d == 1:
-                    leg1.append('1-overlap, b = {}, n = {}'.format(b,n))
-                    leg1.append('bound1, b = {}, n = {}'.format(b,n))
-                    leg1.append('bound2, b = {}, n = {}'.format(b,n))
-                    leg2.append('b = {}, n = {}'.format(b,n))
                 overlaps[i_b,i_d] = 1 - np.linalg.norm(Uq[:,:d].T @ U[:,:d])**2 / d
                 bound1[i_b,i_d] = np.linalg.norm(H)**2 / (d * s_min**4)
-                bound2[i_b,i_d] = np.linalg.norm(H)**2 / (0.4 * n**2/d)
+                bound2[i_b,i_d] = np.linalg.norm(H)**2 / (0.2 * n**2/d)
                 numerator[i_b,i_d] = np.linalg.norm(H)**2
                 denominator[i_b,i_d] = d * s_min**4
                 print('n = {}, d = {}, b = {}, overlap = {}'.format(n, d, b, overlaps[i_b,i_d]))
     plt.figure(1)
     colors = ['r','g','b']
+    leg1 = []
     for i_b,b in enumerate(bs):
+        leg1.append('1-overlap, b = {}, n = {}'.format(b,ns[0]))
+        leg1.append('bound1, b = {}, n = {}'.format(b,ns[0]))
+        leg1.append('bound2, b = {}, n = {}'.format(b,ns[0]))
         plt.plot(ds,overlaps[i_b,:], colors[i_b] + 'o-')
         plt.plot(ds,bound1[i_b,:], colors[i_b] + 'x--')
         plt.plot(ds,bound2[i_b,:], colors[i_b] + 's:')
@@ -1095,7 +1092,9 @@ def eigenspace_overlap_micro_vs_d():
     save_plot('micro_eig_overlap_vs_d.pdf')
 
     plt.figure(1)
+    leg2 = []
     for i_b,b in enumerate(bs):
+        leg2.append('b = {}, n = {}'.format(b,ns[0]))
         plt.plot(ds,numerator[i_b,:],'bo-')
     plt.plot(ds,1/np.array(ds),'bx-')
     leg2.append('1/d')
@@ -1109,7 +1108,6 @@ def eigenspace_overlap_micro_vs_d():
     for i_b,b in enumerate(bs):
         plt.plot(ds,denominator[i_b,:],'bo-')
     plt.plot(ds,1/np.array(ds),'bx-')
-    leg2.append('1/d')
     plt.legend(leg2)
     plt.yscale('log')
     plt.xscale('log')
@@ -1121,8 +1119,6 @@ def eigenspace_overlap_micro_vs_prec():
     ns = [3200]
     ds = [10,100,1000]
     bs = [1,2,4,8,16,32]
-    leg1 = []
-    leg2 = []
     full_matrices = False
     overlaps = np.zeros((len(ds), len(bs)))
     numerator = np.zeros((len(ds), len(bs)))
@@ -1135,26 +1131,25 @@ def eigenspace_overlap_micro_vs_prec():
             lim = 1.0/np.sqrt(d)
             X = np.random.uniform(low=-lim, high=lim, size=(n,d))
             U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
-            s_max = S[0]
+            # s_max = S[0]
             s_min = S[d-1]
             for i_b,b in enumerate(bs):
                 Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
                 Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
                 H = Xq @ Xq.T - X @ X.T
-                if i_b == 1:
-                    leg1.append('1-overlap, d = {}, n = {}'.format(d,n))
-                    leg1.append('bound1, d = {}, n = {}'.format(d,n))
-                    leg1.append('bound2, d = {}, n = {}'.format(d,n))
-                    leg2.append('d = {}, n = {}'.format(d,n))
                 overlaps[i_d,i_b] = 1 - np.linalg.norm(Uq[:,:d].T @ U[:,:d])**2 / d
                 bound1[i_d,i_b] = np.linalg.norm(H)**2 / (d * s_min**4)
-                bound2[i_d,i_b] = np.linalg.norm(H)**2 / (0.4 * n**2/d)
+                bound2[i_d,i_b] = np.linalg.norm(H)**2 / (0.2 * n**2/d)
                 numerator[i_d,i_b] = np.linalg.norm(H)**2
                 denominator[i_d,i_b] = d * s_min**4
                 print('n = {}, d = {}, b = {}, overlap = {}'.format(n, d, b, overlaps[i_d,i_b]))
     plt.figure(1)
     colors = ['r','g','b']
+    leg1 = []
     for i_d,d in enumerate(ds):
+        leg1.append('1-overlap, d = {}, n = {}'.format(d,ns[0]))
+        leg1.append('bound1, d = {}, n = {}'.format(d,ns[0]))
+        leg1.append('bound2, d = {}, n = {}'.format(d,ns[0]))
         plt.plot(bs,overlaps[i_d,:], colors[i_d] + 'o-')
         plt.plot(bs,bound1[i_d,:], colors[i_d] + 'x--')
         plt.plot(bs,bound2[i_d,:], colors[i_d] + 's:')
@@ -1165,7 +1160,9 @@ def eigenspace_overlap_micro_vs_prec():
     save_plot('micro_eig_overlap_vs_prec.pdf')
 
     plt.figure(1)
+    leg2 = []
     for i_d,d in enumerate(ds):
+        leg2.append('d = {}, n = {}'.format(d,ns[0]))
         plt.plot(bs,numerator[i_d,:],'bo-')
     plt.plot(bs,1/(2**np.array(bs)-1)**2,'bx-')
     leg2.append('1/(2^b-1)^2)')
@@ -1179,13 +1176,88 @@ def eigenspace_overlap_micro_vs_prec():
     for i_d,d in enumerate(ds):
         plt.plot(bs,denominator[i_d,:],'bo-')
     plt.plot(bs,1/(2**np.array(bs)-1)**2,'bx-')
-    leg2.append('1/(2^b-1)^2)')
     plt.legend(leg2)
     plt.yscale('log')
     plt.xscale('log')
     plt.title('Denominator vs. prec')
     save_plot('micro_eig_overlap_denominator_vs_prec.pdf')
 
+def eigenspace_overlap_micro_vs_sigma_min():
+    n = 3200
+    d = 10
+    bs = [1,2,4,8,16,32]
+    decays = [
+        np.logspace(0, 0, num=d),
+        np.logspace(0, -1, num=d),
+        np.logspace(0, -2, num=d),
+        np.logspace(0, -3, num=d),
+        np.logspace(0, -4, num=d)
+    ]
+    full_matrices = False
+    overlaps = np.zeros((len(bs),len(decays)))
+    numerator = np.zeros((len(bs),len(decays)))
+    denominator = np.zeros((len(bs),len(decays)))
+    bound1 = np.zeros((len(bs),len(decays)))
+    bound2 = np.zeros((len(bs),len(decays)))
+    sigmas = np.zeros(len(decays))
+    lim = 1.0/np.sqrt(d)
+    X_orig = np.random.uniform(low=-lim, high=lim, size=(n,d))
+    for i_d,decay in enumerate(decays):
+        X = X_orig * decay # uses braodcasting to do an elementwise multiplication.
+        U,S,V = np.linalg.svd(X,full_matrices=full_matrices)
+        # s_max = S[0]
+        s_min = S[d-1]
+        sigmas[i_d] = s_min
+        print('s_min = {}'.format(s_min))
+
+        for i_b,b in enumerate(bs):
+            Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
+            Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
+            H = Xq @ Xq.T - X @ X.T
+            overlaps[i_b,i_d] = 1 - np.linalg.norm(Uq[:,:d].T @ U[:,:d])**2 / d
+            bound1[i_b,i_d] = np.linalg.norm(H)**2 / (d * s_min**4)
+            bound2[i_b,i_d] = np.linalg.norm(H)**2 / (0.2 * n**2/d)
+            numerator[i_b,i_d] = np.linalg.norm(H)**2
+            denominator[i_b,i_d] = d * s_min**4
+            print('n = {}, d = {}, b = {}, overlap = {}, s_min = {}'.format(n, d, b, overlaps[i_b,i_d], s_min))
+
+    plt.figure(1)
+    colors = ['r','g','b','m','k','c']
+    leg1 = []
+    for i_b,b in enumerate(bs):
+        leg1.append('1-overlap, b = {}'.format(b))
+        leg1.append('bound1, b = {}'.format(b))
+        # leg.append('bound2, b = {}'.format(b))
+        plt.plot(sigmas,overlaps[i_b,:], colors[i_b] + 'o-')
+        plt.plot(sigmas,bound1[i_b,:], colors[i_b] + 'x--')
+        # plt.plot(sigmas,bound2[i_b,:], colors[i_b] + 's:')
+    plt.plot(sigmas,1/sigmas**4,'bx-')
+    leg1.append('1/sigma_min^4')
+    plt.legend(leg1)
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.title('1-overlap vs. sigma_min')
+    save_plot('micro_eig_overlap_vs_sigma_min.pdf')
+
+    plt.figure(1)
+    leg2 = []
+    for i_b,b in enumerate(bs):
+        leg2.append('b = {}'.format(b))
+        plt.plot(sigmas,numerator[i_b,:],'bo-')
+    plt.legend(leg2)
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.title('Numerator vs. sigma_min')
+    save_plot('micro_eig_overlap_numerator_vs_sigma_min.pdf')
+    
+    plt.figure(1)
+    for i_b,b in enumerate(bs):
+        plt.plot(sigmas,denominator[i_b,:],'bo-')
+    plt.legend(leg2)
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.title('Denominator vs. sigma_min')
+    save_plot('micro_eig_overlap_denominator_vs_sigma_min.pdf')
 
 if __name__ == '__main__':
     # ppmi_spectrum()
@@ -1216,7 +1288,8 @@ if __name__ == '__main__':
     # input("before save")
 
     # Eigenvector overlap micros--Avner
+    eigenspace_overlap_micro_vs_sigma_min()
     # eigenspace_overlap_micro_vs_n()
     # eigenspace_overlap_micro_vs_d()
-    eigenspace_overlap_micro_vs_prec()
+    # eigenspace_overlap_micro_vs_prec()
     # eigenspace_overlap()
