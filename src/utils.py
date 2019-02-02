@@ -63,11 +63,12 @@ def init_compress_parser():
     parser.add_argument('--embeddim', type=int, required=True,
         help='Dimension of embeddings to use.')
     parser.add_argument('--compresstype', type=str, required=True,
-        choices=['uniform','kmeans','dca','nocompress'],
+        choices=['uniform','kmeans','dca','pca','nocompress'],
         help='Name of compression method to use (uniform, kmeans, dca, nocompress).')
     parser.add_argument('--rungroup', type=str, required=True,
         help='Name of rungroup')
-    parser.add_argument('--bitrate', type=int, required=True,
+    # required for all compression types except for PCA.
+    parser.add_argument('--bitrate', type=int, required=False, default=-1,
         help='Bitrate.  Note not exact for some methods, but as close as possible.')
     parser.add_argument('--seed', type=int, required=True,
         help='Random seed to use for experiment.')
@@ -93,6 +94,9 @@ def init_compress_parser():
     parser.add_argument('--gradclip', type=float, default=0.001,
         help='Clipping of gradient norm for DCA training.')
     ### End DCA hyperparameters
+    ### PCA hyperparameters
+    parser.add_argument('--pcadim', type=int, required=False, default=-1,
+        help='Dimension of embeddings to use for compressed PCA embeddings.')
     return parser
 
 def init_evaluate_parser():
@@ -156,12 +160,18 @@ def validate_config(runtype):
     if runtype == 'train':
         pass # nothing to validate here
     elif runtype == 'compress':
+        if config['compresstype'] != 'pca':
+            assert config['bitrate'] >= 1 and config['bitrate'] <= 32, \
+                'Must specify bitrate between 1 and 32.'
         if config['compresstype'] == 'dca':
             assert config['k'] != -1, 'Must specify k for DCA training.'
             assert np.log2(config['k']) == np.ceil(np.log2(config['k'])), \
                 'k must be a power of 2.'
         elif config['compresstype'] == 'nocompress':
             assert config['bitrate'] == 32
+        elif config['compresstype'] == 'pca':
+            assert config['pcadim'] > 0 and config['pcadim'] <= config['embeddim'], \
+                'pcadim must be a positive integer at most the size of the original embeddings.'
         if config['embedtype'] == 'glove400k' or config['embedtype'] == 'glove10k':
             assert config['embeddim'] in (50,100,200,300)
         elif config['embedtype'] == 'glove-wiki-am' or config['embedtype'] == 'glove-wiki400k-am':

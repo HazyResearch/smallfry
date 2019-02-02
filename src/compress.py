@@ -32,6 +32,8 @@ def store_embed_memory_info(v,d):
     utils.config['exact-memory'] = get_exact_memory()
     utils.config['exact-compression-ratio'] = 32 * v * d / utils.config['exact-memory']
     utils.config['exact-bitrate'] = utils.config['exact-memory'] / (v * d)
+    if utils.config['compresstype'] == 'pca':
+        utils.config['bitrate'] = 32 * utils.config['pcadim'] / utils.config['embeddim']
     if not utils.config['skipquant']:
         assert np.abs(utils.config['exact-bitrate'] - utils.config['bitrate']) < .01, \
             'Discrepency between exact and intended bitrates is >= 0.01.'
@@ -60,6 +62,8 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
             grad_clip=utils.config['gradclip'], tau=utils.config['tau']
         )
         results['dca-results-per-epoch'] = results_per_epoch
+    elif utils.config['compresstype'] == 'pca':
+        Xq, frob_squared_error, elapsed = compress_pca(X, utils.config['pcadim'])
     elif utils.config['compresstype'] == 'nocompress':
         Xq = X
         frob_squared_error = 0
@@ -76,6 +80,15 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
     utils.config['compressed-embed-path'] = utils.get_filename('_compressed_embeds.txt')
     logging.info('Finished making embeddings. It took {} min.'.format(elapsed/60))
     utils.save_embeddings(utils.config['compressed-embed-path'], Xq, wordlist)
+
+# Compress X in R^(n x d) into X' in R^(n x k) using PCA
+def compress_pca(X, pca_dim):
+    start = time.time()
+    U,S,_ = np.linalg.svd(X,full_matrices=False)
+    Xq = U[:,:pca_dim] * S[:pca_dim]
+    elapsed = time.time() - start
+    frob_squared_error = 0
+    return Xq, frob_squared_error, elapsed
 
 def compress_kmeans(X, bit_rate, random_seed=None, n_init=1):
     # Tony's params for k-means: max_iter=70, n_init=1, tol=0.01.
@@ -276,6 +289,8 @@ def get_exact_memory():
     elif utils.config['compresstype'] == 'uniform' and not utils.config['skipquant']:
         # we add 32 because range must be stored
         mem = v * d * bit_rate + 32
+    elif utils.config['compresstype'] == 'pca':
+        mem = v * utils.config['pcadim'] * 32
     elif utils.config['compresstype'] == 'nocompress':
         mem = v * d * 32
     else:
