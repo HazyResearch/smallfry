@@ -87,6 +87,30 @@ def line2vec(line, value_dict=None):
         ])
 
 
+def quantize_embed(module, nbit=32):
+    """
+    This function replace all embedding modules
+    to QuantEmbedding layer.
+    """
+    for name, child in module.named_children():
+        if isinstance(child, torch.nn.Embedding):
+            quant_embedding = QuantEmbedding(
+                num_embeddings=child.num_embeddings,
+                embedding_dim=child.embedding_dim,
+                padding_idx=child.padding_idx,
+                nbit=nbit,
+                _weight=child.weight)
+            # send the quant embedding layer to gpu
+            # if the original embedding is on gpu
+            if next(child.parameters()).is_cuda:
+                quant_embedding.cuda()
+            setattr(module, name, quant_embedding)
+            logging.info("Replaced " + name + " in " +
+                         module.__class__.__name__)
+        else:
+            quantize_embed(child, nbit)
+    return module
+
 
 class QuantEmbedding(nn.Embedding):
     def __init__(self,
@@ -124,9 +148,8 @@ class QuantEmbedding(nn.Embedding):
         assert norm_type == 2.
         assert scale_grad_by_freq == False
         assert sparse == False
-        if (_weight is None
-                and embedding_file is None) or (_weight is not None
-                                                 and embedding_file is not None):
+        if (_weight is None and embedding_file is None) or (
+                _weight is not None and embedding_file is not None):
             raise Exception(
                 "Should provide input either from a tensor or a file!")
         self.nbit = nbit
@@ -145,11 +168,17 @@ class QuantEmbedding(nn.Embedding):
             scale_grad_by_freq=scale_grad_by_freq,
             sparse=sparse)
 
+        # if we have an cuda input _weight, we convert it to cpu
+        # so that the intermediate memory in initialization would
+        # not exhaust the gpu memory.
+        if _weight is not None and _weight.is_cuda:
+            _weight = _weight.detach().cpu()
         if self.nbit == 32:
             # we only support forward pass
             self.weight.requires_grad = False
             if embedding_file is not None:
-                _weight = self._load_from_unquant_file_to_uncompressed_tensor(embedding_file)
+                _weight = self._load_from_unquant_file_to_uncompressed_tensor(
+                    embedding_file)
             self.weight.copy_(_weight)
         else:
             self.weight = nn.Parameter(
@@ -166,7 +195,8 @@ class QuantEmbedding(nn.Embedding):
                     self._compress_tensor(_weight, do_quant=False)
                 elif embedding_file is not None:
                     # the functionality of compress tensor is included in the loading function here
-                    self._load_from_quant_file_to_compressed_tensor(embedding_file)
+                    self._load_from_quant_file_to_compressed_tensor(
+                        embedding_file)
             else:
                 if _weight is not None:
                     assert isinstance(_weight, torch.FloatTensor)
@@ -179,7 +209,7 @@ class QuantEmbedding(nn.Embedding):
     def _get_value_list_from_tensor(self, weight):
         # get the unique values into a list
         if isinstance(weight, torch.FloatTensor):
-            weight = weight.cpu().numpy()
+            weight = weight.detach().cpu().numpy()
         sorted_vals = sorted(np.unique(weight).tolist())
         return sorted_vals
 
@@ -195,9 +225,11 @@ class QuantEmbedding(nn.Embedding):
     def _quantized_input(self, weight, embedding_file):
         assert weight is None or embedding_file is None, " Can only use one out of Tensor or File as input!"
         if weight is not None:
-            return len(self._get_value_list_from_tensor(weight)) <= 2**self.nbit
+            return len(
+                self._get_value_list_from_tensor(weight)) <= 2**self.nbit
         else:
-            return len(self._get_value_list_from_file(embedding_file)) <= 2**self.nbit
+            return len(
+                self._get_value_list_from_file(embedding_file)) <= 2**self.nbit
 
     def _load_from_unquant_file_to_uncompressed_tensor(self, file_name):
         weight = torch.zeros(self.num_embeddings, self.embedding_dim)
@@ -224,12 +256,12 @@ class QuantEmbedding(nn.Embedding):
         assert self.nbit != 32, "_compress_tensor should only be called when nbit < 32"
         if do_quant:
             weight, _, _ = compress.compress_uniform(
-                weight.cpu().numpy(),
+                weight.detach().cpu().numpy(),
                 self.nbit,
                 adaptive_range=True,
                 stochastic_round=False)
         else:
-            weight = weight.cpu().numpy()
+            weight = weight.detach().cpu().numpy()
         # construct value dict
         sorted_vals = self._get_value_list_from_tensor(weight)
         self.register_buffer("value_list", torch.FloatTensor(sorted_vals))
@@ -240,8 +272,7 @@ class QuantEmbedding(nn.Embedding):
         assert len(sorted_vals) <= 2**self.nbit
         if len(sorted_vals) < 2**self.nbit:
             logger.warning(
-                "Set of actual values is smaller than set of possible values."
-            )
+                "Set of actual values is smaller than set of possible values.")
         weight = np.vectorize(self.value_dict.get)(weight)
         # compress vectors into quantized embeddings
         self.weight.copy_(
@@ -278,8 +309,8 @@ class QuantEmbedding(nn.Embedding):
                             [float(value) for value in line.split(" ")[1:]],
                             dtype=self.weight.dtype))
         if self.num_embeddings > line_id + 1:
-            logger.warning("The input vocab is smaller then the specified vocab size")
-
+            logger.warning(
+                "The input vocab is smaller then the specified vocab size")
 
     def forward(self, input):
         embedding = F.embedding(input, self.weight, self.padding_idx,
@@ -289,4 +320,5 @@ class QuantEmbedding(nn.Embedding):
             embedding = decompress_long_mat(embedding, self.nbit,
                                             self.embedding_dim)
             embedding = self.value_list[embedding]
+        assert self.weight.requires_grad == False, " QuantEmbedding only support fixed embedding"
         return embedding

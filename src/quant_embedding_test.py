@@ -1,6 +1,7 @@
 from quant_embedding import compress_long_mat
 from quant_embedding import decompress_long_mat
 from quant_embedding import QuantEmbedding
+from quant_embedding import quantize_embed
 import compress
 from unittest import TestCase
 import torch
@@ -27,6 +28,33 @@ class QuantEmbeddingTest(TestCase):
         # print(input)
         # print(decompressed)
         assert torch.all(torch.eq(input, decompressed))
+
+    def test_embeding_replacement_func(self):
+        layer1 = torch.nn.Embedding(100, 10)
+        layer2 = torch.nn.Embedding(200, 20)
+        layer3 = torch.nn.Embedding(300, 30)
+        layer4 = torch.nn.Embedding(400, 40)
+        module_list1 = torch.nn.ModuleList([layer1, layer2])
+        module_list2 = torch.nn.ModuleList([layer3, layer4])
+        module_list = torch.nn.ModuleList([module_list1, module_list2])
+        module_list_comp = quantize_embed(module_list, nbit=4)
+        assert isinstance(module_list_comp[0][0], QuantEmbedding)
+        assert isinstance(module_list_comp[0][1], QuantEmbedding)
+        assert isinstance(module_list_comp[1][0], QuantEmbedding)
+        assert isinstance(module_list_comp[1][1], QuantEmbedding)
+
+        layer1 = torch.nn.Embedding(100, 10)
+        layer2 = torch.nn.Embedding(200, 20)
+        layer3 = torch.nn.Embedding(300, 30)
+        layer4 = torch.nn.Embedding(400, 40)
+        module_list1 = torch.nn.Sequential(layer1, layer2)
+        module_list2 = torch.nn.Sequential(layer3, layer4)
+        module_list = torch.nn.Sequential(module_list1, module_list2)
+        module_list_comp = quantize_embed(module_list, nbit=4)
+        assert isinstance(module_list_comp[0][0], QuantEmbedding)
+        assert isinstance(module_list_comp[0][1], QuantEmbedding)
+        assert isinstance(module_list_comp[1][0], QuantEmbedding)
+        assert isinstance(module_list_comp[1][1], QuantEmbedding)
 
     def generate_embedding_file(self,
                                 n_bit,
