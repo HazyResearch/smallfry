@@ -32,6 +32,8 @@ def store_embed_memory_info(v,d):
     utils.config['exact-memory'] = get_exact_memory()
     utils.config['exact-compression-ratio'] = 32 * v * d / utils.config['exact-memory']
     utils.config['exact-bitrate'] = utils.config['exact-memory'] / (v * d)
+    if utils.config['compresstype'] == 'pca':
+        utils.config['bitrate'] = 32 * utils.config['pcadim'] / utils.config['embeddim']
     if not utils.config['skipquant']:
         assert np.abs(utils.config['exact-bitrate'] - utils.config['bitrate']) < .01, \
             'Discrepency between exact and intended bitrates is >= 0.01.'
