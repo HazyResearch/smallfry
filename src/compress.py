@@ -63,7 +63,7 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
         )
         results['dca-results-per-epoch'] = results_per_epoch
     elif utils.config['compresstype'] == 'pca':
-        Xq, frob_squared_error, elapsed = compress_pca(X, utils.config['pca_dim'])
+        Xq, frob_squared_error, elapsed = compress_pca(X, utils.config['pcadim'])
     elif utils.config['compresstype'] == 'nocompress':
         Xq = X
         frob_squared_error = 0
