@@ -287,6 +287,8 @@ def get_exact_memory():
     elif utils.config['compresstype'] == 'uniform' and not utils.config['skipquant']:
         # we add 32 because range must be stored
         mem = v * d * bit_rate + 32
+    elif utils.config['compresstype'] == 'pca':
+        mem = v * utils.config['pcadim'] * 32
     elif utils.config['compresstype'] == 'nocompress':
         mem = v * d * 32
     else:
