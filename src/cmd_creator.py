@@ -558,6 +558,72 @@ def cmds_1_17_19_eval_synthetics_large_dim():
         for embedpath in embedpaths:
             f.write(cmd_format_str.format(evaltype, embedpath))
 
+def cmds_2_1_19_glove_wiki400k_tuneDCA():
+    filename = get_cmdfile_path('2_1_19_glove_wiki400k_tuneDCA')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/dca_docker.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'tuneDCA'
+    embedtype = 'glove-wiki400k-am'
+    compresstype = 'dca'
+    embeddim = 400
+    seed = 1
+
+    # 60 total configurations
+    bitrates = [1,2,4] # 3
+    ks = [2,4,8,16] # 4
+    lrs = ['0.00001', '0.00003', '0.0001', '0.0003', '0.001'] # 5
+
+    with open(filename,'w') as f:
+        for bitrate in bitrates:
+            for k in ks:
+                for lr in lrs:
+                    f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {} --k {} --lr {}\\"\n').format(
+                        prefix, rungroup, embedtype, compresstype, bitrate,
+                        embeddim, seed, k, lr)
+                    )
+
+def cmds_2_1_19_glove_wiki400k_kmeans():
+    filename = get_cmdfile_path('2_1_19_glove_wiki400k_kmeans')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+            '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+            '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'fiveSeedsKmeans'
+    embedtype = 'glove-wiki400k-am'
+    compresstype = 'kmeans'
+    embeddim = 400
+    seeds = [1,2,3,4,5]
+    bitrates = [1,2,4]
+
+    with open(filename,'w') as f:
+        for seed in seeds:
+            for bitrate in bitrates:
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {}\\"\n').format(
+                    prefix, rungroup, embedtype, compresstype, bitrate, embeddim, seed)
+                )
+
+def cmds_2_1_19_fasttext1m_pca():
+    filename = get_cmdfile_path('2_1_19_fasttext1m_pca')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+            '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+            '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'fiveSeedsPCA'
+    embedtype = 'fasttext1m'
+    compresstype = 'pca'
+    embeddim = 300
+    seeds = [1,2,3,4,5]
+    pca_dims = [50,100,200,300]
+
+    with open(filename,'w') as f:
+        for seed in seeds:
+            for pca_dim in pca_dims:
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --pcadim {} '
+                        '--embeddim {} --seed {}\\"\n').format(
+                    prefix, rungroup, embedtype, compresstype, pca_dim, embeddim, seed)
+                )
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
@@ -577,4 +643,7 @@ if __name__ == '__main__':
     # cmds_1_8_19_eval_synthetics_intrinsics()
     # cmds_1_9_19_eval_sentiment_tunelr()
     # cmds_1_10_19_eval_sentiment()
-    cmds_1_17_19_eval_synthetics_large_dim()
+    # cmds_1_17_19_eval_synthetics_large_dim()
+    cmds_2_1_19_glove_wiki400k_tuneDCA()
+    cmds_2_1_19_glove_wiki400k_kmeans()
+    cmds_2_1_19_fasttext1m_pca()
