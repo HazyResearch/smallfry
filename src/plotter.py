@@ -29,53 +29,48 @@ def clean_results(results):
     cleaned = []
     for result in results:
         result = flatten_dict(result)
-        if result['evaltype'] == 'synthetics-large-dim':
-            delta1_list = result['gram-large-dim-delta1s']
-            delta2_list = result['gram-large-dim-delta2s']
-            for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
-                result['gram-large-dim-delta1-' + str(i)] = delta1
-                result['gram-large-dim-delta2-' + str(i)] = delta2
-                result['gram-large-dim-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
-            # FIX SUBSPACE-DIST
-            if result['embedtype'] in ['glove400k','fasttext1m']:
-                large_dim = 300
+        if 'evaltype' in result:
+            if result['evaltype'] == 'synthetics-large-dim':
+                delta1_list = result['gram-large-dim-delta1s']
+                delta2_list = result['gram-large-dim-delta2s']
+                for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
+                    result['gram-large-dim-delta1-' + str(i)] = delta1
+                    result['gram-large-dim-delta2-' + str(i)] = delta2
+                    result['gram-large-dim-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
+                # FIX SUBSPACE-DIST
+                if result['embedtype'] in ['glove400k','fasttext1m']:
+                    large_dim = 300
+                else:
+                    assert result['embedtype'] == 'glove-wiki400k-am'
+                    large_dim = 400
+                eig_overlap = large_dim - result['subspace-dist']
+                new_dist = large_dim + result['embeddim'] - 2 * eig_overlap
+                result['subspace-eig-distance'] = new_dist
+                result['subspace-eig-overlap'] = eig_overlap
+            if result['evaltype'] == 'synthetics':
+                delta1_list = result['gram-delta1s']
+                delta2_list = result['gram-delta2s']
+                for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
+                    result['gram-delta1-' + str(i)] = delta1
+                    result['gram-delta2-' + str(i)] = delta2
+                    result['gram-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
+                delta1_list = result['cov-delta1s']
+                delta2_list = result['cov-delta2s']
+                for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
+                    result['cov-delta1-' + str(i)] = delta1
+                    result['cov-delta2-' + str(i)] = delta2
+                    result['cov-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
+        if 'compresstype' in result:
+            if result['compresstype'] == 'nocompress' and result['embedtype'] == 'glove400k':
+                # NOTE: This assumes all other compression methods are compressing
+                # a 300 dimensional embedding
+                effective_bitrate = (32.0/300.0) * result['embeddim']
+                result['compression-ratio'] = 32.0/effective_bitrate
             else:
-                assert result['embedtype'] == 'glove-wiki400k-am'
-                large_dim = 400
-            eig_overlap = large_dim - result['subspace-dist']
-            new_dist = large_dim + result['embeddim'] - 2 * eig_overlap
-            result['subspace-eig-distance'] = new_dist
-            result['subspace-eig-overlap'] = eig_overlap
-        if result['evaltype'] == 'synthetics':
-            delta1_list = result['gram-delta1s']
-            delta2_list = result['gram-delta2s']
-            for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
-                result['gram-delta1-' + str(i)] = delta1
-                result['gram-delta2-' + str(i)] = delta2
-                result['gram-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
-            delta1_list = result['cov-delta1s']
-            delta2_list = result['cov-delta2s']
-            for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
-                result['cov-delta1-' + str(i)] = delta1
-                result['cov-delta2-' + str(i)] = delta2
-                result['cov-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
-        # if result['evaltype'] == 'synthetics-large-dim':
-            # delta1_list = result['gram-delta1s']
-            # delta2_list = result['gram-delta2s']
-            # for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
-            #     result['gram-delta1-' + str(i)] = delta1
-            #     result['gram-delta2-' + str(i)] = delta2
-            #     result['gram-delta1-' + str(i) + "-trans"] = 1.0/(1.0-delta1)
-        if result['compresstype'] == 'nocompress' and result['embedtype'] == 'glove400k':
-            # NOTE: This assumes all other compression methods are compressing
-            # a 300 dimensional embedding
-            effective_bitrate = (32.0/300.0) * result['embeddim']
-            result['compression-ratio'] = 32.0/effective_bitrate
-        else:
-            result['compression-ratio'] = 32.0/result['bitrate']
-        if result['compresstype'] in ['uniform','nocompress','kmeans']:
-            vocab = utils.get_embedding_vocab(result['embedtype'])
-            result['memory'] = vocab * result['embeddim'] * result['bitrate']
+                result['compression-ratio'] = 32.0/result['bitrate']
+            if result['compresstype'] in ['uniform','nocompress','kmeans']:
+                vocab = utils.get_embedding_vocab(result['embedtype'])
+                result['memory'] = vocab * result['embeddim'] * result['bitrate']
         if 'test-err' in result:
             result['test-acc'] = 1-result['test-err']
             result['val-acc'] = 1-result['val-err']
