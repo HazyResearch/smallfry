@@ -759,4 +759,8 @@ if __name__ == '__main__':
     # cmds_2_1_19_glove_wiki400k_tuneDCA()
     # cmds_2_1_19_glove_wiki400k_kmeans()
     # cmds_2_1_19_fasttext1m_pca()
-    cmds_2_4_19_glove_wiki400k_fiveSeedsDCA()
+    # cmds_2_4_19_glove_wiki400k_fiveSeedsDCA()
+    cmds_2_4_19_eval_qa_february_embeddings() # all QA eval
+    cmds_2_4_19_eval_sentiment_fasttext1m_pca_tunelr() # sentiment LR tuning for fasttext
+    # cmds_2_4_19_eval_sentiment_february_embedding() # all sentiment eval
+    # cmds_2_4_19_eval_intrinsics_synthetics_february_embeddings() # all intrinsics/synthetics eval (run on CPU machines)
