@@ -179,7 +179,7 @@ class QuantEmbedding(nn.Embedding):
             if embedding_file is not None:
                 _weight = self._load_from_unquant_file_to_uncompressed_tensor(
                     embedding_file)
-            self.weight.copy_(_weight)
+            self.weight.copy_(_weight.data)
         else:
             self.weight = nn.Parameter(
                 torch.zeros(
@@ -205,6 +205,8 @@ class QuantEmbedding(nn.Embedding):
                         embedding_file)
                 # compress _weight into self.weight
                 self._compress_tensor(_weight)
+        logger.info("Compressed embedding to " + str(self.nbit) + " bits!")
+
 
     def _get_value_list_from_tensor(self, weight):
         # get the unique values into a list
