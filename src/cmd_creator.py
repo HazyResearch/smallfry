@@ -703,7 +703,6 @@ def cmds_2_4_19_eval_sentiment_february_embedding():
     lr_tuning_results = plotter.get_best_lr_sentiment()
     utils.save_to_json(lr_tuning_results, get_cmdfile_path('cmds_2_4_19_eval_february_embeddings_sentiment_tunelr_results.json'))
     best_lr_dict = lr_tuning_results['best_lr_dict']
-    print(best_lr_dict)
     datasets = ['mr','subj','cr','sst','trec','mpqa']
     embedpaths = []
     for path_regex in path_regexes:
