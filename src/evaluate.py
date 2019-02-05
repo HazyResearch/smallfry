@@ -148,24 +148,32 @@ def evaluate_synthetics(embed_path):
         utils.config['compress-config']['base-embed-path'])
 
     results = {}
-    ### Embedding error (X)
-    # Frob error (X)
-    results['embed-frob-error'] = np.linalg.norm(base_embeds-embeds)
+    if base_embeds.shape == embeds.shape:
+        ### Embedding error (X)
+        results['embed-frob-error'] = np.linalg.norm(base_embeds-embeds)
+        results['embed-spec-error'] = np.linalg.norm(base_embeds-embeds,2)
+        results['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
+        results['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
+        ### Covariance error (X^T X)
+        compute_gram_or_cov_errors(embeds, base_embeds, False, 'cov', results)
+    else:
+        # PCA compressed embeddings have a different dimension than their base embeddings.
+        ### Embedding error (X)
+        results['embed-frob-error'] = 0
+        results['embed-spec-error'] = 0
+        results['embed-mean-euclidean-dist'] = 0
+        results['semantic-dist'] = 0
+        ### Covariance error (X^T X)
+        compute_gram_or_cov_errors(embeds, embeds, False, 'cov', results)
+
+    # General properties of the embeddings and base embeddings.
     results['embed-frob-norm'] = np.linalg.norm(embeds)
     results['base-embed-frob-norm'] = np.linalg.norm(base_embeds)
-    # Spec Error (X)
-    results['embed-spec-error'] = np.linalg.norm(base_embeds-embeds,2)
     results['embed-spec-norm'] = np.linalg.norm(embeds,2)
     results['base-embed-spec-norm'] = np.linalg.norm(base_embeds,2)
-
-    # Other
-    results['embed-mean-euclidean-dist'] = np.mean(np.linalg.norm(base_embeds-embeds,axis=1))
-    results['semantic-dist'] = np.mean([distance.cosine(embeds[i],base_embeds[i]) for i in range(len(embeds))])
     results['mean'] = np.mean(embeds)
     results['var'] = np.var(embeds)
 
-    ### Covariance error (X^T X)
-    compute_gram_or_cov_errors(embeds, base_embeds, False, 'cov', results)
     ### Gram matrix error (XX^T)
     compute_gram_or_cov_errors(embeds, base_embeds, True, 'gram', results)
     return results
