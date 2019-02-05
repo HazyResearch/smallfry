@@ -637,6 +637,10 @@ def cmds_2_4_19_glove_wiki400k_fiveSeedsDCA():
     seeds = [1,2,3,4,5]
     path_regex = '/proj/smallfry/embeddings/glove-wiki400k-am/2019-02-04-tuneDCA/*/*final.json'
     bitrate_k_lr = plotter.dca_get_best_k_lr_per_bitrate(path_regex)
+    # This is the dictionary returned above
+    # bitrate_k_lr = {1: {'k': 4, 'lr': 0.0003},
+    #                 2: {'k': 4, 'lr': 0.0003},
+    #                 4: {'k': 8, 'lr': 0.0003}}
     print(bitrate_k_lr)
     with open(filename,'w') as f:
         for bitrate in bitrates:
@@ -648,6 +652,89 @@ def cmds_2_4_19_glove_wiki400k_fiveSeedsDCA():
                     prefix, rungroup, embedtype, compresstype, bitrate,
                     embeddim, seed, k, lr)
                 )
+
+#### EVALUATE THE NEW COMPRESSED EMBEDDINGS FROM FEBRUARY ####
+# We compressed fasttext1m embeddings with PCA, and glove-wiki400k-am embeddings
+# with DCCL and k-means.
+
+# DrQA eval (RUN ON GPU)
+def cmds_2_4_19_eval_qa_february_embeddings():
+    cmd_file = get_cmdfile_path('2_4_19_eval_qa_february_embeddings_cmds')
+    path_regexes = ['/proj/smallfry/embeddings/glove-wiki400k-am/2019-02-05-fiveSeedsDCA/*/*embeds.txt',
+                    '/proj/smallfry/embeddings/glove-wiki400k-am/2019-02-02-fiveSeedsKmeans/*/*embeds.txt',
+                    '/proj/smallfry/embeddings/fasttext1m/2019-02-02-fiveSeedsPCA/*/*embeds.txt']
+    evaltype = 'qa'
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
+            '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {} --cuda\\"\n')
+
+    embedpaths = []
+    for path_regex in path_regexes:
+        embedpaths.extend(glob.glob(path_regex))
+
+    with open(cmd_file,'w') as f:
+        for embedpath in embedpaths:
+            f.write(cmd_format_str.format(evaltype, embedpath.strip()))
+
+def cmds_2_4_19_eval_sentiment_fasttext1m_pca_tunelr():
+    filename = get_cmdfile_path('2_4_19_eval_sentiment_fasttext1m_pca_tunelr_cmds')
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
+            '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {} '
+            '--dataset {} --tunelr --epochs 100\\"\n')
+    evaltype = 'sentiment'
+    path_regexes = ['/proj/smallfry/embeddings/fasttext1m/2019-02-02-fiveSeedsPCA/*/*embeds.txt']
+    datasets = ['mr','subj','cr','sst','trec','mpqa']
+    embedpaths = []
+    for path_regex in path_regexes:
+        embedpaths.extend(glob.glob(path_regex))
+    with open(filename,'w') as f:
+        for embedpath in embedpaths:
+            for dataset in datasets:
+                f.write(cmd_format_str.format(evaltype, embedpath.strip(), dataset))
+
+def cmds_2_4_19_eval_sentiment_february_embedding():
+    filename = get_cmdfile_path('2_4_19_eval_sentiment_february_embeddings_cmds')
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
+            '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {} '
+            '--dataset {} --lr {} --epochs 100\\"\n')
+    path_regexes = ['/proj/smallfry/embeddings/glove-wiki400k-am/2019-02-05-fiveSeedsDCA/*/*embeds.txt',
+                    '/proj/smallfry/embeddings/glove-wiki400k-am/2019-02-02-fiveSeedsKmeans/*/*embeds.txt',
+                    '/proj/smallfry/embeddings/fasttext1m/2019-02-02-fiveSeedsPCA/*/*embeds.txt']
+    evaltype = 'sentiment'
+    lr_tuning_results = plotter.get_best_lr_sentiment()
+    utils.save_to_json(lr_tuning_results, get_cmdfile_path('cmds_2_4_19_eval_february_embeddings_sentiment_tunelr_results.json'))
+    best_lr_dict = lr_tuning_results['best_lr_dict']
+    datasets = ['mr','subj','cr','sst','trec','mpqa']
+    embedpaths = []
+    for path_regex in path_regexes:
+        embedpaths.extend(glob.glob(path_regex))
+    with open(filename,'w') as f:
+        for embedpath in embedpaths:
+            config_path = embedpath.replace('_compressed_embeds.txt','_final.json')
+            config = utils.load_from_json(config_path)
+            # TODO: I THINK WE WILL HAVE TO CHANGE THIS FOR FASTTEXT
+            base_embed_path = config['base-embed-path']
+            for dataset in datasets:
+                best_lr = best_lr_dict[base_embed_path][dataset]
+                f.write(cmd_format_str.format(evaltype, embedpath, dataset, best_lr))
+
+# This does synthetic and intrinsic evaluations.
+def cmds_2_4_19_eval_intrinsics_synthetics_february_embeddings():
+    cmd_file = get_cmdfile_path('2_4_19_eval_intrinsics_synthetics_february_embeddings_cmds')
+    path_regexes = ['/proj/smallfry/embeddings/glove-wiki400k-am/2019-02-05-fiveSeedsDCA/*/*embeds.txt',
+                    '/proj/smallfry/embeddings/glove-wiki400k-am/2019-02-02-fiveSeedsKmeans/*/*embeds.txt',
+                    '/proj/smallfry/embeddings/fasttext1m/2019-02-02-fiveSeedsPCA/*/*embeds.txt']
+    evaltypes = ['intrinsics', 'synthetics', 'synthetics-large-dim']
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
+            '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {}\\"\n')
+
+    embedpaths = []
+    for path_regex in path_regexes:
+        embedpaths.extend(glob.glob(path_regex))
+
+    with open(cmd_file,'w') as f:
+        for evaltype in evaltypes:
+            for embedpath in embedpaths:
+                f.write(cmd_format_str.format(evaltype, embedpath.strip()))
 
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
