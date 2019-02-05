@@ -102,7 +102,7 @@ def extract_result_subset(all_results, key_values_to_match):
 def matches_all_key_values(result, key_values_to_match):
     for key,values in key_values_to_match.items():
         assert type(values) == list
-        if result[key] not in values: return False
+        if (key not in result) or (result[key] not in values): return False
     return True
 
 
@@ -442,11 +442,12 @@ def get_best_lr_sentiment():
     for result in all_results:
         if result['base-embed-path'] not in base_embeds:
             base_embeds.append(result['base-embed-path'])
-        if 'compresstype,pca_seed,1_' in result['compressed-embed-path']:
+        if ('compresstype,pca_seed,1_' in result['compressed-embed-path'] and
+            result['compressed-embed-path'] not in base_embeds):
             # For PCA embeddings, we treat the seed=1 embedding as the 'base_embed'
             # This way, the best LR is chosen per PCA dimension.
             base_embeds.append(result['compressed-embed-path'])
-    assert len(base_embeds) == 11
+    assert len(base_embeds) == 15
     # now find best lr per base_embed, based on average of validation errors.
     datasets = ['mr','subj','cr','sst','trec','mpqa']
     lrs = all_results[0]['lrs']
@@ -460,15 +461,16 @@ def get_best_lr_sentiment():
         best_lr_dict[base_embed] = {}
         for j,dataset in enumerate(datasets):
             if 'compresstype,pca_seed,1_' in base_embed:
-                m = re.search('_rungroup,(.+?)_(.*)_pcadim,(.+?)_', base_embed)
+                # m = re.search('_rungroup,(.+?)_(.*)_pcadim,(.+?)_', base_embed)
+                m = re.search('_pcadim,(.+?)_', base_embed)
                 assert m, 'Improper base_embed path'
-                rungroup = m.group(1)
-                pcadim = int(m.group(3))
+                pcadim = int(m.group(1))
+                # TODO: Need to make this more specific if add more PCA results
                 base_embed_results = extract_result_subset(all_results,
-                    {'rungroup':[rungroup], 'pcadim':[pcadim], 'dataset':[dataset]})
+                    {'pcadim':[pcadim], 'dataset':[dataset]})
             else:
                 base_embed_results = extract_result_subset(all_results,
-                    {'base-embed-path':[base_embed], 'dataset':[dataset]})
+                    {'base-embed-path':[base_embed], 'dataset':[dataset], 'compresstype':['nocompress']})
             assert len(base_embed_results) == num_seeds
             for k in range(num_seeds):
                 val_errs[k,:] = base_embed_results[k]['val-errs']
