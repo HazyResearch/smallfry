@@ -445,7 +445,7 @@ def get_best_lr_sentiment():
         if 'compresstype,pca_seed,1_' in result['compressed-embed-path']:
             # For PCA embeddings, we treat the seed=1 embedding as the 'base_embed'
             # This way, the best LR is chosen per PCA dimension.
-            base_embeds.append(result['compress-embed-path'])
+            base_embeds.append(result['compressed-embed-path'])
     assert len(base_embeds) == 11
     # now find best lr per base_embed, based on average of validation errors.
     datasets = ['mr','subj','cr','sst','trec','mpqa']
