@@ -624,6 +624,31 @@ def cmds_2_1_19_fasttext1m_pca():
                     prefix, rungroup, embedtype, compresstype, pca_dim, embeddim, seed)
                 )
 
+def cmds_2_4_19_glove_wiki400k_fiveSeedsDCA():
+    filename = get_cmdfile_path('2_4_19_glove_wiki400k_fiveSeedsDCA')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/dca_docker.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'fiveSeedsDCA'
+    embedtype = 'glove-wiki400k-am'
+    compresstype = 'dca'
+    embeddim = 400
+    bitrates = [1,2,4] # 3
+    seeds = [1,2,3,4,5]
+    path_regex = '/proj/smallfry/embeddings/glove-wiki400k-am/2019-02-04-tuneDCA/*/*final.json'
+    bitrate_k_lr = plotter.dca_get_best_k_lr_per_bitrate(path_regex)
+    print(bitrate_k_lr)
+    with open(filename,'w') as f:
+        for bitrate in bitrates:
+            k = bitrate_k_lr[bitrate]['k']
+            lr = bitrate_k_lr[bitrate]['lr']
+            for seed in seeds:
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                    '--embeddim {} --seed {} --k {} --lr {}\\"\n').format(
+                    prefix, rungroup, embedtype, compresstype, bitrate,
+                    embeddim, seed, k, lr)
+                )
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
