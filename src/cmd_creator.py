@@ -703,6 +703,7 @@ def cmds_2_4_19_eval_sentiment_february_embedding():
     lr_tuning_results = plotter.get_best_lr_sentiment()
     utils.save_to_json(lr_tuning_results, get_cmdfile_path('cmds_2_4_19_eval_february_embeddings_sentiment_tunelr_results.json'))
     best_lr_dict = lr_tuning_results['best_lr_dict']
+    print(best_lr_dict)
     datasets = ['mr','subj','cr','sst','trec','mpqa']
     embedpaths = []
     for path_regex in path_regexes:
@@ -711,8 +712,13 @@ def cmds_2_4_19_eval_sentiment_february_embedding():
         for embedpath in embedpaths:
             config_path = embedpath.replace('_compressed_embeds.txt','_final.json')
             config = utils.load_from_json(config_path)
-            # TODO: I THINK WE WILL HAVE TO CHANGE THIS FOR FASTTEXT
-            base_embed_path = config['base-embed-path']
+            if 'compresstype,pca_' in embedpath:
+                # For PCA embeddings, we treat the seed=1 embedding as the 'base_embed'
+                # This way, the best LR is chosen per PCA dimension.
+                seed = config['seed']
+                base_embed_path = embedpath.replace('_seed,{}_'.format(seed), '_seed,1_')
+            else:
+                base_embed_path = config['base-embed-path']
             for dataset in datasets:
                 best_lr = best_lr_dict[base_embed_path][dataset]
                 f.write(cmd_format_str.format(evaltype, embedpath, dataset, best_lr))
@@ -760,7 +766,7 @@ if __name__ == '__main__':
     # cmds_2_1_19_glove_wiki400k_kmeans()
     # cmds_2_1_19_fasttext1m_pca()
     # cmds_2_4_19_glove_wiki400k_fiveSeedsDCA()
-    cmds_2_4_19_eval_qa_february_embeddings() # all QA eval
+    cmds_2_4_19_eval_qa_february_embeddings() # all QA eval (run on GPU)
     cmds_2_4_19_eval_sentiment_fasttext1m_pca_tunelr() # sentiment LR tuning for fasttext
     # cmds_2_4_19_eval_sentiment_february_embedding() # all sentiment eval
     # cmds_2_4_19_eval_intrinsics_synthetics_february_embeddings() # all intrinsics/synthetics eval (run on CPU machines)

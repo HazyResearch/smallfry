@@ -3,6 +3,7 @@ import pathlib
 import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib as mpl
+import re
 import utils
 from latexifypaper import *
 from scipy.stats import spearmanr
@@ -434,13 +435,17 @@ def gather_ICML_results():
     utils.save_to_json(all_results, result_dir + 'ICML_results.json')
 
 def get_best_lr_sentiment():
-    path_regex = '/proj/smallfry/embeddings/*/*/*/*evaltype,sent*final.json'
+    path_regex = '/proj/smallfry/embeddings/*/*/*/*evaltype,sent*tunelr,True*final.json'
     all_results = clean_results(gather_results(path_regex))
     # first gather list of base_embeds
     base_embeds = []
     for result in all_results:
         if result['base-embed-path'] not in base_embeds:
             base_embeds.append(result['base-embed-path'])
+        if 'compresstype,pca_seed,1_' in result['compressed-embed-path']:
+            # For PCA embeddings, we treat the seed=1 embedding as the 'base_embed'
+            # This way, the best LR is chosen per PCA dimension.
+            base_embeds.append(result['compress-embed-path'])
     assert len(base_embeds) == 11
     # now find best lr per base_embed, based on average of validation errors.
     datasets = ['mr','subj','cr','sst','trec','mpqa']
@@ -454,8 +459,16 @@ def get_best_lr_sentiment():
     for i,base_embed in enumerate(base_embeds):
         best_lr_dict[base_embed] = {}
         for j,dataset in enumerate(datasets):
-            base_embed_results = extract_result_subset(all_results,
-                {'base-embed-path':[base_embed], 'dataset':[dataset]})
+            if 'compresstype,pca_seed,1_' in base_embed:
+                m = re.search('_rungroup,(.+?)_(.*)_pcadim,(.+?)_', base_embed)
+                assert m, 'Improper base_embed path'
+                rungroup = m.group(1)
+                pcadim = int(m.group(3))
+                base_embed_results = extract_result_subset(all_results,
+                    {'rungroup':[rungroup], 'pcadim':[pcadim], 'dataset':[dataset]})
+            else:
+                base_embed_results = extract_result_subset(all_results,
+                    {'base-embed-path':[base_embed], 'dataset':[dataset]})
             assert len(base_embed_results) == num_seeds
             for k in range(num_seeds):
                 val_errs[k,:] = base_embed_results[k]['val-errs']
