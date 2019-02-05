@@ -462,7 +462,7 @@ def get_best_lr_sentiment():
         for j,dataset in enumerate(datasets):
             if 'compresstype,pca_seed,1_' in base_embed:
                 # m = re.search('_rungroup,(.+?)_(.*)_pcadim,(.+?)_', base_embed)
-                m = re.search('_pcadim,(.+?)_', base_embed)
+                m = re.search('_pcadim,(.+?)/', base_embed)
                 assert m, 'Improper base_embed path'
                 pcadim = int(m.group(1))
                 # TODO: Need to make this more specific if add more PCA results
