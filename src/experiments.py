@@ -417,10 +417,11 @@ def eigenspace_overlap_regression_micro():
     y = X@w
     y_norm = np.sum(y**2)
     bs = [1,2,3,4,5,6,7,8,32]
+    # bs = [32]
     leg = []
     for b in bs:
         leg.append('b={}'.format(b))
-    ks = [5,10,15,20,25,30]
+    ks = [5,10,15,20,25,29,30]
     lambdas = [eig_min/100, eig_min, eig_max]
     delta1s = np.zeros((len(bs),len(ks),len(lambdas)))
     delta2s = np.zeros((len(bs),len(ks),len(lambdas)))
@@ -527,8 +528,12 @@ def eigenspace_overlap_micro_vs_prec_vary_n_and_spectrum():
     d = 10
     decays = [
         np.logspace(0, 0, num=d),
-        np.logspace(0, -2, num=d),
-        np.logspace(0, -4, num=d)
+        np.logspace(0, -0.2, num=d),
+        np.logspace(0, -0.4, num=d),
+        np.logspace(0, -0.8, num=d),
+        np.logspace(0, -1.6, num=d),
+        np.logspace(0, -3.2, num=d),
+        np.logspace(0, -6.4, num=d)
     ]
     bs = [1,2,4,8,16,32]
     full_matrices = False
@@ -552,8 +557,12 @@ def eigenspace_overlap_micro_vs_prec_vary_n_and_spectrum():
     plt.figure(1)
     leg = []
     formats = ['r', 'g', 'b', 'y', 'k', 'c']
-    markers = ['s','o','x']
+    markers = ['o','v','s','*','p','d','x']
     if plot_overlap_vs_a:
+        a = np.logspace(-6,0)
+        for i_b,b in enumerate(bs):
+            plt.plot(a, 20/(a**4 * (2**b - 1)**2), formats[i_b] + 'o-')
+            leg.append('Bound (b={})'.format(b))
         for i_b,b in enumerate(bs):
             for i_d,decay in enumerate(decays):
                 plt.scatter(a_values[i_d,:], 1-overlaps[i_d,:,i_b], marker=markers[i_d], c=formats[i_b])
@@ -563,10 +572,6 @@ def eigenspace_overlap_micro_vs_prec_vary_n_and_spectrum():
         plt.ylabel(r'1-Eigenspace overlap (E)')
         plt.xlim((10**(-6), 1))
         plot_filename = 'micro_eig_overlap_vs_a_for_various_n.pdf'
-        a = np.logspace(-6,0)
-        for i_b,b in enumerate(bs):
-            plt.plot(a, 20/(a**4 * (2**b - 1)**2), formats[i_b] + 'o-')
-            leg.append('Bound (b={})'.format(b))
     else:
         for i_d,decay in enumerate(decays):
             for i_n,n in enumerate(ns):
@@ -1120,3 +1125,6 @@ if __name__ == '__main__':
     # eigenspace_overlap()
     eigenspace_overlap_micro_vs_prec_vary_n_and_spectrum()
     # eigenspace_overlap_micro_vs_prec_vary_d_and_spectrum()
+
+    # Simple regression micro
+    # eigenspace_overlap_regression_micro()
