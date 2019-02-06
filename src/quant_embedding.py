@@ -144,6 +144,24 @@ def load_embed_from_ckpt(model, ckpt_file):
     model.load_state_dict(model_dict)
 
 
+def print_model_mem(model):
+    embed_module_names = find_embedding_module_name(model)
+    embed_mem = 0.0
+    non_embed_mem = 0.0
+    model_dict = model.state_dict()
+    for k, v in model_dict.items():
+        is_embed = False
+        for name in embed_module_names:
+            if name in k:
+                is_embed = True
+        if is_embed:
+            embed_mem += v.element_size() * v.nelement()
+        else:
+            non_embed_mem += v.element_size() * v.nelement()
+    logger.info("Embed memory (bytes) " + str(embed_mem))
+    logger.info("Non-embed memory (bytes) " + str(non_embed_mem))
+
+
 class QuantEmbedding(nn.Embedding):
     def __init__(self,
                  num_embeddings,
