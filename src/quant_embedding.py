@@ -5,7 +5,7 @@ import numpy as np
 import math
 import compress
 import logging
-import sys
+import sys, os
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger("quant embedding test")
 
@@ -110,6 +110,38 @@ def quantize_embed(module, nbit=32):
         else:
             quantize_embed(child, nbit)
     return module
+
+
+def find_embedding_module_name(module, module_name=""):
+    module_name_list = []
+    for name, child in module.named_children():
+        if isinstance(child, torch.nn.Embedding):
+            if module_name == "":
+                module_name_list.append(name)
+            else:
+                module_name_list.append(module_name + "." + name)
+        else:
+            if module_name == "":
+                module_name_list += find_embedding_module_name(child, name)
+            else:
+                module_name_list += find_embedding_module_name(child, module_name + "." + name)
+    return module_name_list
+
+
+def load_embed_from_ckpt(model, ckpt_file):
+    """ load normal full precision embedding modules """
+    embed_module_names = find_embedding_module_name(model)
+    assert os.path.isfile(ckpt_file), "model ckpt file " + ckpt_file + " is missing!"
+    ckpt_state_dict = torch.load(ckpt_file)["model"]
+    emb_state_dict = {}
+    for name in embed_module_names:
+        try:
+            emb_state_dict[name + ".weight"] = ckpt_state_dict[name + ".weight"]
+        except:
+            raise Exception(name + ".weight not found in the model checkpoint file")
+    model_dict = model.state_dict()
+    model_dict.update(emb_state_dict)
+    model.load_state_dict(model_dict)
 
 
 class QuantEmbedding(nn.Embedding):
