@@ -16,6 +16,13 @@ from third_party.DrQA.scripts.reader.train import train_drqa
 from third_party.sentence_classification.train_classifier import train_sentiment
 import utils
 
+import sys
+sys.path.append("../../../")
+sys.path.append("../../fairseq")
+from apps.fairseq.train import train_translation
+from generate import generate_translation
+from scripts.average_checkpoints import average_translation_ckpt
+
 def main():
     utils.init('evaluate')
     evaluate_embeds()
@@ -299,6 +306,62 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=
         results["test-err"] = err_test
     return results
 
+def evaluate_translation(embed_path, data_path, seed, tmp_path):
+    '''
+    TODO:
+    a. add argument to make it use 32 bit training to simulate quantization
+    '''
+    data_path = "../../../apps/fairseq/data-bin/iwslt14.tokenized.de-en"
+    tmp_path = "checkpoints/transformer_integration_test"
+    results = {}
+    # training step
+    cmdline_args = [data_path,
+      "-a", "transformer_iwslt_de_en",
+      "--optimizer", "adam",
+      "--lr", "0.0005",
+      "-s", "de",
+      "-t", "en",
+      "--label-smoothing", "0.1",
+      "--dropout", "0.3",
+      "--max-tokens", "4000",
+      "--min-lr", '1e-09',
+      "--lr-scheduler", "inverse_sqrt",
+      "--weight-decay", "0.0001", 
+      "--criterion", "label_smoothed_cross_entropy",
+      "--max-update", "50000",
+      "--seed", str(seed),
+      # "--max-update", "2000",
+      "--warmup-updates", "4000",
+      "--warmup-init-lr", '1e-07',
+      "--adam-betas", '(0.9, 0.98)',
+      "--save-dir", tmp_path,
+      "--log-format", 'simple']
+    min_val_loss, min_val_ppl = train_translation(cmdline_args)    
+
+    # ckpt average step
+    cmdline_args = ["--inputs", tmp_path,
+      "--num-epoch-checkpoints", "10",
+      # "--num-epoch-checkpoints", "1",
+      "--output", tmp_path + "/model_ave.pt"]
+    average_translation_ckpt(cmdline_args)
+
+    # final evaluation step
+    cmdline_args = [data_path,
+      "--path", tmp_path + "/model_ave.pt", 
+      "--batch-size", "128",
+      "--beam", "5",
+      "--remove-bpe"]
+      # "--quant-emb-ckpt",
+      # "--quant-inference-bit", "2"]
+    generate_res_string = generate_translation(cmdline_args)
+    # get blue and evaluation scores
+    results["gen_res_str"] = generate_res_string
+    results["BLEU4"] = float(generate_res_string.split("BLEU4 = ")[1].split(",")[0])
+    results["min_val_loss"] = min_val_loss
+    results["min_val_ppl"] = min_val_ppl
+    return results
+
+
 class BootstrapEmbeddings(Embedding):
     def __init__(self, embed_dict, normalize=True):
         self.dim = len(list(embed_dict.values())[0])
@@ -309,4 +372,6 @@ class BootstrapEmbeddings(Embedding):
             self.normalize()
 
 if __name__ == '__main__':
-    main()
+    # main()
+
+    print(evaluate_translation(embed_path="", data_path="", seed=1, tmp_path=""))
