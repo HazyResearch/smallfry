@@ -161,6 +161,17 @@ def print_model_mem(model):
     logger.info("Embed memory (bytes) " + str(embed_mem))
     logger.info("Non-embed memory (bytes) " + str(non_embed_mem))
 
+def reshape_ckpt_value_list_shape(model, state, nbit):
+    embed_module_names = find_embedding_module_name(model)
+    for name in embed_module_names:
+        # print("test ", name, state.keys())
+        assert name + ".value_list" in state.keys(), "embedding not found in the ckpt!"
+        value_list = torch.zeros([2**nbit], dtype=torch.float32)
+        old_value_list = state[name + ".value_list"]
+        state[name + ".value_list"] = value_list
+        state[name + ".value_list"][:old_value_list.nelement()].copy_(old_value_list)
+        logger.info("Updated value_list to shape " + str(state[name + ".value_list"].size()))
+    return state
 
 class QuantEmbedding(nn.Embedding):
     def __init__(self,
@@ -316,7 +327,9 @@ class QuantEmbedding(nn.Embedding):
             weight = weight.detach().cpu().numpy()
         # construct value dict
         sorted_vals = self._get_value_list_from_tensor(weight)
-        self.register_buffer("value_list", torch.FloatTensor(sorted_vals))
+        value_list = torch.zeros([2**self.nbit], dtype=torch.float32)
+        value_list[:len(sorted_vals)].copy_(torch.FloatTensor(sorted_vals))
+        self.register_buffer("value_list", value_list)
         self.value_dict = {
             float(value): i
             for i, value in enumerate(sorted_vals)
