@@ -165,12 +165,13 @@ def reshape_ckpt_value_list_shape(model, state, nbit):
     embed_module_names = find_embedding_module_name(model)
     for name in embed_module_names:
         # print("test ", name, state.keys())
-        assert name + ".value_list" in state.keys(), "embedding not found in the ckpt!"
-        value_list = torch.zeros([2**nbit], dtype=torch.float32)
-        old_value_list = state[name + ".value_list"]
-        state[name + ".value_list"] = value_list
-        state[name + ".value_list"][:old_value_list.nelement()].copy_(old_value_list)
-        logger.info("Updated value_list to shape " + str(state[name + ".value_list"].size()))
+        if name + ".value_list" in state.keys():
+            # assert name + ".value_list" in state.keys(), "embedding not found in the ckpt!"
+            value_list = torch.zeros([2**nbit], dtype=torch.float32)
+            old_value_list = state[name + ".value_list"]
+            state[name + ".value_list"] = value_list
+            state[name + ".value_list"][:old_value_list.nelement()].copy_(old_value_list)
+            logger.info("Updated value_list to shape " + str(state[name + ".value_list"].size()))
     return state
 
 class QuantEmbedding(nn.Embedding):
