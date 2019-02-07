@@ -174,6 +174,18 @@ def reshape_ckpt_value_list_shape(model, state, nbit):
             logger.info("Updated value_list to shape " + str(state[name + ".value_list"].size()))
     return state
 
+def fix_embedding_parameters(model):
+    embed_module_names = find_embedding_module_name(model)
+    for name, param in model.named_parameters():
+        if any([x in name for x in embed_module_names]):
+            param.requires_grad = False
+            logger.info("Embedding " + name + " is set to non-training mode")
+
+def print_param(model):
+    for name, param in model.named_parameters():
+        print(name, param.dtype, param.requires_grad)
+
+
 class QuantEmbedding(nn.Embedding):
     def __init__(self,
                  num_embeddings,

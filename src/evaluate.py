@@ -306,13 +306,9 @@ def evaluate_sentiment(embed_path, data_path, seed, tunelr, dataset, epochs, lr=
         results["test-err"] = err_test
     return results
 
-def evaluate_translation(embed_path, data_path, seed, tmp_path):
-    '''
-    TODO:
-    a. add argument to make it use 32 bit training to simulate quantization
-    '''
-    data_path = "../../../apps/fairseq/data-bin/iwslt14.tokenized.de-en"
-    tmp_path = "checkpoints/transformer_integration_test"
+def evaluate_translation(embed_path, data_path, seed, tmp_path=None):
+    # remove tmp folder content to start training from scratch
+    os.system("rm -r " + tmp_path + "/*")
     results = {}
     # training step
     cmdline_args = [data_path,
@@ -335,7 +331,23 @@ def evaluate_translation(embed_path, data_path, seed, tmp_path):
       "--warmup-init-lr", '1e-07',
       "--adam-betas", '(0.9, 0.98)',
       "--save-dir", tmp_path,
-      "--log-format", 'simple']
+      "--log-format", 'simple',
+      "--fix_embeddings"]
+    if tmp_path is not None:
+      # read embedding dimensionality from embedding
+      with open(embed_path) as f_embed:
+        # next(f_embed)  # skip header
+        for line in f_embed:
+            pieces = line.rstrip().split(" ")
+            if len(pieces) >= 3:
+                # this is to avoid header line
+                emb_dim = len(pieces) - 1
+                logging.info("Loading " + str(emb_dim) + " dimensional embedding")
+                break
+      cmdline_args += ["--encoder-embed-path", embed_path,
+        "--decoder-embed-path", embed_path,
+        "--encoder-embed-dim", str(emb_dim),
+        "--decoder-embed-dim", str(emb_dim)]
     min_val_loss, min_val_ppl = train_translation(cmdline_args)    
 
     # ckpt average step
@@ -372,6 +384,9 @@ class BootstrapEmbeddings(Embedding):
             self.normalize()
 
 if __name__ == '__main__':
-    # main()
+    main()
 
-    print(evaluate_translation(embed_path="", data_path="", seed=1, tmp_path=""))
+    # data_path = "../../../apps/fairseq/data-bin/iwslt14.tokenized.de-en"
+    # tmp_path = "checkpoints/transformer_integration_test5"
+    # embed_path = "/dfs/scratch0/zjian/smallfry/src/glove.6B.300d.txt"
+    # print(evaluate_translation(embed_path=embed_path, data_path=data_path, seed=1, tmp_path=tmp_path))
