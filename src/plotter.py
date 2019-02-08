@@ -586,7 +586,9 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
                 'compresstype':['uniform'],
                 'adaptive':[True],
                 'stoch':[False],
-                'skipquant':[False]
+                'skipquant':[False],
+                'embeddim':[get_large_dim(embedtype)],
+                'bitrate':[1,2,4]
             },
         'DCCL':
             {
@@ -594,19 +596,16 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
             }
     }
     if embedtype == 'glove-wiki400k-am':
-        crs = [1,2,4,8,16,32]
         info_per_line['Dim. reduction'] = {
             'compresstype':['nocompress'],
             'embeddim': [50,100,200,400]
         }
     elif embedtype == 'glove400k':
-        crs = [1,1.5,3,6,8,16,32]
         info_per_line['Dim. reduction'] = {
             'compresstype':['nocompress'],
             'embeddim': [50,100,200,300]
         }
     elif embedtype == 'fasttext1m':
-        crs = [1,1.5,3,6,8,16,32]
         info_per_line['Dim. reduction'] = {
             'compresstype':['pca'],
             'pcadim': [50,100,200,300]
