@@ -104,7 +104,7 @@ def init_evaluate_parser():
     parser = argparse.ArgumentParser()
     add_shared_args(parser)
     parser.add_argument('--evaltype', type=str, required=True,
-        choices=['qa','intrinsics','synthetics','synthetics-large-dim','sentiment'],
+        choices=['qa','intrinsics','synthetics','synthetics-large-dim','sentiment','translation'],
         help='Evaluation type.')
     parser.add_argument('--embedpath', type=str, required=True,
         help='Path to embedding to evaluate.')
