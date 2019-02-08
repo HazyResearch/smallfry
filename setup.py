@@ -14,4 +14,5 @@ setup(name='smallfry',
       license='Apache Version 2',
       install_requires = ['numpy',
                           'torch']
+                          
       )

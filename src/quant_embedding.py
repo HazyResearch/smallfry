@@ -5,7 +5,7 @@ import numpy as np
 import math
 import compress
 import logging
-import sys
+import sys, os
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger("quant embedding test")
 
@@ -110,6 +110,80 @@ def quantize_embed(module, nbit=32):
         else:
             quantize_embed(child, nbit)
     return module
+
+
+def find_embedding_module_name(module, module_name=""):
+    module_name_list = []
+    for name, child in module.named_children():
+        if isinstance(child, torch.nn.Embedding):
+            if module_name == "":
+                module_name_list.append(name)
+            else:
+                module_name_list.append(module_name + "." + name)
+        else:
+            if module_name == "":
+                module_name_list += find_embedding_module_name(child, name)
+            else:
+                module_name_list += find_embedding_module_name(child, module_name + "." + name)
+    return module_name_list
+
+
+def load_embed_from_ckpt(model, ckpt_file):
+    """ load normal full precision embedding modules """
+    embed_module_names = find_embedding_module_name(model)
+    assert os.path.isfile(ckpt_file), "model ckpt file " + ckpt_file + " is missing!"
+    ckpt_state_dict = torch.load(ckpt_file)["model"]
+    emb_state_dict = {}
+    for name in embed_module_names:
+        try:
+            emb_state_dict[name + ".weight"] = ckpt_state_dict[name + ".weight"]
+        except:
+            raise Exception(name + ".weight not found in the model checkpoint file")
+    model_dict = model.state_dict()
+    model_dict.update(emb_state_dict)
+    model.load_state_dict(model_dict)
+
+
+def print_model_mem(model):
+    embed_module_names = find_embedding_module_name(model)
+    embed_mem = 0.0
+    non_embed_mem = 0.0
+    model_dict = model.state_dict()
+    for k, v in model_dict.items():
+        is_embed = False
+        for name in embed_module_names:
+            if name in k:
+                is_embed = True
+        if is_embed:
+            embed_mem += v.element_size() * v.nelement()
+        else:
+            non_embed_mem += v.element_size() * v.nelement()
+    logger.info("Embed memory (bytes) " + str(embed_mem))
+    logger.info("Non-embed memory (bytes) " + str(non_embed_mem))
+
+def reshape_ckpt_value_list_shape(model, state, nbit):
+    embed_module_names = find_embedding_module_name(model)
+    for name in embed_module_names:
+        # print("test ", name, state.keys())
+        if name + ".value_list" in state.keys():
+            # assert name + ".value_list" in state.keys(), "embedding not found in the ckpt!"
+            value_list = torch.zeros([2**nbit], dtype=torch.float32)
+            old_value_list = state[name + ".value_list"]
+            state[name + ".value_list"] = value_list
+            state[name + ".value_list"][:old_value_list.nelement()].copy_(old_value_list)
+            logger.info("Updated value_list to shape " + str(state[name + ".value_list"].size()))
+    return state
+
+def fix_embedding_parameters(model):
+    embed_module_names = find_embedding_module_name(model)
+    for name, param in model.named_parameters():
+        if any([x in name for x in embed_module_names]):
+            param.requires_grad = False
+            logger.info("Embedding " + name + " is set to non-training mode")
+
+def print_param(model):
+    for name, param in model.named_parameters():
+        print(name, param.dtype, param.requires_grad)
 
 
 class QuantEmbedding(nn.Embedding):
@@ -266,7 +340,9 @@ class QuantEmbedding(nn.Embedding):
             weight = weight.detach().cpu().numpy()
         # construct value dict
         sorted_vals = self._get_value_list_from_tensor(weight)
-        self.register_buffer("value_list", torch.FloatTensor(sorted_vals))
+        value_list = torch.zeros([2**self.nbit], dtype=torch.float32)
+        value_list[:len(sorted_vals)].copy_(torch.FloatTensor(sorted_vals))
+        self.register_buffer("value_list", value_list)
         self.value_dict = {
             float(value): i
             for i, value in enumerate(sorted_vals)
