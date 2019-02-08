@@ -38,7 +38,7 @@ def clean_results(results):
         result = flatten_dict(result)
         if 'evaltype' in result:
             result = clean_eval_result(result)
-        elif 'compresstype' in result:
+        if 'compresstype' in result:
             result = clean_compress_result(result)
         if 'test-err' in result:
             result['test-acc'] = 1-result['test-err']
