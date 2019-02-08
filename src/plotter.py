@@ -47,20 +47,22 @@ def clean_results(results):
     return cleaned
 
 def clean_eval_result(result):
-    if result['evaltype'] == 'synthetics-large-dim':
-        matrix_types = ['gram']
-        delta_str = 'large-dim-delta'
-    elif result['evaltype'] == 'synthetics':
-        matrix_types = ['gram','cov']
-        delta_str = 'delta'
-    for matrix_type in matrix_types:
-        delta1_list = result['{}-{}1s'.format(matrix_type,delta_str)]
-        delta1_list = result['{}-{}2s'.format(matrix_type,delta_str)]
-        for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
-            # e.g., gram-delta1-1
-            result['{}-{}1-{}'.format(matrix_type,delta_str, i)] = delta1
-            result['{}-{}1-{}-trans'.format(matrix_type,delta_str, i)] = 1.0/(1.0-delta1)
-            result['{}-{}2-{}'.format(matrix_type,delta_str, i)] = delta2
+    if result['evaltype'] in ['synthetics-large-dim','synthetics']:
+        if result['evaltype'] == 'synthetics-large-dim':
+            matrix_types = ['gram']
+            delta_str = 'large-dim-delta'
+        else:
+            assert result['evaltype'] == 'synthetics'
+            matrix_types = ['gram','cov']
+            delta_str = 'delta'
+        for matrix_type in matrix_types:
+            delta1_list = result['{}-{}1s'.format(matrix_type,delta_str)]
+            delta2_list = result['{}-{}2s'.format(matrix_type,delta_str)]
+            for i,(delta1,delta2) in enumerate(zip(delta1_list, delta2_list)):
+                # e.g., gram-delta1-1
+                result['{}-{}1-{}'.format(matrix_type,delta_str, i)] = delta1
+                result['{}-{}1-{}-trans'.format(matrix_type,delta_str, i)] = 1.0/(1.0-delta1)
+                result['{}-{}2-{}'.format(matrix_type,delta_str, i)] = delta2
     # FIX SUBSPACE-DIST (Compute d + k - 2 ||U^T V||_F^2)
     # large_dim = get_large_dim(result['embedtype'])
     # eig_overlap = large_dim - result['subspace-dist']
