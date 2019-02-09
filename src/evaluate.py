@@ -17,9 +17,9 @@ from third_party.sentence_classification.train_classifier import train_sentiment
 import utils
 
 import sys
-sys.path.append("/dfs/scratch0/zjian/sparsity")
+sys.path.append("/proj/smallfry/git/smallfry/src/third_party/low-memory-fnn-training")
 from apps.fairseq.train import train_translation
-sys.path.append("/dfs/scratch0/zjian/sparsity/third_party/fairseq")
+sys.path.append("/proj/smallfry/git/smallfry/src/third_party/low-memory-fnn-training/third_party/fairseq")
 from generate import generate_translation
 from scripts.average_checkpoints import average_translation_ckpt
 
@@ -445,7 +445,7 @@ class BootstrapEmbeddings(Embedding):
 if __name__ == '__main__':
     # main()
 
-    # data_path = "/dfs/scratch0/zjian/sparsity/apps/fairseq/data-bin/iwslt14.tokenized.de-en"
-    # tmp_path = "/dfs/scratch0/zjian/sparsity/apps/fairseq/checkpoints/transformer_integration_test5"
-    # embed_path = "/dfs/scratch0/zjian/smallfry/src/glove.6B.300d.txt"
-    # print(evaluate_translation(embed_path=embed_path, data_path=data_path, seed=1, tmp_path=tmp_path))
+    data_path = "/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en"
+    tmp_path = "/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/checkpoints/transformer_integration_test5"
+    embed_path = "/proj/smallfry/git/smallfry/src//glove.6B.300d.txt"
+    print(evaluate_translation(embed_path=embed_path, data_path=data_path, seed=1, tmp_path=tmp_path))
