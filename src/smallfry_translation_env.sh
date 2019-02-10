@@ -12,6 +12,9 @@
 printf "conda activate smallfry_translation\n"
 conda activate smallfry_pytorch1.0
 
+# export smallfry path
+export PYTHONPATH=$PYTHONPATH:/proj/smallfry/git
+
 printf "\nconda env list\n"
 conda env list
 
