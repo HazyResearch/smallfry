@@ -754,7 +754,8 @@ def cmds_2_7_19_eval_translation_all_embeddings():
     ]
     evaltype = 'translation'
     cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_translation_env.sh '
-            '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {} --cuda\\"\n')
+            '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {} --cuda --datapath {}\\"\n')
+    datapath = '/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en'
 
     embedpaths = []
     for path_regex in path_regexes:
@@ -762,7 +763,7 @@ def cmds_2_7_19_eval_translation_all_embeddings():
 
     with open(cmd_file,'w') as f:
         for embedpath in embedpaths:
-            f.write(cmd_format_str.format(evaltype, embedpath.strip()))
+            f.write(cmd_format_str.format(evaltype, embedpath.strip(), datapath))
 
 
 if __name__ == '__main__':
@@ -792,4 +793,5 @@ if __name__ == '__main__':
     # cmds_2_4_19_eval_qa_february_embeddings() # all QA eval (run on GPU)
     # cmds_2_4_19_eval_sentiment_fasttext1m_pca_tunelr() # sentiment LR tuning for fasttext
     # cmds_2_4_19_eval_sentiment_february_embedding() # all sentiment eval
-    cmds_2_4_19_eval_intrinsics_synthetics_february_embeddings() # all intrinsics/synthetics eval (run on CPU machines)
+    # cmds_2_4_19_eval_intrinsics_synthetics_february_embeddings() # all intrinsics/synthetics eval (run on CPU machines)
+    cmds_2_7_19_eval_translation_all_embeddings() # performance evaluation of all embeddings for transformer translation task

@@ -183,7 +183,7 @@ def fix_embedding_parameters(model):
 
 def print_param(model):
     for name, param in model.named_parameters():
-        print(name, param.dtype, param.requires_grad)
+        print(name, param.dtype, param.requires_grad, param.shape)
 
 
 class QuantEmbedding(nn.Embedding):

@@ -5,6 +5,7 @@
 conda create -n smallfry_pytorch1.0 python=3.6
 conda activate smallfry_pytorch1.0
 conda install pytorch torchvision cudatoolkit=9.0 -c pytorch
+conda install matplotlib
 pip install torchtext
 pip install torch torchvision
 pip install scipy

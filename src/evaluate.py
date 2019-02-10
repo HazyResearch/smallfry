@@ -443,9 +443,10 @@ class BootstrapEmbeddings(Embedding):
 
 
 if __name__ == '__main__':
-    # main()
+    main()
 
-    data_path = "/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en"
-    tmp_path = "/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/checkpoints/transformer_integration_test5"
-    embed_path = "/proj/smallfry/git/smallfry/src//glove.6B.300d.txt"
-    print(evaluate_translation(embed_path=embed_path, data_path=data_path, seed=1, tmp_path=tmp_path))
+    #data_path = "/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en"
+    #tmp_path = "/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/checkpoints/transformer_integration_test5"
+    #embed_path = "/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/seed,5_embeddim,300_compresstype,uniform_bitrate,1_adaptive,True/embedtype,glove400k_rungroup,2018-11-29-fiveSeeds_seed,5_embeddim,300_compresstype,uniform_bitrate,1_adaptive,True_compressed_embeds.txt"
+    ##embed_path = "/proj/smallfry/git/smallfry/src//glove.6B.300d.txt"
+    #print(evaluate_translation(embed_path=embed_path, data_path=data_path, seed=1, tmp_path=tmp_path))

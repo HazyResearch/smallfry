@@ -10,7 +10,7 @@
 
 # Activate smallfry env
 printf "conda activate smallfry_translation\n"
-conda activate smallfry_translation
+conda activate smallfry_pytorch1.0
 
 printf "\nconda env list\n"
 conda env list
