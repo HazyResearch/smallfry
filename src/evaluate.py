@@ -59,7 +59,7 @@ def evaluate_embeds():
             embed_path=utils.config['embedpath'],
             #data_path=utils.config['datapath'],
             seed=utils.config['compress-config']['seed'],
-            tmp_path="~/smallfry_tranformer_tmp") # the tmp contains ckpts on local worker machine, they are delte when next job runs
+            tmp_path="/scratch/smallfry_tranformer_tmp") # the tmp contains ckpts on local worker machine, they are delte when next job runs
     elapsed = time.time() - start
     results['elapsed'] = elapsed
     utils.config['results'] = results
