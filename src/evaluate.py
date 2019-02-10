@@ -55,7 +55,7 @@ def evaluate_embeds():
     elif utils.config['evaltype'] == 'translation':
         results = evaluate_translation(
             embed_path=utils.config['embedpath'],
-            data_path=utils.config['datapath'],
+            #data_path=utils.config['datapath'],
             seed=utils.config['compress-config']['seed'],
             tmp_path="~/smallfry_tranformer_tmp") # the tmp contains ckpts on local worker machine, they are delte when next job runs
     elapsed = time.time() - start
@@ -335,7 +335,7 @@ def evaluate_sentiment(embed_path,
     return results
 
 
-def evaluate_translation(embed_path, data_path, seed, tmp_path=None):
+def evaluate_translation(embed_path, data_path='/proj/smallfry/git/smallfry/src/third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en', seed=1, tmp_path=None):
     # remove tmp folder content to start training from scratch
     os.system("rm -r " + tmp_path + "/*")
     results = {}

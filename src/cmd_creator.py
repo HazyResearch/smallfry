@@ -753,17 +753,21 @@ def cmds_2_7_19_eval_translation_all_embeddings():
         '/proj/smallfry/embeddings/fasttext1m/2019-02-02-fiveSeedsPCA/*/*embeds.txt'
     ]
     evaltype = 'translation'
-    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_translation_env.sh '
-            '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {} --cuda --datapath {}\\"\n')
-    datapath = '/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en'
+    #cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_translation_env.sh '
+    #        '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {} --cuda --datapath {}\\"\n')
+    #datapath = '/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en'
 
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_translation_env.sh '
+            '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {} --cuda\\"\n')
+#    datapath = '/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en'
     embedpaths = []
     for path_regex in path_regexes:
         embedpaths.extend(glob.glob(path_regex))
 
     with open(cmd_file,'w') as f:
         for embedpath in embedpaths:
-            f.write(cmd_format_str.format(evaltype, embedpath.strip(), datapath))
+#            f.write(cmd_format_str.format(evaltype, embedpath.strip(), datapath))
+            f.write(cmd_format_str.format(evaltype, embedpath.strip()))
 
 
 if __name__ == '__main__':

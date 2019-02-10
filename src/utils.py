@@ -117,8 +117,8 @@ def init_evaluate_parser():
         help='Learning rate to use for sentiment analysis.')
     parser.add_argument('--epochs', type=int, default=100,
         help='Number of epochs to use for sentiment analysis training.')
-    parser.add_argument('--datapath', type=str, default="",
-        help="the data file path")
+    #parser.add_argument('--datapath', type=str, default="",
+    #    help="the data file path")
     return parser
 
 def add_shared_args(parser):
