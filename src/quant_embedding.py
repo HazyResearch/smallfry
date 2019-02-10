@@ -124,21 +124,25 @@ def find_embedding_module_name(module, module_name=""):
             if module_name == "":
                 module_name_list += find_embedding_module_name(child, name)
             else:
-                module_name_list += find_embedding_module_name(child, module_name + "." + name)
+                module_name_list += find_embedding_module_name(
+                    child, module_name + "." + name)
     return module_name_list
 
 
 def load_embed_from_ckpt(model, ckpt_file):
     """ load normal full precision embedding modules """
     embed_module_names = find_embedding_module_name(model)
-    assert os.path.isfile(ckpt_file), "model ckpt file " + ckpt_file + " is missing!"
+    assert os.path.isfile(
+        ckpt_file), "model ckpt file " + ckpt_file + " is missing!"
     ckpt_state_dict = torch.load(ckpt_file)["model"]
     emb_state_dict = {}
     for name in embed_module_names:
         try:
-            emb_state_dict[name + ".weight"] = ckpt_state_dict[name + ".weight"]
+            emb_state_dict[name + ".weight"] = ckpt_state_dict[name +
+                                                               ".weight"]
         except:
-            raise Exception(name + ".weight not found in the model checkpoint file")
+            raise Exception(name +
+                            ".weight not found in the model checkpoint file")
     model_dict = model.state_dict()
     model_dict.update(emb_state_dict)
     model.load_state_dict(model_dict)
@@ -161,6 +165,7 @@ def print_model_mem(model):
     logger.info("Embed memory (bytes) " + str(embed_mem))
     logger.info("Non-embed memory (bytes) " + str(non_embed_mem))
 
+
 def reshape_ckpt_value_list_shape(model, state, nbit):
     embed_module_names = find_embedding_module_name(model)
     for name in embed_module_names:
@@ -170,16 +175,27 @@ def reshape_ckpt_value_list_shape(model, state, nbit):
             value_list = torch.zeros([2**nbit], dtype=torch.float32)
             old_value_list = state[name + ".value_list"]
             state[name + ".value_list"] = value_list
-            state[name + ".value_list"][:old_value_list.nelement()].copy_(old_value_list)
-            logger.info("Updated value_list to shape " + str(state[name + ".value_list"].size()))
+            state[name + ".value_list"][:old_value_list.nelement()].copy_(
+                old_value_list)
+            logger.info("Updated value_list to shape " +
+                        str(state[name + ".value_list"].size()))
     return state
 
-def fix_embedding_parameters(model):
+
+def dummy_filter(x):
+    return True
+
+
+def fix_embedding_parameters(model, module_name_filter=dummy_filter):
     embed_module_names = find_embedding_module_name(model)
+    embed_module_names = [
+        x for x in embed_module_names if module_name_filter(x)
+    ]
     for name, param in model.named_parameters():
         if any([x in name for x in embed_module_names]):
             param.requires_grad = False
             logger.info("Embedding " + name + " is set to non-training mode")
+
 
 def print_param(model):
     for name, param in model.named_parameters():
@@ -280,7 +296,6 @@ class QuantEmbedding(nn.Embedding):
                 # compress _weight into self.weight
                 self._compress_tensor(_weight)
         logger.info("Compressed embedding to " + str(self.nbit) + " bits!")
-
 
     def _get_value_list_from_tensor(self, weight):
         # get the unique values into a list

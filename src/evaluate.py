@@ -17,8 +17,10 @@ from third_party.sentence_classification.train_classifier import train_sentiment
 import utils
 
 import sys
+# sys.path.append("./third_party/low-memory-fnn-training")
 sys.path.append("/proj/smallfry/git/smallfry/src/third_party/low-memory-fnn-training")
 from apps.fairseq.train import train_translation
+# sys.path.append("./third_party/low-memory-fnn-training/third_party/fairseq")
 sys.path.append("/proj/smallfry/git/smallfry/src/third_party/low-memory-fnn-training/third_party/fairseq")
 from generate import generate_translation
 from scripts.average_checkpoints import average_translation_ckpt
@@ -395,11 +397,16 @@ def evaluate_translation(embed_path, data_path='/proj/smallfry/git/smallfry/src/
                     logging.info("Loading " + str(emb_dim) +
                                  " dimensional embedding")
                     break
+        # cmdline_args += [
+        #     "--encoder-embed-path", embed_path, "--decoder-embed-path",
+        #     embed_path, "--encoder-embed-dim",
+        #     str(emb_dim), "--decoder-embed-dim",
+        #     str(emb_dim)
+        # ]
         cmdline_args += [
-            "--encoder-embed-path", embed_path, "--decoder-embed-path",
-            embed_path, "--encoder-embed-dim",
-            str(emb_dim), "--decoder-embed-dim",
-            str(emb_dim)
+            "--decoder-embed-path", embed_path, 
+            "--decoder-embed-dim", str(emb_dim),
+            "--encoder-embed-dim", str(emb_dim)
         ]
     min_val_loss, min_val_ppl = train_translation(cmdline_args)
 
@@ -445,6 +452,14 @@ class BootstrapEmbeddings(Embedding):
 if __name__ == '__main__':
     main()
 
+    # # # dawn test 
+    # data_path = "../../sparsity/apps/fairseq/data-bin/iwslt14.tokenized.de-en"    
+    # tmp_path = "./third_party/low-memory-fnn-training/apps/fairseq/checkpoints/transformer_integration_test6"
+    # embed_path = "./glove.6B.300d.txt"
+    # print(evaluate_translation(embed_path=embed_path, data_path=data_path, seed=1, tmp_path=tmp_path))
+
+
+    # # aws test
     #data_path = "/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en"
     #tmp_path = "/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/checkpoints/transformer_integration_test5"
     #embed_path = "/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/seed,5_embeddim,300_compresstype,uniform_bitrate,1_adaptive,True/embedtype,glove400k_rungroup,2018-11-29-fiveSeeds_seed,5_embeddim,300_compresstype,uniform_bitrate,1_adaptive,True_compressed_embeds.txt"
