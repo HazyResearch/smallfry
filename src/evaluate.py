@@ -6,6 +6,7 @@ import numpy as np
 import os
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -324,7 +325,7 @@ def evaluate_sentiment(embed_path,
 
 def evaluate_translation(embed_path, data_path, tmp_path, embed_type, seed):
     # Remove tmp folder content to start training from scratch.
-    os.system('rm -r ' + tmp_path + '/*')
+    if os.path.isdir(tmp_path): shutil.rmtree(tmp_path)
     english_dim = utils.get_embedding_dimension(embed_path)
     # We always use the same german_dim so that the english embeddings are the
     # only part that changes when we evaluate a compressed english embedding.
