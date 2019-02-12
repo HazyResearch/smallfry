@@ -19,7 +19,7 @@ popd
 echo smallfry installed
 
 # Installs FairSeq
-pushd ./src/third_party/low-memory-fnn-training/third_party/fairseq
+pushd ./src/third_party/low_memory_fnn_training/third_party/fairseq
 pip install -r requirements.txt
 python setup.py build develop
 popd
@@ -32,8 +32,8 @@ popd
 
 echo drqa installed
 
-fairseq_dir=$(pwd)/src/third_party/low-memory-fnn-training/third_party/fairseq
-app_dir=$(pwd)/src/third_party/low-memory-fnn-training/apps/fairseq
+fairseq_dir=$(pwd)/src/third_party/low_memory_fnn_training/third_party/fairseq
+app_dir=$(pwd)/src/third_party/low_memory_fnn_training/apps/fairseq
 mkdir -p $app_dir/data-bin
 
 cd $fairseq_dir/examples/translation
