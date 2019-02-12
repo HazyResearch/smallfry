@@ -1,18 +1,20 @@
 [submodule "src/third_party/neuralcompressor"]
 	path = src/third_party/neuralcompressor
 	url = https://github.com/avnermay/neuralcompressor.git
+	branch = master
 [submodule "src/third_party/GloVe"]
 	path = src/third_party/GloVe
 	url = https://github.com/avnermay/GloVe.git
+	branch = master
 [submodule "src/third_party/DrQA"]
 	path = src/third_party/DrQA
 	url = https://github.com/avnermay/DrQA.git
+	branch = master
 [submodule "src/third_party/sentence_classification"]
 	path = src/third_party/sentence_classification
 	url = https://github.com/avnermay/sentence_classification.git
+	branch = master
 [submodule "src/third_party/sent-conv-torch"]
 	path = src/third_party/sent-conv-torch
 	url = https://github.com/harvardnlp/sent-conv-torch.git
-[submodule "src/third_party/low-memory-fnn-training"]
-	path = src/third_party/low-memory-fnn-training
-	url = https://github.com/HazyResearch/low-memory-fnn-training.git
+	branch = master
