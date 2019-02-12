@@ -18,3 +18,8 @@
 	path = src/third_party/sent-conv-torch
 	url = https://github.com/harvardnlp/sent-conv-torch.git
 	branch = master
+[submodule "src/third_party/low_memory_fnn_training"]
+	path = src/third_party/low_memory_fnn_training
+	url = https://github.com/HazyResearch/low-memory-fnn-training
+	branch = master
+

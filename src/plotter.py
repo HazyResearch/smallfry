@@ -64,7 +64,7 @@ def clean_eval_result(result):
                 result['{}-{}1-{}-trans'.format(matrix_type,delta_str, i)] = 1.0/(1.0-delta1)
                 result['{}-{}2-{}'.format(matrix_type,delta_str, i)] = delta2
     # FIX SUBSPACE-DIST (Compute d + k - 2 ||U^T V||_F^2)
-    # large_dim = get_large_dim(result['embedtype'])
+    # large_dim = utils.get_large_embedding_dim(result['embedtype'])
     # eig_overlap = large_dim - result['subspace-dist']
     # new_dist = large_dim + result['embeddim'] - 2 * eig_overlap
     # result['subspace-eig-distance'] = new_dist
@@ -72,7 +72,7 @@ def clean_eval_result(result):
     return result
 
 def clean_compress_result(result):
-    large_dim = get_large_dim(result['embedtype'])
+    large_dim = utils.get_large_embedding_dim(result['embedtype'])
     vocab = utils.get_embedding_vocab(result['embedtype'])
     if result['compresstype'] == 'nocompress':
         result['compression-ratio'] = large_dim / result['embeddim']
@@ -84,9 +84,6 @@ def clean_compress_result(result):
         result['compression-ratio'] = 32.0/result['bitrate']
         result['memory'] = vocab * result['embeddim'] * result['bitrate']
     return result
-
-def get_large_dim(embedtype):
-    return 400 if embedtype == 'glove-wiki400k-am' else 300
 
 # Note: this only flattens one layer down
 def flatten_dict(to_flatten):
@@ -587,7 +584,7 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
                 'adaptive':[True],
                 'stoch':[False],
                 'skipquant':[False],
-                'embeddim':[get_large_dim(embedtype)],
+                'embeddim':[utils.get_large_embedding_dim(embedtype)],
                 'bitrate':[1,2,4]
             },
         'DCCL':
@@ -612,7 +609,7 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
         }
     x_metric = 'compression-ratio'
     if y_metric == 'embed-frob-error' and scatter == True:
-        subset_info['embeddim'] = [get_large_dim(embedtype)]
+        subset_info['embeddim'] = [utils.get_large_embedding_dim(embedtype)]
     ####  Code below is for plotting all the different bitrates for glove-wiki400k-am. ####
     # x_metric = 'memory'
     # info_per_line = {}
@@ -683,7 +680,7 @@ def plot_qa_results():
     embedtype_name_map = get_embedtype_name_map()
     latexify_config['ylabel'] = 'F1 score'
     for embedtype in embedtypes:
-        latexify_config['x_normalizer'] = get_large_dim(embedtype)
+        latexify_config['x_normalizer'] = utils.get_large_embedding_dim(embedtype)
         latexify_config['title'] = embedtype_name_map[embedtype] + ', QA'
         plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config)
 
@@ -695,7 +692,7 @@ def plot_sentiment_results():
     embedtype_name_map = get_embedtype_name_map()
     datasets = ['mr','subj','cr','sst','trec','mpqa']
     for embedtype in embedtypes:
-        latexify_config['x_normalizer'] = get_large_dim(embedtype)
+        latexify_config['x_normalizer'] = utils.get_large_embedding_dim(embedtype)
         for y_metric in y_metrics:
             if y_metric == 'val-acc':
                 latexify_config['ylabel'] = 'Validation acc.'
@@ -726,7 +723,7 @@ def plot_intrinsic_results():
     latexify_config = default_latexify_config
     embedtype_name_map = get_embedtype_name_map()
     for embedtype in embedtypes:
-        latexify_config['x_normalizer'] = get_large_dim(embedtype)
+        latexify_config['x_normalizer'] = utils.get_large_embedding_dim(embedtype)
         for y_metric in y_metrics:
             if y_metric == r'analogy-avg-score':
                 latexify_config['title'] = embedtype_name_map[embedtype] + ', analogy'
@@ -850,7 +847,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
     for embedtype in embedtypes:
         latexify_config['xlim'] = [0,None]
         latexify_config['ylim'] = [None, None]
-        latexify_config['x_normalizer'] = get_large_dim(embedtype)
+        latexify_config['x_normalizer'] = utils.get_large_embedding_dim(embedtype)
         # latexify_config['xlabel'] = 'Compression rate'
         # latexify_config['logx'] = True
         latexify_config['minor_tick_off'] = True

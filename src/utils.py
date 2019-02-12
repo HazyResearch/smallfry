@@ -368,6 +368,9 @@ def get_embedding_vocab(embedtype):
         vocab = 999994
     return vocab
 
+def get_large_embedding_dim(embedtype):
+    return 400 if embedtype == 'glove-wiki400k-am' else 300
+
 def get_base_embed_info(embedtype, embeddim):
     '''Get path to embedding, and size of vocab for embedding'''
     path = ''
@@ -444,6 +447,18 @@ def load_embeddings(path):
     assert len(wordlist) == embeddings.shape[0], 'Embedding dim must match wordlist length.'
     logging.info('Finished loading embeddings')
     return embeddings, wordlist
+
+def get_embedding_dimension(embed_path):
+    with open(embed_path) as f_embed:
+        for line in f_embed:
+            if not is_fasttext_format([line]):
+                pieces = line.rstrip().split(' ')
+                embed_dim = len(pieces) - 1
+                logging.info('Loading ' + str(embed_dim) +
+                                ' dimensional embedding')
+                break
+    assert embed_dim > 0
+    return embed_dim
 
 def is_fasttext_format(lines):
     first_line = lines[0].strip('\n').split(' ')

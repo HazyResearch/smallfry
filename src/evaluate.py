@@ -1,36 +1,30 @@
 '''
 GENERAL PURPOSE EMBEDDINGS EVALUATION SCRIPT
 '''
-import os
-import re
-import time
 import logging
-import pathlib
 import numpy as np
+import os
+import pathlib
+import re
 import subprocess
+import sys
+import time
 from scipy.spatial import distance
 from scipy.linalg import subspace_angles
 from third_party.hyperwords.hyperwords import ws_eval, analogy_eval
 from third_party.hyperwords.hyperwords.representations.embedding import Embedding
 from third_party.DrQA.scripts.reader.train import train_drqa
 from third_party.sentence_classification.train_classifier import train_sentiment
+from third_party.low_memory_fnn_training.apps.fairseq.train import train_translation
+from third_party.low_memory_fnn_training.third_party.fairseq.generate import generate_translation
+from third_party.low_memory_fnn_training.third_party.fairseq.scripts.average_checkpoints import average_translation_ckpt
 import utils
-
-import sys
-# sys.path.append("./third_party/low-memory-fnn-training")
-sys.path.append("/proj/smallfry/git/smallfry/src/third_party/low-memory-fnn-training")
-from apps.fairseq.train import train_translation
-# sys.path.append("./third_party/low-memory-fnn-training/third_party/fairseq")
-sys.path.append("/proj/smallfry/git/smallfry/src/third_party/low-memory-fnn-training/third_party/fairseq")
-from generate import generate_translation
-from scripts.average_checkpoints import average_translation_ckpt
 
 def main():
     utils.init('evaluate')
     evaluate_embeds()
     utils.save_to_json(utils.config, utils.get_filename('_final.json'))
     logging.info('Run complete. Exiting evaluate.py main method')
-
 
 def evaluate_embeds():
     logging.info('Beginning evaluation')
@@ -55,17 +49,20 @@ def evaluate_embeds():
             utils.config['epochs'],
             lr=utils.config['lr'])
     elif utils.config['evaltype'] == 'translation':
+        translation_data_path = '/proj/smallfry/git/smallfry/src/third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en'
+        translation_training_tmp_path = '/scratch/smallfry_tranformer_tmp'
         results = evaluate_translation(
-            embed_path=utils.config['embedpath'],
-            #data_path=utils.config['datapath'],
-            seed=utils.config['compress-config']['seed'],
-            tmp_path="/scratch/smallfry_tranformer_tmp") # the tmp contains ckpts on local worker machine, they are delte when next job runs
+            utils.config['embedpath'],
+            translation_data_path,
+            translation_training_tmp_path,
+            utils.config['compress-config']['embedtype'],
+            utils.config['compress-config']['seed']
+            )
     elapsed = time.time() - start
     results['elapsed'] = elapsed
     utils.config['results'] = results
     logging.info('Finished evaluating embeddings. It took {} min.'.format(
         elapsed / 60))
-
 
 def evaluate_qa(embed_path, embed_dim, seed):
     qa_args = [
@@ -84,17 +81,16 @@ def evaluate_qa(embed_path, embed_dim, seed):
         results['best-f1'], results['best-exact-match']))
     return results
 
-
 def evaluate_intrinsics(embed_path):
     '''Evaluates intrinsics benchmarks'''
     embeds, wordlist = utils.load_embeddings(embed_path)
     embed_dict = {wordlist[i]: embeds[i] for i in range(len(embeds))}
 
     similarity_tasks = [
-        "bruni_men", "luong_rare", "radinsky_mturk", "simlex999", "ws353",
-        "ws353_relatedness", "ws353_similarity"
+        'bruni_men', 'luong_rare', 'radinsky_mturk', 'simlex999', 'ws353',
+        'ws353_relatedness', 'ws353_similarity'
     ]
-    analogy_tasks = ["google", "msr"]
+    analogy_tasks = ['google', 'msr']
 
     results = {}
     similarity_results = []
@@ -107,8 +103,8 @@ def evaluate_intrinsics(embed_path):
     for task in analogy_tasks:
         task_path = get_task_path('analogy', task)
         output = evaluate_analogy(embed_dict, task_path)
-        results[task + "-add"] = output[0]
-        results[task + "-mul"] = output[1]
+        results[task + '-add'] = output[0]
+        results[task + '-mul'] = output[1]
         analogy_results.extend(output)
     results['analogy-avg-score'] = np.mean(analogy_results)
     results['similarity-avg-score'] = np.mean(similarity_results)
@@ -118,20 +114,18 @@ def evaluate_intrinsics(embed_path):
         logging.info('\t{}: {:.4f}'.format(task, score))
     return results
 
-
 # Evaluate analogy -- ROUTINE WRITTEN BY MAXLAM
 # -----------------------------------------
 # embed_dict - dictionary where keys are words, values are word vectors.
 # task_path - path to similarity dataset
 # return - similarity score
 def evaluate_analogy(embed_dict, task_path):
-    print("Evaluating analogy: %s" % task_path)
+    print('Evaluating analogy: %s' % task_path)
     assert os.path.exists(task_path)
     data = analogy_eval.read_test_set(task_path)
     xi, ix = analogy_eval.get_vocab(data)
     representation = BootstrapEmbeddings(embed_dict)
     return analogy_eval.evaluate(representation, data, xi, ix)
-
 
 # Evaluate similarity -- ROUTINE WRITTEN BY MAXLAM
 # -----------------------------------------
@@ -140,24 +134,21 @@ def evaluate_analogy(embed_dict, task_path):
 # return - similarity score
 def evaluate_similarity(embed_dict, task_path):
     '''Evaluates sim intrinsic suite'''
-    print("Evaluating similarity: %s" % task_path)
+    print('Evaluating similarity: %s' % task_path)
     assert os.path.exists(task_path)
     data = ws_eval.read_test_set(task_path)
     representation = BootstrapEmbeddings(embed_dict)
     return ws_eval.evaluate(representation, data)
-
 
 def get_task_path(task_type, task_name):
     return str(
         pathlib.PurePath(utils.get_src_dir(), 'third_party', 'hyperwords',
                          'testsets', task_type, task_name + '.txt'))
 
-
 def get_sentiment_data_path():
     return str(
         pathlib.PurePath(utils.get_src_dir(), 'third_party',
                          'sentence_classification', 'data'))
-
 
 def evaluate_synthetics(embed_path):
     '''Evaluates synthetics'''
@@ -200,7 +191,6 @@ def evaluate_synthetics(embed_path):
     compute_gram_or_cov_errors(embeds, base_embeds, True, 'gram', results)
     return results
 
-
 def evaluate_synthetics_large_dim(embed_path):
     '''Evaluates synthetics'''
     embeds, _ = utils.load_embeddings(embed_path)
@@ -223,14 +213,13 @@ def evaluate_synthetics_large_dim(embed_path):
                                'gram-large-dim', results)
 
     # Measure the distance between the subspaces of eigenvectors of K and K_tilde.
-    Uq, Sq, Vq = np.linalg.svd(embeds, full_matrices=False)
-    U, S, V = np.linalg.svd(base_embeds_large_dim, full_matrices=False)
+    Uq,_,_ = np.linalg.svd(embeds, full_matrices=False)
+    U,_,_ = np.linalg.svd(base_embeds_large_dim, full_matrices=False)
     results['subspace-dist'] = large_dim - np.linalg.norm(Uq.T @ U)**2
     angles = np.rad2deg(subspace_angles(U, Uq))
     results['subspace-largest-angle'] = angles[0]
     results['subspace-angles'] = angles.tolist()
     return results
-
 
 def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str,
                                results):
@@ -246,7 +235,7 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str,
         compressed = embeds.T @ embeds
         base = base_embeds.T @ base_embeds
 
-    # compute spectrum of base_embeds to extract minimum eigenvalue of X^T X
+    # Compute spectrum of base_embeds to extract minimum eigenvalue of X^T X.
     logging.info('Beginning SVD of base_embeds')
     base_sing_vals = np.linalg.svd(base_embeds, compute_uv=False)
     base_eigs = base_sing_vals**2
@@ -282,7 +271,6 @@ def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str,
     results[type_str + '-delta2s'] = delta2_results
     logging.info('Finished compute_gram_or_cov_errors')
 
-
 def evaluate_sentiment(embed_path,
                        data_path,
                        seed,
@@ -290,6 +278,16 @@ def evaluate_sentiment(embed_path,
                        dataset,
                        epochs,
                        lr=-1):
+    cmdlines = [
+        '--dataset', dataset,
+        '--path', data_path + '/',
+        '--embedding', embed_path,
+        '--cnn',
+        '--max_epoch', str(epochs),
+        '--model_seed', str(seed),
+        '--data_seed', str(seed),
+        '--lr', '-1'
+    ]
     if tunelr:
         lrs = [1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1e0]
         results = {}
@@ -300,14 +298,7 @@ def evaluate_sentiment(embed_path,
         results['val-errs'] = []
         results['test-errs'] = []
         for lr in lrs:
-            cmdlines = [
-                "--dataset", dataset, "--path", data_path + "/", "--embedding",
-                embed_path, "--cnn", "--max_epoch",
-                str(epochs), "--model_seed",
-                str(seed), "--data_seed",
-                str(seed), "--lr",
-                str(lr)
-            ]
+            cmdlines[-1] = str(lr)
             err_valid, err_test = train_sentiment(cmdlines)
             logging.info('lr: {}, accuracy (valid/test): {}/{}'.format(
                 lr, err_valid, err_test))
@@ -321,123 +312,80 @@ def evaluate_sentiment(embed_path,
     else:
         assert lr > 0, 'Must specify positive learning rate'
         results = {}
-        cmdlines = [
-            "--dataset", dataset, "--path", data_path + "/", "--embedding",
-            embed_path, "--cnn", "--max_epoch",
-            str(epochs), "--model_seed",
-            str(seed), "--data_seed",
-            str(seed), "--lr",
-            str(lr)
-        ]
+        cmdlines[-1] = str(lr)
         err_valid, err_test = train_sentiment(cmdlines)
         logging.info('lr: {}, accuracy (valid/test): {}/{}'.format(
             lr, err_valid, err_test))
-        results["val-err"] = err_valid
-        results["test-err"] = err_test
+        results['val-err'] = err_valid
+        results['test-err'] = err_test
     return results
 
+def evaluate_translation(embed_path, data_path, tmp_path, embed_type, seed):
+    # Remove tmp folder content to start training from scratch.
+    os.system('rm -r ' + tmp_path + '/*')
+    english_dim = utils.get_embedding_dimension(embed_path)
+    # We always use the same german_dim so that the english embeddings are the
+    # only part that changes when we evaluate a compressed english embedding.
+    german_dim = utils.get_large_embedding_dim(embed_type)
 
-def evaluate_translation(embed_path, data_path='/proj/smallfry/git/smallfry/src/third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en', seed=1, tmp_path=None):
-    # remove tmp folder content to start training from scratch
-    os.system("rm -r " + tmp_path + "/*")
-    results = {}
-    # training step
+    # Step 1: Train transformer model with fixed English embeddings (at embed_path),
+    # and German embeddings trained from random initialization.
     cmdline_args = [
         data_path,
-        "-a",
-        "transformer_iwslt_de_en",
-        "--optimizer",
-        "adam",
-        "--lr",
-        "0.0005",
-        "-s",
-        "de",
-        "-t",
-        "en",
-        "--label-smoothing",
-        "0.1",
-        "--dropout",
-        "0.3",
-        "--max-tokens",
-        "4000",
-        "--min-lr",
-        '1e-09',
-        "--lr-scheduler",
-        "inverse_sqrt",
-        "--weight-decay",
-        "0.0001",
-        "--criterion",
-        "label_smoothed_cross_entropy",
-        "--max-update",
-        "50000",
-        "--seed",
-        str(seed),
-        # "--max-update", "2000",
-        "--warmup-updates",
-        "4000",
-        "--warmup-init-lr",
-        '1e-07',
-        "--adam-betas",
-        '(0.9, 0.98)',
-        "--save-dir",
-        tmp_path,
-        "--log-format",
-        'simple',
-        "--fix_embeddings"
+        '-a', 'transformer_iwslt_de_en',
+        '--optimizer', 'adam',
+        '--lr', '0.0005',
+        '-s', 'de',
+        '-t', 'en',
+        '--label-smoothing', '0.1',
+        '--dropout', '0.3',
+        '--max-tokens', '4000',
+        '--min-lr', '1e-09',
+        '--lr-scheduler', 'inverse_sqrt',
+        '--weight-decay', '0.0001',
+        '--criterion', 'label_smoothed_cross_entropy',
+        '--max-update', '50000',
+        '--seed', str(seed),
+        '--warmup-updates', '4000',
+        '--warmup-init-lr', '1e-07',
+        '--adam-betas', '(0.9, 0.98)',
+        '--save-dir', tmp_path,
+        '--log-format', 'simple',
+        '--fix_embeddings',
+        '--decoder-embed-path', embed_path,
+        '--decoder-embed-dim', str(english_dim),
+        '--encoder-embed-dim', str(german_dim)
     ]
-    if tmp_path is not None:
-        # read embedding dimensionality from embedding
-        with open(embed_path) as f_embed:
-            # next(f_embed)  # skip header
-            for line in f_embed:
-                pieces = line.rstrip().split(" ")
-                if len(pieces) >= 3:
-                    # this is to avoid header line
-                    emb_dim = len(pieces) - 1
-                    logging.info("Loading " + str(emb_dim) +
-                                 " dimensional embedding")
-                    break
-        # cmdline_args += [
-        #     "--encoder-embed-path", embed_path, "--decoder-embed-path",
-        #     embed_path, "--encoder-embed-dim",
-        #     str(emb_dim), "--decoder-embed-dim",
-        #     str(emb_dim)
-        # ]
-        cmdline_args += [
-            "--decoder-embed-path", embed_path, 
-            "--decoder-embed-dim", str(emb_dim),
-            "--encoder-embed-dim", str(emb_dim)
-        ]
+    ### Use this code to use pre-trained embeddings for both English and German.
+    # cmdline_args.extend(['--encoder-embed-path', german_embed_path])
     min_val_loss, min_val_ppl = train_translation(cmdline_args)
 
-    # ckpt average step
+    # Step 2: Create a checkpoint which is the average of the past 10 epoch checkpoints.
     cmdline_args = [
-        "--inputs",
-        tmp_path,
-        "--num-epoch-checkpoints",
-        "10",
-        # "--num-epoch-checkpoints", "1",
-        "--output",
-        tmp_path + "/model_ave.pt"
+        '--inputs', tmp_path,
+        '--num-epoch-checkpoints', '10',
+        '--output', tmp_path + '/model_ave.pt'
     ]
     average_translation_ckpt(cmdline_args)
 
-    # final evaluation step
+    # Step 3: Final evaluation, using the averaged checkpoint from the previous step.
     cmdline_args = [
-        data_path, "--path", tmp_path + "/model_ave.pt", "--batch-size", "128",
-        "--beam", "5", "--remove-bpe"
+        data_path,
+        '--path', tmp_path + '/model_ave.pt',
+        '--batch-size', '128',
+        '--beam', '5',
+        '--remove-bpe'
     ]
-    # "--quant-emb-ckpt",
-    # "--quant-inference-bit", "2"]
     generate_res_string = generate_translation(cmdline_args)
-    # get blue and evaluation scores
-    results["gen_res_str"] = generate_res_string
-    results["BLEU4"] = float(
-        generate_res_string.split("BLEU4 = ")[1].split(",")[0])
-    results["min_val_loss"] = min_val_loss
-    results["min_val_ppl"] = min_val_ppl
-    return results
 
+    # Record final scores.
+    results = {}
+    results['min_val_loss'] = min_val_loss
+    results['min_val_ppl'] = min_val_ppl
+    results['gen_res_str'] = generate_res_string
+    results['BLEU4'] = float(
+        generate_res_string.split('BLEU4 = ')[1].split(',')[0])
+    return results
 
 class BootstrapEmbeddings(Embedding):
     def __init__(self, embed_dict, normalize=True):
@@ -448,20 +396,5 @@ class BootstrapEmbeddings(Embedding):
         if normalize:
             self.normalize()
 
-
 if __name__ == '__main__':
     main()
-
-    # # # dawn test 
-    # data_path = "../../sparsity/apps/fairseq/data-bin/iwslt14.tokenized.de-en"    
-    # tmp_path = "./third_party/low-memory-fnn-training/apps/fairseq/checkpoints/transformer_integration_test6"
-    # embed_path = "./glove.6B.300d.txt"
-    # print(evaluate_translation(embed_path=embed_path, data_path=data_path, seed=1, tmp_path=tmp_path))
-
-
-    # # aws test
-    #data_path = "/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/data-bin/iwslt14.tokenized.de-en"
-    #tmp_path = "/proj/smallfry/git/smallfry/src//third_party/low-memory-fnn-training/apps/fairseq/checkpoints/transformer_integration_test5"
-    #embed_path = "/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/seed,5_embeddim,300_compresstype,uniform_bitrate,1_adaptive,True/embedtype,glove400k_rungroup,2018-11-29-fiveSeeds_seed,5_embeddim,300_compresstype,uniform_bitrate,1_adaptive,True_compressed_embeds.txt"
-    ##embed_path = "/proj/smallfry/git/smallfry/src//glove.6B.300d.txt"
-    #print(evaluate_translation(embed_path=embed_path, data_path=data_path, seed=1, tmp_path=tmp_path))
