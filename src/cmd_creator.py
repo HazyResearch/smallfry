@@ -763,8 +763,10 @@ def cmds_2_13_19_eval_translation_all_embeddings():
         for embedpath in embedpaths:
             if ('uniform' in embedpath and
                         ('skipquant,True' in embedpath or
-                         # 'stoch,True' in embedpath or
-                         'adaptive,True' not in embedpath)):
+                         'stoch,True' in embedpath or
+                         'adaptive,True' not in embedpath or
+                         'bitrate,8' in embedpath or
+                         'bitrate,16' in embedpath)):
                 continue
             f.write(cmd_format_str.format(evaltype, embedpath.strip()))
 
