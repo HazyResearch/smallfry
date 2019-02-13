@@ -761,12 +761,13 @@ def cmds_2_13_19_eval_translation_all_embeddings():
 
     with open(cmd_file,'w') as f:
         for embedpath in embedpaths:
-            if ('uniform' in embedpath and
-                        ('skipquant,True' in embedpath or
-                         'stoch,True' in embedpath or
-                         'adaptive,True' not in embedpath or
-                         'bitrate,8' in embedpath or
-                         'bitrate,16' in embedpath)):
+            if 'compresstype,uniform' in embedpath and (
+                    'skipquant,True' in embedpath or
+                    'stoch,True' in embedpath or
+                    'adaptive,True' not in embedpath or
+                    'bitrate,8' in embedpath or
+                    'bitrate,16' in embedpath or
+                    'embeddim,800' in embedpath):
                 continue
             f.write(cmd_format_str.format(evaltype, embedpath.strip()))
 
