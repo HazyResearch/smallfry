@@ -16,11 +16,9 @@ from third_party.hyperwords.hyperwords import ws_eval, analogy_eval
 from third_party.hyperwords.hyperwords.representations.embedding import Embedding
 from third_party.DrQA.scripts.reader.train import train_drqa
 from third_party.sentence_classification.train_classifier import train_sentiment
-sys.path.append('/proj/smallfry/git/smallfry/src/third_party/low_memory_fnn_training')
-sys.path.append('/proj/smallfry/git/smallfry/src/third_party/low_memory_fnn_training/third_party/fairseq')
-from third_party.low_memory_fnn_training.apps.fairseq.train import train_translation
-from third_party.low_memory_fnn_training.third_party.fairseq.generate import generate_translation
-from third_party.low_memory_fnn_training.third_party.fairseq.scripts.average_checkpoints import average_translation_ckpt
+from third_party.fairseq.train import train_translation
+from third_party.fairseq.generate import generate_translation
+from third_party.fairseq.scripts.average_checkpoints import average_translation_ckpt
 import utils
 
 def main():
