@@ -743,7 +743,7 @@ def cmds_2_4_19_eval_intrinsics_synthetics_february_embeddings():
 
 
 def cmds_2_13_19_eval_translation_main_embeddings():
-    cmd_file = get_cmdfile_path('cmds_2_13_19_eval_translation_main_embeddings')
+    cmd_file = get_cmdfile_path('2_13_19_eval_translation_main_embeddings_cmds')
     path_regexes = [
         '/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/*/*embeds.txt',
         '/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*embeds.txt',
