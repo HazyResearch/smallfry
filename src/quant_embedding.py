@@ -183,9 +183,9 @@ def fix_embedding_parameters(model, module_name_filter=dummy_filter):
             param.requires_grad = False
             logging.info("Embedding " + param_name + " is set to non-training mode")
 
-def print_param(model):
+def log_param_list(model):
     for name, param in model.named_parameters():
-        print(name, param.dtype, param.requires_grad, param.shape)
+        logging.info('{} {} {} {}'.format(name, param.dtype, param.requires_grad, param.shape))
 
 class QuantEmbedding(nn.Embedding):
     def __init__(self,
