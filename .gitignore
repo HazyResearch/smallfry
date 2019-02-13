@@ -19,3 +19,4 @@
 !src/third_party/hyperwords/*
 # Ignore "egg-info"
 *.egg-info/
+build/
