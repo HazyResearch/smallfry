@@ -19,3 +19,6 @@
 	url = https://github.com/harvardnlp/sent-conv-torch.git
 	branch = master
 
+[submodule "src/third_party/fairseq_fork"]
+	path = src/third_party/fairseq_fork
+	url = https://github.com/HazyResearch/fairseq-fork.git
