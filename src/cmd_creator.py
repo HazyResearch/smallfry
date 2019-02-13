@@ -742,8 +742,8 @@ def cmds_2_4_19_eval_intrinsics_synthetics_february_embeddings():
                 f.write(cmd_format_str.format(evaltype, embedpath.strip()))
 
 
-def cmds_2_13_19_eval_translation_all_embeddings():
-    cmd_file = get_cmdfile_path('cmds_2_13_19_eval_translation_all_embeddings')
+def cmds_2_13_19_eval_translation_main_embeddings():
+    cmd_file = get_cmdfile_path('cmds_2_13_19_eval_translation_main_embeddings')
     path_regexes = [
         '/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/*/*embeds.txt',
         '/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*embeds.txt',
@@ -800,4 +800,4 @@ if __name__ == '__main__':
     # cmds_2_4_19_eval_sentiment_fasttext1m_pca_tunelr() # sentiment LR tuning for fasttext
     # cmds_2_4_19_eval_sentiment_february_embedding() # all sentiment eval
     # cmds_2_4_19_eval_intrinsics_synthetics_february_embeddings() # all intrinsics/synthetics eval (run on CPU machines)
-    cmds_2_13_19_eval_translation_all_embeddings() # performance evaluation of all embeddings for transformer translation task
+    cmds_2_13_19_eval_translation_main_embeddings() # performance evaluation of all embeddings for transformer translation task
