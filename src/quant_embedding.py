@@ -6,11 +6,8 @@ import math
 import compress
 import logging
 import sys, os
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-logger = logging.getLogger("quant embedding test")
 
 LONG_BITS = 64
-
 
 def fix_randomness(seed):
     np.random.seed(seed)
@@ -21,7 +18,6 @@ def fix_randomness(seed):
         torch.backends.cudnn.benchmark = False
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
-
 
 def compress_long_mat(long_tensor, nbit):
     """
@@ -45,7 +41,6 @@ def compress_long_mat(long_tensor, nbit):
         out_flat[:, :n_val] |= (long_tensor_flat[:, i::n_entry] & mask) << (
             (n_entry - i - 1) * nbit)
     return out  # out is the original version of out_flat
-
 
 def decompress_long_mat(byte_tensor, nbit, dim=None):
     """
@@ -72,7 +67,6 @@ def decompress_long_mat(byte_tensor, nbit, dim=None):
         out = out_flat.view(*out_shape)
     return out
 
-
 def line2vec(line, value_dict=None):
     """
     convert a line in embedding file to a float tensor vector
@@ -85,7 +79,6 @@ def line2vec(line, value_dict=None):
             value_dict[float(value)]
             for value in line.strip('\n').split(" ")[1:]
         ])
-
 
 def quantize_embed(module, nbit=32):
     """
@@ -111,7 +104,6 @@ def quantize_embed(module, nbit=32):
             quantize_embed(child, nbit)
     return module
 
-
 def find_embedding_module_name(module, module_name=""):
     module_name_list = []
     for name, child in module.named_children():
@@ -127,7 +119,6 @@ def find_embedding_module_name(module, module_name=""):
                 module_name_list += find_embedding_module_name(
                     child, module_name + "." + name)
     return module_name_list
-
 
 def load_embed_from_ckpt(model, ckpt_file):
     """ load normal full precision embedding modules """
@@ -147,7 +138,6 @@ def load_embed_from_ckpt(model, ckpt_file):
     model_dict.update(emb_state_dict)
     model.load_state_dict(model_dict)
 
-
 def print_model_mem(model):
     embed_module_names = find_embedding_module_name(model)
     embed_mem = 0.0
@@ -162,9 +152,8 @@ def print_model_mem(model):
             embed_mem += v.element_size() * v.nelement()
         else:
             non_embed_mem += v.element_size() * v.nelement()
-    logger.info("Embed memory (bytes) " + str(embed_mem))
-    logger.info("Non-embed memory (bytes) " + str(non_embed_mem))
-
+    logging.info("Embed memory (bytes) " + str(embed_mem))
+    logging.info("Non-embed memory (bytes) " + str(non_embed_mem))
 
 def reshape_ckpt_value_list_shape(model, state, nbit):
     embed_module_names = find_embedding_module_name(model)
@@ -177,30 +166,26 @@ def reshape_ckpt_value_list_shape(model, state, nbit):
             state[name + ".value_list"] = value_list
             state[name + ".value_list"][:old_value_list.nelement()].copy_(
                 old_value_list)
-            logger.info("Updated value_list to shape " +
+            logging.info("Updated value_list to shape " +
                         str(state[name + ".value_list"].size()))
     return state
 
-
 def dummy_filter(x):
     return True
-
 
 def fix_embedding_parameters(model, module_name_filter=dummy_filter):
     embed_module_names = find_embedding_module_name(model)
     embed_module_names = [
         x for x in embed_module_names if module_name_filter(x)
     ]
-    for name, param in model.named_parameters():
-        if any([x in name for x in embed_module_names]):
+    for param_name, param in model.named_parameters():
+        if any([module_name in param_name for module_name in embed_module_names]):
             param.requires_grad = False
-            logger.info("Embedding " + name + " is set to non-training mode")
-
+            logging.info("Embedding " + param_name + " is set to non-training mode")
 
 def print_param(model):
     for name, param in model.named_parameters():
         print(name, param.dtype, param.requires_grad, param.shape)
-
 
 class QuantEmbedding(nn.Embedding):
     def __init__(self,
@@ -295,7 +280,7 @@ class QuantEmbedding(nn.Embedding):
                         embedding_file)
                 # compress _weight into self.weight
                 self._compress_tensor(_weight)
-        logger.info("Compressed embedding to " + str(self.nbit) + " bits!")
+        logging.info("Compressed embedding to " + str(self.nbit) + " bits!")
 
     def _get_value_list_from_tensor(self, weight):
         # get the unique values into a list
@@ -364,7 +349,7 @@ class QuantEmbedding(nn.Embedding):
         }
         assert len(sorted_vals) <= 2**self.nbit
         if len(sorted_vals) < 2**self.nbit:
-            logger.warning(
+            logging.warning(
                 "Set of actual values is smaller than set of possible values.")
         weight = np.vectorize(self.value_dict.get)(weight)
         # compress vectors into quantized embeddings
@@ -382,7 +367,7 @@ class QuantEmbedding(nn.Embedding):
             }
             assert len(sorted_vals) <= 2**self.nbit
             if len(sorted_vals) < 2**self.nbit:
-                logger.warning(
+                logging.warning(
                     "Set of actual values is smaller than set of possible values."
                 )
         else:
@@ -402,7 +387,7 @@ class QuantEmbedding(nn.Embedding):
                             [float(value) for value in line.split(" ")[1:]],
                             dtype=self.weight.dtype))
         if self.num_embeddings > line_id + 1:
-            logger.warning(
+            logging.warning(
                 "The input vocab is smaller then the specified vocab size")
 
     def forward(self, input):

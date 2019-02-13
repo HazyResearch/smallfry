@@ -326,10 +326,11 @@ def evaluate_sentiment(embed_path,
 def evaluate_translation(embed_path, data_path, tmp_path, embed_type, seed):
     # Remove tmp folder content to start training from scratch.
     if os.path.isdir(tmp_path): shutil.rmtree(tmp_path)
-    english_dim = utils.get_embedding_dimension(embed_path)
-    # We always use the same german_dim so that the english embeddings are the
-    # only part that changes when we evaluate a compressed english embedding.
-    german_dim = utils.get_large_embedding_dim(embed_type)
+    # We use the large embedding dimension for both German (encoder) and
+    # English (decoder) embeddings. This is important because when we are
+    # evaluating the performance of a lower-dimensional compressed English
+    # embedding, we want all the rest of the architecture to remain the same.
+    large_embed_dim = utils.get_large_embedding_dim(embed_type)
 
     # Step 1: Train transformer model with fixed English embeddings (at embed_path),
     # and German embeddings trained from random initialization.
@@ -348,16 +349,17 @@ def evaluate_translation(embed_path, data_path, tmp_path, embed_type, seed):
         '--weight-decay', '0.0001',
         '--criterion', 'label_smoothed_cross_entropy',
         '--max-update', '50000',
+        #'--max-update', '2000', # quick test
         '--seed', str(seed),
         '--warmup-updates', '4000',
         '--warmup-init-lr', '1e-07',
         '--adam-betas', '(0.9, 0.98)',
         '--save-dir', tmp_path,
         '--log-format', 'simple',
-        '--fix_embeddings',
+        '--fix-decoder-embeddings',
         '--decoder-embed-path', embed_path,
-        '--decoder-embed-dim', str(english_dim),
-        '--encoder-embed-dim', str(german_dim)
+        '--decoder-embed-dim', str(large_embed_dim),
+        '--encoder-embed-dim', str(large_embed_dim)
     ]
     ### Use this code to use pre-trained embeddings for both English and German.
     # cmdline_args.extend(['--encoder-embed-path', german_embed_path])
@@ -367,6 +369,7 @@ def evaluate_translation(embed_path, data_path, tmp_path, embed_type, seed):
     cmdline_args = [
         '--inputs', tmp_path,
         '--num-epoch-checkpoints', '10',
+        # '--num-epoch-checkpoints', '1', # quick test
         '--output', tmp_path + '/model_ave.pt'
     ]
     average_translation_ckpt(cmdline_args)
