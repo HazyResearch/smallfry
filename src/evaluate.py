@@ -50,7 +50,7 @@ def evaluate_embeds():
             utils.config['epochs'],
             lr=utils.config['lr'])
     elif utils.config['evaltype'] == 'translation':
-        translation_data_path = '/proj/smallfry/git/smallfry/src/third_party/low_memory_fnn_training/apps/fairseq/data-bin/iwslt14.tokenized.de-en'
+        translation_data_path = '/proj/smallfry/git/smallfry/src/third_party/fairseq/data-bin/iwslt14.tokenized.de-en'
         translation_training_tmp_path = '/scratch/smallfry_tranformer_tmp'
         results = evaluate_translation(
             utils.config['embedpath'],
