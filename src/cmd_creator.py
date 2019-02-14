@@ -795,9 +795,9 @@ def cmds_2_13_19_eval_translation_stoch_embeddings():
                     'stoch,True' in embedpath and
                     'adaptive,True' in embedpath and
                     'embeddim,800' not in embedpath and
-                    ('bitrate,1' in embedpath or
-                    'bitrate,2' in embedpath or
-                    'bitrate,4' in embedpath)
+                    ('bitrate,1_' in embedpath or
+                    'bitrate,2_' in embedpath or
+                    'bitrate,4_' in embedpath)
                 ):
                 f.write(cmd_format_str.format(evaltype, embedpath.strip()))
 
