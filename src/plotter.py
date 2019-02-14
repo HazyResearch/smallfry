@@ -430,7 +430,8 @@ def gather_ICML_results():
     result_file_regexes = ['*evaltype,qa*final.json', '*evaltype,sent*lr,0*final.json',
             '*evaltype,intrinsics*final.json', '*evaltype,synthetics_*final.json',
             '*2019-01-20-eval-*evaltype,synthetics-large-dim*final.json',
-            '*2019-02-0*-eval-*evaltype,synthetics-large-dim*final.json']
+            '*2019-02-0*-eval-*evaltype,synthetics-large-dim*final.json',
+            '*evaltype,translation*final.json']
     # if we want the compression config file, use 'embedtype,*final.json'
     path_regex = '/proj/smallfry/embeddings/{}/*/*/{}'
     all_results = []
