@@ -329,7 +329,7 @@ def get_git_dir():
                     else 'avnermay')
         path = 'C:\\Users\\{}\\Git\\smallfry'.format(username)
     # elif hostname == 'DN0a22a222.SUNet':
-    elif 'DN0' in hostname and '.SUNet' in hostname:
+    elif 'DN' in hostname and '.SUNet' in hostname:
         path = '/Users/Jian/Data/research/smallfry/'
     else:
         path = '/proj/smallfry/git/smallfry'
@@ -529,3 +529,11 @@ def delta_approximation(K, K_tilde, lambda_=1e-3):
     assert lambda_max >= lambda_min
     # return delta1, delta2, max(delta2, delta1/(1-delta1))
     return -lambda_min, lambda_max, max(lambda_max, -lambda_min/(1.0 + lambda_min))
+
+def eigen_overlap(X1, X2):
+    # X1 and X2 are n x d where n is the dataset size, d is the feature dimensionality
+    assert X1.shape[0] == X2.shape[0]
+    U1, S1, _ = np.linalg.svd(X1, full_matrices=False)
+    U2, S2, _ = np.linalg.svd(X2, full_matrices=False)
+    normalizer = max(X1.shape[1], X2.shape[1])
+    return np.linalg.norm(U1.T @ U2, ord='fro')**2 / normalizer
