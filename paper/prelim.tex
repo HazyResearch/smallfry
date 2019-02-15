@@ -79,13 +79,13 @@ We now review the metrics:
 %Many main stream word embedding generation problem can be casted matrix decomposition . For example, Skip-gram Word2Vec \citep{word2vec13} implicitly factorizes the Pointwise Mutual Information (PMI) matrix while GloVe \citep{glove14} decomposes the word co-occurrence matrix. In this paper, given an uncompressed embedding $X\in\mathbb{R}^{n\times d}$ and its compressed version $\tilde{X}\in\mathbb{R}^{n\times \tilde{d}}$, we consider the reconstruction error between Gram matrices $G = XX^T$ and $\tilde{G} = \tilde{X}\tilde{X}^T$ as the proxy metrics of compression quality. Recently, there has been substantial progress in understanding the matrix reconstruction error and generalization for models derived from matrix factorization. Particularly in our empirical evaluation, we consider the \emph{Pointwise Inner Product (PIP)} loss \citep{yin18} and \emph{spectral approximation error} \citep{avron17,lprff18} as the metrics for word embedding compression quality.
 
 \paragraph{Word Embedding Reconstruction Error}
-The first and simplest way of comparing two embeddings $X$ and $\tX$ is simply to measure the reconstruction error $\|X-\tX\|_F^2$.
+The first and simplest way of comparing two embeddings $X$ and $\tX$ is simply to measure the reconstruction error $\|X-\tX\|_F$.
 In fact, many embedding compression methods \citep{andrews16,dccl17} use this as the loss function for compression.
 Note that in order to be able to use this metric, $X$ and $\tX$ must have the same dimension.
 This limits the settings in which this metric can be used, relative to the metrics which depend only on the Gram matrices.
 
 \paragraph{Pairwise Inner Product (PIP) Loss}
-Given $XX^T$ and $\tX\tX^T$, the Gram matrices of the uncompressed and compressed embeddings, the \textit{Pairwise Inner Product (PIP} Loss) is defined as $\|XX^T -\tX\tX^T\|_F^2$ \citep{yin18}.
+Given $XX^T$ and $\tX\tX^T$, the Gram matrices of the uncompressed and compressed embeddings, the \textit{Pairwise Inner Product (PIP} Loss) is defined as $\|XX^T -\tX\tX^T\|_F$ \citep{yin18}.
 This metric was recently proposed in order to explain the existence of an optimal dimension for word embeddings;
 specifically, this work shows that increasing the embedding dimension decreases a bias term but increases a variance term in the PIP loss.
 Though the PIP loss does not explicitly consider the generalization performance of the embeddings on downstream tasks, \citep{yin18} show that selecting the embedding dimension to minimize the PIP loss can help attain strong downstream NLP task performance.

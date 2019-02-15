@@ -73,7 +73,7 @@ For simplicity, we will consider here the noiseless fixed design regression sett
 In this setting, the training loss is equal to the generalization loss.
 Letting $y\in\RR^n$ denote the vector of labels and using the closed form solution for the optimal parameters $w^* = (X^T X)^{-1}X^Ty$, we can derive that the generalization performance is equal to $\cR(X) = \|Xw^* - y\|^2 = \|y\|^2 - \|U^T y\|^2$.
 
-To expose the influence of the eigenspace overlap on the generalation performance, it will be necessary for us to considering an average-case analysis.
+To expose the influence of the eigenspace overlap on the generalization performance, it will be necessary for us to considering an average-case analysis.
 This is necessary because in worst-case analysis, if there exists a single direction in $\Span(U)$ orthogonal to $\Span(V)$ (which always occurs when $\dim(V) < \dim(U)$) the label vector $y$ can simply be equal to this direction.
 In this case $\cR(X) = \|y\|^2 - \|U^T y\|^2 = 0$, while $\cR(\tX) = \|y\|^2 - \|V^T y\|^2 = \|y\|^2$.
 Thus, the setting we will consider instead is one where $y$ is a random vector in $\Span(U)$.
@@ -89,9 +89,48 @@ If $y = Uz$ for a random vector $z \in \RR^d$ with zero mean and identity covari
 
 This proposition reveals that a larger eigenspace overlap value results in better generalization performance for the compressed embedding.
 
+\paragraph{Discussion}
+Here, we provide a more detailed discussion of two important aspects of the eigenspace overlap metric:
+(1) It only depends on the left singular vectors of the embedding matrices;
+(2) It is much more robust than the previously proposed metrics to perturbations of the embedding matrix which are unlikely to significantly change the generalization performance (in the average-case sense).
 
+To better understand why the eigenspace overlap only depends on the left singular vectors of the embedding matrices, we first observe in the above equation for $\cR(X)$ that the generalization performance of a linear model trained on $X$ only depends on the left singular vectors of $X$ (assuming $X$ is full-rank).
+To see why this is the case, consider the predicted labels $y \defeq Xw$, for some linear model $w \in \RR^d$ over $X$.
+If we replace $X$ with $\tX \defeq U \tSigma \tW^T$, and we replace $w$ with $\tw \defeq \tW \tSigma^{-1} \Sigma W^T w$, then $\tX \tw = U\tSigma \tW^T \tW \tSigma^{-1} \Sigma W^T w = Xw$.
+Thus, a linear model over $\tX$ can exactly replicate the output of any linear model over $X$, assuming the left singular vectors of $X$ and $\tX$ are equal.
+This observation provides intuition for why it is reasonable for the eigenspace overlap metric to only consider the left singular vectors of the embedding matrices.
 
-\subsection{Revisit Performance of Compressed Embeddings}
+To demonstrate the robustness of the eigenspace overlap to perturbations of the embedding matrix unlikely to affect generalization performance, we consider the following two simple perturbations:
+First, we consider multiplying the uncompressed embedding matrix $X$ by a positive scalar $a > 0$ ($\tX_1 \defeq aX$).
+Second, we consider setting the smallest singular value of $X$ to 0; mathematically, if $X = \sum_{i=1}^{d} \sigma_i U_i W_i^T$ is the singular value decomposition of $X$, we consider $\tX_2 \defeq \sum_{i=1}^{d-1} \sigma_i U_i W_i^T$.
+Assuming a linear model $y = Xw = \sum_i \alpha_i U_i$, $\tX_1$ would perform identically to $X$, while $\tX_2$ would have a generalization error of $\alpha_d^2$.
+If we assume that $\alpha_d^2 \ll \sum_{i=1}^{d-1}\alpha_i^2$ (as is the case in our average-case analysis), then $\tX_2$ would also perform similarly to $X$.
+
+In Table~\ref{table:perturb}, we show the impact of each of these perturbations on the various metrics we have discussed for comparing embedding matrices.
+At a high-level, we observe that each of these perturbations can have a dramatic effect of the previously proposed metrics, while having minimal effect on the eigenspace overlap metric.
+For example, the $\Delta_1$ metric is very sensitive to setting the smallest singular values of an embedding to 0.
+This makes sense, because $\Delta_1$ can be used to attain a worst-case generalization bound for the perturbed embeddings \citep{lprff18}, and there exist cases where setting the smallest singular value to 0 can significantly harm the generalization performance of the embeddings (\eg, if $\alpha_d^2 \approx \|\alpha\|^2$).
+Thus, while the $\Delta_1$ metric is an important metric for understanding the worst-case performance of the compressed embeddings, it is generally an overly pessimistic metric.
+Our metric, on the other hand, is generally unable to provide worst-case guarantees, but aligns nicely with the expected performance of the compressed embeddings in the average-case setting.
+
+%Note that the eigenspace overlap metric is additionally invariant to right multiplication of the embedding matrix by any invertible matrix, while none of the other metrics are.
+
+\begin{table}
+	\caption{In this table, we consider two perturbations $\tX_1$ and $\tX_2$ of $X$, and compute the value of the various metrics of compression quality between these perturbations and $X$. Specifically, we consider $\tX_1 = aX$ for some $a \geq 0$, and $\tX_2 = \sum_{i=1}^{d-1} \sigma_i U_i W_i^T$, where $X = \sum_{i=1}^d \sigma_i U_i W_i^T$.  We let $\sigma_{\min}$ and $\sigma_{\max}$ denotes the smallest and largest singular values of $X$, respectively. In the last row, we plot the generalization error $\cR(\tX) = \|\tX \tw - y\|^2$ which results from learning a linear model on top of $\tX_1$ or $\tX_2$ in place of $X$, where we assume the labels $y = \sum_{i=1}^d \alpha_i U_i$.}
+	\centering
+	\begin{tabular}{ c | c | c }
+		& $\tX_1$ & $\tX_2$ \\ \hline
+		Reconstruction error & $|a-1| \cdot \|X\|_F$ & $\sigma_{\min}$ \\
+		PIP loss & $|a^2 - 1| \cdot \|XX^T\|_F$ & $\sigma_{\min}^2$ \\
+		$\Delta_1$ & $\max\Big(0,\frac{\sigma_{\max}^2 (1-a^2) }{\sigma_{\max}^2 + \lambda}\Big)$ & $\frac{\sigma_{\min}^2}{\sigma_{\min}^2 + \lambda}$ \\
+		$\Delta_2$ & $\max\Big(0,\frac{\sigma_{\max}^2 (a^2-1) }{\sigma_{\max}^2 + \lambda}\Big)$ & 0 \\
+		$1-\eigover(X,\tX)$ & $0$ & $\frac{1}{d}$\\ \hline
+		$\cR(\tX)$ & $0$ & $\alpha_d^2$\\
+	\end{tabular}
+\label{table:perturb}
+\end{table}
+
+\subsection{Revisiting the Performance of Compressed Embeddings}
 \label{subsec:revisit}
 We now demonstrate that unlike the metrics we discussed in Section~\ref{sec:prelim}, this metric empirically aligns very well with the performance of compressed embeddings on downstream tasks.
 In Figure~\ref{fig:good_correlation} we show scatter plots of downstream performance vs.\ eigenspace overlap, and see that in general higher eigenspace overlap corresponds to better performance.

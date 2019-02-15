@@ -200,14 +200,7 @@ def evaluate_synthetics_large_dim(embed_path):
     # base embedding matrix (eg, compressed 50d glove400k kernel matrix vs.
     # uncompressed 300d glove400k kernel matrix)
     embedtype = utils.config['compress-config']['embedtype']
-    if embedtype == 'glove400k':
-        large_dim = 300
-    elif embedtype == 'glove-wiki400k-am':
-        large_dim = 400
-    else:
-        assert embedtype == 'fasttext1m'
-        large_dim = 300
-
+    large_dim = utils.get_large_embedding_dim(embedtype)
     base_path_large_dim, _ = utils.get_base_embed_info(embedtype, large_dim)
     base_embeds_large_dim, _ = utils.load_embeddings(base_path_large_dim)
     compute_gram_or_cov_errors(embeds, base_embeds_large_dim, True,
