@@ -1257,6 +1257,110 @@ def eigenspace_overlap_glove_clip_per_dim(logy):
     plt.title('1-overlap vs. prec (clip-per-dim vs. not)')
     save_plot('eigenspace_overlap_Glove_clip_per_dim{}.pdf'.format(logy_str))
 
+def clipping_effect_on_overlap(path="./glove.6B.300d.txt"):
+    X, _ = utils.load_embeddings(path=path)
+    # X = X[::400]
+    lim = float(np.max(np.abs(X)))
+
+    eps = 1e-10
+    # rs = np.logspace(np.log10(lim * 1e-5), np.log10(lim), num=30)
+    rs = np.linspace(0, lim, num=20) + eps
+    print(X.shape)
+
+    plt.figure()
+    overlaps = []
+    for r in rs:
+        Xq = np.clip(X, -r, r)
+        overlaps.append(utils.eigen_overlap(Xq, X))
+
+    plt.plot(rs, overlaps, "o-")
+    plt.xlabel("clip thresh")
+    plt.ylabel("overlap")
+    # plt.xscale('log')
+    plt.show()
+
+def clipping_effect_and_quantization(stoc=False, path="./glove.6B.300d.txt"):
+    X, _ = utils.load_embeddings(path=path)
+    # X = X[::400]
+    eps = 1e-9
+    lim = float(np.max(np.abs(X)))
+    rs = np.linspace(0, lim, num=50)
+    rs = np.where(rs < eps, eps * np.ones_like(rs), rs)
+    print("rs", rs)
+    bs = [1, 2, 4, 8 ,16, 32]
+    # bs = [1, ]
+
+    def get_overlap_rec_err(stoc=False):
+        overlaps = []
+        rec_losses = []
+        for b in bs:
+            overlap_b = []
+            rec_loss_b = []
+            for r in rs:
+                X_clip = np.clip(X, -r, r)
+                if b == 32:
+                    Xq = X_clip.copy()
+                else:
+                    Xq,_,_ = compress.compress_uniform(X_clip, b, adaptive_range=False, stochastic_round=stoc)
+                overlap_b.append(utils.eigen_overlap(Xq, X))
+                rec_loss_b.append(np.linalg.norm(Xq - X, ord='fro'))
+            overlaps.append(overlap_b.copy())
+            rec_losses.append(rec_loss_b.copy())
+            print("precision done for b=", b)
+        return overlaps, rec_losses
+
+    overlaps_s, rec_losses_s = get_overlap_rec_err(stoc=True)
+    overlaps_d, rec_losses_d = get_overlap_rec_err(stoc=False)
+
+    plt.figure()
+    for b, overlap in zip(bs, overlaps_s):
+        plt.plot(rs, overlap, "-", label=str(b) + "bit stoc")
+    plt.gca().set_prop_cycle(None)
+    for b, overlap in zip(bs, overlaps_d):
+        plt.plot(rs, overlap, "-.", label=str(b) + "bit det")
+    plt.xlabel("thresh")
+    plt.ylabel("overlap")
+    plt.legend()
+    plt.yscale("log")
+    save_plot('micro_overlap_and_clipping.pdf')
+    # plt.show()
+
+    plt.figure()
+    for b, rec_loss in zip(bs, rec_losses_s):
+        plt.plot(rs, rec_loss, "-", label=str(b) + "bit stoc")
+    plt.gca().set_prop_cycle(None)
+    for b, rec_loss in zip(bs, rec_losses_d):
+        plt.plot(rs, rec_loss, "-.", label=str(b) + "bit det")
+    plt.xlabel("thresh")
+    plt.ylabel("rec loss")
+    plt.legend()
+    plt.yscale("log")
+    save_plot('micro_rec_loss_and_clipping.pdf')
+
+    plt.figure()
+    best_clip_rec_s = []
+    best_clip_overlap_s = []
+    for b, overlap, rec_loss in zip(bs, overlaps_s, rec_losses_s):
+        best_clip_rec_s.append(rs[np.argmax(overlap)])
+        best_clip_overlap_s.append(rs[np.argmin(rec_loss)])
+    plt.plot(bs, best_clip_rec_s, "o-", label="rec stoc")
+    plt.plot(bs, best_clip_overlap_s, "o-", label="overlap stoc")
+    plt.gca().set_prop_cycle(None)
+    best_clip_rec_d = []
+    best_clip_overlap_d = []
+    for b, overlap, rec_loss in zip(bs, overlaps_d, rec_losses_d):
+        best_clip_rec_d.append(rs[np.argmax(overlap)])
+        best_clip_overlap_d.append(rs[np.argmin(rec_loss)])
+    plt.plot(bs, best_clip_rec_d, "o-.", label="rec det")
+    plt.plot(bs, best_clip_overlap_d, "o-.", label="overlap det")
+    plt.xlabel("bit")
+    plt.ylabel("opt clip thresh")
+    plt.legend()
+    plt.xscale("log")
+    save_plot('optimal_clip_thresh_and_bits.pdf')
+
+    plt.show()
+
 if __name__ == '__main__':
     # ppmi_spectrum()
 
@@ -1299,5 +1403,11 @@ if __name__ == '__main__':
     # Simple regression micro
     # eigenspace_overlap_regression_micro()
 
+<<<<<<< HEAD
     # clip per dim experiment
     eigenspace_overlap_glove_clip_per_dim(False)
+=======
+    # # clipping expeiments for overlap
+    # clipping_effect_on_overlap()
+    clipping_effect_and_quantization(path="./glove.6B.300d.txt")
+>>>>>>> 0688e81918dd8c82e19814a69881d0295baa6cbd
