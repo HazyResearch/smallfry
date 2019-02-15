@@ -304,7 +304,7 @@ def get_base_dir():
                     else 'avnermay')
         path = 'C:\\Users\\{}\\Babel_Files\\smallfry'.format(username)
     # elif hostname == 'DN0a22a222.SUNet':
-    elif 'DN0' in hostname and '.SUNet' in hostname:
+    elif 'DN' in hostname and '.SUNet' in hostname:
         path = '/Users/Jian/Data/research/smallfry/'
     elif '.stanford.edu' in hostname:
         path = '/dfs/scratch0/avnermay/smallfry'
@@ -317,7 +317,7 @@ def get_home_dir():
     if is_windows() or '.stanford.edu' in hostname:
         return get_base_dir()
     # elif hostname == 'DN0a22a222.SUNet':
-    elif 'DN0' in hostname and '.SUNet' in hostname:
+    elif 'DN' in hostname and '.SUNet' in hostname:
         return get_base_dir()
     else:
         return '/home/ubuntu'
