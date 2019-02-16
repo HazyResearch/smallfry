@@ -305,7 +305,8 @@ def get_base_dir():
                     else 'avnermay')
         path = 'C:\\Users\\{}\\Babel_Files\\smallfry'.format(username)
     # elif hostname == 'DN0a22a222.SUNet':
-    elif 'DN' in hostname and '.SUNet' in hostname:
+    # elif 'DN' in hostname and '.SUNet' in hostname:
+    elif getpass.getuser() == 'Jian':
         path = '/Users/Jian/Data/research/smallfry/'
     elif '.stanford.edu' in hostname and getpass.getuser() == 'zjian':
         path = '/dfs/scratch0/zjian/smallfry'
@@ -320,7 +321,8 @@ def get_home_dir():
     if is_windows() or '.stanford.edu' in hostname:
         return get_base_dir()
     # elif hostname == 'DN0a22a222.SUNet':
-    elif 'DN' in hostname and '.SUNet' in hostname:
+    # elif 'DN' in hostname and '.SUNet' in hostname:
+    elif getpass.getuser() == 'Jian':
         return get_base_dir()
     elif '.stanford.edu' in hostname and getpass.getuser() == 'zjian':
         return get_base_dir()
@@ -334,7 +336,8 @@ def get_git_dir():
                     else 'avnermay')
         path = 'C:\\Users\\{}\\Git\\smallfry'.format(username)
     # elif hostname == 'DN0a22a222.SUNet':
-    elif 'DN' in hostname and '.SUNet' in hostname:
+    # elif 'DN' in hostname and '.SUNet' in hostname:
+    elif getpass.getuser() == 'Jian':
         path = '/Users/Jian/Data/research/smallfry/'
     elif '.stanford.edu' in hostname and getpass.getuser() == 'zjian':
         path = '/dfs/scratch0/zjian/smallfry'
