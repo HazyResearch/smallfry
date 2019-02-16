@@ -527,6 +527,11 @@ def latexify_finalize_fig(ax, config=None):
             plt.xscale('log')
         else:
             plt.xscale('linear')
+    if 'logy' in config.keys() and (config['logy'] is not None):
+        if config['logy']:
+            plt.yscale('log')
+        else:
+            plt.yscale('linear')
     if 'legend_frame_alpha' in config.keys() and (config['legend_frame_alpha'] is not None):
         leg.framealpha = config['legend_frame_alpha']
     if 'xlim' in config.keys() and (config['xlim'] is not None):
@@ -677,7 +682,7 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
         else:
             save = True
         if save:
-            key_name = embedtype + ', ' + y_metric2 + ', ' + y_metric
+            key_name = embedtype + ', ' + y_metric2 + ', ' + y_metric + ', ' + stoch
             spearman_dict[key_name] = return_info[0]
     latexify_finalize_fig(ax, latexify_config)
 
@@ -860,7 +865,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
             # y_metric1s = ['subspace-dist-normalized', 'gram-large-dim-frob-error', 
             #         'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta2-2', 
             #         ]  
-
+            # y_metric1s = ['gram-large-dim-frob-error'] 
             y_metric1s = ['gram-large-dim-frob-error', 'subspace-dist-normalized',
                     'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
                     'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
@@ -878,7 +883,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
     elif y_metric2_evaltype == 'sentiment':
         y_metric2s = ['test-acc']
         # datasets = ['mr','subj','cr','sst','trec','mpqa']
-        datasets = ['trec']
+        datasets = ['sst']
     elif y_metric2_evaltype == 'intrinsics':
         # y_metric2s = ['analogy-avg-score','google-mul','google-add','msr-mul','msr-add']
         y_metric2s = ['analogy-avg-score','similarity-avg-score','google-mul','google-add','msr-mul','msr-add']
@@ -990,8 +995,8 @@ def plot_all_ICML_results():
     plot_synthetic_results()
     plot_embedding_standard_deviation()
 
-def print_spearrank_table_blob():
-    with open('./spearman_dict', 'rb') as f:
+def print_spearrank_table_blob(dict_name='./spearman_dict', stoc='det'):
+    with open(dict_name, 'rb') as f:
         spearman_dict = cp.load(f)
     embedtypes = ['glove400k', 'glove-wiki400k-am', 'fasttext1m',]
     x_metrics = ['embed-frob-error', 'gram-large-dim-frob-error', 
@@ -1002,7 +1007,7 @@ def print_spearrank_table_blob():
         info = ' '
         for y in y_metrics:
             for embed in embedtypes:
-                key = embed + ', ' + y + ', ' + x
+                key = embed + ', ' + y + ', ' + x + ', ' + stoc
                 if key in spearman_dict.keys():
                     # info += r'{0:.2f}/'.format(spearman_dict[key])
                     info += r'{0:.5f}/'.format(spearman_dict[key])
@@ -1012,10 +1017,10 @@ def print_spearrank_table_blob():
 
 if __name__ == '__main__':
     # # # lines
-    # plot_qa_results()
-    # plot_intrinsic_results()
-    # plot_sentiment_results()
-    # plot_translation_results()
+    plot_qa_results()
+    plot_intrinsic_results()
+    plot_sentiment_results()
+    plot_translation_results()
     
     # #plot_frob_squared_vs_bitrate()
     # #plot_dca_frob_squared_vs_lr()
@@ -1036,7 +1041,6 @@ if __name__ == '__main__':
 
     # scatter plots
     logx = False
-    # # use_large_dims = [True, False]
     use_large_dims = [False, True]
     for use_large_dim in use_large_dims:
         # for i in range(3):
@@ -1071,7 +1075,10 @@ if __name__ == '__main__':
                 exit(0)
 
     print(spearman_dict)
-    with open('./spearman_dict', 'wb') as f:
+    with open('./spearman_dict_all_pt', 'wb') as f:
         cp.dump(spearman_dict, f)
 
-    print_spearrank_table_blob()
+    print("determinstic spearman")
+    print_spearrank_table_blob('./spearman_dict_all_pt', stoc='det')
+    print_spearrank_table_blob('./spearman_dict_all_pt', stoc='stoc')
+
