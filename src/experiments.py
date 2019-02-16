@@ -10,6 +10,9 @@ import compress
 import utils
 import pathlib
 import math
+from plotter import default_latexify_config
+from plotter import latexify_setup_fig
+from plotter import latexify_finalize_fig
 
 def save_plot(plot_filename):
     plot_file = str(pathlib.PurePath(utils.get_git_dir(),
@@ -1457,8 +1460,9 @@ def clipping_effect_and_quantization(stoc=False, path="./glove.6B.300d.txt"):
     rs = np.linspace(0, lim, num=50)
     rs = np.where(rs < eps, eps * np.ones_like(rs), rs)
     print("rs", rs)
+    # bs = [1, 2, 4]
     bs = [1, 2, 4, 8 ,16, 32]
-    # bs = [1, ]
+    # bs = [1, 2]
 
     def get_overlap_rec_err(stoc=False):
         overlaps = []
@@ -1482,38 +1486,64 @@ def clipping_effect_and_quantization(stoc=False, path="./glove.6B.300d.txt"):
     overlaps_s, rec_losses_s = get_overlap_rec_err(stoc=True)
     overlaps_d, rec_losses_d = get_overlap_rec_err(stoc=False)
 
-    plt.figure()
+    latexify_config = default_latexify_config.copy()
+    latexify_config['xtick_pos'] = None
+    latexify_config['xtick_label'] = None
+    latexify_config['logx'] = False
+    latexify_config['ylabel'] = r'1 - $\mathcal{E}$'
+    latexify_config['xlabel'] = 'Clip thresh'
+    latexify_config['title'] = None
+    latexify_config['xlim'] = [0, None]
+    ax = latexify_setup_fig(latexify_config)
+    # plt.figure()
     for b, overlap in zip(bs, overlaps_s):
-        plt.plot(rs, overlap, "-", label=str(b) + "bit stoc")
+        if b <= 4:
+            plt.plot(rs, overlap, "-", label=r'$b={}$'.format(b) + " stoc.")
     plt.gca().set_prop_cycle(None)
     for b, overlap in zip(bs, overlaps_d):
-        plt.plot(rs, overlap, "-.", label=str(b) + "bit det")
-    plt.xlabel("thresh")
-    plt.ylabel("overlap")
-    plt.legend()
-    plt.yscale("log")
+        if b <= 4:
+            plt.plot(rs, overlap, "-.", label=r'$b={}$'.format(b) + " det.")
+    latexify_finalize_fig(ax, latexify_config)
     save_plot('micro_overlap_and_clipping.pdf')
     # plt.show()
 
-    plt.figure()
+    latexify_config = default_latexify_config.copy()
+    latexify_config['xtick_pos'] = None
+    latexify_config['xtick_label'] = None
+    latexify_config['logx'] = False
+    latexify_config['logy'] = True
+    latexify_config['ylabel'] = r'Embed. rec. error'
+    latexify_config['xlabel'] = 'Clip thresh'
+    latexify_config['title'] = None
+    latexify_config['xlim'] = [0, None]
+    ax = latexify_setup_fig(latexify_config)
+    # plt.figure()
     for b, rec_loss in zip(bs, rec_losses_s):
-        plt.plot(rs, rec_loss, "-", label=str(b) + "bit stoc")
+        if b <= 4:
+            plt.plot(rs, rec_loss, "-", label=r'$b={}$'.format(b) + " stoc.")
     plt.gca().set_prop_cycle(None)
     for b, rec_loss in zip(bs, rec_losses_d):
-        plt.plot(rs, rec_loss, "-.", label=str(b) + "bit det")
-    plt.xlabel("thresh")
-    plt.ylabel("rec loss")
-    plt.legend()
-    plt.yscale("log")
+        if b <= 4:     
+            plt.plot(rs, rec_loss, "-.", label=r'$b={}$'.format(b) + " det.")
+    latexify_finalize_fig(ax, latexify_config)
     save_plot('micro_rec_loss_and_clipping.pdf')
 
-    plt.figure()
+    # plt.figure()
+    latexify_config = default_latexify_config.copy()
+    # latexify_config['xtick_pos'] = None
+    # latexify_config['xtick_label'] = None
+    latexify_config['logx'] = True
+    latexify_config['ylabel'] = r'Opt. clip thresh'
+    latexify_config['xlabel'] = r'b'
+    latexify_config['title'] = None
+    latexify_config['xlim'] = [1, None]
+    ax = latexify_setup_fig(latexify_config)
     best_clip_rec_s = []
     best_clip_overlap_s = []
     for b, overlap, rec_loss in zip(bs, overlaps_s, rec_losses_s):
         best_clip_rec_s.append(rs[np.argmax(overlap)])
         best_clip_overlap_s.append(rs[np.argmin(rec_loss)])
-    plt.plot(bs, best_clip_rec_s, "o-", label="rec stoc")
+    plt.plot(bs, best_clip_rec_s, "o-", label="rec. err. stoc")
     plt.plot(bs, best_clip_overlap_s, "o-", label="overlap stoc")
     plt.gca().set_prop_cycle(None)
     best_clip_rec_d = []
@@ -1521,15 +1551,10 @@ def clipping_effect_and_quantization(stoc=False, path="./glove.6B.300d.txt"):
     for b, overlap, rec_loss in zip(bs, overlaps_d, rec_losses_d):
         best_clip_rec_d.append(rs[np.argmax(overlap)])
         best_clip_overlap_d.append(rs[np.argmin(rec_loss)])
-    plt.plot(bs, best_clip_rec_d, "o-.", label="rec det")
+    plt.plot(bs, best_clip_rec_d, "o-.", label="rec. err. det")
     plt.plot(bs, best_clip_overlap_d, "o-.", label="overlap det")
-    plt.xlabel("bit")
-    plt.ylabel("opt clip thresh")
-    plt.legend()
-    plt.xscale("log")
+    latexify_finalize_fig(ax, latexify_config)
     save_plot('optimal_clip_thresh_and_bits.pdf')
-
-    plt.show()
 
 if __name__ == '__main__':
     # ppmi_spectrum()

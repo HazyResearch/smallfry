@@ -521,6 +521,8 @@ def latexify_setup_fig(config=None):
 def latexify_finalize_fig(ax, config=None):
     plt.grid()
     leg = plt.gca().legend_
+    if leg is None:
+        leg = plt.legend()
     leg.get_frame().set_linewidth(0.0)
     if 'logx' in config.keys() and (config['logx'] is not None):
         if config['logx']:
