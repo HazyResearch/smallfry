@@ -1090,7 +1090,7 @@ def eigenspace_overlap_micro_vs_sigma_min():
     save_plot('micro_eig_overlap_denominator_vs_sigma_min.pdf')
 
 def eigenspace_overlap_vs_prec_large_n_small_d():
-    n = 10000
+    n = 100000
     d = 10
     bs = [1,2,4,8,16,32]
     full_matrices = False
@@ -1132,6 +1132,10 @@ def eigenspace_overlap_vs_prec_large_n_small_d():
     plt.title('1-overlap vs. prec')
     save_plot('micro_eig_overlap_vs_prec_large_n_small_d.pdf')
 
+# If clip_per_dim = True and real_data = False:
+#     We show that clipping per dimension leads to the compressed matrices
+#     have the same overlap vs. precision curves, regardless of the decay speed.
+# If clip_per_dim = False and real_data = False:
 def eigenspace_overlap_vs_prec_large_n_small_d_many_decays(clip_per_dim, real_data):
     clip_per_dim_str = '_clip_per_dim' if clip_per_dim else ''
     real_data_str = '_real_data' if real_data else ''
@@ -1206,20 +1210,186 @@ def eigenspace_overlap_vs_prec_large_n_small_d_many_decays(clip_per_dim, real_da
     save_plot('micro_eig_overlap_vs_prec_large_n_small_d_many_decays{}{}.pdf'.format(clip_per_dim_str,real_data_str))
 
 
+# MAIN MICRO #1
+def eigenspace_overlap_vs_prec_n_d(vary_n,vary_d,prec_x):
+    ns = [30,100,300,1000,3000,10000,30000,100000] if vary_n else [10000]
+    # ds = [10,30,100,300,1000,3000,10000,30000] if vary_d else [10]
+    # ns = [1000,3000,10000,30000,100000] if vary_n else [100000]
+    ds = [10,30,100,300,1000,3000] if vary_d else [10]
+    n_str = '_vary_n' if vary_n else ''
+    d_str = '_vary_d' if vary_d else ''
+    if prec_x:
+        x_str = 'prec'
+    else:
+        assert vary_n or vary_d
+        x_str = 'd' if vary_d else 'n'
+
+    bs = [1,2,4,8]
+    full_matrices = False
+    overlaps = np.zeros((len(ns),len(ds),(len(bs))))
+    bounds = np.zeros((len(ns),len(ds),(len(bs))))
+    a_values = np.zeros((len(ns),len(ds)))
+
+    for i_n,n in enumerate(ns):
+        for i_d,d in enumerate(ds):
+            lim = 1.0/np.sqrt(d)
+            X = np.random.uniform(low=-lim, high=lim, size=(n,d))
+            U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
+            # s_max = S[0]
+            s_min = S[d-1]
+            a_values[i_n,i_d] = s_min / np.sqrt(n/d)
+            print('a = {}'.format(a_values[i_n,i_d]))
+
+            for i_b,b in enumerate(bs):
+                Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
+                Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
+                # H = Xq @ Xq.T - X @ X.T
+                overlaps[i_n,i_d,i_b] = 1 - np.linalg.norm(Uq[:,:d].T @ U[:,:d])**2 / d
+                # bound1[i_b] = np.linalg.norm(H)**2 / (d * s_min**4)
+                bounds[i_n,i_d,i_b] = 20 / ((2**b-1)**2 * a_values[i_n,i_d]**4)
+                print('n = {}, d = {}, b = {}, overlap = {}, s_min = {}'.format(n, d, b, overlaps[i_n,i_d,i_b], s_min))
+
+    plt.figure(1)
+    bound_line_styles = ['-','--']
+    leg = []
+    if prec_x:
+        n_colors = ['r','g','b']
+        d_markers = ['o','x','s']
+        for i_n,n in enumerate(ns):
+            for i_d,d in enumerate(ds):
+                leg.append('1-overlap (n={},d={})'.format(n,d))
+                leg.append('bound (n={},d={})'.format(n,d))
+                plt.plot(bs, overlaps[i_n,i_d,:], n_colors[i_n] + d_markers[i_d] + bound_line_styles[0])
+                plt.plot(bs, bounds[i_n,i_d,:], n_colors[i_n] + d_markers[i_d] + bound_line_styles[1])
+    else:
+        assert vary_n or vary_d
+        if vary_d:
+            n_colors = ['r','g','b']
+            b_markers = ['o','x','s','.','d','D']
+            for i_n,n in enumerate(ns):
+                for i_b,b in enumerate(bs):
+                    leg.append('1-overlap (n={},b={})'.format(n,b))
+                    leg.append('bound (n={},b={})'.format(n,b))
+                    plt.plot(ds, overlaps[i_n,:,i_b], n_colors[i_n] + b_markers[i_b] + bound_line_styles[0])
+                    plt.plot(ds, bounds[i_n,:,i_b], n_colors[i_n] + b_markers[i_b] + bound_line_styles[1])
+        elif vary_n:
+            d_colors = ['r','g','b']
+            b_markers = ['o','x','s','.','d','D']
+            for i_d,d in enumerate(ds):
+                for i_b,b in enumerate(bs):
+                    leg.append('1-overlap (d={},b={})'.format(d,b))
+                    leg.append('bound (d={},b={})'.format(d,b))
+                    plt.plot(ns, overlaps[:,i_d,i_b], d_colors[i_d] + b_markers[i_b] + bound_line_styles[0])
+                    plt.plot(ns, bounds[:,i_d,i_b], d_colors[i_d] + b_markers[i_b] + bound_line_styles[1])
+    plt.xlabel(x_str)
+    plt.ylabel('1-overlap')
+    plt.legend(leg)
+    plt.yscale('log')
+    plt.xscale('log')
+    # plt.ylim((10**(-12), 1))
+    # plt.xticks(bs,bs)
+    plt.title('1-overlap vs. {}'.format(x_str))
+    save_plot('micro_eig_overlap_vs_{}{}{}.pdf'.format(x_str, n_str, d_str))
+
+# MAIN MICRO #2
+def eigenspace_overlap_vs_a_multiple_prec_decay():
+    n = 10000
+    d = 10
+    # bs = [1,2,4,8,16,32]
+    bs = [1,2,4,16]
+    decays = [
+        np.logspace(0, -6.4, num=d),
+        np.logspace(0, -3.2, num=d),
+        np.logspace(0, -1.6, num=d),
+        np.logspace(0, -0.8, num=d),
+        np.logspace(0, -0.4, num=d),
+        np.logspace(0, 0, num=d),
+    ]
+    full_matrices = False
+    overlaps = np.zeros((len(bs),len(decays)))
+    bounds = np.zeros((len(bs),len(decays)))
+    a_values = np.zeros(len(decays))
+    lim = 1.0/np.sqrt(d)
+    X_orig = np.random.uniform(low=-lim, high=lim, size=(n,d))
+    for i_d,decay in enumerate(decays):
+        X = X_orig * decay
+        U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
+        s_min = S[d-1]
+        a_values[i_d] = s_min / np.sqrt(n/d)
+        print('a = {}'.format(a_values[i_d]))
+        for i_b,b in enumerate(bs):
+            Xq,_,_ = compress.compress_uniform(X, b, adaptive_range=False, stochastic_round=True)
+            Uq,_,_ = np.linalg.svd(Xq,full_matrices=full_matrices)
+            # H = Xq @ Xq.T - X @ X.T
+            overlaps[i_b,i_d] = 1 - np.linalg.norm(Uq[:,:d].T @ U[:,:d])**2 / d
+            # bound1[i_b] = np.linalg.norm(H)**2 / (d * s_min**4)
+            bounds[i_b,i_d] = 20 / ((2**b-1)**2 * a_values[i_d]**4)
+            print('n = {}, d = {}, b = {}, overlap = {}, s_min = {}'.format(n, d, b, overlaps[i_b,i_d], s_min))
+
+    plt.figure(1)
+    b_colors = ['r','g','b','k']
+    b_markers = ['o','x','s','d']
+    bound_line_styles = ['-','--']
+    leg = []
+    for i_b,b in enumerate(bs):
+        leg.append('1-overlap (b={})'.format(b))
+        leg.append('bound (b={})'.format(b))
+        plt.plot(a_values, overlaps[i_b,:], b_colors[i_b] + b_markers[i_b] + bound_line_styles[0])
+        plt.plot(a_values, bounds[i_b,:], b_colors[i_b] + b_markers[i_b] + bound_line_styles[1])
+    plt.legend(leg)
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.ylim((10**(-3), 1))
+    # plt.xticks(bs,bs)
+    plt.title('1-overlap vs. a')
+    save_plot('micro_eig_overlap_vs_a_multiple_prec_decay.pdf')
+
+# Show effect of picking the clipping value separate in each direction
+# after rotating onto the basis of eigenvectors, relative to the normal
+# uniform quantization approach (single clipping value for whole matrix).
 def eigenspace_overlap_glove_clip_per_dim(logy):
     full_matrices = False
-    X,_ = utils.load_embeddings('C:\\Users\\Avner\\Babel_Files\\smallfry\\base_embeddings\\glove10k\\glove.6B.300d.10k.txt')
+    # X,_ = utils.load_embeddings('C:\\Users\\Avner\\Babel_Files\\smallfry\\base_embeddings\\glove10k\\glove.6B.300d.10k.txt')
+    X,_ = utils.load_embeddings('C:\\Users\\avnermay\\Babel_Files\\smallfry\\base_embeddings\\glove10k\\glove.6B.300d.10k.txt')
     n,d = X.shape
     adaptive=True
     U,S,_ = np.linalg.svd(X,full_matrices=full_matrices)
     X_rotate = U * S
+
+    plt.figure(1)
+    plt.subplot(411)
+    plt.plot(np.max(X_rotate,axis=0))
+    plt.plot(np.min(X_rotate,axis=0))
+    plt.plot(np.max(X,axis=0))
+    plt.plot(np.min(X,axis=0))
+    plt.legend([
+        'X_rotate (max)',
+        'X_rotate (min)',
+        'X (max)',
+        'X (min)'
+    ])
+
+    plt.subplot(412)
+    plt.plot(S,'-o')
+    plt.yscale('log')
+
+    plt.subplot(413)
+    for i in range(4):
+        plt.hist(X_rotate[:,i].flatten(),density=True)
+    plt.hist(X_rotate[:,90:100].flatten(),density=True)
+    # plt.hist(X_rotate[:,290:300].flatten(),density=True)
+
+    plt.subplot(414)
+    plt.hist(X[:,0:10].flatten(),density=True)
+    plt.hist(X[:,90:100].flatten(),density=True)
+    plt.hist(X[:,290:300].flatten(),density=True)
+    plt.show()
 
     Xs = [X,X_rotate]
     clip_per_dims = [False,True]
     bs = [1,2,4,8,16,32]
     Xq = np.zeros(X.shape)
     overlaps = np.zeros((len(clip_per_dims),len(bs)))
-    a_values = np.zeros(len(clip_per_dims))
     # bound1 = np.zeros((len(decays),len(bs)))
     # bound2 = np.zeros((len(clip_per_dims),len(bs)))
 
@@ -1408,3 +1578,14 @@ if __name__ == '__main__':
     # # clipping expeiments for overlap
     # clipping_effect_on_overlap()
     clipping_effect_and_quantization(path="./glove.6B.300d.txt")
+
+    # eigenspace_overlap_glove_clip_per_dim(False)
+
+    # # clipping expeiments for overlap
+    # clipping_effect_on_overlap()
+    # clipping_effect_and_quantization(path="./glove.6B.300d.txt")
+
+    # eigenspace_overlap_vs_prec_n_d(True,False,False)
+    # eigenspace_overlap_vs_prec_n_d(False,True,False)
+    # eigenspace_overlap_vs_a_multiple_prec_decay()
+    

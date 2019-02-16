@@ -78,7 +78,7 @@ Let $U = [U_1,\ldots U_d]$, $U_{\perp} = [U_{d+1},\ldots,U_n]$, $V = [V_1,\ldots
 %\subsubsection{VERSION 3}
 %Tri says we can use the fact that the singular values of $UU^T-VV^T$ are the same as those of $U^{\perp} U^{\perp T} VV^T$ (but repeated twice).  And then use sin(theta) theorem to argue that $\|U^{\perp} U^{\perp T} VV^T\|$ is small
 
-\subsubsection{Average case analysis}
+\subsubsection{Average case analysis (identity covariance matrix)}
 We will assume $y$ is a random vector in the span of $U$.
 Specifically, $y = \sum_{i=1}^d z_i U_i$, where the $z_i$ are i.i.d. zero mean random variable with variance 1.
 \begin{eqnarray*}
@@ -94,6 +94,26 @@ Specifically, $y = \sum_{i=1}^d z_i U_i$, where the $z_i$ are i.i.d. zero mean r
 	\expect{y}{n(R(\tK) - R(K))} &=& \expect{y}{\Big(\|y\|^2 - y^T VV^T y\Big) - \Big(\|y\|^2 - y^T UU^T y\Big)}\\
 	&=& \expect{y}{\|U^T y\|^2 - \|V^Ty\|^2}\\
 	&=& d -  \|V^T U\|_F^2\\
+\end{eqnarray*}
+
+\subsubsection{Average case analysis (diagonal covariance matrix)}
+We will assume $y$ is a random vector in the span of $U$.
+Specifically, $y = \sum_{i=1}^d z_i U_i$, where the $z_i$ are independent random variables satisfying $\expect{}{z_i} = 0$ and $\var{}{z_i} = \sigma_i^2$.
+We let $\Sigma = \diag(\sigma_1,\ldots,\sigma_d)$.
+\begin{eqnarray*}
+	\expect{y}{\|U^T y\|_2^2} &=& \expect{y}{\sum_{j=1}^d \bigg( U_j^T \Big(\sum_{i=1}^d z_i U_i\Big)\bigg)^2} \\
+	&=& \expect{y}{\sum_{j=1}^d z_j^2} \\
+	&=& \sum_{i=1}^d \sigma_i^2 \\
+	&=& \|\Sigma\|_F^2 \\
+	\expect{y}{\|V^T y\|_2^2} &=& \expect{y}{\sum_{j=1}^k \bigg( V_j^T \Big(\sum_{i=1}^d z_i U_i\Big)\bigg)^2} \\
+	&=& \expect{y}{\sum_{j=1}^k \bigg(\sum_{i=1}^d z_i V_j^TU_i\bigg)^2} \\
+	&=& \expect{y}{\sum_{j=1}^k \sum_{i,l=1}^d (z_i V_j^TU_i) (z_l V_j^TU_l) }\\
+	&=& \sum_{j=1}^k \sum_{i,l=1}^d \expect{y}{z_i z_l} (V_j^TU_i) (V_j^TU_l) \\
+	&=& \sum_{j=1}^k \sum_{i=1}^d \sigma_i^2 (V_j^TU_i)^2 \\
+	&=& \|V^T U \Sigma\|_F^2\\
+	\expect{y}{n(R(\tK) - R(K))} &=& \expect{y}{\Big(\|y\|^2 - y^T VV^T y\Big) - \Big(\|y\|^2 - y^T UU^T y\Big)}\\
+	&=& \expect{y}{\|U^T y\|^2 - \|V^Ty\|^2}\\
+	&=& \|\Sigma\|_F^2 -  \|V^T U\Sigma\|_F^2\\
 \end{eqnarray*}
 
 \subsubsection{Davis-Kahan $\sin(\Theta)$ Theorem}
