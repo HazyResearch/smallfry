@@ -697,6 +697,21 @@ def plot_qa_results():
         plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='stoc')
         plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='det')
 
+def plot_translation_results():
+    embedtypes = ['glove-wiki400k-am', 'glove400k','fasttext1m',]
+    evaltype = 'translation'
+    y_metrics = ['BLEU4', 'min_val_loss', 'min_val_ppl']
+    y_labels = ['BLEU4', 'Val. loss', 'Val. perp.']
+    for y_metric, y_label in zip(y_metrics, y_labels):
+        latexify_config = default_latexify_config
+        embedtype_name_map = get_embedtype_name_map()
+        latexify_config['ylabel'] = y_label
+        for embedtype in embedtypes:
+            latexify_config['x_normalizer'] = utils.get_large_embedding_dim(embedtype)
+            latexify_config['title'] = embedtype_name_map[embedtype] + ', translation'
+            plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='stoc')
+            plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='det')
+
 
 def plot_sentiment_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
@@ -842,15 +857,15 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
             #         ]
             # y_metric1s = ['embed-frob-error']
 
-            y_metric1s = ['subspace-dist-normalized', 'gram-large-dim-frob-error', 
-                    'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta2-2', 
-                    ]  
+            # y_metric1s = ['subspace-dist-normalized', 'gram-large-dim-frob-error', 
+            #         'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta2-2', 
+            #         ]  
 
-            # y_metric1s = ['gram-large-dim-frob-error', 'subspace-dist-normalized',
-            #         'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
-            #         'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
-            #         'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
-            #         ]       
+            y_metric1s = ['gram-large-dim-frob-error', 'subspace-dist-normalized',
+                    'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
+                    'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
+                    'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
+                    ]       
     else:
         evaltype = 'synthetics'
         y_metric1s = ['embed-frob-error']
@@ -862,7 +877,8 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
         datasets = [None]
     elif y_metric2_evaltype == 'sentiment':
         y_metric2s = ['test-acc']
-        datasets = ['mr','subj','cr','sst','trec','mpqa']
+        # datasets = ['mr','subj','cr','sst','trec','mpqa']
+        datasets = ['trec']
     elif y_metric2_evaltype == 'intrinsics':
         # y_metric2s = ['analogy-avg-score','google-mul','google-add','msr-mul','msr-add']
         y_metric2s = ['analogy-avg-score','similarity-avg-score','google-mul','google-add','msr-mul','msr-add']
@@ -935,6 +951,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
                         plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
                             y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
                             dataset=dataset, latexify_config=latexify_config, stoch=stoc)
+                        plt.close('all')
                         # plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
                         #     y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
                         #     dataset=dataset, latexify_config=latexify_config, stoch='det')
@@ -980,7 +997,7 @@ def print_spearrank_table_blob():
     x_metrics = ['embed-frob-error', 'gram-large-dim-frob-error', 
                     'gram-large-dim-delta1-2-trans', 
                     'gram-large-dim-delta2-2', 'subspace-dist-normalized']
-    y_metrics = ['BLEU4', 'best-f1', 'test-acc', 'analogy-avg-score', 'similarity-avg-score', 'google-mul','google-add','msr-mul','msr-add']
+    y_metrics = ['BLEU4', 'min_val_loss', 'min_val_ppl', 'best-f1', 'test-acc', 'analogy-avg-score', 'similarity-avg-score', 'google-mul','google-add','msr-mul','msr-add']
     for x in x_metrics:
         info = ' '
         for y in y_metrics:
@@ -994,10 +1011,11 @@ def print_spearrank_table_blob():
         print(x, info)
 
 if __name__ == '__main__':
-    # # lines
+    # # # lines
     # plot_qa_results()
     # plot_intrinsic_results()
     # plot_sentiment_results()
+    # plot_translation_results()
     
     # #plot_frob_squared_vs_bitrate()
     # #plot_dca_frob_squared_vs_lr()
@@ -1019,12 +1037,39 @@ if __name__ == '__main__':
     # scatter plots
     logx = False
     # # use_large_dims = [True, False]
-    use_large_dims = [True]
+    use_large_dims = [False, True]
     for use_large_dim in use_large_dims:
-        plot_metric_vs_performance('translation', use_large_dim, logx)
-        # plot_metric_vs_performance('qa', use_large_dim, logx)
-        # plot_metric_vs_performance('sentiment', use_large_dim, logx)
-        # plot_metric_vs_performance('intrinsics', use_large_dim, logx)
+        # for i in range(3):
+        #     try:
+        #         plot_metric_vs_performance('translation', use_large_dim, logx)
+        #     except BaseException as e:
+        #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
+        #         plt.close('all')
+        for i in range(3):
+            try:
+                plot_metric_vs_performance('qa', use_large_dim, logx)
+                break
+            except BaseException as e:
+                print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
+                plt.close('all')
+                exit(0)
+        for i in range(3):
+            try:
+                plot_metric_vs_performance('sentiment', use_large_dim, logx)
+                break
+            except BaseException as e:
+                print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
+                plt.close('all')
+                exit(0)
+        for i in range(3):
+            try:
+                plot_metric_vs_performance('intrinsics', use_large_dim, logx)
+                break
+            except BaseException as e:
+                print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
+                plt.close('all')
+                exit(0)
+
     print(spearman_dict)
     with open('./spearman_dict', 'wb') as f:
         cp.dump(spearman_dict, f)

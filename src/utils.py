@@ -10,6 +10,7 @@ import random
 import subprocess
 import argparse
 import numpy as np
+import getpass
 try:
     import tensorflow as tf
 except ImportError:
@@ -306,6 +307,8 @@ def get_base_dir():
     # elif hostname == 'DN0a22a222.SUNet':
     elif 'DN' in hostname and '.SUNet' in hostname:
         path = '/Users/Jian/Data/research/smallfry/'
+    elif '.stanford.edu' in hostname and getpass.getuser() == 'zjian':
+        path = '/dfs/scratch0/zjian/smallfry'
     elif '.stanford.edu' in hostname:
         path = '/dfs/scratch0/avnermay/smallfry'
     else:
@@ -319,6 +322,8 @@ def get_home_dir():
     # elif hostname == 'DN0a22a222.SUNet':
     elif 'DN' in hostname and '.SUNet' in hostname:
         return get_base_dir()
+    elif '.stanford.edu' in hostname and getpass.getuser() == 'zjian':
+        return get_base_dir()
     else:
         return '/home/ubuntu'
 
@@ -331,6 +336,8 @@ def get_git_dir():
     # elif hostname == 'DN0a22a222.SUNet':
     elif 'DN' in hostname and '.SUNet' in hostname:
         path = '/Users/Jian/Data/research/smallfry/'
+    elif '.stanford.edu' in hostname and getpass.getuser() == 'zjian':
+        path = '/dfs/scratch0/zjian/smallfry'
     else:
         path = '/proj/smallfry/git/smallfry'
     return path

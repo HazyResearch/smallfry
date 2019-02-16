@@ -54,3 +54,16 @@ This helps explain the strong empirical performance of the uniformly quantized e
 %			\end{itemize}
 %		\item Loop-back discussion on the large scale empirical experiments in Section~\ref{subsec:hard_explain}
 %	\end{itemize}
+
+
+\paragraph{Clipping and overlap} 
+\begin{figure*}
+\begin{tabular}{c c c}
+	\includegraphics[width=0.3\linewidth]{figures/micro_overlap_and_clipping.pdf} &
+	\includegraphics[width=0.3\linewidth]{figures/micro_rec_loss_and_clipping.pdf} &
+	\includegraphics[width=0.3\linewidth]{figures/optimal_clip_thresh_and_bits.pdf} 
+\end{tabular}
+\label{fig:clipping_effect}
+\caption{Left: clipping thresh and overlap. Middle: clipping thresh and embedding reconstruction error. Right: optimal clipping threshold from overlap and embedding reconstruction error.}	
+\end{figure*}
+

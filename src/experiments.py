@@ -1281,7 +1281,7 @@ def clipping_effect_on_overlap(path="./glove.6B.300d.txt"):
 
 def clipping_effect_and_quantization(stoc=False, path="./glove.6B.300d.txt"):
     X, _ = utils.load_embeddings(path=path)
-    # X = X[::400]
+    X = X[::400]
     eps = 1e-9
     lim = float(np.max(np.abs(X)))
     rs = np.linspace(0, lim, num=50)
@@ -1403,11 +1403,8 @@ if __name__ == '__main__':
     # Simple regression micro
     # eigenspace_overlap_regression_micro()
 
-<<<<<<< HEAD
     # clip per dim experiment
-    eigenspace_overlap_glove_clip_per_dim(False)
-=======
+    # eigenspace_overlap_glove_clip_per_dim(False)
     # # clipping expeiments for overlap
     # clipping_effect_on_overlap()
     clipping_effect_and_quantization(path="./glove.6B.300d.txt")
->>>>>>> 0688e81918dd8c82e19814a69881d0295baa6cbd
