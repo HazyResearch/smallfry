@@ -189,7 +189,19 @@ def get_embedtype_name_map():
         'fasttext1m': 'fastText',
         'glove-wiki400k-am': "GloVe (Wiki'17)"
     }
-    return embedtype_name_map
+    return embedtype_name_map       
+
+
+def get_metric_name_map():
+    metric_name_map = {
+        'embed-frob-error': 'Embed. reconstruction. error',
+        'gram-large-dim-frob-error': 'PIP loss',
+        'subspace-dist-normalized': r'1 - $\mathcal{E}$',
+        'gram-large-dim-delta1-2': r'$\Delta_1$',
+        'gram-large-dim-delta1-2-trans': r'$1/(1 - \Delta_1)$',
+        'gram-large-dim-delta2-2': r'$\Delta_2$',
+    }
+    return metric_name_map
 
 
 # lines_x, y contains values for x and y in the scatter plot
@@ -704,6 +716,29 @@ def plot_qa_results():
         plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='stoc')
         plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='det')
 
+def plot_metric_vs_compression():
+    embedtypes = ['glove-wiki400k-am', 'glove400k','fasttext1m',]
+    y_metrics = ['embed-frob-error', 'gram-large-dim-frob-error', 'subspace-dist-normalized',
+            'gram-large-dim-delta1-2', 
+            'gram-large-dim-delta1-2-trans', 
+            'gram-large-dim-delta2-2'
+            ]       
+    embedtype_name_map = get_embedtype_name_map()
+    metric_name_map = get_metric_name_map()
+    for embedtype in embedtypes:
+        for y_metric in y_metrics:
+            if y_metric == 'embed-frob-error':
+                evaltype = 'synthetics'
+            else:
+                evaltype = 'synthetics-large-dim'
+            latexify_config = default_latexify_config.copy()
+            latexify_config['ylabel'] = metric_name_map[y_metric]
+            latexify_config['x_normalizer'] = utils.get_large_embedding_dim(embedtype)
+            latexify_config['title'] = embedtype_name_map[embedtype] + ', QA'
+            plot_ICML_results(embedtype, evaltype, y_metric, y_metric2_evaltype="qa", latexify_config=latexify_config, stoch='stoc')
+            plot_ICML_results(embedtype, evaltype, y_metric, y_metric2_evaltype="qa", latexify_config=latexify_config, stoch='det')
+
+
 def plot_translation_results():
     embedtypes = ['glove-wiki400k-am', 'glove400k','fasttext1m',]
     evaltype = 'translation'
@@ -738,6 +773,7 @@ def plot_sentiment_results():
                 latexify_config['title'] = embedtype_name_map[embedtype] + ', sentiment'
                 plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset, latexify_config=latexify_config, stoch='stoc')
                 plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset, latexify_config=latexify_config, stoch='det')
+
 
 def plot_intrinsic_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
@@ -961,7 +997,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
                         plt.close('all')
                         # plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
                         #     y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
-                        #     dataset=dataset, latexify_config=latexify_config, stoch='det')
+                        #     dataset=dataset, latexify_config=latexify_config, stoch=stoc)
 
 
 
@@ -1019,10 +1055,14 @@ def print_spearrank_table_blob(dict_name='./spearman_dict', stoc='det'):
 
 if __name__ == '__main__':
     # # # lines
-    plot_qa_results()
-    plot_intrinsic_results()
-    plot_sentiment_results()
-    plot_translation_results()
+    # plot_qa_results()
+    # plot_intrinsic_results()
+    # plot_sentiment_results()
+    # plot_translation_results()
+
+    # metric vs compression
+    plot_metric_vs_compression()
+    # plot_sentiment_metric_vs_compression()
     
     # #plot_frob_squared_vs_bitrate()
     # #plot_dca_frob_squared_vs_lr()
@@ -1041,46 +1081,46 @@ if __name__ == '__main__':
     # # plot_theorem3_tighter_bound()
     # # gather_ICML_results()
 
-    # scatter plots
-    logx = False
-    use_large_dims = [False, True]
-    for use_large_dim in use_large_dims:
-        # for i in range(3):
-        #     try:
-        #         plot_metric_vs_performance('translation', use_large_dim, logx)
-        #     except BaseException as e:
-        #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
-        #         plt.close('all')
-        for i in range(3):
-            try:
-                plot_metric_vs_performance('qa', use_large_dim, logx)
-                break
-            except BaseException as e:
-                print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
-                plt.close('all')
-                exit(0)
-        for i in range(3):
-            try:
-                plot_metric_vs_performance('sentiment', use_large_dim, logx)
-                break
-            except BaseException as e:
-                print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
-                plt.close('all')
-                exit(0)
-        for i in range(3):
-            try:
-                plot_metric_vs_performance('intrinsics', use_large_dim, logx)
-                break
-            except BaseException as e:
-                print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
-                plt.close('all')
-                exit(0)
+    # # scatter plots
+    # logx = False
+    # use_large_dims = [False, True]
+    # for use_large_dim in use_large_dims:
+    #     # for i in range(3):
+    #     #     try:
+    #     #         plot_metric_vs_performance('translation', use_large_dim, logx)
+    #     #     except BaseException as e:
+    #     #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
+    #     #         plt.close('all')
+    #     for i in range(3):
+    #         try:
+    #             plot_metric_vs_performance('qa', use_large_dim, logx)
+    #             break
+    #         except BaseException as e:
+    #             print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
+    #             plt.close('all')
+    #             exit(0)
+    #     for i in range(3):
+    #         try:
+    #             plot_metric_vs_performance('sentiment', use_large_dim, logx)
+    #             break
+    #         except BaseException as e:
+    #             print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
+    #             plt.close('all')
+    #             exit(0)
+    #     for i in range(3):
+    #         try:
+    #             plot_metric_vs_performance('intrinsics', use_large_dim, logx)
+    #             break
+    #         except BaseException as e:
+    #             print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
+    #             plt.close('all')
+    #             exit(0)
 
-    print(spearman_dict)
-    with open('./spearman_dict_all_pt', 'wb') as f:
-        cp.dump(spearman_dict, f)
+    # print(spearman_dict)
+    # with open('./spearman_dict_all_pt', 'wb') as f:
+    #     cp.dump(spearman_dict, f)
 
-    print("determinstic spearman")
-    print_spearrank_table_blob('./spearman_dict_all_pt', stoc='det')
-    print_spearrank_table_blob('./spearman_dict_all_pt', stoc='stoc')
+    # print("determinstic spearman")
+    # print_spearrank_table_blob('./spearman_dict_all_pt', stoc='det')
+    # print_spearrank_table_blob('./spearman_dict_all_pt', stoc='stoc')
 
