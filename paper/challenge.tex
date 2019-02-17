@@ -16,18 +16,18 @@ These observations motivate us to propose a new compression quality metric in Se
 	\centering
 	%	\begin{tabular}{c c c c}
 	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_compression_linx_stoc.pdf} \\
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_compression_linx_stoc.pdf} \\
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_compression_linx_stoc.pdf} \\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_compression_linx_stoc.pdf} \\
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_compression_linx_stoc.pdf} \\
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_similarity-avg-score_vs_compression_linx_stoc.pdf} \\
 		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_compression_linx_det.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_compression_linx_det.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_compression_linx_det.pdf} &
@@ -44,9 +44,9 @@ These observations motivate us to propose a new compression quality metric in Se
 		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d)
 	\end{tabular}
 	\caption{
-		\textbf{Downstream Performance vs. Compression Rate. (Top 3 rows are stochastic while bottom 3 rows are deterministic)}
+		\textbf{Downstream Performance vs. Compression Rate.}
 		Performance of compressed publically available GloVe (Wiki'14) (top) and fastText (bottom) embeddings on question answering (a), sentiment analysis (TREC dataset) (b), word analogy (c), and word similarity (d) tasks.
-		We generally observe that the uniform quantization, k-means, and DCCL compression methods perform similarly across compression rates, whereas the dimensionality reduction method performs significantly worse.
+		We generally observe that the uniform quantization, k-means, and DCCL compression methods perform similarly across compression rates, whereas the dimensionality reduction method performs significantly worse. In these results, we use deterministic rounding for the uniform quantization method.
 %		Uniform quantization performs similarly to k-means and DCCL on question answering and sentiment analysis;
 %		on the word analogy and similarity tasks, uniform quantization once again performs similarly to k-means, but outperforms the DCCL method.
 %		For the GloVe (Wiki'14) experiments, we are also able to compare with publicly available embeddings of smaller dimensions ($d\in\{50,100,200,300\}$), and observe that compressing the 300-dimensional embeddings is significantly better than using lower-dimensional full-precision embeddings (which we ``Dim. reduction'').
@@ -56,45 +56,45 @@ These observations motivate us to propose a new compression quality metric in Se
 \end{figure*}
 
 
-\begin{figure*}
-	\centering
-	%	\begin{tabular}{c c c c}
-	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_BLEU4_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_compression_linx_stoc.pdf}  \\
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_compression_linx_stoc.pdf}  \\
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_BLEU4_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_loss_vs_compression_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_ppl_vs_compression_linx_stoc.pdf}  \\
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_BLEU4_vs_compression_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_compression_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_compression_linx_det.pdf}  \\
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_compression_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_compression_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_compression_linx_det.pdf}  \\
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_BLEU4_vs_compression_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_loss_vs_compression_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_ppl_vs_compression_linx_det.pdf}  \\
-%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_compression_linx.pdf} &
-%\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_compression_linx.pdf} &
-%\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_compression_linx.pdf} &
-%\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_compression_linx.pdf} \\
-		\;\;\;\;\;(a) BLEU4 & \;\;\;\;\;\;(b) val loss. & \;\;\;\;\;\;(c) val perp.
-	\end{tabular}
-	\caption{
-		\textbf{Downstream Performance vs. Compression Rate. (Top 3 rows are stochastic rounding, the bottom 3 rows are deterministic rounding) Only for translation application.}
-%		Performance of compressed publically available GloVe (Wiki'14) (top) and fastText (bottom) embeddings on question answering (a), sentiment analysis (TREC dataset) (b), word analogy (c), and word similarity (d) tasks.
-%		We generally observe that the uniform quantization, k-means, and DCCL compression methods perform similarly across compression rates, whereas the dimensionality reduction method performs significantly worse.
-%		Uniform quantization performs similarly to k-means and DCCL on question answering and sentiment analysis;
-%		on the word analogy and similarity tasks, uniform quantization once again performs similarly to k-means, but outperforms the DCCL method.
-%		For the GloVe (Wiki'14) experiments, we are also able to compare with publicly available embeddings of smaller dimensions ($d\in\{50,100,200,300\}$), and observe that compressing the 300-dimensional embeddings is significantly better than using lower-dimensional full-precision embeddings (which we ``Dim. reduction'').
-		%\todo{Add Glove-wiki400k-am results to Appendix.}
-	}
-	\label{fig:perf_comp_trans_only}
-\end{figure*}
+%\begin{figure*}
+%	\centering
+%	%	\begin{tabular}{c c c c}
+%	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_BLEU4_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_compression_linx_stoc.pdf}  \\
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_compression_linx_stoc.pdf}  \\
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_BLEU4_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_loss_vs_compression_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_ppl_vs_compression_linx_stoc.pdf}  \\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_BLEU4_vs_compression_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_compression_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_compression_linx_det.pdf}  \\
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_compression_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_compression_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_compression_linx_det.pdf}  \\
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_BLEU4_vs_compression_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_loss_vs_compression_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_ppl_vs_compression_linx_det.pdf}  \\
+%%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_compression_linx.pdf} &
+%%\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_compression_linx.pdf} &
+%%\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_compression_linx.pdf} &
+%%\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_compression_linx.pdf} \\
+%		\;\;\;\;\;(a) BLEU4 & \;\;\;\;\;\;(b) val loss. & \;\;\;\;\;\;(c) val perp.
+%	\end{tabular}
+%	\caption{
+%		\textbf{Downstream Performance vs. Compression Rate. (Top 3 rows are stochastic rounding, the bottom 3 rows are deterministic rounding) Only for translation application.}
+%%		Performance of compressed publically available GloVe (Wiki'14) (top) and fastText (bottom) embeddings on question answering (a), sentiment analysis (TREC dataset) (b), word analogy (c), and word similarity (d) tasks.
+%%		We generally observe that the uniform quantization, k-means, and DCCL compression methods perform similarly across compression rates, whereas the dimensionality reduction method performs significantly worse.
+%%		Uniform quantization performs similarly to k-means and DCCL on question answering and sentiment analysis;
+%%		on the word analogy and similarity tasks, uniform quantization once again performs similarly to k-means, but outperforms the DCCL method.
+%%		For the GloVe (Wiki'14) experiments, we are also able to compare with publicly available embeddings of smaller dimensions ($d\in\{50,100,200,300\}$), and observe that compressing the 300-dimensional embeddings is significantly better than using lower-dimensional full-precision embeddings (which we ``Dim. reduction'').
+%		%\todo{Add Glove-wiki400k-am results to Appendix.}
+%	}
+%	\label{fig:perf_comp_trans_only}
+%\end{figure*}
 
 
 
@@ -169,36 +169,36 @@ Surprisingly, as we show in the next section, none of these metrics aligns well 
 %	\label{fig:bad_correlation}
 %\end{figure*}
 
-\begin{figure*}
-	\centering
-	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_embed-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_embed-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_embed-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_embed-frob-error_linx_stoc.pdf} \\
-		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-frob-error_linx_stoc.pdf} \\
-		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} \\
-		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-2_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta2-2_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta2-2_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta2-2_linx_stoc.pdf} \\
-		(a) GloVe, QA & (b) GloVe Wiki, QA  & (c) GloVe, sentiment & (d) GloVe Wiki, sentiment
-	\end{tabular}
-	\caption{
-		\textbf{Downstream Performance vs. Compression Quality Metrics (Stochastic).}
-		For the compressed embeddings based on the GloVe (Wiki'14) (columns a,c) and GloVe (Wiki'17) (columns b,d) uncompressed embeddings, we show scatter plots of the downstream performance ($y$ axis) vs.\ compression quality metrics ($x$ axis).
-		For the compression quality metrics, we consider embedding reconstruction error (first row), PIP loss (second row), $\Delta_1$ (third row), and $\Delta_2$ (fourth row).
-		To understand whether the ranking of the compressed embeddings based on the various compression quality metrics are well-correlated with the ranking based on the downstream performance, we expose the Spearman's rank correlation coefficient ($\rho$) in the title of each plot (large $|\rho|$ indicates strong correlation).
-		As we can see, most of these metrics attain relatively low values of $|\rho|$, indicating poor correlation.}
-	%We can observe in both settings, for example, that higher dimensional 1-bit uniform quantization can perform better than lower dimensional uncompressed embeddings (``Dim. reduction''). As another example, uniformly quantized embeddings with different precision can results in similar downstream performance while the compression quality metrics are drastically different.
-	\label{fig:bad_correlation_stoc}
-\end{figure*}
+%\begin{figure*}
+%	\centering
+%	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_embed-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_embed-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_embed-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_embed-frob-error_linx_stoc.pdf} \\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-frob-error_linx_stoc.pdf} \\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} \\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-2_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta2-2_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta2-2_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta2-2_linx_stoc.pdf} \\
+%		(a) GloVe, QA & (b) GloVe Wiki, QA  & (c) GloVe, sentiment & (d) GloVe Wiki, sentiment
+%	\end{tabular}
+%	\caption{
+%		\textbf{Downstream Performance vs. Compression Quality Metrics (Stochastic).}
+%		For the compressed embeddings based on the GloVe (Wiki'14) (columns a,c) and GloVe (Wiki'17) (columns b,d) uncompressed embeddings, we show scatter plots of the downstream performance ($y$ axis) vs.\ compression quality metrics ($x$ axis).
+%		For the compression quality metrics, we consider embedding reconstruction error (first row), PIP loss (second row), $\Delta_1$ (third row), and $\Delta_2$ (fourth row).
+%		To understand whether the ranking of the compressed embeddings based on the various compression quality metrics are well-correlated with the ranking based on the downstream performance, we expose the Spearman's rank correlation coefficient ($\rho$) in the title of each plot (large $|\rho|$ indicates strong correlation).
+%		As we can see, most of these metrics attain relatively low values of $|\rho|$, indicating poor correlation.}
+%	%We can observe in both settings, for example, that higher dimensional 1-bit uniform quantization can perform better than lower dimensional uncompressed embeddings (``Dim. reduction''). As another example, uniformly quantized embeddings with different precision can results in similar downstream performance while the compression quality metrics are drastically different.
+%	\label{fig:bad_correlation_stoc}
+%\end{figure*}
 
 \begin{figure*}
 	\centering
@@ -222,7 +222,7 @@ Surprisingly, as we show in the next section, none of these metrics aligns well 
 		(a) GloVe, QA & (b) GloVe Wiki, QA  & (c) GloVe, sentiment & (d) GloVe Wiki, sentiment
 	\end{tabular}
 	\caption{
-		\textbf{Downstream Performance vs. Compression Quality Metrics (Deterministic).}
+		\textbf{Downstream Performance vs. Compression Quality Metrics.}
 		For the compressed embeddings based on the GloVe (Wiki'14) (columns a,c) and GloVe (Wiki'17) (columns b,d) uncompressed embeddings, we show scatter plots of the downstream performance ($y$ axis) vs.\ compression quality metrics ($x$ axis).
 		For the compression quality metrics, we consider embedding reconstruction error (first row), PIP loss (second row), $\Delta_1$ (third row), and $\Delta_2$ (fourth row).
 		To understand whether the ranking of the compressed embeddings based on the various compression quality metrics are well-correlated with the ranking based on the downstream performance, we expose the Spearman's rank correlation coefficient ($\rho$) in the title of each plot (large $|\rho|$ indicates strong correlation).
@@ -232,46 +232,46 @@ Surprisingly, as we show in the next section, none of these metrics aligns well 
 \end{figure*}
 
 
-\begin{figure*}
-	\centering
-	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_BLEU4_vs_embed-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_embed-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_BLEU4_vs_embed-frob-error_linx_stoc.pdf}  \\
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_embed-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_embed-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_loss_vs_embed-frob-error_linx_stoc.pdf}  \\		
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_embed-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_embed-frob-error_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_ppl_vs_embed-frob-error_linx_stoc.pdf}  \\	
-		(a) GloVe, wiki14 & (b) GloVe Wiki17  & (c) FastText
-	\end{tabular}
-	\caption{
-		\textbf{Downstream Performance vs. Compression Quality Metrics (Stochastic) Translation only.}}
-	%We can observe in both settings, for example, that higher dimensional 1-bit uniform quantization can perform better than lower dimensional uncompressed embeddings (``Dim. reduction''). As another example, uniformly quantized embeddings with different precision can results in similar downstream performance while the compression quality metrics are drastically different.
-	\label{fig:bad_correlation_stoc_trans_only}
-\end{figure*}
-
-
-\begin{figure*}
-	\centering
-	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-		\includegraphics[width=.245\linewidth]{figure/glove400k_translation_BLEU4_vs_embed-frob-error_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_embed-frob-error_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_BLEU4_vs_embed-frob-error_linx_det.pdf}  \\
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_embed-frob-error_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_embed-frob-error_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_loss_vs_embed-frob-error_linx_det.pdf}  \\		
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_embed-frob-error_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_embed-frob-error_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_ppl_vs_embed-frob-error_linx_det.pdf}  \\	
-		(a) GloVe, wiki14 & (b) GloVe Wiki17  & (c) FastText
-	\end{tabular}
-	\caption{
-		\textbf{Downstream Performance vs. Compression Quality Metrics (Stochastic) Translation only.}}
-	%We can observe in both settings, for example, that higher dimensional 1-bit uniform quantization can perform better than lower dimensional uncompressed embeddings (``Dim. reduction''). As another example, uniformly quantized embeddings with different precision can results in similar downstream performance while the compression quality metrics are drastically different.
-	\label{fig:bad_correlation_det_trans_only}
-\end{figure*}
+%\begin{figure*}
+%	\centering
+%	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_BLEU4_vs_embed-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_embed-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_BLEU4_vs_embed-frob-error_linx_stoc.pdf}  \\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_embed-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_embed-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_loss_vs_embed-frob-error_linx_stoc.pdf}  \\		
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_embed-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_embed-frob-error_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_ppl_vs_embed-frob-error_linx_stoc.pdf}  \\	
+%		(a) GloVe, wiki14 & (b) GloVe Wiki17  & (c) FastText
+%	\end{tabular}
+%	\caption{
+%		\textbf{Downstream Performance vs. Compression Quality Metrics (Stochastic) Translation only.}}
+%	%We can observe in both settings, for example, that higher dimensional 1-bit uniform quantization can perform better than lower dimensional uncompressed embeddings (``Dim. reduction''). As another example, uniformly quantized embeddings with different precision can results in similar downstream performance while the compression quality metrics are drastically different.
+%	\label{fig:bad_correlation_stoc_trans_only}
+%\end{figure*}
+%
+%
+%\begin{figure*}
+%	\centering
+%	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+%		\includegraphics[width=.245\linewidth]{figure/glove400k_translation_BLEU4_vs_embed-frob-error_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_embed-frob-error_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_BLEU4_vs_embed-frob-error_linx_det.pdf}  \\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_embed-frob-error_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_embed-frob-error_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_loss_vs_embed-frob-error_linx_det.pdf}  \\		
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_embed-frob-error_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_embed-frob-error_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/fasttext1m_translation_min_val_ppl_vs_embed-frob-error_linx_det.pdf}  \\	
+%		(a) GloVe, wiki14 & (b) GloVe Wiki17  & (c) FastText
+%	\end{tabular}
+%	\caption{
+%		\textbf{Downstream Performance vs. Compression Quality Metrics (Stochastic) Translation only.}}
+%	%We can observe in both settings, for example, that higher dimensional 1-bit uniform quantization can perform better than lower dimensional uncompressed embeddings (``Dim. reduction''). As another example, uniformly quantized embeddings with different precision can results in similar downstream performance while the compression quality metrics are drastically different.
+%	\label{fig:bad_correlation_det_trans_only}
+%\end{figure*}
 
 
 

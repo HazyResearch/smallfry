@@ -54,18 +54,18 @@
 %	\label{fig:good_correlation}
 %\end{figure*}
 
-\begin{figure*}
-	\footnotesize
-	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_subspace-dist-normalized_linx_stoc.pdf}	\\
-		(a) GloVe (Wiki'14), QA & \;\;\;\;(b) GloVe (Wiki'17), QA  & \;\;\;\;\;\;(c) GloVe (Wiki'14), sentiment & \;\;\;\;\;(d) GloVe (Wiki'14)
-	\end{tabular}
-	\caption{\textbf{Stochastic.} Our proposed compression quality metric eigenspace overlap correlates strongly with the downstream task performance of compressed embeddings.  On both the question answering and sentiment analysis task, we demonstrate that eigenspace overlap consistently achieves strong correlation 1) across different compression methods (shown in (a), (c)) and 2) across different precision for the uniform quantization methods (shown in (b), (d)). In other words, embeddings compressed by different methods using different configurations can performs similarly in downstream tasks, when they have similar eigenspace overlap with the same reference uncompressed embedding.}
-	\label{fig:good_correlation_stoc}
-\end{figure*}
+%\begin{figure*}
+%	\footnotesize
+%	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_subspace-dist-normalized_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_subspace-dist-normalized_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_subspace-dist-normalized_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_subspace-dist-normalized_linx_stoc.pdf}	\\
+%		(a) GloVe (Wiki'14), QA & \;\;\;\;(b) GloVe (Wiki'17), QA  & \;\;\;\;\;\;(c) GloVe (Wiki'14), sentiment & \;\;\;\;\;(d) GloVe (Wiki'14)
+%	\end{tabular}
+%	\caption{\textbf{Stochastic.} Our proposed compression quality metric eigenspace overlap correlates strongly with the downstream task performance of compressed embeddings.  On both the question answering and sentiment analysis task, we demonstrate that eigenspace overlap consistently achieves strong correlation 1) across different compression methods (shown in (a), (c)) and 2) across different precision for the uniform quantization methods (shown in (b), (d)). In other words, embeddings compressed by different methods using different configurations can performs similarly in downstream tasks, when they have similar eigenspace overlap with the same reference uncompressed embedding.}
+%	\label{fig:good_correlation_stoc}
+%\end{figure*}
 
 \begin{figure*}
 	\footnotesize
@@ -76,44 +76,44 @@
 		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_subspace-dist-normalized_linx_det.pdf}	\\
 		(a) GloVe (Wiki'14), QA & \;\;\;\;(b) GloVe (Wiki'17), QA  & \;\;\;\;\;\;(c) GloVe (Wiki'14), sentiment & \;\;\;\;\;(d) GloVe (Wiki'17), 
 	\end{tabular}
-	\caption{\textbf{Stochastic.} Our proposed compression quality metric eigenspace overlap correlates strongly with the downstream task performance of compressed embeddings.  On both the question answering and sentiment analysis task, we demonstrate that eigenspace overlap consistently achieves strong correlation 1) across different compression methods (shown in (a), (c)) and 2) across different precision for the uniform quantization methods (shown in (b), (d)). In other words, embeddings compressed by different methods using different configurations can performs similarly in downstream tasks, when they have similar eigenspace overlap with the same reference uncompressed embedding.}
+	\caption{Our proposed compression quality metric eigenspace overlap correlates strongly with the downstream task performance of compressed embeddings.  On both the question answering and sentiment analysis task, we demonstrate that eigenspace overlap consistently achieves strong correlation 1) across different compression methods (shown in (a), (c)) and 2) across different precision for the uniform quantization methods (shown in (b), (d)). In other words, embeddings compressed by different methods using different configurations can performs similarly in downstream tasks, when they have similar eigenspace overlap with the same reference uncompressed embedding.}
 	\label{fig:good_correlation_det}
 \end{figure*}
 
 
-\begin{figure*}
-	\footnotesize
-	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_BLEU4_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_subspace-dist-normalized_linx_stoc.pdf}	\\
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_subspace-dist-normalized_linx_stoc.pdf}	\\
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_subspace-dist-normalized_linx_stoc.pdf}	\\
-		(a) GloVe (Wiki'14), translation & \;\;\;\;(b) GloVe (Wiki'17), translation  & \;\;\;\;\;\;(c) FastText, translation 	\end{tabular}
-	\caption{\textbf{Stochastic translation only. First Row, BLUE4; Second Row, val. loss; Third Row, val. perp} }
-	\label{fig:good_correlation_stoc_trans_only}
-\end{figure*}
+%\begin{figure*}
+%	\footnotesize
+%	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_BLEU4_vs_subspace-dist-normalized_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_subspace-dist-normalized_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_subspace-dist-normalized_linx_stoc.pdf}	\\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_subspace-dist-normalized_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_subspace-dist-normalized_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_subspace-dist-normalized_linx_stoc.pdf}	\\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_subspace-dist-normalized_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_subspace-dist-normalized_linx_stoc.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_subspace-dist-normalized_linx_stoc.pdf}	\\
+%		(a) GloVe (Wiki'14), translation & \;\;\;\;(b) GloVe (Wiki'17), translation  & \;\;\;\;\;\;(c) FastText, translation 	\end{tabular}
+%	\caption{\textbf{Stochastic translation only. First Row, BLUE4; Second Row, val. loss; Third Row, val. perp} }
+%	\label{fig:good_correlation_stoc_trans_only}
+%\end{figure*}
 
-\begin{figure*}
-	\footnotesize
-	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_BLEU4_vs_subspace-dist-normalized_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_subspace-dist-normalized_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_subspace-dist-normalized_linx_det.pdf}	\\
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_subspace-dist-normalized_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_subspace-dist-normalized_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_subspace-dist-normalized_linx_det.pdf}	\\
-		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_subspace-dist-normalized_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_subspace-dist-normalized_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_subspace-dist-normalized_linx_det.pdf}	\\
-		(a) GloVe (Wiki'14), translation & \;\;\;\;(b) GloVe (Wiki'17), translation  & \;\;\;\;\;\;(c) FastText, translation 	\end{tabular}
-	\caption{\textbf{Deterministic translation only. First Row, BLUE4; Second Row, val. loss; Third Row, val. perp} }
-	\label{fig:good_correlation_stoc_trans_only}
-\end{figure*}
+%\begin{figure*}
+%	\footnotesize
+%	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_BLEU4_vs_subspace-dist-normalized_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_subspace-dist-normalized_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_BLEU4_vs_subspace-dist-normalized_linx_det.pdf}	\\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_loss_vs_subspace-dist-normalized_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_subspace-dist-normalized_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_loss_vs_subspace-dist-normalized_linx_det.pdf}	\\
+%		\includegraphics[width=.245\linewidth]{figures/glove400k_translation_min_val_ppl_vs_subspace-dist-normalized_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_subspace-dist-normalized_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_translation_min_val_ppl_vs_subspace-dist-normalized_linx_det.pdf}	\\
+%		(a) GloVe (Wiki'14), translation & \;\;\;\;(b) GloVe (Wiki'17), translation  & \;\;\;\;\;\;(c) FastText, translation 	\end{tabular}
+%	\caption{\textbf{Deterministic translation only. First Row, BLUE4; Second Row, val. loss; Third Row, val. perp} }
+%	\label{fig:good_correlation_stoc_trans_only}
+%\end{figure*}
 
 In this section, we introduce the \textit{eigenspace overlap metric} to measure the quality of a compressed embedding relative to the uncompressed embedding.
 We prove average-case generalization bounds for this metric in the context of linear regression, and show that this metric indeed aligns very well with the downstream performance of the compressed embeddings.
