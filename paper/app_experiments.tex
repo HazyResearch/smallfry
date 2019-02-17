@@ -481,8 +481,8 @@ In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results,
 	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
 		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_subspace-dist-normalized_linx_stoc.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_trec_test-acc_vs_subspace-dist-normalized_linx_stoc.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_trec_test-acc_vs_subspace-dist-normalized_linx_stoc.pdf}	\\
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_subspace-dist-normalized_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_subspace-dist-normalized_linx_stoc.pdf}	\\
 		(a) GloVe (Wiki'14), QA & \;\;\;\;(b) GloVe (Wiki'17), QA  & \;\;\;\;\;\;(c) GloVe (Wiki'14), sentiment & \;\;\;\;\;(d) GloVe (Wiki'17), 
 	\end{tabular}
 	\caption{Our proposed compression quality metric eigenspace overlap correlates strongly with the downstream task performance of compressed embeddings.  On both the question answering and sentiment analysis task, we demonstrate that eigenspace overlap consistently achieves strong correlation 1) across different compression methods (shown in (a), (c)) and 2) across different precision for the uniform quantization methods (shown in (b), (d)). In other words, embeddings compressed by different methods using different configurations can performs similarly in downstream tasks, when they have similar eigenspace overlap with the same reference uncompressed embedding. For the results in this figure, we use stochastic rounding for the uniform quantization method.}

@@ -118,7 +118,7 @@ def matches_all_key_values(result, key_values_to_match):
 def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_metric,
                 logx=False, logy=False, title=None, var_info=default_var_info,
                 csv_file=None, y_metric2=None, y_metric2_evaltype=None, y_metric2_dataset=None,
-                scatter=False, latexify_config=default_latexify_config):
+                scatter=False, latexify_config=default_latexify_config, ave_pt=False):
     if scatter:
         assert len(key_values_to_match) != 0
         assert len(key_values_to_match['embedtype']) == 1
@@ -145,7 +145,7 @@ def plot_driver(all_results, key_values_to_match, info_per_line, x_metric, y_met
         # print(lines_y)
         title = '{}: {} perf. ({}) vs. {}'.format(key_values_to_match['embedtype'][0], y_metric2_evaltype, y_metric2, y_metric)
         # return spearman rank correlation
-        return plot_scatter(lines_x, lines_y, y_metric, y_metric2, logx=logx, logy=logy, title=title, csv_file=csv_file, x_normalizer=latexify_config['x_normalizer'])
+        return plot_scatter(lines_x, lines_y, y_metric, y_metric2, logx=logx, logy=logy, title=title, csv_file=csv_file, x_normalizer=latexify_config['x_normalizer'], ave_pt=ave_pt)
     else:
         if len(key_values_to_match) == 0:
             subset = all_results
@@ -205,7 +205,7 @@ def get_metric_name_map():
 
 
 # lines_x, y contains values for x and y in the scatter plot
-def plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=False, logy=False, title=None, csv_file=None, x_normalizer=1.0):
+def plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=False, logy=False, title=None, csv_file=None, x_normalizer=1.0, ave_pt=False):
     # print('scatter function')
     legend_name_map = get_legend_name_map()
     f = None
@@ -225,6 +225,10 @@ def plot_scatter(lines_x, lines_y, x_metric, y_metric, logx=False, logy=False, t
         if x_metric == 'subspace-eig-overlap':
             x_array = 1.0-x_array / float(x_normalizer)
         y_array = xy_y[1]
+        if ave_pt:
+            # plot the average of the different random seeds
+            x_array = np.mean(x_array, axis=0)
+            y_array = np.mean(y_array, axis=0)
         ax.scatter(x_array.ravel(), y_array.ravel())
         full_x_list += x_array.ravel().tolist()
         full_y_list += y_array.ravel().tolist()
@@ -300,6 +304,7 @@ def extract_x_y_foreach_line(results, info_per_line, x_metric, y_metric, var_inf
 def get_x_y_values(line_subset, x_metric, y_metric, var_info=default_var_info):
     var_key = var_info[0]
     var_values = var_info[1]
+
     x = {}
     y = {}
     for val in var_values:
@@ -571,8 +576,10 @@ spearman_dict = {}
 
 def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
                       y_metric2=None, y_metric2_evaltype=None, scatter=False, 
-                      logx=False, latexify_config=default_latexify_config, stoch='det'):
+                      logx=False, latexify_config=default_latexify_config, stoch='det', ave_pt=False):
     assert stoch == 'det' or stoch == 'stoc'
+    if ave_pt:
+        assert scatter == True
     # load and clean all results
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results', 'ICML_results.json'))
     all_results = utils.load_from_json(results_file)
@@ -600,6 +607,8 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
         else:
             output_file_str = str(pathlib.PurePath(utils.get_git_dir(), 'paper', 'figures',
                 '{}_{}_{}_vs_compression_{}_{}'.format(embedtype, evaltype, y_metric, xcale_str, stoch)))
+    if ave_pt:
+        output_file_str += "_ave-pt"
 
     # prepare filenames of output csv and pdf files.
     csv_file = output_file_str + '.csv'
@@ -624,21 +633,23 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
                 'compresstype':['dca']
             }
     }
-    if embedtype == 'glove-wiki400k-am':
-        info_per_line['Dim. reduction'] = {
-            'compresstype':['nocompress'],
-            'embeddim': [50,100,200,400]
-        }
-    elif embedtype == 'glove400k':
-        info_per_line['Dim. reduction'] = {
-            'compresstype':['nocompress'],
-            'embeddim': [50,100,200,300]
-        }
-    elif embedtype == 'fasttext1m':
-        info_per_line['Dim. reduction'] = {
-            'compresstype':['pca'],
-            'pcadim': [50,100,200,300]
-        }
+    if not(scatter and y_metric == 'embed-frob-error'):
+        # we do not use dim reduction when we print things regarding embed-frob-error
+        if embedtype == 'glove-wiki400k-am':
+            info_per_line['Dim. reduction'] = {
+                'compresstype':['nocompress'],
+                'embeddim': [50,100,200,400]
+            }
+        elif embedtype == 'glove400k':
+            info_per_line['Dim. reduction'] = {
+                'compresstype':['nocompress'],
+                'embeddim': [50,100,200,300]
+            }
+        elif embedtype == 'fasttext1m':
+            info_per_line['Dim. reduction'] = {
+                'compresstype':['pca'],
+                'pcadim': [50,100,200,300]
+            }
     x_metric = 'compression-ratio'
     if y_metric == 'embed-frob-error' and scatter == True:
         subset_info['embeddim'] = [utils.get_large_embedding_dim(embedtype)]
@@ -680,7 +691,8 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
         y_metric2_evaltype=y_metric2_evaltype,
         y_metric2_dataset=dataset,
         scatter=scatter,
-        latexify_config=latexify_config
+        latexify_config=latexify_config,
+        ave_pt=ave_pt
     )
     # plt.show()
     # plt.ylim(70.5,74.5)
@@ -866,7 +878,7 @@ def plot_embedding_standard_deviation():
 #         for i,embedtype in enumerate(embedtypes):
 #             table_str = 
 
-def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
+def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx, ave_pt=False):
     # embedtypes = ['fasttext1m']
     # evaltype = 'synthetics' # this is used in clean results
     
@@ -908,7 +920,8 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
                     'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
                     'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
                     'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
-                    ]       
+                    ]    
+            # y_metric1s = []      
     else:
         evaltype = 'synthetics'
         y_metric1s = ['embed-frob-error']
@@ -993,7 +1006,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx):
                               embedtype, y_metric1, y_metric2, dataset))
                         plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
                             y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
-                            dataset=dataset, latexify_config=latexify_config, stoch=stoc)
+                            dataset=dataset, latexify_config=latexify_config, stoch=stoc, ave_pt=ave_pt)
                         plt.close('all')
                         # plot_ICML_results(embedtype, evaltype, y_metric1, y_metric2=y_metric2,
                         #     y_metric2_evaltype=y_metric2_evaltype, scatter=True, logx=logx,
@@ -1055,13 +1068,13 @@ def print_spearrank_table_blob(dict_name='./spearman_dict', stoc='det'):
 
 if __name__ == '__main__':
     # # # lines
-    plot_qa_results()
-    plot_intrinsic_results()
-    plot_sentiment_results()
-    plot_translation_results()
+    # plot_qa_results()
+    # plot_intrinsic_results()
+    # plot_sentiment_results()
+    # plot_translation_results()
 
-    # metric vs compression
-    plot_metric_vs_compression()
+    # # metric vs compression
+    # plot_metric_vs_compression()
     
     # #plot_frob_squared_vs_bitrate()
     # #plot_dca_frob_squared_vs_lr()
@@ -1083,44 +1096,50 @@ if __name__ == '__main__':
     # scatter plots
     logx = False
     use_large_dims = [False, True]
-    for use_large_dim in use_large_dims:
-        # for i in range(3):
-        #     try:
-        #         plot_metric_vs_performance('translation', use_large_dim, logx)
-        #     except BaseException as e:
-        #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
-        #         plt.close('all')
-        for i in range(3):
-            try:
-                plot_metric_vs_performance('qa', use_large_dim, logx)
-                break
-            except BaseException as e:
-                print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
-                plt.close('all')
-                exit(0)
-        for i in range(3):
-            try:
-                plot_metric_vs_performance('sentiment', use_large_dim, logx)
-                break
-            except BaseException as e:
-                print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
-                plt.close('all')
-                exit(0)
-        for i in range(3):
-            try:
-                plot_metric_vs_performance('intrinsics', use_large_dim, logx)
-                break
-            except BaseException as e:
-                print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
-                plt.close('all')
-                exit(0)
+    for ave_pt in [True, False]:
+        spearman_dict = {}
+        for use_large_dim in use_large_dims:
+            # for i in range(3):
+            #     try:
+            #         plot_metric_vs_performance('translation', use_large_dim, logx, ave_pt)
+            #     except BaseException as e:
+            #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
+            #         plt.close('all')
+            for i in range(3):
+                try:
+                    plot_metric_vs_performance('qa', use_large_dim, logx, ave_pt)
+                    break
+                except BaseException as e:
+                    print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
+                    plt.close('all')
+                    exit(0)
+            for i in range(3):
+                try:
+                    plot_metric_vs_performance('sentiment', use_large_dim, logx, ave_pt)
+                    break
+                except BaseException as e:
+                    print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
+                    plt.close('all')
+                    exit(0)
+            for i in range(3):
+                try:
+                    plot_metric_vs_performance('intrinsics', use_large_dim, logx, ave_pt)
+                    break
+                except BaseException as e:
+                    print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
+                    plt.close('all')
+                    exit(0)
 
-    print(spearman_dict)
-    with open('./spearman_dict_all_pt', 'wb') as f:
-        cp.dump(spearman_dict, f)
+        print(spearman_dict)
+        if ave_pt:
+            spearman_dict_name = './spearman_dict_ave_pt'
+        else:
+            spearman_dict_name = './spearman_dict_all_pt'
+        with open(spearman_dict_name, 'wb') as f:
+            cp.dump(spearman_dict, f)
 
-    print("determinstic spearman")
-    print_spearrank_table_blob('./spearman_dict_all_pt', stoc='det')
-    print("stochastic spearman")
-    print_spearrank_table_blob('./spearman_dict_all_pt', stoc='stoc')
+        print("determinstic spearman")
+        print_spearrank_table_blob(spearman_dict_name, stoc='det')
+        print("stochastic spearman")
+        print_spearrank_table_blob(spearman_dict_name, stoc='stoc')
 
