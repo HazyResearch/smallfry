@@ -1055,14 +1055,13 @@ def print_spearrank_table_blob(dict_name='./spearman_dict', stoc='det'):
 
 if __name__ == '__main__':
     # # # lines
-    # plot_qa_results()
-    # plot_intrinsic_results()
-    # plot_sentiment_results()
-    # plot_translation_results()
+    plot_qa_results()
+    plot_intrinsic_results()
+    plot_sentiment_results()
+    plot_translation_results()
 
     # metric vs compression
     plot_metric_vs_compression()
-    # plot_sentiment_metric_vs_compression()
     
     # #plot_frob_squared_vs_bitrate()
     # #plot_dca_frob_squared_vs_lr()
@@ -1081,46 +1080,47 @@ if __name__ == '__main__':
     # # plot_theorem3_tighter_bound()
     # # gather_ICML_results()
 
-    # # scatter plots
-    # logx = False
-    # use_large_dims = [False, True]
-    # for use_large_dim in use_large_dims:
-    #     # for i in range(3):
-    #     #     try:
-    #     #         plot_metric_vs_performance('translation', use_large_dim, logx)
-    #     #     except BaseException as e:
-    #     #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
-    #     #         plt.close('all')
-    #     for i in range(3):
-    #         try:
-    #             plot_metric_vs_performance('qa', use_large_dim, logx)
-    #             break
-    #         except BaseException as e:
-    #             print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
-    #             plt.close('all')
-    #             exit(0)
-    #     for i in range(3):
-    #         try:
-    #             plot_metric_vs_performance('sentiment', use_large_dim, logx)
-    #             break
-    #         except BaseException as e:
-    #             print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
-    #             plt.close('all')
-    #             exit(0)
-    #     for i in range(3):
-    #         try:
-    #             plot_metric_vs_performance('intrinsics', use_large_dim, logx)
-    #             break
-    #         except BaseException as e:
-    #             print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
-    #             plt.close('all')
-    #             exit(0)
+    # scatter plots
+    logx = False
+    use_large_dims = [False, True]
+    for use_large_dim in use_large_dims:
+        # for i in range(3):
+        #     try:
+        #         plot_metric_vs_performance('translation', use_large_dim, logx)
+        #     except BaseException as e:
+        #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
+        #         plt.close('all')
+        for i in range(3):
+            try:
+                plot_metric_vs_performance('qa', use_large_dim, logx)
+                break
+            except BaseException as e:
+                print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
+                plt.close('all')
+                exit(0)
+        for i in range(3):
+            try:
+                plot_metric_vs_performance('sentiment', use_large_dim, logx)
+                break
+            except BaseException as e:
+                print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
+                plt.close('all')
+                exit(0)
+        for i in range(3):
+            try:
+                plot_metric_vs_performance('intrinsics', use_large_dim, logx)
+                break
+            except BaseException as e:
+                print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
+                plt.close('all')
+                exit(0)
 
-    # print(spearman_dict)
-    # with open('./spearman_dict_all_pt', 'wb') as f:
-    #     cp.dump(spearman_dict, f)
+    print(spearman_dict)
+    with open('./spearman_dict_all_pt', 'wb') as f:
+        cp.dump(spearman_dict, f)
 
-    # print("determinstic spearman")
-    # print_spearrank_table_blob('./spearman_dict_all_pt', stoc='det')
-    # print_spearrank_table_blob('./spearman_dict_all_pt', stoc='stoc')
+    print("determinstic spearman")
+    print_spearrank_table_blob('./spearman_dict_all_pt', stoc='det')
+    print("stochastic spearman")
+    print_spearrank_table_blob('./spearman_dict_all_pt', stoc='stoc')
 

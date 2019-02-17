@@ -489,6 +489,25 @@ In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results,
 	\label{fig:good_correlation_det}
 \end{figure*}
 
+\begin{table*}
+	\caption{The Spearman rank correlation coefficient $\rho$ between compression quality metrics and downstream performance. The larger the absolute value of the coefficient, the stronger the correlation is.
+	Within each entry in the table, the correlations are presented in terms of `GloVe (Wiki'14) $\rho$ \;/\; GloVe (Wiki'17) $\rho$ \;/\; fastText $\rho$'.
+	}
+	\small
+	\begin{tabular}{c | c | c | c | c}
+		\toprule
+		& QA & Sentiment & Analogy & Similarity \\
+		\midrule
+		Embed. reconst. error &  $-0.64/-0.51/0.10$  &  $-0.52/-0.57/0.23$  &  $\mathbf{-0.99/-0.99}/-0.33$  &  $-0.36/0.20/-0.31$  \\ 
+		PIP loss &  $-0.51/0.16/-0.30$  &  $-0.38/-0.03/-0.18$  &  $-0.86/-0.49/\textbf{-0.86}$  &  $-0.09/0.53/-0.19$  \\  
+		$1/(1-\Delta_1)$ &  $-0.65/-0.45/-0.82$  &  $-0.52/-0.54/-0.69$  &  $-0.93/-0.88/-0.77$  &  $-0.36/-0.15/-0.58$  \\  
+		$\Delta_2$ &  $-0.46/-0.34/0.45$  &  $-0.43/-0.14/0.53$  &  $-0.64/-0.34/-0.20$  &  $-0.48/-0.59/0.23$  \\  
+		$1 - \mathcal{E}$ & $\mathbf{-0.82/-0.73/-0.91}$  &  $\mathbf{-0.77/-0.76/-0.83}$  &  $-0.80/-0.78/-0.73$  &  $\mathbf{-0.69/-0.60/-0.75}$  \\  
+		\bottomrule
+	\end{tabular}
+	\label{tab:sp_rank_stoc}
+\end{table*}
+
 
 \subsection{Compression metrics across compression rate}
 \begin{figure*}
