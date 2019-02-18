@@ -173,8 +173,8 @@ If we assume that $\alpha_1^2 \ll \sum_{i=1}^{d-1}\alpha_i^2$ (as is the case in
 
 In Table~\ref{table:perturb}, we show the impact of the above perturbation on the various metrics we have discussed for comparing embedding matrices.
 At a high-level, we observe that this perturbation can have a dramatic effect of the previously proposed metrics, while having minimal effect on the eigenspace overlap metric.
-For example, the $\Delta_1$ metric is very sensitive to setting the largest singular value of an embedding to 0.
-This makes sense, because $\Delta_1$ can be used to attain a worst-case generalization bound for the perturbed embeddings \citep{lprff18}, and there exist cases where setting the smallest singular value to 0 can significantly harm the generalization performance of the embeddings (\eg, if $\alpha_d^2 \approx \|\alpha\|^2$).
+For example, setting the largest eigenvalue to 0 can result in a $\Delta_1$ value very close to 1 if $\lambda \ll \sigma_1$.
+This makes sense, because $\Delta_1$ can be used to attain a worst-case generalization bound for the perturbed embeddings \citep{lprff18}, and there exist cases where setting the largest singular value to 0 can significantly harm the generalization performance of the embeddings (\eg, if $\alpha_1^2 \approx \|\alpha\|^2$).
 Thus, while the $\Delta_1$ metric is an important metric for understanding the worst-case performance of the compressed embeddings, it is generally an overly pessimistic metric.
 Our metric, on the other hand, is generally unable to provide worst-case guarantees, but aligns nicely with the expected performance of the compressed embeddings in the average-case setting.
 
