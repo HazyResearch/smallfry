@@ -434,7 +434,7 @@ In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results,
 	\end{tabular}
 	\caption{
 		\textbf{Downstream Performance vs. Compression Rate.}
-		Performance of compressed publically available GloVe (Wiki'14) (top) and fastText (bottom) embeddings on question answering (a), sentiment analysis (TREC dataset) (b), word analogy (c), and word similarity (d) tasks.
+		Performance of compressed publicly available GloVe (Wiki'14) (top) and fastText (bottom) embeddings on question answering (a), sentiment analysis (TREC dataset) (b), word analogy (c), and word similarity (d) tasks.
 		We generally observe that the uniform quantization, k-means, and DCCL compression methods perform similarly across compression rates, whereas the dimensionality reduction method performs significantly worse. In these results, we use stochastic rounding for quantization. In comparison to results in Figure~\ref{fig:perf_comp}, the downstream task performance is better with deterministic rounding than stochastic rounding for 32x compression. 
 %		Uniform quantization performs similarly to k-means and DCCL on question answering and sentiment analysis;
 %		on the word analogy and similarity tasks, uniform quantization once again performs similarly to k-means, but outperforms the DCCL method.
