@@ -24,21 +24,50 @@ This theorem directly results in the following corollary:
 The corollary shows that one can attain an expected eigenspace overlap arbitrarily close to $1$ if a sufficient number of bits $b$ are used.
 
 \paragraph{Empirical Validation of Theory}
-We now validate the above theory by showing how the eigenspace overlap grows as the precision of the uniformly quantized embeddings is increased.
-For this experiment, we generate a random matrix $X \in \RR^{10^5 \times 300}$, with each entry drawn uniformly at random in the interval $[-\frac{1}{\sqrt{300}}, \frac{1}{\sqrt{300}}]$.
-We then measure the eigenspace overlap of quantized versions of $X$, for precisions $b \in \{1,2,4,8,16,32\}$.
-As we can see in Figure~\ref{fig:micro_eigoverlap_vs_prec}, the eigenspace overlap grows quite quickly as the precision grows, attaining a value of approximately $0.82$ at $b=2$, and $0.99$ at $b=4$.
-This helps explain the strong empirical performance of the uniformly quantized embeddings which we observed at low precisions on the real word embedding experiments (Figure~\ref{fig:perf_comp}).
+We now validate the above theory by showing the impact of the precision ($b$), the scalar ($a$), the vocabulary size ($n$), and the embedding dimension ($d$) on the eigenspace overlap $\eigover(X,\tX)$ of uniformly quantized embeddings matrices.
+As predicted by the theory, we will show in Figure~\ref{fig:micro_eigoverlap} that $1-\eigover(X,\tX)$ drops as $b$ and $a$ are increased, and is relatively unaffected by changes in $n$ and $d$.
 
+We now describe our experimental protocol for studying the impact of each of these parameters on the eigenspace overlap:
+\begin{itemize}
+	\item \textbf{Precision ($b$), Figure~\ref{fig:micro_eigoverlap}(a)}: We randomly generate a $10^4 \times 10$ matrix, with entries drawn uniformly from $[-\frac{1}{\sqrt{10}},\frac{1}{\sqrt{10}}]$. 
+	We uniformly quantize this matrix with precisions $b \in \{1,2,4,8,16\}$, and compute the eigenspace overlap between the quantized matrix and the original matrix.
+	As one can see, $1-\eigover(X,\tX)$ drops rapidly as the precision is increased.
+	\item \textbf{Scalar ($a$), Figure~\ref{fig:micro_eigoverlap}(b)}: We randomly generate a $10^4 \times 10$ matrix, with entries drawn uniformly from $[-\frac{1}{\sqrt{10}},\frac{1}{\sqrt{10}}]$.
+	We then multiply this matrix on the right by diagonal matrices with diagonal entries spaced logarithmically between 1 and $\{1, 0.1,.01,.001,.0001\}$, thus generating matrices with increasingly small values of the scalar $a$.
+	We uniformly quantize each of these matrices with precisions $b \in \{1,2,4\}$, and compute the eigenspace overlap between the quantized matrices and the original matrices.
+	As one can see, $1-\eigover(X,\tX)$ drops as the scalar $a$ increases.
+	\item \textbf{Vocabulary size ($n$), Figure~\ref{fig:micro_eigoverlap}(c)}: We randomly generate $n \times 10$ matrices for $n \in \{10^2, 3\times 10^2, 10^3, 3\times 10^3,10^4, 3\times 10^4,10^5\}$, with entries drawn uniformly from $[-\frac{1}{\sqrt{10}},\frac{1}{\sqrt{10}}]$.
+	We uniformly quantize these matrices with precisions $b \in \{1,2,4\}$, and compute the corresponding eigenspace overlaps.
+	As one can see, the vocabulary size $n$ has minimal impact on the eigenspace overlap.
+	\item \textbf{Embedding dimension ($d$), Figure~\ref{fig:micro_eigoverlap}(d)}: We randomly generate $10^4 \times d$ matrices for $d \in \{10,30,100,300,1000\}$ with entries drawn uniformly from $[-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$.
+	We uniformly quantize these matrices with precisions $b \in \{1,2,4\}$, and compute the corresponding eigenspace overlaps.
+	As one can see, the embedding dimension $d$ has minimal impact on the eigenspace overlap.
+\end{itemize}
+
+An important thing to mention about Theorem~\ref{thm1} is that this bound can be vacuous when the embedding matrix has a quickly decaying spectrum, and thus a small value of $a$.
+This is a consequence of the proof of the Davis-Kahan $\sin(\Theta)$ theorem, which uses the smallest eigenvalue of $XX^T$ to lower bound a matrix multiplication; this inequality is relatively tight when the spectrum of $XX^T$ decays slowly, but is quite loose if it doesn't.
 %\todo{Add section on clippings effect on the eigenspace overlap?}
 
-\begin{figure}
-	\begin{tabular}{c}
-		\includegraphics[width=\linewidth]{figures/micro_eig_overlap_vs_precision.pdf} 
-\end{tabular}
-\caption{Empirical Validation of Theorem~\ref{thm1}. We measure the eigenspace overlap of uniformly quantized embeddings with the uncompressed embedding for various precisions ($b\in\{1,2,4,8,16,32\}$), and observe the eigenspace overlap grows quickly as the precision grows.  For the uncompressed embedding, we generate a random matrix $X \in \RR^{10^5 \times 300}$, with each entry drawn uniformly at random in $[-\frac{1}{\sqrt{300}}, \frac{1}{\sqrt{300}}]$.}
-\label{fig:micro_eigoverlap_vs_prec}
-\end{figure}
+%\begin{figure}
+%	\begin{tabular}{c}
+%		\includegraphics[width=\linewidth]{figures/micro_eig_overlap_vs_precision.pdf} 
+%\end{tabular}
+%\caption{Empirical Validation of Theorem~\ref{thm1}. We measure the eigenspace overlap of uniformly quantized embeddings with the uncompressed embedding for various precisions ($b\in\{1,2,4,8,16,32\}$), and observe the eigenspace overlap grows quickly as the precision grows.  For the uncompressed embedding, we generate a random matrix $X \in \RR^{10^5 \times 300}$, with each entry drawn uniformly at random in $[-\frac{1}{\sqrt{300}}, \frac{1}{\sqrt{300}}]$.}
+%\label{fig:micro_eigoverlap_vs_prec}
+%\end{figure}
+
+\begin{figure*}
+	\begin{tabular}{c c c c}
+		\includegraphics[width=0.23\linewidth]{figures/micro_eig_overlap_vs_prec.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/micro_eig_overlap_vs_a_multiple_prec_decay.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/micro_eig_overlap_vs_n_vary_n.pdf} &
+		\includegraphics[width=0.23\linewidth]{figures/micro_eig_overlap_vs_d_vary_d.pdf} \\
+		(a) & (b) & (c) & (d)
+	\end{tabular}
+	\caption{Empirical Validation of Theorem~\ref{thm1}. We measure the eigenspace overlap $\eigover$ of uniformly quantized embeddings with the uncompressed embedding for various precisions, values of $a$, vocabulary sizes $n$, and dimensions $d$.  We observe that $1-\eigover$ decays as the precision $b$ and scalar $a$ grow, and that $1-\eigover$ is largely unaffected by the vocabulary size $n$ and embedding dimension $d$.
+	For more details on these experiments, see Section~\ref{sec:quant_embed}.}
+	\label{fig:micro_eigoverlap}
+\end{figure*}
 
 %\subsection{Theory validation}
 %	\begin{itemize}
