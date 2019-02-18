@@ -1214,20 +1214,32 @@ def eigenspace_overlap_vs_prec_large_n_small_d_many_decays(clip_per_dim, real_da
 
 
 # MAIN MICRO #1
-def eigenspace_overlap_vs_prec_n_d(vary_n,vary_d,prec_x):
-    ns = [30,100,300,1000,3000,10000,30000,100000] if vary_n else [10000]
+def eigenspace_overlap_vs_prec_n_d(vary_n,vary_d,prec_x,plot_bounds):
+    # latexify_config = default_latexify_config.copy()
+    # latexify_config['xtick_pos'] = None
+    # latexify_config['xtick_label'] = None
+    # latexify_config['logx'] = True
+    # latexify_config['logy'] = True
+    # latexify_config['ylabel'] = 'y'
+    # latexify_config['xlabel'] = 'x'
+    # latexify_config['title'] = None
+    # latexify_config['xlim'] = [0, None]
+    # ax = latexify_setup_fig(latexify_config)
+
+    ns = [100,300,1000,3000,10000,30000,100000] if vary_n else [10000]
     # ds = [10,30,100,300,1000,3000,10000,30000] if vary_d else [10]
     # ns = [1000,3000,10000,30000,100000] if vary_n else [100000]
-    ds = [10,30,100,300,1000,3000] if vary_d else [10]
+    ds = [10,30,100,300,1000] if vary_d else [10]
     n_str = '_vary_n' if vary_n else ''
     d_str = '_vary_d' if vary_d else ''
     if prec_x:
         x_str = 'prec'
+        bs = [1,2,4,8,16]
     else:
         assert vary_n or vary_d
         x_str = 'd' if vary_d else 'n'
+        bs = [1,2,4]
 
-    bs = [1,2,4,8]
     full_matrices = False
     overlaps = np.zeros((len(ns),len(ds),(len(bs))))
     bounds = np.zeros((len(ns),len(ds),(len(bs))))
@@ -1249,41 +1261,53 @@ def eigenspace_overlap_vs_prec_n_d(vary_n,vary_d,prec_x):
                 # H = Xq @ Xq.T - X @ X.T
                 overlaps[i_n,i_d,i_b] = 1 - np.linalg.norm(Uq[:,:d].T @ U[:,:d])**2 / d
                 # bound1[i_b] = np.linalg.norm(H)**2 / (d * s_min**4)
-                bounds[i_n,i_d,i_b] = 20 / ((2**b-1)**2 * a_values[i_n,i_d]**4)
+                # bounds[i_n,i_d,i_b] = 20 / ((2**b-1)**2 * a_values[i_n,i_d]**4)
+                bounds[i_n,i_d,i_b] = 0.2 * n**2 / (d**2 * (2**b-1)**2 * np.mean(S**2)**2)
                 print('n = {}, d = {}, b = {}, overlap = {}, s_min = {}'.format(n, d, b, overlaps[i_n,i_d,i_b], s_min))
 
     plt.figure(1)
-    bound_line_styles = ['-','--']
+    # bound_line_styles = ['-','--']
     leg = []
     if prec_x:
-        n_colors = ['r','g','b']
-        d_markers = ['o','x','s']
+        # n_colors = ['b','g','r','k']
+        # d_markers = ['s','o','x','d']
+        styles = ['bs-','go--','rx:','kd;']
         for i_n,n in enumerate(ns):
             for i_d,d in enumerate(ds):
                 leg.append('1-overlap (n={},d={})'.format(n,d))
-                leg.append('bound (n={},d={})'.format(n,d))
-                plt.plot(bs, overlaps[i_n,i_d,:], n_colors[i_n] + d_markers[i_d] + bound_line_styles[0])
-                plt.plot(bs, bounds[i_n,i_d,:], n_colors[i_n] + d_markers[i_d] + bound_line_styles[1])
+                plt.plot(bs, overlaps[i_n,i_d,:], styles[i_n])
+                # plt.plot(bs, overlaps[i_n,i_d,:], n_colors[i_n] + d_markers[i_d] + bound_line_styles[0])
+                if plot_bounds:
+                    leg.append('bound (n={},d={})'.format(n,d))
+                    plt.plot(bs, bounds[i_n,i_d,:], styles[i_n])
+                    # plt.plot(bs, bounds[i_n,i_d,:], n_colors[i_n] + d_markers[i_d] + bound_line_styles[1])
     else:
         assert vary_n or vary_d
         if vary_d:
-            n_colors = ['r','g','b']
-            b_markers = ['o','x','s','.','d','D']
+            styles = ['bs-','go--','rx:','kd;']
+            # n_colors = ['b','g','r','k']
+            # b_markers = ['s','o','x','d']
             for i_n,n in enumerate(ns):
                 for i_b,b in enumerate(bs):
                     leg.append('1-overlap (n={},b={})'.format(n,b))
-                    leg.append('bound (n={},b={})'.format(n,b))
-                    plt.plot(ds, overlaps[i_n,:,i_b], n_colors[i_n] + b_markers[i_b] + bound_line_styles[0])
-                    plt.plot(ds, bounds[i_n,:,i_b], n_colors[i_n] + b_markers[i_b] + bound_line_styles[1])
+                    plt.plot(ds, overlaps[i_n,:,i_b], styles[i_b])
+                    # plt.plot(ds, overlaps[i_n,:,i_b], n_colors[i_b] + b_markers[i_b] + bound_line_styles[0])
+                    if plot_bounds:
+                        leg.append('bound (n={},b={})'.format(n,b))
+                        plt.plot(ds, bounds[i_n,:,i_b], styles[i_b])
+                        # plt.plot(ds, bounds[i_n,:,i_b], n_colors[i_b] + b_markers[i_b] + bound_line_styles[1])
         elif vary_n:
-            d_colors = ['r','g','b']
-            b_markers = ['o','x','s','.','d','D']
+            styles = ['bs-','go--','rx:','kd;']
+            # d_colors = ['b','g','r','k']
+            # b_markers = ['s','o','x','d']
             for i_d,d in enumerate(ds):
                 for i_b,b in enumerate(bs):
                     leg.append('1-overlap (d={},b={})'.format(d,b))
-                    leg.append('bound (d={},b={})'.format(d,b))
-                    plt.plot(ns, overlaps[:,i_d,i_b], d_colors[i_d] + b_markers[i_b] + bound_line_styles[0])
-                    plt.plot(ns, bounds[:,i_d,i_b], d_colors[i_d] + b_markers[i_b] + bound_line_styles[1])
+                    plt.plot(ns, overlaps[:,i_d,i_b], styles[i_b])
+                    # plt.plot(ns, overlaps[:,i_d,i_b], d_colors[i_b] + b_markers[i_b] + bound_line_styles[0])
+                    if plot_bounds:
+                        leg.append('bound (d={},b={})'.format(d,b))
+                        plt.plot(ns, bounds[:,i_d,i_b], styles[i_b])
     plt.xlabel(x_str)
     plt.ylabel('1-overlap')
     plt.legend(leg)
@@ -1292,21 +1316,29 @@ def eigenspace_overlap_vs_prec_n_d(vary_n,vary_d,prec_x):
     # plt.ylim((10**(-12), 1))
     # plt.xticks(bs,bs)
     plt.title('1-overlap vs. {}'.format(x_str))
+    # latexify_finalize_fig(ax, latexify_config)
     save_plot('micro_eig_overlap_vs_{}{}{}.pdf'.format(x_str, n_str, d_str))
 
 # MAIN MICRO #2
-def eigenspace_overlap_vs_a_multiple_prec_decay():
+def eigenspace_overlap_vs_a_multiple_prec_decay(plot_bounds):
     n = 10000
     d = 10
     # bs = [1,2,4,8,16,32]
-    bs = [1,2,4,16]
+    bs = [1,2,4]
+    # decays = [
+    #     np.logspace(0, -6.4, num=d),
+    #     np.logspace(0, -3.2, num=d),
+    #     np.logspace(0, -1.6, num=d),
+    #     np.logspace(0, -0.8, num=d),
+    #     np.logspace(0, -0.4, num=d),
+    #     np.logspace(0, 0, num=d),
+    # ]
     decays = [
-        np.logspace(0, -6.4, num=d),
-        np.logspace(0, -3.2, num=d),
-        np.logspace(0, -1.6, num=d),
-        np.logspace(0, -0.8, num=d),
-        np.logspace(0, -0.4, num=d),
-        np.logspace(0, 0, num=d),
+        np.geomspace(1, 0.0001, num=d),
+        np.geomspace(1, 0.001, num=d),
+        np.geomspace(1, 0.01, num=d),
+        np.geomspace(1, 0.1, num=d),
+        np.geomspace(1, 1, num=d),
     ]
     full_matrices = False
     overlaps = np.zeros((len(bs),len(decays)))
@@ -1326,23 +1358,29 @@ def eigenspace_overlap_vs_a_multiple_prec_decay():
             # H = Xq @ Xq.T - X @ X.T
             overlaps[i_b,i_d] = 1 - np.linalg.norm(Uq[:,:d].T @ U[:,:d])**2 / d
             # bound1[i_b] = np.linalg.norm(H)**2 / (d * s_min**4)
-            bounds[i_b,i_d] = 20 / ((2**b-1)**2 * a_values[i_d]**4)
+            # bounds[i_b,i_d] = 20 / ((2**b-1)**2 * a_values[i_d]**4)
+            bounds[i_b,i_d] = 0.2 * n**2 / (d**2 * (2**b-1)**2 * np.mean(S**2)**2)
             print('n = {}, d = {}, b = {}, overlap = {}, s_min = {}'.format(n, d, b, overlaps[i_b,i_d], s_min))
 
     plt.figure(1)
-    b_colors = ['r','g','b','k']
-    b_markers = ['o','x','s','d']
-    bound_line_styles = ['-','--']
+    # b_colors = ['r','g','b','k']
+    # b_markers = ['o','x','s','d']
+    # bound_line_styles = ['-','--']
+    
     leg = []
+    styles = ['bs-','go--','rx:','kd;']
     for i_b,b in enumerate(bs):
         leg.append('1-overlap (b={})'.format(b))
-        leg.append('bound (b={})'.format(b))
-        plt.plot(a_values, overlaps[i_b,:], b_colors[i_b] + b_markers[i_b] + bound_line_styles[0])
-        plt.plot(a_values, bounds[i_b,:], b_colors[i_b] + b_markers[i_b] + bound_line_styles[1])
+        plt.plot(a_values, overlaps[i_b,:], styles[i_b])
+        if plot_bounds:
+            leg.append('bound (b={})'.format(b))
+            plt.plot(a_values, bounds[i_b,:], styles[i_b])
     plt.legend(leg)
     plt.yscale('log')
     plt.xscale('log')
-    plt.ylim((10**(-3), 1))
+    plt.xlabel('a')
+    plt.ylabel('1-overlap')
+    # plt.ylim((10**(-3), 10**3))
     # plt.xticks(bs,bs)
     plt.title('1-overlap vs. a')
     save_plot('micro_eig_overlap_vs_a_multiple_prec_decay.pdf')
@@ -1602,7 +1640,7 @@ if __name__ == '__main__':
     # eigenspace_overlap_glove_clip_per_dim(False)
     # # clipping expeiments for overlap
     # clipping_effect_on_overlap()
-    clipping_effect_and_quantization(path="./glove.6B.300d.txt")
+    # clipping_effect_and_quantization(path="./glove.6B.300d.txt")
 
     # eigenspace_overlap_glove_clip_per_dim(False)
 
@@ -1610,7 +1648,8 @@ if __name__ == '__main__':
     # clipping_effect_on_overlap()
     # clipping_effect_and_quantization(path="./glove.6B.300d.txt")
 
-    # eigenspace_overlap_vs_prec_n_d(True,False,False)
-    # eigenspace_overlap_vs_prec_n_d(False,True,False)
-    # eigenspace_overlap_vs_a_multiple_prec_decay()
+    eigenspace_overlap_vs_prec_n_d(False,False,True,False) # b
+    eigenspace_overlap_vs_prec_n_d(True,False,False,False) # n 
+    eigenspace_overlap_vs_prec_n_d(False,True,False,False) # d
+    eigenspace_overlap_vs_a_multiple_prec_decay(False) # a
     

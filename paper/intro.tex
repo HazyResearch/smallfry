@@ -23,7 +23,7 @@ This metric measures the degree of overlap between the subspaces spanned by the 
 Our generalization bound reveals that when compressed and uncompressed embeddings have small eigenspace overlap, they will on average perform similarly in downstream tasks.
 Though our generalization bounds are specific to linear regression, we believe this is an important step toward better understanding the generalization performance of compressed word embeddings.
 
-To further demonstrate the utility of the eigenspace overlap metric, we use it to better understand why the uniformly quantized embeddings perform similarly to the uncompressed embeddings at high .
+To further demonstrate the utility of the eigenspace overlap metric, we use it to better understand why the uniformly quantized embeddings perform similarly to the uncompressed embeddings at high compression rates.
 In particular, we prove that the uniformly quantized embeddings with high probability attain high eigenspace overlap with the uncompressed embeddings at relatively high compression rates.
 Combining this result with the generalization bounds with respect to eigenspace overlap directly provides a guarantee on the performance of the uniformly quantized embeddings.
 These theoretical results demonstrate how our eigenspace overlap based analysis can provide insight on when and why compression methods succeed.
@@ -74,12 +74,9 @@ In Section~\ref{sec:relwork} we review related work, and we conclude in Section~
 %We discuss our large-scale experiments in Section~\ref{sec:experiments}, and the theoretical analysis for our method in Section~\ref{sec:theory}.
 %We conclude in Section~\ref{sec:conclusion}.
 
-
 % Though our generalization bounds are specific to linear regression, we believe this is an important first step toward understanding compression's impact on generalization, and hope this work inspires further analysis.
 %\todo{Add sentence with more empirical details?}
 %We observe that across tasks, our compression method can attain 32x compression within \todo{XX\%}-\todo{YY\%} performance relative to those attained by the state-of-the-art deep composition code learning (DCCL) approach~\citep{dccl17}.
-
-
 
 %\todo{The rest of this paper is organized as follows...}
 %1) Our goal is to compress embeddings to get good generalization performance under a memory budget.  We want something simple.
