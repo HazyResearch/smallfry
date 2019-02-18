@@ -710,8 +710,117 @@ In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results,
 \subsection{GloVe Wiki'17 results}
 \label{subsec:glove_wiki17}
 
+\begin{figure*}
+	\centering
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_embed-frob-error_linx_det.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_embed-frob-error_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_embed-frob-error_linx_det.pdf} & 
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_embed-frob-error_linx_stoc.pdf} \\
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-frob-error_linx_det.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-frob-error_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-frob-error_linx_det.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-frob-error_linx_stoc.pdf} \\
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx_det.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx_det.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} \\
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta2-2_linx_det.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_gram-large-dim-delta2-2_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta2-2_linx_det.pdf} & 
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_gram-large-dim-delta2-2_linx_stoc.pdf} \\
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_subspace-dist-normalized_linx_det.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_subspace-dist-normalized_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_subspace-dist-normalized_linx_det.pdf} & 
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_subspace-dist-normalized_linx_stoc.pdf} \\
+		(a) Deterministic, QA & (b) Stochastic, QA  & (c) Deterministic, sentiment & (d) Stochastic, sentiment
+	\end{tabular}
+	\caption{
+		\textbf{Downstream Performance vs. Compression Quality Metrics for GloVe Wiki'17.}}
+	\label{fig:bad_correlation_wiki17}
+\end{figure*}
+
+
 \subsection{$\Delta_1, \Delta_2$ with different $\lambda$}
 \label{subsec:diff_lambdas}
+
+\begin{figure*}
+	\centering
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-0-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta1-0-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-0-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta1-0-trans_linx_stoc.pdf} \\ [-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-1-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta1-1-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-1-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta1-1-trans_linx_stoc.pdf} \\[-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta1-2-trans_linx_stoc.pdf} \\[-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-3-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta1-3-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-3-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta1-3-trans_linx_stoc.pdf} \\[-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-4-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta1-4-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-4-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta1-4-trans_linx_stoc.pdf} \\[-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-5-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta1-5-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-5-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta1-5-trans_linx_stoc.pdf} \\[-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta1-6-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta1-6-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta1-6-trans_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta1-6-trans_linx_stoc.pdf} \\[-1em]
+		(a) GloVe, QA & (b) fastText, QA  & (c) GloVe, sentiment & (d) fastText, sentiment
+	\end{tabular}
+	\caption{
+		\textbf{Downstream Performance vs. $1/(1-\Delta_1)$ with different $\lambda$ (Deterministic rounding).}}
+	\label{fig:delta1_lambda}
+\end{figure*}
+
+
+\begin{figure*}
+	\centering
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-0_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta2-0_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta2-0_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta2-0_linx_stoc.pdf} \\ [-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-1_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta2-1_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta2-1_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta2-1_linx_stoc.pdf} \\[-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-2_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta2-2_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta2-2_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta2-2_linx_stoc.pdf} \\[-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-3_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta2-3_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta2-3_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta2-3_linx_stoc.pdf} \\[-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-4_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta2-4_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta2-4_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta2-4_linx_stoc.pdf} \\[-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-5_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta2-5_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta2-5_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta2-5_linx_stoc.pdf} \\[-1em]
+		\includegraphics[width=.245\linewidth]{figures/glove400k_qa_best-f1_vs_gram-large-dim-delta2-6_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_gram-large-dim-delta2-6_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_gram-large-dim-delta2-6_linx_stoc.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_gram-large-dim-delta2-6_linx_stoc.pdf} \\[-1em]
+		(a) GloVe, QA & (b) fastText, QA  & (c) GloVe, sentiment & (d) fastText, sentiment
+	\end{tabular}
+	\caption{
+		\textbf{Downstream Performance vs. $\Delta_2$ with different $\lambda$ (Deterministic rounding).}}
+	\label{fig:delta2_lambda}
+\end{figure*}
+
 
 
 
