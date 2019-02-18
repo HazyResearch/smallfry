@@ -1490,7 +1490,7 @@ def clipping_effect_and_quantization(stoc=False, path="./glove.6B.300d.txt"):
     latexify_config['xtick_pos'] = None
     latexify_config['xtick_label'] = None
     latexify_config['logx'] = False
-    latexify_config['ylabel'] = r'1 - $\mathcal{E}$'
+    latexify_config['ylabel'] = r'$\mathcal{E}$'
     latexify_config['xlabel'] = 'Clip thresh'
     latexify_config['title'] = None
     latexify_config['xlim'] = [0, None]

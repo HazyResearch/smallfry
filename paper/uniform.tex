@@ -56,14 +56,28 @@ This helps explain the strong empirical performance of the uniformly quantized e
 %	\end{itemize}
 
 
-\paragraph{Clipping and overlap} 
-\begin{figure*}
+%\paragraph{The impact of clipping on eigenspace overlap} 
+%\begin{figure*}
+%\begin{tabular}{c c c}
+%	\includegraphics[width=0.3\linewidth]{figures/micro_overlap_and_clipping.pdf} &
+%	\includegraphics[width=0.3\linewidth]{figures/micro_rec_loss_and_clipping.pdf} &
+%	\includegraphics[width=0.3\linewidth]{figures/optimal_clip_thresh_and_bits.pdf} 
+%\end{tabular}
+%\label{fig:clipping_effect}
+%\caption{Left: clipping thresh and overlap. Middle: clipping thresh and embedding reconstruction error. Right: optimal clipping threshold from overlap and embedding reconstruction error.}	
+%\end{figure*}
+\paragraph{The impact of clipping on eigenspace overlap} 
+\begin{figure}
 \begin{tabular}{c c c}
-	\includegraphics[width=0.3\linewidth]{figures/micro_overlap_and_clipping.pdf} &
-	\includegraphics[width=0.3\linewidth]{figures/micro_rec_loss_and_clipping.pdf} &
-	\includegraphics[width=0.3\linewidth]{figures/optimal_clip_thresh_and_bits.pdf} 
+	\includegraphics[width=0.45\linewidth]{figures/micro_overlap_and_clipping.pdf} &
+	\includegraphics[width=0.45\linewidth]{figures/optimal_clip_thresh_and_bits.pdf}  \\
+	(a) & (b)
 \end{tabular}
 \label{fig:clipping_effect}
-\caption{Left: clipping thresh and overlap. Middle: clipping thresh and embedding reconstruction error. Right: optimal clipping threshold from overlap and embedding reconstruction error.}	
-\end{figure*}
+\caption{\textbf{The impact of quantization on eigenspace overlap.} (a) The optimal eigenspace overlap for is often attained by aggressive clipping for low precision quantization, such as 1, 2 or 4-bits quantization. (b) Though the uniform quantization method search clipping threshold by minimizing embedding reconstruction, it produces consistent optimal clipping threshold with the value minimizing eigenspace overlap directly.}	
+\end{figure}
+
+As shown in Algorithm~\ref{alg:smallfry}, clipping is the first procedure in the uniform quantization method. It eliminates extremal entries in embedding, and can reduce quantization error level for the majority of entries with limited number of bits. To expose a more complete understanding of the generalization performance for the uniform quantization method, we demonstrate the impact of clipping to the downstream task performance. We show clipping is important because it can improve the eigenspace overlap, comparing to uniform quantization without clipping. In Figure~\ref{fig:clipping_effect} (a), we demonstrate the eigenspace overlaps attained with various clipping values for different number of bits for deterministic and deterministic quantization. In particular, we collect eigenspace overlap using the 300-dimensional GloVe pre-trained embedding trained on Wiki'14 corpus. We can observe that aggressive clipping is required to attain the optimal eigenspace overlap for low precision quantization with 1, 2 or 4 bits. For these quantization precision, the optimal eigenspace overlap can be larger using deterministic rounding than stochastic rounding; this can explain our empirical observation that deterministic rounding demonstrates better downstream task performance when using low quantization precision \todo{we need a pointer to somewhere maybe appendix?}. In Algorithm~\ref{alg:smallfry}, we search optimal clipping threshold by minimizing embedding reconstruction error instead of eigenspace overlap for better computational efficiency. Nonetheless, in Figure~\ref{fig:clipping_effect} (b), we can achieve similar optimal clipping threshold by minimizing eigenspace overlap directly across different quantization precision. 
+
+
 
