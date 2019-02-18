@@ -491,7 +491,7 @@ In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results,
 
 \begin{table*}
 	\caption{The Spearman rank correlation coefficient $\rho$ between compression quality metrics and downstream performance. The larger the absolute value of the coefficient, the stronger the correlation is.
-	Within each entry in the table, the correlations are presented in terms of `GloVe (Wiki'14) $\rho$ \;/\; GloVe (Wiki'17) $\rho$ \;/\; fastText $\rho$'.
+	Within each entry in the table, the correlations are presented in terms of `GloVe (Wiki'14) $\rho$ \;/\; GloVe (Wiki'17) $\rho$ \;/\; fastText $\rho$'. In this table, the correlation coefficient is attained by using stochastic rounding for the uniform quantization method.
 	}
 	\small
 	\begin{tabular}{c | c | c | c | c}
@@ -559,5 +559,47 @@ In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results,
 	\caption{Different embedding compression quality metric across compression rate. We use stochastic rounding for uniform quantization in this figure. \todo{Update with message}}
 	\label{fig:metric_vs_correlation_stoc}
 \end{figure*}
+
+
+\subsection{Spearman correlation using averaged data points}
+\label{label:ave_spearman}
+
+\begin{table*}
+	\caption{In this table, the correlation coefficient is attained by using \textbf{deterministic rounding} for the uniform quantization method. We calculate the spearman correlation coefficient using measurements \textbf{averaged from 5 random seeds}.
+	}
+	\small
+	\begin{tabular}{c | c | c | c | c}
+		\toprule
+		& QA & Sentiment & Analogy & Similarity \\
+		\midrule
+		Embed. reconst. error &  $-0.78/-0.82/-0.88$  &  $-0.67/-0.75/-0.92$  &  $\mathbf{-0.98/-0.93/-0.88}$  &  $-0.40/-0.40/-0.35$  \\ 
+		PIP loss &  $-0.57/0.13/-0.38$  &  $-0.39/0.09/-0.36$  &  $-0.84/-0.38/-0.82$  &  $0.02/0.55/-0.16$  \\  
+		$1/(1-\Delta_1)$ &  $-0.74/-0.52/-0.85$  &  $-0.58/-0.50/-0.85$  &  $-0.93/-0.82/-0.79$  &  $-0.25/-0.13/-0.58$  \\  
+		$\Delta_2$ &  $-0.46/-0.34/0.43$  &  $-0.51/-0.33/0.54$  &  $-0.70/-0.42/-0.21$  &  $-0.43/-0.63/0.27$  \\  
+		$1 - \mathcal{E}$ & $\mathbf{-0.88/-0.84/-0.96}$  &  $\mathbf{-0.88/-0.82/-0.92}$  &  $-0.79/-0.76/-0.76$  &  $\mathbf{-0.63/-0.66/-0.85}$  \\  
+		\bottomrule
+	\end{tabular}
+	\label{tab:sp_rank_stoc_ave}
+\end{table*}
+
+\begin{table*}
+	\caption{In this table, the correlation coefficient is attained by using \textbf{stochastic rounding} for the uniform quantization method. We calculate the spearman correlation coefficient using measurements \textbf{averaged from 5 random seeds}.
+	}
+	\small
+	\begin{tabular}{c | c | c | c | c}
+		\toprule
+		& QA & Sentiment & Analogy & Similarity \\
+		\midrule
+		Embed. reconst. error &  $-0.70/-0.63/-0.95$  &  $-0.72/\mathbf{-0.92}/-0.93$  &  $\mathbf{-1.00/-1.00/-0.93}$  &  $-0.48/-0.38/-0.42$  \\ 
+		PIP loss &  $-0.54/0.11/-0.32$  &  $-0.43/-0.05/-0.29$  &  $-0.85/-0.51/-0.86$  &  $-0.07/0.54/-0.12$  \\  
+		$1/(1-\Delta_1)$ &  $-0.74/-0.52/-0.84$  &  $-0.64/-0.65/-0.85$  &  $-0.95/-0.89/-0.76$  &  $-0.39/-0.15/-0.59$  \\  
+		$\Delta_2$ &  $-0.52/-0.38/0.45$  &  $-0.49/-0.14/0.47$  &  $-0.64/-0.34/-0.24$  &  $-0.48/-0.57/0.23$  \\  
+		$1 - \mathcal{E}$ & $\mathbf{-0.90/-0.77/-0.96}$  &  $\mathbf{-0.90}/-0.91/\mathbf{-0.96}$  &  $-0.80/-0.77/-0.73$  &  $\mathbf{-0.69/-0.60/-0.77}$  \\  
+		\bottomrule
+	\end{tabular}
+	\label{tab:sp_rank_stoc_ave}
+\end{table*}
+
+
 
 
