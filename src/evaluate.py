@@ -227,9 +227,19 @@ def evaluate_synthetics_large_dim(embed_path):
     # U' are the left singular vectors of X'.  Thus, we are computing the
     # reconstruction error which results from projecting X onto the left
     # singular values of X'.
-    error_matrix = Uq @ (Uq.T @ base_embeds_large_dim) - base_embeds_large_dim
-    results['embed-reconstruction-frob-error'] = np.linalg.norm(error_matrix)
-    results['embed-reconstruction-spec-error'] = np.linalg.norm(error_matrix, 2)
+    error_matrix_lin = Uq @ (Uq.T @ base_embeds_large_dim) - base_embeds_large_dim
+    results['lin-transform-reconstruction-frob-error'] = np.linalg.norm(error_matrix_lin)
+    results['lin-transform-reconstruction-spec-error'] = np.linalg.norm(error_matrix_lin, 2)
+
+    # Here, we do the same thing as above but restricting W to be an orthonormal
+    # matrix (min_R ||X'R - X||_F for RR^T = I).  This is an instance of the
+    # orthogonal Procrustes problem. Letting USV^T be the SVD of X'^T X, the
+    # R minimizing the above norm is R = UV^T where X'^T X = USV^T is the SVD
+    # of X'^T X.
+    Ur,_,Vr = np.linalg.svd(embeds.T @ base_embeds_large_dim, full_matrices=False)
+    error_matrix_orth = embeds @ Ur @ Vr.T - base_embeds_large_dim
+    results['orth-transform-reconstruction-frob-error'] = np.linalg.norm(error_matrix_orth)
+    results['orth-transform-reconstruction-spec-error'] = np.linalg.norm(error_matrix_orth, 2)
     return results
 
 def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str,
