@@ -721,14 +721,17 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
     if scatter:
         latexify_config['title'] += r', $\rho={0:.2f}$'.format(return_info[0])
         if y_metric2 == 'test-acc':
-            if dataset == 'sst':
-                save = True
-            else:
-                save = False
+            # if dataset == 'sst':
+            #     save = True
+            # else:
+            #     save = False
+            save = True
         else:
             save = True
         if save:
             key_name = embedtype + ', ' + y_metric2 + ', ' + y_metric + ', ' + stoch
+            if y_metric2 == 'test-acc':
+                key_name = key_name + ', ' + dataset 
             spearman_dict[key_name] = return_info[0]
     latexify_finalize_fig(ax, latexify_config)
 
@@ -810,32 +813,53 @@ def plot_sentiment_results():
 def plot_intrinsic_results():
     embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
     evaltype = 'intrinsics'
-    # y_metrics = ['bruni_men',
-    #              'luong_rare',
-    #              'radinsky_mturk',
-    #              'simlex999',
-    #              'ws353',
-    #              'ws353_relatedness',
-    #              'ws353_similarity',
-    #              'google-add',
-    #              'google-mul',
-    #              'msr-add',
-    #              'msr-mul',
-    #              'analogy-avg-score',
-    #              'similarity-avg-score']
-    y_metrics = [r'analogy-avg-score',
-                 r'similarity-avg-score']
+    y_metrics = ['bruni_men',
+                 'luong_rare',
+                 'radinsky_mturk',
+                 'simlex999',
+                 'ws353',
+                 'ws353_relatedness',
+                 'ws353_similarity',
+                 'google-add',
+                 'google-mul',
+                 'msr-add',
+                 'msr-mul',
+                 'analogy-avg-score',
+                 'similarity-avg-score']
+    # y_metrics = [r'analogy-avg-score',
+    #              r'similarity-avg-score']
     latexify_config = default_latexify_config
     embedtype_name_map = get_embedtype_name_map()
     for embedtype in embedtypes:
         latexify_config['x_normalizer'] = utils.get_large_embedding_dim(embedtype)
         for y_metric in y_metrics:
-            if y_metric == r'analogy-avg-score':
+            if y_metric in ['analogy-avg-score', 'google-add', 'google-mul', 'msr-add', 'msr-mul',]:
                 latexify_config['title'] = embedtype_name_map[embedtype] + ', analogy'
-                latexify_config['ylabel'] = 'Analogy average score'
-            elif y_metric == r'similarity-avg-score':
+                latexify_config['ylabel'] = 'Analogy score'
+            elif y_metric in ['similarity-avg-score', 
+                 'bruni_men',
+                 'luong_rare',
+                 'radinsky_mturk',
+                 'simlex999',
+                 'ws353',
+                 'ws353_relatedness',
+                 'ws353_similarity',]:
                 latexify_config['title'] = embedtype_name_map[embedtype] + ', similarity'
-                latexify_config['ylabel'] = 'Similarity average score'
+                latexify_config['ylabel'] = 'Similarity score'
+            
+            # if y_metric == r'analogy-avg-score':
+            #     latexify_config['title'] = embedtype_name_map[embedtype] + ', analogy'
+            #     latexify_config['ylabel'] = 'Analogy score'
+            # elif y_metric == r'similarity-avg-score':
+            #     latexify_config['title'] = embedtype_name_map[embedtype] + ', similarity'
+            #     latexify_config['ylabel'] = 'Similarity score'
+            # elif y_metric == r'ws353':
+            #     latexify_config['title'] = embedtype_name_map[embedtype] + ', similarity'
+            #     latexify_config['ylabel'] = 'Similarity score'
+            # elif y_metric == r'google-mul':
+            #     latexify_config['title'] = embedtype_name_map[embedtype] + ', analogy'
+            #     latexify_config['ylabel'] = 'Analogy score'            
+
             plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='stoc')
             plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='det')
 
@@ -936,15 +960,16 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx, ave_pt=F
             #         'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta2-2', 
             #         ]  
             # y_metric1s = ['gram-large-dim-frob-error'] 
-            y_metric1s = ['gram-large-dim-frob-error', 'subspace-dist-normalized',
+            y_metric1s = ['embed-reconstruction-frob-error', 'gram-large-dim-frob-error', 'subspace-dist-normalized',
                     'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
                     'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
                     'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
                     ]    
-            # y_metric1s = []      
+            # y_metric1s = ['embed-reconstruction-frob-error',]      
     else:
         evaltype = 'synthetics'
         y_metric1s = ['embed-frob-error']
+        # y_metric1s = []      
         # y_metric1s = ['embed-frob-error', 'embed-spec-error', 'embed-mean-euclidean-dist', 'semantic-dist']
 
     # SET Y_METRIC2 PARAMS
@@ -953,11 +978,17 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx, ave_pt=F
         datasets = [None]
     elif y_metric2_evaltype == 'sentiment':
         y_metric2s = ['test-acc']
-        # datasets = ['mr','subj','cr','sst','trec','mpqa']
-        datasets = ['sst']
+        datasets = ['mr','subj','cr','sst','trec','mpqa']
+        # datasets = ['sst']
     elif y_metric2_evaltype == 'intrinsics':
         # y_metric2s = ['analogy-avg-score','google-mul','google-add','msr-mul','msr-add']
-        y_metric2s = ['analogy-avg-score','similarity-avg-score','google-mul','google-add','msr-mul','msr-add']
+        y_metric2s = ['analogy-avg-score','similarity-avg-score','google-mul','google-add','msr-mul','msr-add','bruni_men',
+        'luong_rare',
+        'radinsky_mturk',
+        'simlex999',
+        'ws353',
+        'ws353_relatedness',
+        'ws353_similarity',]
         datasets = [None]
     elif y_metric2_evaltype == 'translation':
         y_metric2s = ['min_val_loss', 'min_val_ppl', 'BLEU4']
@@ -1012,11 +1043,11 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx, ave_pt=F
                             latexify_config['ylabel'] = 'Test acc.'
                             latexify_config['title'] = embedtype_name_map[embedtype] + ', sentiment'
                         elif y_metric2_evaltype == 'intrinsics':
-                            if y_metric2 == 'analogy-avg-score':
-                                latexify_config['ylabel'] = 'Analogy average score'
+                            if y_metric2 in ['analogy-avg-score', 'google-mul','google-add','msr-mul','msr-add']:
+                                latexify_config['ylabel'] = 'Analogy score'
                                 latexify_config['title'] = embedtype_name_map[embedtype] + ', analogy'
                             else:
-                                latexify_config['ylabel'] = 'Similarity average score'
+                                latexify_config['ylabel'] = 'Similarity score'
                                 latexify_config['title'] = embedtype_name_map[embedtype] + ', similarity'
                         elif y_metric2_evaltype == 'translation':
                             latexify_config['ylabel'] = 'BLEU4'
@@ -1070,20 +1101,40 @@ def print_spearrank_table_blob(dict_name='./spearman_dict', stoc='det'):
     with open(dict_name, 'rb') as f:
         spearman_dict = cp.load(f)
     embedtypes = ['glove400k', 'glove-wiki400k-am', 'fasttext1m',]
-    x_metrics = ['embed-frob-error', 'gram-large-dim-frob-error', 
+    x_metrics = ['embed-frob-error', 'embed-reconstruction-frob-error', 'gram-large-dim-frob-error', 
                     'gram-large-dim-delta1-2-trans', 
                     'gram-large-dim-delta2-2', 'subspace-dist-normalized']
-    y_metrics = ['BLEU4', 'min_val_loss', 'min_val_ppl', 'best-f1', 'test-acc', 'analogy-avg-score', 'similarity-avg-score', 'google-mul','google-add','msr-mul','msr-add']
+    # y_metrics = ['BLEU4', 'min_val_loss', 'min_val_ppl', 'best-f1', 'test-acc', 
+    y_metrics = ['best-f1', 'test-acc',     
+        'analogy-avg-score', 'google-mul','google-add','msr-mul','msr-add',
+        'similarity-avg-score', 'bruni_men',
+        'luong_rare',
+        'radinsky_mturk',
+        'simlex999',
+        'ws353',
+        'ws353_relatedness',
+        'ws353_similarity',]
     for x in x_metrics:
+        # we need to plot multiple sentiment analysis things        
         info = ' '
         for y in y_metrics:
-            for embed in embedtypes:
-                key = embed + ', ' + y + ', ' + x + ', ' + stoc
-                if key in spearman_dict.keys():
-                    # info += r'{0:.2f}/'.format(spearman_dict[key])
-                    info += r'{0:.2f}/'.format(abs(spearman_dict[key]))
-            info = info[:-1]
-            info += '  &  '
+            if y == 'test-acc':
+                for dataset in ['mr','subj','cr','sst','trec','mpqa']:
+                    for embed in embedtypes:
+                        key = embed + ', ' + y + ', ' + x + ', ' + stoc + ', ' + dataset
+                        if key in spearman_dict.keys():
+                            # info += r'{0:.2f}/'.format(spearman_dict[key])
+                            info += r'{0:.2f}/'.format(abs(spearman_dict[key]))
+                    info = info[:-1]
+                    info += '  &  '
+            else:
+                for embed in embedtypes:
+                    key = embed + ', ' + y + ', ' + x + ', ' + stoc
+                    if key in spearman_dict.keys():
+                        # info += r'{0:.2f}/'.format(spearman_dict[key])
+                        info += r'{0:.2f}/'.format(abs(spearman_dict[key]))
+                info = info[:-1]
+                info += '  &  '
         print(x, info)
 
 if __name__ == '__main__':
@@ -1113,7 +1164,7 @@ if __name__ == '__main__':
     # # plot_theorem3_tighter_bound()
     # # gather_ICML_results()
 
-    # scatter plots
+    # # scatter plots
     logx = False
     use_large_dims = [False, True]
     # for ave_pt in [True, False]:
@@ -1163,4 +1214,5 @@ if __name__ == '__main__':
         print_spearrank_table_blob(spearman_dict_name, stoc='det')
         print("stochastic spearman")
         print_spearrank_table_blob(spearman_dict_name, stoc='stoc')
+
 
