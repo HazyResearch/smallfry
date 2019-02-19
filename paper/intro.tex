@@ -21,7 +21,7 @@ This metric measures the degree of overlap between the subspaces spanned by the 
 %subspaces spanned by the eigenvectors of the pairwise inner product matrices of the compressed and uncompressed embeddings.
 %Intuitively, this is a natural metric because a linear regressor is only able to capture the part of the label vector in the span of the eigenvectors of the nonzero eigenvalues of the Gram matrix \todo{(too low-level/technical?)}.
 Our generalization bound reveals that when compressed and uncompressed embeddings have small eigenspace overlap, they will on average perform similarly in downstream tasks.
-Though our generalization bounds are specific to linear regression, we believe this is an important step toward better understanding the generalization performance of compressed word embeddings.
+%Though our generalization bounds are specific to linear regression, we believe this is an important step toward better understanding the generalization performance of compressed word embeddings.
 
 To further demonstrate the utility of the eigenspace overlap metric, we use it to better understand why the uniformly quantized embeddings perform similarly to the uncompressed embeddings at high compression rates.
 In particular, we prove that the uniformly quantized embeddings with high probability attain high eigenspace overlap with the uncompressed embeddings at relatively high compression rates.

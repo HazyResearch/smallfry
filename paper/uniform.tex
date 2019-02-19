@@ -5,7 +5,7 @@ Because we know exactly what the noise structure of the uniform quantization met
 
 We now present the result (see Appendix~\ref{app:theory} for proof):
 \begin{theorem}
-	Let $X \in \RR^{n\times d}$ be a bounded embedding matrix with $X_{ij} \in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$ with smallest singular value $\sigma_{\min} = a \sqrt{n/d}$, for $a \in [0,1]$.\footnote{The maximum possible value of $\sigma_{\min}$ is $\sqrt{n/d}$, which occurs when $\|X\|_F^2 = n$ and $\sigma_{\min} = \sigma_{\max}$.}
+	Let $X \in \RR^{n\times d}$ be a bounded embedding matrix with $X_{ij} \in [-\frac{1}{\sqrt{d}},\frac{1}{\sqrt{d}}]$ with smallest singular value $\sigma_{\min} = a \sqrt{n/d}$, for $a \in [0,1]$.\footnote{The maximum possible value of $\sigma_{\min}$ is $\sqrt{n/d}$, which occurs when $\|X\|_F^2 = n$ and $\sigma_{\min} = \sigma_{\max}$. \todo{Give derivation.}}
 	Then the eigenspace overlap of the corresponding $b$-bit uniformly quantized embedding matrix can be lower bounded as follows:
 	\begin{eqnarray*}
 		%\eigover(X,\tX) &\geq& 1 - \frac{16n}{d(2^b-1)^2} \Bigg( \frac{\sigma_{\max} + \frac{\sqrt{n}}{2^b-1} }{\sigma_{\min}^2} \Bigg)^2

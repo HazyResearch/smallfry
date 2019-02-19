@@ -114,6 +114,8 @@ We let $\Sigma = \diag(\sigma_1,\ldots,\sigma_d)$.
 	\expect{y}{n(R(\tK) - R(K))} &=& \expect{y}{\Big(\|y\|^2 - y^T VV^T y\Big) - \Big(\|y\|^2 - y^T UU^T y\Big)}\\
 	&=& \expect{y}{\|U^T y\|^2 - \|V^Ty\|^2}\\
 	&=& \|\Sigma\|_F^2 -  \|V^T U\Sigma\|_F^2\\
+	&\geq& \|\Sigma\|_F^2 -  \|V^T U\|_F^2 \|\Sigma\|_2^2\\
+%	&\geq& \|\Sigma\|_F^2(1 -  \|V^T U\|_F^2)\\
 \end{eqnarray*}
 
 \subsubsection{Davis-Kahan $\sin(\Theta)$ Theorem}
