@@ -1282,7 +1282,7 @@ def eigenspace_overlap_vs_prec_n_d(vary_n,vary_d,prec_x,plot_bounds):
     if prec_x:
         # n_colors = ['b','g','r','k']
         # d_markers = ['s','o','x','d']
-        styles = ['s-','o--','x:','d;']
+        styles = ['s-','o--','x:','d-.']
         for i_n,n in enumerate(ns):
             for i_d,d in enumerate(ds):
                 leg.append('1-overlap (n={},d={})'.format(n,d))
