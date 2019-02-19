@@ -220,9 +220,9 @@ def evaluate_synthetics_large_dim(embed_path):
     # U' are the left singular vectors of X'.  Thus, we are computing the
     # reconstruction error which results from projecting X onto the left
     # singular values of X'.
-    results['embed-reconstruction-error'] = np.linalg.norm(
-        Uq @ (Uq.T @ base_embeds_large_dim) - base_embeds_large_dim
-    )
+    error_matrix = Uq @ (Uq.T @ base_embeds_large_dim) - base_embeds_large_dim
+    results['embed-reconstruction-frob-error'] = np.linalg.norm(error_matrix)
+    results['embed-reconstruction-spec-error'] = np.linalg.norm(error_matrix, 2)
     return results
 
 def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str,

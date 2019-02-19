@@ -801,6 +801,27 @@ def cmds_2_13_19_eval_translation_stoch_embeddings():
                 ):
                 f.write(cmd_format_str.format(evaltype, embedpath.strip()))
 
+# This does synthetic and intrinsic evaluations.
+def cmds_2_18_19_eval_synthetics_large_dim_all_embeddings():
+    cmd_file = get_cmdfile_path('2_18_19_eval_synthetics_large_dim_all_embeddings_cmds')
+    path_regexes = ['/proj/smallfry/embeddings/glove400k/2018-11-29-fiveSeeds/*/*_compressed_embeds.txt',
+                    '/proj/smallfry/embeddings/glove-wiki400k-am/2018-12-19-dimVsPrec/*/*_compressed_embeds.txt',
+                    '/proj/smallfry/embeddings/fasttext1m/2018-12-19-fiveSeeds/*/*_compressed_embeds.txt',
+                    '/proj/smallfry/embeddings/glove-wiki400k-am/2019-02-05-fiveSeedsDCA/*/*embeds.txt',
+                    '/proj/smallfry/embeddings/glove-wiki400k-am/2019-02-02-fiveSeedsKmeans/*/*embeds.txt',
+                    '/proj/smallfry/embeddings/fasttext1m/2019-02-02-fiveSeedsPCA/*/*embeds.txt']
+    evaltype = 'synthetics-large-dim'
+    cmd_format_str = ('qsub -V -b y -wd /proj/smallfry/wd /proj/smallfry/git/smallfry/src/smallfry_env.sh '
+            '\\"python /proj/smallfry/git/smallfry/src/evaluate.py --evaltype {} --embedpath {}\\"\n')
+
+    embedpaths = []
+    for path_regex in path_regexes:
+        embedpaths.extend(glob.glob(path_regex))
+
+    with open(cmd_file,'w') as f:
+        for embedpath in embedpaths:
+            f.write(cmd_format_str.format(evaltype, embedpath.strip()))
+
 if __name__ == '__main__':
     # cmds_11_28_18_compress_round1()
     # cmds_11_28_18_compress_tuneDCA()
@@ -830,4 +851,5 @@ if __name__ == '__main__':
     # cmds_2_4_19_eval_sentiment_february_embedding() # all sentiment eval
     # cmds_2_4_19_eval_intrinsics_synthetics_february_embeddings() # all intrinsics/synthetics eval (run on CPU machines)
     # cmds_2_13_19_eval_translation_main_embeddings() # performance evaluation of all embeddings for transformer translation task
-    cmds_2_13_19_eval_translation_stoch_embeddings()
+    # cmds_2_13_19_eval_translation_stoch_embeddings()
+    cmds_2_18_19_eval_synthetics_large_dim_all_embeddings()
