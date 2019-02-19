@@ -25,12 +25,3 @@ embed-frob-error (3),1165.9761450141566,1583.8668106225275,2307.5232175342794
 embed-frob-error (4),1161.7574138984205,1600.1348687474508,2317.404346603203
 embed-frob-error (avg.),1158.8790493807344,1589.256488196263,2314.8798287781724
 embed-frob-error (st. dev.),4.308677185329637,8.523219121240574,3.724205882903632
-Dim. reduction
-compression-ratio,1.0,1.5,3.0,6.0
-embed-frob-error (0),0.0,0.0,0.0,0.0
-embed-frob-error (1),0.0,0.0,0.0,0.0
-embed-frob-error (2),0.0,0.0,0.0,0.0
-embed-frob-error (3),0.0,0.0,0.0,0.0
-embed-frob-error (4),0.0,0.0,0.0,0.0
-embed-frob-error (avg.),0.0,0.0,0.0,0.0
-embed-frob-error (st. dev.),0.0,0.0,0.0,0.0
