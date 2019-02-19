@@ -213,6 +213,16 @@ def evaluate_synthetics_large_dim(embed_path):
     angles = np.rad2deg(subspace_angles(U, Uq))
     results['subspace-largest-angle'] = angles[0]
     results['subspace-angles'] = angles.tolist()
+    # Here, we compute min_W ||X'W - X||_F, where X' is the compressed embedding
+    # matrix and X is the uncompressed embedding matrix.  Using the closed-form
+    # solution for least squares regression, W* = (X'^T X')^(-1)X'^T X.
+    # Thus, min_W ||X'W - X||_F simplifies to ||U'U'^T X - X||_F, where
+    # U' are the left singular vectors of X'.  Thus, we are computing the
+    # reconstruction error which results from projecting X onto the left
+    # singular values of X'.
+    results['embed-reconstruction-error'] = np.linalg.norm(
+        Uq @ (Uq.T @ base_embeds_large_dim) - base_embeds_large_dim
+    )
     return results
 
 def compute_gram_or_cov_errors(embeds, base_embeds, use_gram, type_str,
