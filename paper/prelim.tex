@@ -1,5 +1,5 @@
 In this paper, we focus on gaining a deeper understanding of what properties of compressed embeddings determine their downstream performance.
-We begin by reviewing existing compression methods (Section~\ref{subsec:existing_methods}) as well as existing metrics (Section~\ref{subsec:existing_metrics}) which measure the quality of a compressed embedding relative to the uncompressed embedding.
+We begin by reviewing existing compression methods (Section~\ref{subsec:existing_methods}) as well as existing metrics which measure the quality of a compressed embedding relative to the uncompressed embedding (Section~\ref{subsec:existing_metrics}).
 % NOTE: I DON'T THINK WE NEED TO REPEAT PAPER OUTLINE, SINCE WE JUST DID THIS IN PARAGRAPH ABOVE (END OF INTRO)
 %We then show in Section~\ref{sec:challenge} that these metrics do not align well with downstream performance, leading us to propose a new metric in Section~\ref{sec:new_metric} which aligns much better.
 
@@ -36,7 +36,7 @@ Other than $\eps$ (which can simply be set to a small fraction of the data stand
 	\label{alg:smallfry}
 	\begin{algorithmic}[1]
 		\STATE {\bfseries Input:}  Embedding matrix $X \in \RR^{n \times d}$, quantization function $Q_{b,r}$, clipping function $\clip_r\colon\RR\rightarrow[-r,r]$.
-		\STATE {\bfseries Output:} Quantized embeddings $\hat{X}$.
+		\STATE {\bfseries Output:} Quantized embeddings $\tX$.
 		\STATE $r^* \defeq \argmin_{r \in [0,\max(|X|)} \|Q_{b,r}(\clip_r(X))-X\|_F$.
 		%Search for $r^* \in [0,\max(|X|)]$ minimizing $\|Q_{b,r}(\clip_r(X))-X\|_F$.
 		\STATE {\bfseries Return:} $Q_{b,r^*}(\clip_{r^*}(X))$.
@@ -44,9 +44,9 @@ Other than $\eps$ (which can simply be set to a small fraction of the data stand
 \end{algorithm}
 
 \paragraph{Dimensionality Reduction}
-Another simple baseline to consider for compression embeddings is dimensionality reduction.
+Another simple baseline to consider for compressing embeddings is dimensionality reduction.
 In particular, one can simply train an embedding with a lower dimension, or use a method like principal component analysis (PCA) to reduce the dimension of a pre-trained embedding.
-In this work, we evaluate the performance of full-precision embeddings trained at lower dimensions, relative to higher dimensional embeddings compressed using the above methods.
+In this work, we evaluate the performance of both of these dimensionality reduction techniques.
 
 %In contrast to the DCCL and k-mean approach, \emph{uniform quantization} is a simple method requiring no computationally expensive training. This method, as shown in at a high-level in Algorithm~\ref{alg:smallfry}, first clips the embedding matrix into the range $[-r,r]$, and then uniformly quantizes the entries of the clipped matrix; we choose the value of $r$ which minimizes the reconstruction error of the quantized matrix.
 %Because our algorithm uses uniform quantization, we first review uniform quantization, and then describe in more detail how our algorithm uses it to compress word embeddings.
@@ -72,23 +72,24 @@ Second, one can view word embedding training as implicit matrix factorization \c
 
 %Recently, there has been substantial progress in understanding the matrix reconstruction error and generalization for models derived from matrix factorization. Particularly in our empirical evaluation, we consider the \emph{Pointwise Inner Product (PIP)} loss \citep{yin18} and \emph{spectral approximation error} \citep{avron17,lprff18} as the metrics for word embedding compression quality.
 
-When defining the metrics below, we will denote by $X \in \RR^{n\times d}$ the uncompressed embedding, and $\tX \in \RR^{n \times k}$ the compressed embedding, where $n$ is the vocabulary size, and $d$, $k$ are the compressed and uncompressed word embedding dimensions, respectively.
+When defining the metrics below, we will denote by $X \in \RR^{n\times d}$ the uncompressed embedding, and $\tX \in \RR^{n \times k}$ the compressed embedding, where $n$ is the vocabulary size, and $d$, $k$ are the uncompressed and compressed word embedding dimensions, respectively.
 We now review the metrics:
 
 
 %Many main stream word embedding generation problem can be casted matrix decomposition . For example, Skip-gram Word2Vec \citep{word2vec13} implicitly factorizes the Pointwise Mutual Information (PMI) matrix while GloVe \citep{glove14} decomposes the word co-occurrence matrix. In this paper, given an uncompressed embedding $X\in\mathbb{R}^{n\times d}$ and its compressed version $\tilde{X}\in\mathbb{R}^{n\times \tilde{d}}$, we consider the reconstruction error between Gram matrices $G = XX^T$ and $\tilde{G} = \tilde{X}\tilde{X}^T$ as the proxy metrics of compression quality. Recently, there has been substantial progress in understanding the matrix reconstruction error and generalization for models derived from matrix factorization. Particularly in our empirical evaluation, we consider the \emph{Pointwise Inner Product (PIP)} loss \citep{yin18} and \emph{spectral approximation error} \citep{avron17,lprff18} as the metrics for word embedding compression quality.
 
 \paragraph{Word Embedding Reconstruction Error}
-The first and simplest way of comparing two embeddings $X$ and $\tX$ is simply to measure the reconstruction error $\|X-\tX\|_F$.
+The first and simplest way of comparing two embeddings $X$ and $\tX$ is to measure the reconstruction error $\|X-\tX\|_F$.
 In fact, many embedding compression methods \citep{andrews16,dccl17} use this as the loss function for compression.
 Note that in order to be able to use this metric, $X$ and $\tX$ must have the same dimension.
-This limits the settings in which this metric can be used, relative to the metrics which depend only on the Gram matrices.
+To circumvent this limitation, we instead consider $\min_{\theta \in \RR^{k \times d}} \|\tX \theta - X \|_F$, the minimum reconstruction error attainable via a linear transformation of $\tX$.
+We show in Appendix~\todo{XX} that if $\tX \defeq \tU \tS \tV^T$ is the singular value decomposition (SVD) of $\tX$, then the above minimization is equal to $\|\tU\tU^T X - X\|_F$, the reconstruction error attained by projecting $X$ onto the basis of the left singular vectors of $\tX$.
 
 \paragraph{Pairwise Inner Product (PIP) Loss}
 Given $XX^T$ and $\tX\tX^T$, the Gram matrices of the uncompressed and compressed embeddings, the \textit{Pairwise Inner Product (PIP} Loss) is defined as $\|XX^T -\tX\tX^T\|_F$ \citep{yin18}.
 This metric was recently proposed in order to explain the existence of an optimal dimension for word embeddings;
 specifically, this work shows that increasing the embedding dimension decreases a bias term but increases a variance term in the PIP loss.
-Though the PIP loss does not explicitly consider the generalization performance of the embeddings on downstream tasks, \citep{yin18} show that selecting the embedding dimension to minimize the PIP loss can help attain strong downstream NLP task performance.
+Though the PIP loss does not explicitly consider the generalization performance of the embeddings on downstream tasks, \citet{yin18} show that selecting the embedding dimension to minimize the PIP loss can help attain strong downstream NLP task performance.
 
 %It is first proposed to reveal the bias-variance trade-off when selecting the optimal embedding dimensionality. Though PIP loss does not explicitly consider the generalization performance of downstream tasks,  \citet{yin18} show that select embedding dimensionality by PIP loss minimization can attain strong downstream NLP task performance.
 
@@ -97,9 +98,9 @@ Recent work on understanding the generalization performance of kernel approximat
 Specifically, a gram matrix $\tX\tX^T$ is said to be \textit{$(\Delta_1,\Delta_2)$-spectral approximation} of another Gram matrix $XX^T$ if it satisfies $(1-\Delta_1) XX^T \preceq \tX\tX^T \preceq (1+\Delta_2)XX^T$.
 In order to make this metric more robust, $\lambda I$ is typically added to each of the Gram matrices before computing the minimum $\Delta_1$ and $\Delta_2$ values satisfying the above equation;
 in the supervised learning setting, the $\lambda$ value corresponds to the regularization parameter used during training.
-\citet{lprff18} show that if $\tX\tX^T+\lambda I$ is a $(\Delta_1,\Delta_2)$-spectral approximation of $XX^T + \lambda$, then the linear model trained using $\tX$ will attain similar generalization performance to the linear model trained using $X$.
+\citet{lprff18} show that if $\tX\tX^T+\lambda I$ is a $(\Delta_1,\Delta_2)$-spectral approximation of $XX^T + \lambda$ for small values of $\Delta_1$ and $\Delta_2$, then the linear model trained using $\tX$ will attain similar generalization performance to the linear model trained using $X$.
 
-Although all of these metrics have strong theoretical foundations, in Section~\ref{subsec:hard_explain} we show that when these metrics are measured on compressed word embeddings, the resulting values align poorly with the downstream performance of the compressed embeddings.
+Although all of these metrics have strong theoretical foundations, in Section~\ref{subsec:hard_explain} we show that when these metrics are measured on compressed word embeddings, the resulting values \todo{align poorly} with the downstream performance of the compressed embeddings.
 This poor alignment suggests that these metrics are poor indicators of the quality of the compressed embeddings.
 
 %Building on recent theoretical work \citep{avron17}, \citet{lprff18} propose the notion of \textit{$(\Delta_1,\Delta_2)$-spectral approximation} between Gram matrices to understand the generalization performance of kernel approximation methods on supervised learning problems.

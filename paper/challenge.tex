@@ -1,13 +1,13 @@
 As a first step toward better understanding the downstream performance of compressed word embeddings, we perform an empirical comparison of the different compression methods in terms of their downstream performance on several tasks, as well as in terms of the metrics of compression quality discussed above.
 We make two surprising observations in this empirical study:
-First, we observe that the simple uniform quantization method performs very similarly to the deep dictionary learning (DCCL) and k-means compression methods across a number of tasks, embedding types, and compression ratios.
+First, we observe that the simple uniform quantization method performs \todo{very similarly} to the deep dictionary learning (DCCL) and k-means compression methods across a number of tasks, embedding types, and compression ratios.
 Second, we show that this cannot be satisfactorily explained in terms of any of the compression quality metrics described in Section~\ref{subsec:existing_metrics}, because the downstream performances of the compressed embeddings do not align well with any of these metrics.
-For example, the uniform quantization method can have significantly worse PIP loss than DCCL while attaining similar downstream performance.
+For example, the uniform quantization method can have \todo{significantly worse} PIP loss than DCCL while attaining \todo{similar downstream performance}.
 
-In this section, we present the results of our empirical analysis:
-In Section~\ref{sec:perf_comp} we compare the various compression methods in terms of their downstream performance on a number of tasks as a function of the memory occupied by the embeddings.
+We present the results of our empirical analysis in two parts:
+In Section~\ref{sec:perf_comp} we compare the various compression methods in terms of their downstream performance on a number of tasks as a function of their compression rate relative to the uncompressed embeddings.
 We then present our results on the lack of correlation between existing metrics and downstream performance in Section~\ref{subsec:hard_explain}.
-These observations motivate us to propose a new compression quality metric in Section~\ref{sec:new_metric} which better captures the properties of the compressed embeddings which determine its downstream performance.
+These observations motivate us to propose a new compression quality metric in Section~\ref{sec:new_metric} which better captures the properties of the compressed embeddings which determine their downstream performance.
 %and leads to a more principled understanding on how compression impacts generalization. 
 
 %To study the performance of compressed word embeddings in downstream tasks, we begin by empirically comparing methods with different underlying machineries. In our attempt to understand what intrinsic characteristic determines the downstream performance across different compressed embedding types, we observe that PIP loss and $(\Delta_1, \Delta_2)$-spectral approximation error, as compression quality metrics, can poorly correlate with downstream performance across the simple uniform quantization and state-of-the-art methods. This impose challenges to understand what intrinsic characteristic determines the downstream performance of compressed embeddings in a principle.
@@ -32,10 +32,10 @@ These observations motivate us to propose a new compression quality metric in Se
 		\includegraphics[width=.245\linewidth]{figures/glove400k_sentiment_sst_test-acc_vs_compression_linx_det.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_analogy-avg-score_vs_compression_linx_det.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/glove400k_intrinsics_similarity-avg-score_vs_compression_linx_det.pdf} \\
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_compression_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_compression_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_compression_linx_det.pdf} &
-		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_compression_linx_det.pdf} \\
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_compression_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_compression_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_compression_linx_det.pdf} &
+%		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_compression_linx_det.pdf} \\
 		\includegraphics[width=.245\linewidth]{figures/fasttext1m_qa_best-f1_vs_compression_linx_det.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/fasttext1m_sentiment_sst_test-acc_vs_compression_linx_det.pdf} &
 		\includegraphics[width=.245\linewidth]{figures/fasttext1m_intrinsics_analogy-avg-score_vs_compression_linx_det.pdf} &
@@ -101,7 +101,7 @@ These observations motivate us to propose a new compression quality metric in Se
 \subsection{Downstream Performance vs. Compression Rate}
 \label{sec:perf_comp}
 
-We now present our empirical results comparing the downstream performance of the various compression methods as a function of the memory occupied by the compressed embeddings.
+We now present our empirical results comparing the downstream performance of the various compression methods as a function of the compression rate of the compressed embeddings.
 
 \paragraph{Experiment Details}
 For these experiments, we use three different types of embeddings,
@@ -109,21 +109,20 @@ compress them using four different compression methods,
 and evaluate them on four types of tasks.
 For the embedding types, we use publicly available fastText embeddings (vocabulary size $\approx 10^6$, dimension $d=300$), publicly available GloVe embeddings trained on Wikipedia 2014 and Gigaword 5 corpora (vocabulary size $= 4\times 10^5$, dimension $d \in \{50,100,200,300\}$), and GloVe embeddings which we trained on a Wikipedia 2017 corpus ($d \in \{25,50,100,200,400\}$).
 We will denote these embeddings throughout the paper by ``fastText'', ``GloVe (Wiki'14)'', and ``GloVe (Wiki'17)'', respectively.
-We use the four embedding compression methods discuss in Section~\ref{sec:prelim}: DCCL, k-means, uniform quantization, and dimensionality reduction.
+We use the four embedding compression methods discussed in Section~\ref{sec:prelim}: DCCL, k-means, uniform quantization, and dimensionality reduction.\footnote{For the dimensionality reduction baseline, we use the publicly available lower-dimensional embeddings for Glove (Wiki'14) ($d \in \{50,100,200,300\}$), the lower-dimensional embeddings we trained for Glove (Wiki'14) ($d \in \{50,100,200,400\}$), and lower-dimensional embeddings we computed using PCA for fastText ($d \in \{50,100,200,300\}$). \todo{Is this fine as a footnote?}}
 For the tasks, we consider question answering using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, sentiment analysis tasks trained using a CNN model \citep{kim14}, and word analogy and similarity tasks \citep{levy15}.
-For more details on the exact embeddings we use, and on the details of the various tasks, please see Appendix~\ref{app:experiments}
+For more details on the exact embeddings we use, and on the details of the various tasks, please see Appendix~\ref{app:experiments}.
 
 \paragraph{Experiment Results}
 In Figure~\ref{fig:perf_comp} we present the results of our performance comparison experiments.
 In these plots, we plot the performance of the publicly available GloVe (Wiki'14) (top) and fastText (bottom) embeddings across the four tasks: question answering (left-most), sentiment analysis, word analogy, word similarity (right-most).
-For the word analogy and similarity plots, we plot the average performance of each embedding across a number of analogy and similarity tasks, respectively;
-we use the analogy and similarity tasks from \citet{levy15}.
-In each individual plot, we plot the performance per task of each compression method, at various compression rates;
-higher $y$-values are better across all plots.
-For k-means, uniform quantization, and DCCL we use compression rates 8, 16, and 32.
-For the GloVe embeddings, the compression rates in the plots range from 1 to 32 because we also evaluate the performance of publicly available GloVe (Wiki'14) embeddings at dimensions $d\in\{50,100,200,300\}$, which attain compression rates of 6, 3, 1.5, 1, respectively;
-this is the dimensionality reduction method.
-The fastText embeddings are not released at various dimensions, so we were unable to compute the dimensionality reduction method there.
+For sentiment analysis, word analogy, and word similarity, we plot the performance on the Stanford Sentiment Treebank (SST) dataset \citep{socher13}, the Google analogy dataset \citep{mikolov13}, and the MEN dataset \citep{bruni12}, respectively.
+For results on the other sentiment analysis tasks from \citet{kim14} and the other word analogy and similarity tasks from \citet{levy15}, please see Appendix~\ref{app:experiments}.
+In each individual plot, we plot the performance per task of each compression method, at various compression rates; higher $y$-values are better across all plots.
+%For k-means, uniform quantization, and DCCL we use compression rates 8, 16, and 32.
+%For the GloVe embeddings, the compression rates in the plots range from 1 to 32 because we also evaluate the performance of publicly available GloVe (Wiki'14) embeddings at dimensions $d\in\{50,100,200,300\}$, which attain compression rates of 6, 3, 1.5, 1, respectively;
+%this is the dimensionality reduction method.
+%The fastText embeddings are not released at various dimensions, so we were unable to compute the dimensionality reduction method there.
 Across all the plots we use five random seed per compression setting, and plot the average, with the standard deviation visualized with error bars.
 
 Our primary conclusions from Figure~\ref{fig:perf_comp}:
@@ -134,7 +133,7 @@ For example, the GloVe (Wiki'14) dimensionality reduction method attains an aver
 For example, on the question answering task uniform quantization attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the DCCL method of \citet{dccl17} is 0.43\% below.
 \end{itemize}
 To attempt to explain these surprising results, we turn to the various metrics we described in Section~\ref{subsec:existing_metrics}.
-Surprisingly, as we show in the next section, none of these metrics aligns well with the downstream performance of the various compression methods, leading us to propose a new metric and corresponding theoretical analysis and experiments in Section~\ref{sec:new_metric}.
+Surprisingly, we show in the next section that none of these metrics \todo{align well} with the downstream performance of the various compression methods, leading us to propose a new metric and corresponding theoretical analysis and experiments in Section~\ref{sec:new_metric}.
 
 %\todo{(dataset info might be need to be added)} In our empirical performance comparison of the different compression method, we evaluate the embeddings compressed by each method on a variety of tasks. We demonstrate that the compressed embeddings based on simple uniform quantization can match the the state-of-the-art DCCL and k-means method. To compare these methods on different uncompressed embedding types, we consider compressing both 300 dimensional GloVe publicly available embedding and \todo{bla dim} FastText pretrained embeddings. In the experiment with GloVe uncompress embedding, we also include different dimensional GloVe publicly available embeddings, and use it to compare the performance of compressing high dimensional embeddings and directly using lower dimensional publicly available embeddings with the same memory footprint. In Figure~\ref{fig:perf_comp}, we can observe across the four tasks using both GloVe and FastText embeddings, the simple uniform quantization method can closely match the DCCL and k-means approach in downstream performance at high compression rate. For example, using the DrQA model \citep{drqa17} on the Stanford Question Answering Dataset (SQuAD) \citep{squad16}, uniform quantization attains a compression ratio of 32x with an average F1 score only 0.47\% absolute below the uncompressed GloVe embeddings, while the DCCL method of \citet{dccl17} is 0.43\% below. Additionally, we observe in Figure~\ref{fig:perf_comp} (top) that compressing higher dimensional word embeddings can perform significantly better than using lower dimensional publicly available embeddings with the same memory consumption.
 
@@ -286,7 +285,7 @@ Surprisingly, as we show in the next section, none of these metrics aligns well 
 
 \subsection{Downstream Performance vs. Compression Quality Metrics}
 \label{subsec:hard_explain}
-We now show that the surprising empirical results from the previous section, including the strong downstream performance of the simple compression methods, cannot be explained in terms of the various compression quality metrics we discussed in Section~\ref{subsec:existing_metrics}.
+We now show that the surprising empirical results from the previous section, such as the strong downstream performance of the simple compression methods, cannot be explained in terms of the various compression quality metrics discussed in Section~\ref{subsec:existing_metrics}.
 
 \paragraph{Experiment Details}
 We use the same experimental setup as described in Section~\ref{sec:perf_comp}.

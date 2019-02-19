@@ -1,6 +1,6 @@
 %Compressing word embeddings is critical to their deployment on memory-constrained devices.
 We study the principles governing the downstream performance of compressed word embeddings.
-We empirically demonstrate that existing metrics for evaluating compression performance align poorly with downstream performance, and propose a new metric---the \textit{eigenspace overlap metric}---which aligns much better.
+We empirically demonstrate that existing metrics for evaluating compression performance \todo{align poorly} with downstream performance, and propose a new metric---the \textit{eigenspace overlap metric}---which \todo{aligns much better}.
 %This metric measures the degree of overlap between the subspaces spanned by the eigenvectors of the nonzero eigenvalues of the Gram matrices of the compressed and uncompressed embeddings.
 To explain this metric's influence on downstream performance, we prove bounds on the generalization performance of compressed embeddings in terms of this metric in the linear regression setting.
 We then use this metric to better understand the empirical success of a simple compression based on uniform quantization, by proving explicit bounds on its eigenspace overlap.
