@@ -195,6 +195,8 @@ def get_embedtype_name_map():
 
 def get_metric_name_map():
     metric_name_map = {
+        'embed-reconstruction-frob-error': 'Embed. rec. error (Frob.)',
+        'embed-reconstruction-spec-error': 'Embed. rec. error (Spec.)',
         'embed-frob-error': 'Embed. reconstruction. error',
         'gram-large-dim-frob-error': 'PIP loss',
         'subspace-dist-normalized': r'1 - $\mathcal{E}$',
@@ -754,7 +756,7 @@ def plot_qa_results():
 
 def plot_metric_vs_compression():
     embedtypes = ['glove-wiki400k-am', 'glove400k','fasttext1m',]
-    y_metrics = ['embed-frob-error', 'gram-large-dim-frob-error', 'subspace-dist-normalized',
+    y_metrics = ['embed-reconstruction-frob-error', 'embed-reconstruction-spec-error', 'embed-frob-error', 'gram-large-dim-frob-error', 'subspace-dist-normalized',
             'gram-large-dim-delta1-2', 
             'gram-large-dim-delta1-2-trans', 
             'gram-large-dim-delta2-2'
@@ -961,7 +963,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx, ave_pt=F
             #         'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta2-2', 
             #         ]  
             # y_metric1s = ['gram-large-dim-frob-error'] 
-            y_metric1s = ['embed-reconstruction-frob-error', 'gram-large-dim-frob-error', 'subspace-dist-normalized',
+            y_metric1s = ['embed-reconstruction-spec-error', 'embed-reconstruction-frob-error', 'gram-large-dim-frob-error', 'subspace-dist-normalized',
                     'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
                     'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
                     'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
@@ -1012,7 +1014,9 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx, ave_pt=F
             if 'gram' in y_metric1 and 'frob' in y_metric1:
                 latexify_config['xlabel'] = 'PIP loss'
             elif 'embed' in y_metric1 and 'frob' in y_metric1:
-                latexify_config['xlabel'] = 'Embed. reconstruction. error'
+                latexify_config['xlabel'] = 'Embed. rec. error (Frob.)'
+            elif 'embed' in y_metric1 and 'spec' in y_metric1:
+                latexify_config['xlabel'] = 'Embed. rec. error (Spec.)'
             elif 'delta1' in y_metric1 and 'trans' in y_metric1:
                 latexify_config['xlabel'] = r'$1/(1 - \Delta_1)$'
             elif 'delta2' in y_metric1:
@@ -1102,7 +1106,7 @@ def print_spearrank_table_blob(dict_name='./spearman_dict', stoc='det'):
     with open(dict_name, 'rb') as f:
         spearman_dict = cp.load(f)
     embedtypes = ['glove400k', 'glove-wiki400k-am', 'fasttext1m',]
-    x_metrics = ['embed-frob-error', 'embed-reconstruction-frob-error', 'gram-large-dim-frob-error', 
+    x_metrics = ['embed-frob-error', 'embed-reconstruction-frob-error', 'embed-reconstruction-spec-error', 'gram-large-dim-frob-error', 
                     'gram-large-dim-delta1-2-trans', 
                     'gram-large-dim-delta2-2', 'subspace-dist-normalized']
     # y_metrics = ['BLEU4', 'min_val_loss', 'min_val_ppl', 'best-f1', 'test-acc', 
@@ -1139,11 +1143,11 @@ def print_spearrank_table_blob(dict_name='./spearman_dict', stoc='det'):
         print(x, info)
 
 if __name__ == '__main__':
-    # # # lines
-    plot_qa_results()
-    plot_intrinsic_results()
-    plot_sentiment_results()
-    plot_translation_results()
+    # # # # lines
+    # plot_qa_results()
+    # plot_intrinsic_results()
+    # plot_sentiment_results()
+    # plot_translation_results()
 
     # # metric vs compression
     plot_metric_vs_compression()
