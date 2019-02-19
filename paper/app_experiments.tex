@@ -526,6 +526,21 @@ In Figure~\ref{fig:all_sentiment} we present all our sentiment analysis results,
 	\label{tab:sp_rank_stoc}
 \end{table*}
 
+\begin{figure*}
+	\centering
+	%	\begin{tabular}{c c c c}
+	\begin{tabular}{@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}c@{\hskip -0.0in}}
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_qa_best-f1_vs_compression_linx_stoc_uni-quant-only.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_sentiment_sst_test-acc_vs_compression_linx_stoc_uni-quant-only.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_analogy-avg-score_vs_compression_linx_stoc_uni-quant-only.pdf} &
+		\includegraphics[width=.245\linewidth]{figures/glove-wiki400k-am_intrinsics_similarity-avg-score_vs_compression_linx_stoc_uni-quant-only.pdf} \\
+		\;\;\;\;\;(a) & \;\;\;\;\;\;(b) & \;\;\;\;\;\;(c) & \;\;\;\;\;\;(d)
+	\end{tabular}
+	\caption{
+		\textbf{Downstream Performance vs. Memory Consumption (Stochastic).}	}
+	\label{fig:perf_comp_wiki17only_stoc}
+\end{figure*}
+
 
 \subsection{Compression metrics across compression rate}
 \begin{figure*}
