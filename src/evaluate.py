@@ -16,9 +16,16 @@ from third_party.hyperwords.hyperwords import ws_eval, analogy_eval
 from third_party.hyperwords.hyperwords.representations.embedding import Embedding
 from third_party.DrQA.scripts.reader.train import train_drqa
 from third_party.sentence_classification.train_classifier import train_sentiment
-from third_party.fairseq.train import train_translation
-from third_party.fairseq.generate import generate_translation
-from third_party.fairseq.scripts.average_checkpoints import average_translation_ckpt
+try:
+    # need to run translation_setup.sh to install fairseq
+    from third_party.fairseq.train import train_translation
+    from third_party.fairseq.generate import generate_translation
+    from third_party.fairseq.scripts.average_checkpoints import average_translation_ckpt
+except ImportError:
+    message = 'Must install fairseq using translation_setup.sh'
+    print(message)
+    logging.info(message)
+    pass
 import utils
 
 def main():
