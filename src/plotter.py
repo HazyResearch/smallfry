@@ -475,8 +475,9 @@ def gather_ICML_results():
     embedtypes = ['glove-wiki400k-am','glove400k','fasttext1m']
     result_file_regexes = ['*evaltype,qa*final.json', '*evaltype,sent*lr,0*final.json',
             '*evaltype,intrinsics*final.json', '*evaltype,synthetics_*final.json',
-            '*2019-01-20-eval-*evaltype,synthetics-large-dim*final.json',
-            '*2019-02-0*-eval-*evaltype,synthetics-large-dim*final.json',
+            # '*2019-01-20-eval-*evaltype,synthetics-large-dim*final.json',
+            # '*2019-02-0*-eval-*evaltype,synthetics-large-dim*final.json',
+            'rungroup,2019-02-19-eval*evaltype,synthetics-large-dim*final.json',
             '*evaltype,translation*final.json']
     # if we want the compression config file, use 'embedtype,*final.json'
     path_regex = '/proj/smallfry/embeddings/{}/*/*/{}'
