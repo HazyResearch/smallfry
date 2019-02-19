@@ -213,6 +213,11 @@ def get_style_name_map():
         'DCCL' : 'x:',
         'Dim. reduction': 'd-.',
     }
+    styles = ['-', '--', ':', '-.']
+    marker = ['o', 'v', '+', '^', 'x', 'd']
+
+    for k, i in enumerate([1, 2, 4, 8, 16, 32]):
+        style_name_map['b={}'.format(str(i))] = marker[k%len(marker)] + styles[k%len(styles)]
     return style_name_map
 
 # lines_x, y contains values for x and y in the scatter plot
@@ -308,6 +313,7 @@ def plot_lines(lines, x_metric, y_metric, logx=False, logy=False, title=None, cs
         plt.title(title)
     else:
         plt.title('{} vs {}'.format(y_metric, x_metric))
+
 
 # from a list of results, extracts the x,y info for each line.
 # Specifically, for each line, extracts the subset of results corresponding
@@ -598,10 +604,12 @@ spearman_dict = {}
 def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
                       y_metric2=None, y_metric2_evaltype=None, scatter=False, 
                       logx=False, latexify_config=default_latexify_config, stoch='det', 
-                      ave_pt=False, line_err_bar=False):
+                      ave_pt=False, line_err_bar=False, uni_quant_only=False):
     assert stoch == 'det' or stoch == 'stoc'
     if ave_pt:
         assert scatter == True
+    if uni_quant_only:
+        assert embedtype == "glove-wiki400k-am"
     # load and clean all results
     results_file = str(pathlib.PurePath(utils.get_base_dir(), 'results', 'ICML_results.json'))
     all_results = utils.load_from_json(results_file)
@@ -631,68 +639,73 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
                 '{}_{}_{}_vs_compression_{}_{}'.format(embedtype, evaltype, y_metric, xcale_str, stoch)))
     if ave_pt:
         output_file_str += "_ave-pt"
+    if uni_quant_only:
+        output_file_str += "_uni-quant-only"
 
     # prepare filenames of output csv and pdf files.
     csv_file = output_file_str + '.csv'
     plot_file = output_file_str + '.pdf'
 
-    info_per_line = {
-        'kmeans':
-            {
-                'compresstype':['kmeans']
-            },
-        'uniform (adaptive-det)': # (adaptive-det)':
-            {
+    if uni_quant_only:
+        ###  Code below is for plotting all the different bitrates for glove-wiki400k-am. ####
+        x_metric = 'memory'
+        info_per_line = {}
+        bitrates = [1,2,4,8,16]
+        for b in bitrates:
+            info_per_line['b={}'.format(b)] = {
+                'bitrate':[b],
                 'compresstype':['uniform'],
                 'adaptive':[True],
                 'stoch':[True if stoch == 'stoc' else False],
                 'skipquant':[False],
-                'embeddim':[utils.get_large_embedding_dim(embedtype)],
-                'bitrate':[1,2,4]
-            },
-        'DCCL':
-            {
-                'compresstype':['dca']
+                'embeddim':[25,50,100,200,400]
             }
-    }
-    if not y_metric == 'embed-frob-error':
-        # we do not use dim reduction when we print things regarding embed-frob-error
-        if embedtype == 'glove-wiki400k-am':
-            info_per_line['Dim. reduction'] = {
-                'compresstype':['nocompress'],
-                'embeddim': [50,100,200,400]
-            }
-        elif embedtype == 'glove400k':
-            info_per_line['Dim. reduction'] = {
-                'compresstype':['nocompress'],
-                'embeddim': [50,100,200,300]
-            }
-        elif embedtype == 'fasttext1m':
-            info_per_line['Dim. reduction'] = {
-                'compresstype':['pca'],
-                'pcadim': [50,100,200,300]
-            }
-    x_metric = 'compression-ratio'
-    if y_metric == 'embed-frob-error' and scatter == True:
-        subset_info['embeddim'] = [utils.get_large_embedding_dim(embedtype)]
-    ####  Code below is for plotting all the different bitrates for glove-wiki400k-am. ####
-    # x_metric = 'memory'
-    # info_per_line = {}
-    # bitrates = [1,2,4,8,16]
-    # for b in bitrates:
-    #     info_per_line['b={}'.format(b)] = {
-    #         'bitrate':[b],
-    #         'compresstype':['uniform'],
-    #         'adaptive':[True],
-    #         'stoch':[False],
-    #         'skipquant':[False],
-    #         'embeddim':[25,50,100,200,400]
-    #     }
-    # info_per_line['b=32'] = {
-    #     'bitrate':[32],
-    #     'compresstype':['nocompress'],
-    #     'embeddim':[25,50,100,200,400]
-    # }
+
+        info_per_line['b=32'] = {
+            'bitrate':[32],
+            'compresstype':['nocompress'],
+            'embeddim':[25,50,100,200,400]
+        }
+    else:
+        info_per_line = {
+            'kmeans':
+                {
+                    'compresstype':['kmeans']
+                },
+            'uniform (adaptive-det)': # (adaptive-det)':
+                {
+                    'compresstype':['uniform'],
+                    'adaptive':[True],
+                    'stoch':[True if stoch == 'stoc' else False],
+                    'skipquant':[False],
+                    'embeddim':[utils.get_large_embedding_dim(embedtype)],
+                    'bitrate':[1,2,4]
+                },
+            'DCCL':
+                {
+                    'compresstype':['dca']
+                }
+        }
+        if not y_metric == 'embed-frob-error':
+            # we do not use dim reduction when we print things regarding embed-frob-error
+            if embedtype == 'glove-wiki400k-am':
+                info_per_line['Dim. reduction'] = {
+                    'compresstype':['nocompress'],
+                    'embeddim': [50,100,200,400]
+                }
+            elif embedtype == 'glove400k':
+                info_per_line['Dim. reduction'] = {
+                    'compresstype':['nocompress'],
+                    'embeddim': [50,100,200,300]
+                }
+            elif embedtype == 'fasttext1m':
+                info_per_line['Dim. reduction'] = {
+                    'compresstype':['pca'],
+                    'pcadim': [50,100,200,300]
+                }
+        x_metric = 'compression-ratio'
+        if y_metric == 'embed-frob-error' and scatter == True:
+            subset_info['embeddim'] = [utils.get_large_embedding_dim(embedtype)]
 
     ax = latexify_setup_fig(latexify_config)
     # plt.figure()
@@ -741,18 +754,27 @@ def plot_ICML_results(embedtype, evaltype, y_metric, dataset=None,
     plt.savefig(plot_file)
     plt.close()
 
-def plot_qa_results():
-    embedtypes = ['glove-wiki400k-am', 'glove400k','fasttext1m',]
+def plot_qa_results(uni_quant_only=False):
+    if uni_quant_only:
+        embedtypes = ['glove-wiki400k-am']
+    else:
+        embedtypes = ['glove-wiki400k-am', 'glove400k','fasttext1m',]
     evaltype = 'qa'
     y_metric = 'best-f1'
     latexify_config = default_latexify_config
     embedtype_name_map = get_embedtype_name_map()
     latexify_config['ylabel'] = 'F1 score'
+    if uni_quant_only:
+        latexify_config['xtick_pos'] = None
+        latexify_config['xtick_label'] = None
+        latexify_config['logx'] = True
+        latexify_config['xlabel'] = 'Memory (bits)'
+        latexify_config['xlim'] = [0, None]
     for embedtype in embedtypes:
         latexify_config['x_normalizer'] = utils.get_large_embedding_dim(embedtype)
         latexify_config['title'] = embedtype_name_map[embedtype] + ', QA'
-        plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='stoc')
-        plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='det')
+        plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='stoc', uni_quant_only=uni_quant_only)
+        plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='det', uni_quant_only=uni_quant_only)
 
 def plot_metric_vs_compression():
     embedtypes = ['glove-wiki400k-am', 'glove400k','fasttext1m',]
@@ -793,13 +815,22 @@ def plot_translation_results():
             plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='det')
 
 
-def plot_sentiment_results():
-    embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
+def plot_sentiment_results(uni_quant_only=False):
+    if uni_quant_only:
+        embedtypes = ['glove-wiki400k-am']
+    else:
+        embedtypes = ['glove-wiki400k-am', 'glove400k','fasttext1m',]
     evaltype = 'sentiment'
     y_metrics = ['val-acc','test-acc']
     latexify_config = default_latexify_config
     embedtype_name_map = get_embedtype_name_map()
     datasets = ['mr','subj','cr','sst','trec','mpqa']
+    if uni_quant_only:
+        latexify_config['xtick_pos'] = None
+        latexify_config['xtick_label'] = None
+        latexify_config['logx'] = True
+        latexify_config['xlabel'] = 'Memory (bits)'
+        latexify_config['xlim'] = [0, None]
     for embedtype in embedtypes:
         latexify_config['x_normalizer'] = utils.get_large_embedding_dim(embedtype)
         for y_metric in y_metrics:
@@ -809,12 +840,15 @@ def plot_sentiment_results():
                 latexify_config['ylabel'] = 'Test acc.'
             for dataset in datasets:
                 latexify_config['title'] = embedtype_name_map[embedtype] + ', sentiment'
-                plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset, latexify_config=latexify_config, stoch='stoc')
-                plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset, latexify_config=latexify_config, stoch='det')
+                plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset, latexify_config=latexify_config, stoch='stoc', uni_quant_only=uni_quant_only)
+                plot_ICML_results(embedtype, evaltype, y_metric, dataset=dataset, latexify_config=latexify_config, stoch='det', uni_quant_only=uni_quant_only)
 
 
-def plot_intrinsic_results():
-    embedtypes = ['glove400k','fasttext1m','glove-wiki400k-am']
+def plot_intrinsic_results(uni_quant_only=False):
+    if uni_quant_only:
+        embedtypes = ['glove-wiki400k-am']
+    else:
+        embedtypes = ['glove-wiki400k-am', 'glove400k','fasttext1m',]
     evaltype = 'intrinsics'
     y_metrics = ['bruni_men',
                  'luong_rare',
@@ -833,6 +867,12 @@ def plot_intrinsic_results():
     #              r'similarity-avg-score']
     latexify_config = default_latexify_config
     embedtype_name_map = get_embedtype_name_map()
+    if uni_quant_only:
+        latexify_config['xtick_pos'] = None
+        latexify_config['xtick_label'] = None
+        latexify_config['logx'] = True
+        latexify_config['xlabel'] = 'Memory (bits)'
+        latexify_config['xlim'] = [0, None]
     for embedtype in embedtypes:
         latexify_config['x_normalizer'] = utils.get_large_embedding_dim(embedtype)
         for y_metric in y_metrics:
@@ -863,8 +903,8 @@ def plot_intrinsic_results():
             #     latexify_config['title'] = embedtype_name_map[embedtype] + ', analogy'
             #     latexify_config['ylabel'] = 'Analogy score'            
 
-            plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='stoc')
-            plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='det')
+            plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='stoc', uni_quant_only=uni_quant_only)
+            plot_ICML_results(embedtype, evaltype, y_metric, latexify_config=latexify_config, stoch='det', uni_quant_only=uni_quant_only)
 
 
 def plot_synthetic_results():
@@ -1150,7 +1190,13 @@ if __name__ == '__main__':
     # plot_translation_results()
 
     # # metric vs compression
-    plot_metric_vs_compression()
+    # plot_metric_vs_compression()
+
+    # glove 400k retrain uni quant only  
+    plot_intrinsic_results(uni_quant_only=True)
+    plot_sentiment_results(uni_quant_only=True)  
+    plot_qa_results(uni_quant_only=True)
+
     
     # #plot_frob_squared_vs_bitrate()
     # #plot_dca_frob_squared_vs_lr()
@@ -1169,55 +1215,55 @@ if __name__ == '__main__':
     # # plot_theorem3_tighter_bound()
     # # gather_ICML_results()
 
-    # # scatter plots
-    logx = False
-    use_large_dims = [False, True]
-    # for ave_pt in [True, False]:
-    for ave_pt in [False]:
-        spearman_dict = {}
-        for use_large_dim in use_large_dims:
-            # for i in range(3):
-            #     try:
-            #         plot_metric_vs_performance('translation', use_large_dim, logx, ave_pt)
-            #     except BaseException as e:
-            #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
-            #         plt.close('all')
-            for i in range(3):
-                try:
-                    plot_metric_vs_performance('qa', use_large_dim, logx, ave_pt, line_err_bar=True)
-                    break
-                except BaseException as e:
-                    print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
-                    plt.close('all')
-                    exit(0)
-            for i in range(3):
-                try:
-                    plot_metric_vs_performance('sentiment', use_large_dim, logx, ave_pt, line_err_bar=True)
-                    break
-                except BaseException as e:
-                    print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
-                    plt.close('all')
-                    exit(0)
-            for i in range(3):
-                try:
-                    plot_metric_vs_performance('intrinsics', use_large_dim, logx, ave_pt, line_err_bar=True)
-                    break
-                except BaseException as e:
-                    print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
-                    plt.close('all')
-                    exit(0)
+    # # # scatter plots
+    # logx = False
+    # use_large_dims = [False, True]
+    # # for ave_pt in [True, False]:
+    # for ave_pt in [False]:
+    #     spearman_dict = {}
+    #     for use_large_dim in use_large_dims:
+    #         # for i in range(3):
+    #         #     try:
+    #         #         plot_metric_vs_performance('translation', use_large_dim, logx, ave_pt)
+    #         #     except BaseException as e:
+    #         #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
+    #         #         plt.close('all')
+    #         for i in range(3):
+    #             try:
+    #                 plot_metric_vs_performance('qa', use_large_dim, logx, ave_pt, line_err_bar=True)
+    #                 break
+    #             except BaseException as e:
+    #                 print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
+    #                 plt.close('all')
+    #                 exit(0)
+    #         for i in range(3):
+    #             try:
+    #                 plot_metric_vs_performance('sentiment', use_large_dim, logx, ave_pt, line_err_bar=True)
+    #                 break
+    #             except BaseException as e:
+    #                 print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
+    #                 plt.close('all')
+    #                 exit(0)
+    #         for i in range(3):
+    #             try:
+    #                 plot_metric_vs_performance('intrinsics', use_large_dim, logx, ave_pt, line_err_bar=True)
+    #                 break
+    #             except BaseException as e:
+    #                 print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
+    #                 plt.close('all')
+    #                 exit(0)
 
-        print(spearman_dict)
-        if ave_pt:
-            spearman_dict_name = './spearman_dict_ave_pt'
-        else:
-            spearman_dict_name = './spearman_dict_all_pt'
-        with open(spearman_dict_name, 'wb') as f:
-            cp.dump(spearman_dict, f)
+    #     print(spearman_dict)
+    #     if ave_pt:
+    #         spearman_dict_name = './spearman_dict_ave_pt'
+    #     else:
+    #         spearman_dict_name = './spearman_dict_all_pt'
+    #     with open(spearman_dict_name, 'wb') as f:
+    #         cp.dump(spearman_dict, f)
 
-        print("determinstic spearman")
-        print_spearrank_table_blob(spearman_dict_name, stoc='det')
-        print("stochastic spearman")
-        print_spearrank_table_blob(spearman_dict_name, stoc='stoc')
+    #     print("determinstic spearman")
+    #     print_spearrank_table_blob(spearman_dict_name, stoc='det')
+    #     print("stochastic spearman")
+    #     print_spearrank_table_blob(spearman_dict_name, stoc='stoc')
 
 
