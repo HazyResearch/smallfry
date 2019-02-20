@@ -22,9 +22,8 @@ try:
     from third_party.fairseq.generate import generate_translation
     from third_party.fairseq.scripts.average_checkpoints import average_translation_ckpt
 except ImportError:
-    message = 'Must install fairseq using translation_setup.sh'
-    print(message)
-    logging.info(message)
+    print('Must install fairseq using translation_setup.sh, and be in the '
+          'conda smallfry_pytorch1.0 environment.')
     pass
 import utils
 
@@ -237,7 +236,7 @@ def evaluate_synthetics_large_dim(embed_path):
     # R minimizing the above norm is R = UV^T where X'^T X = USV^T is the SVD
     # of X'^T X.
     Ur,_,Vr = np.linalg.svd(embeds.T @ base_embeds_large_dim, full_matrices=False)
-    error_matrix_orth = embeds @ Ur @ Vr.T - base_embeds_large_dim
+    error_matrix_orth = embeds @ Ur @ Vr - base_embeds_large_dim
     results['orth-transform-reconstruction-frob-error'] = np.linalg.norm(error_matrix_orth)
     results['orth-transform-reconstruction-spec-error'] = np.linalg.norm(error_matrix_orth, 2)
     return results
