@@ -1007,7 +1007,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx, ave_pt=F
             # y_metric1s = ['gram-large-dim-frob-error'] 
             y_metric1s = ['lin-transform-reconstruction-frob-error', 'lin-transform-reconstruction-spec-error',
                    'orth-transform-reconstruction-frob-error', 'orth-transform-reconstruction-spec-error',
-                   'embed-reconstruction-spec-error', 'embed-reconstruction-frob-error', 'gram-large-dim-frob-error', 'subspace-dist-normalized',
+                   'gram-large-dim-frob-error', 'subspace-dist-normalized',
                    'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
                    'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
                    'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6',]    
@@ -1157,7 +1157,7 @@ def print_spearrank_table_blob(dict_name='./spearman_dict', stoc='det'):
     with open(dict_name, 'rb') as f:
         spearman_dict = cp.load(f)
     embedtypes = ['glove400k', 'glove-wiki400k-am', 'fasttext1m',]
-    x_metrics = ['embed-frob-error', 'embed-reconstruction-frob-error', 'embed-reconstruction-spec-error', 'gram-large-dim-frob-error', 
+    x_metrics = ['embed-frob-error', 'gram-large-dim-frob-error', 
                     'gram-large-dim-delta1-2-trans', 
                     'gram-large-dim-delta2-2', 'subspace-dist-normalized', 'orth-transform-reconstruction-frob-error', 'orth-transform-reconstruction-spec-error',
                     'lin-transform-reconstruction-frob-error', 'lin-transform-reconstruction-spec-error']
