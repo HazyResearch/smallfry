@@ -1008,7 +1008,7 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx, ave_pt=F
             #        'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
             #        'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6'
             #        ]    
-            y_metric1s = ['embed-reconstruction-spec-error',]      
+            y_metric1s = ['orth-transform-reconstruction-frob-error', 'orth-transform-reconstruction-spec-error']      
     else:
         evaltype = 'synthetics'
         #y_metric1s = ['embed-frob-error']
@@ -1145,11 +1145,10 @@ def plot_all_ICML_results():
 def print_spearrank_table_blob(dict_name='./spearman_dict', stoc='det'):
     with open(dict_name, 'rb') as f:
         spearman_dict = cp.load(f)
-    print(spearman_dict)
     embedtypes = ['glove400k', 'glove-wiki400k-am', 'fasttext1m',]
     x_metrics = ['embed-frob-error', 'embed-reconstruction-frob-error', 'embed-reconstruction-spec-error', 'gram-large-dim-frob-error', 
                     'gram-large-dim-delta1-2-trans', 
-                    'gram-large-dim-delta2-2', 'subspace-dist-normalized']
+                    'gram-large-dim-delta2-2', 'subspace-dist-normalized', 'orth-transform-reconstruction-frob-error', 'orth-transform-reconstruction-spec-error']
     # y_metrics = ['BLEU4', 'min_val_loss', 'min_val_ppl', 'best-f1', 'test-acc', 
     y_metrics = ['best-f1', 'test-acc',     
         'analogy-avg-score', 'google-mul','google-add','msr-mul','msr-add',
@@ -1222,42 +1221,41 @@ if __name__ == '__main__':
     for ave_pt in [False]:
         spearman_dict = {}
         for use_large_dim in use_large_dims:
-            # for i in range(3):
-            #     try:
-            #         plot_metric_vs_performance('translation', use_large_dim, logx, ave_pt)
-            #     except BaseException as e:
-            #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
-            #         plt.close('all')
-           for i in range(3):
-               try:
-                   plot_metric_vs_performance('qa', use_large_dim, logx, ave_pt, line_err_bar=True)
-                   break
-               except BaseException as e:
-                   print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
-                   plt.close('all')
-                   exit(0)
-           for i in range(3):
-               try:
-                   plot_metric_vs_performance('sentiment', use_large_dim, logx, ave_pt, line_err_bar=True)
-                   break
-               except BaseException as e:
-                   print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
-                   plt.close('all')
-                   exit(0)
-           for i in range(3):
-               try:
-                   plot_metric_vs_performance('intrinsics', use_large_dim, logx, ave_pt, line_err_bar=True)
-                   break
-               except BaseException as e:
-                   print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
-                   plt.close('all')
-                   exit(0)
+           # for i in range(3):
+           #     try:
+           #         plot_metric_vs_performance('translation', use_large_dim, logx, ave_pt)
+           #     except BaseException as e:
+           #         print(str(i) + "translation scatter plot failed " + str(use_large_dim) + str(e))
+           #         plt.close('all')
+            for i in range(3):
+                try:
+                    plot_metric_vs_performance('qa', use_large_dim, logx, ave_pt, line_err_bar=True)
+                    break
+                except BaseException as e:
+                    print(str(i) + "qa scatter plot failed " + str(use_large_dim) + str(e))
+                    plt.close('all')
+                    exit(0)
+            for i in range(3):
+                try:
+                    plot_metric_vs_performance('sentiment', use_large_dim, logx, ave_pt, line_err_bar=True)
+                    break
+                except BaseException as e:
+                    print(str(i) + "sentiment scatter plot failed " + str(use_large_dim) + str(e))
+                    plt.close('all')
+                    exit(0)
+            for i in range(3):
+                try:
+                    plot_metric_vs_performance('intrinsics', use_large_dim, logx, ave_pt, line_err_bar=True)
+                    break
+                except BaseException as e:
+                    print(str(i) + "intrinsics scatterls plot failed " + str(use_large_dim) + str(e))
+                    plt.close('all')
+                    exit(0)
 
-        print(spearman_dict)
         if ave_pt:
-            spearman_dict_name = './spearman_dict_ave_pt_embed-reconstruction-spec-error'
+            spearman_dict_name = './spearman_dict_ave_pt_orth_reconst_error'
         else:
-            spearman_dict_name = './spearman_dict_all_pt_embed-reconstruction-spec-error'
+            spearman_dict_name = './spearman_dict_all_pt_orth_reconst_error'
         with open(spearman_dict_name, 'wb') as f:
             cp.dump(spearman_dict, f)
 
