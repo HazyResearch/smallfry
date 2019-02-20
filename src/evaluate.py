@@ -22,9 +22,8 @@ try:
     from third_party.fairseq.generate import generate_translation
     from third_party.fairseq.scripts.average_checkpoints import average_translation_ckpt
 except ImportError:
-    message = 'Must install fairseq using translation_setup.sh'
-    print(message)
-    logging.info(message)
+    print('Must install fairseq using translation_setup.sh, and be in the '
+          'conda smallfry_pytorch1.0 environment.')
     pass
 import utils
 
