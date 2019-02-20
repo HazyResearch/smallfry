@@ -33,7 +33,7 @@ def read_test_set(path):
 def evaluate(representation, data):
     results = []
     for (x, y), sim in data:
-        results.append((representation.similarity(x, y), sim))
+        results.append((float(representation.similarity(x, y)), float(sim)))
     actual, expected = zip(*results)
     assert type(actual[0]) is float and type(expected[0]) is float
     return spearmanr(actual, expected)[0]
