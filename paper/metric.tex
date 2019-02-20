@@ -12,6 +12,7 @@
 %		\item Discuss why it explains better than Deltas (if have not discuss the relation to Deltas, we should discuss here also).
 %	\end{itemize}
 
+% Version Feb 19: using average similarity and analogy score
 \begin{table*}
 	\caption{The Spearman rank correlation coefficient $\rho$ between compression quality metrics and downstream performance. The larger the absolute value of the coefficient, the stronger the correlation is.
 	Within each entry in the table, the correlations are presented in terms of `GloVe (Wiki'14) $\rho$ \; $|$ \; GloVe (Wiki'17) $\rho$ \; $|$ \; fastText $\rho$. In the table we demonstrate the \textbf{absolute value} of $\rho$ and higher absolute values indicate stronger rank correlation.
@@ -34,11 +35,56 @@
 %		$\Delta_2$ &  $-0.46/-0.40/0.48$  &  $-0.39/-0.27/0.57$  &  $-0.70/-0.42/-0.18$  &  $-0.43/-0.63/0.24$  \\  
 %		$1 - \mathcal{E}$ & $\mathbf{-0.81/-0.71/-0.91}$  &  $\mathbf{-0.72/-0.66/-0.83}$  &  $-0.79/-0.77/-0.76$  &  $\mathbf{-0.62/-0.65/-0.84}$  \\ 
 % absolute value version 
-		Embed. reconst. error &  $0.59$&$0.56$&$0.84$  &  $0.37$&$0.46$&$0.69$  &  $\mathbf{0.98}$&$\mathbf{0.95}$&$\mathbf{0.88}$  &  $0.37$&$0.39$&$0.36$  \\ 
-		PIP loss &  $0.49$&$0.26$&$0.34$  &  $0.29$&$0.08$&$0.21$  &  $0.82$&$0.38$&$0.82$  &  $0.05$&$0.56$&$0.21$  \\  
-		$1/(1-\Delta_1)$ &  $0.62$&$0.35$&$0.80$  &  $0.42$&$0.42$&$0.69$  &  $0.90$&$0.83$&$0.79$  &  $0.22$&$0.13$&$0.59$  \\  
+%		Embed. reconst. error &  $0.59$&$0.56$&$0.84$  &  $0.37$&$0.46$&$0.69$  &  $\mathbf{0.98}$&$\mathbf{0.95}$&$\mathbf{0.88}$  &  $0.37$&$0.39$&$0.36$  \\ 
+		Embed. reconst. error (Frob.) &  $0.82$&$0.72$&$0.86$  &  $0.72$&$0.68$&$0.72$  &  $0.79$&$0.79$&$0.90$  &  $0.62$&$0.58$&$0.78$  \\
+		PIP loss &  $0.49$&$0.26$&$0.34$  &  $0.29$&$0.08$&$0.21$  &  $0.82$&$0.38$&$\mathbf{0.82}$  &  $0.05$&$0.56$&$0.21$  \\  
+		$1/(1-\Delta_1)$ &  $0.62$&$0.35$&$0.80$  &  $0.42$&$0.42$&$0.69$  &  $\mathbf{0.90}$&$\mathbf{0.83}$&$0.79$  &  $0.22$&$0.13$&$0.59$  \\  
 		$\Delta_2$ &  $0.46$&$0.40$&$0.48$  &  $0.39$&$0.27$&$0.57$  &  $0.70$&$0.42$&$0.18$  &  $0.43$&$0.63$&$0.24$  \\  
 		$1 - \mathcal{E}$ & $\mathbf{0.81}$&$\mathbf{0.71}$&$\mathbf{0.91}$  &  $\mathbf{0.72}$&$\mathbf{0.66}$&$\mathbf{0.83}$  &  $0.79$&$0.77$&$0.76$  &  $\mathbf{0.62}$&$\mathbf{0.65}$&$\mathbf{0.84}$  \\  
+		%%	\midrule
+		%Embed. reconst. error & & & & \\
+		%%	\midrule
+		%PIP loss & & & & \\
+		%%	\midrule
+		%$1/(1-\Delta_1)$ & & & & \\
+		%%	\midrule
+		%$\Delta_2$ & & & & \\
+		%%	\midrule
+		%$\mathcal{E}$ & & & & \\
+		\bottomrule
+	\end{tabular}
+	\label{tab:sp_rank}
+\end{table*}
+
+% Version Feb 19: using average similarity and analogy score
+\begin{table*}
+	\caption{The Spearman rank correlation coefficient $\rho$ between compression quality metrics and downstream performance. The larger the absolute value of the coefficient, the stronger the correlation is.
+	Within each entry in the table, the correlations are presented in terms of `GloVe (Wiki'14) $\rho$ \; $|$ \; GloVe (Wiki'17) $\rho$ \; $|$ \; fastText $\rho$. In the table we demonstrate the \textbf{absolute value} of $\rho$ and higher absolute values indicate stronger rank correlation. \textbf{We take google-mul and bruni-men for analogy and similarity.}
+	}
+	\small
+	\centering
+	\begin{tabular}{c | c | c | c | c | c | c | c | c | c | c | c | c}
+		\toprule
+		& \multicolumn{3}{|c|}{QA} & \multicolumn{3}{|c|}{Sentiment} & \multicolumn{3}{|c|}{Analogy} & \multicolumn{3}{|c}{Similarity} \\
+		\midrule
+%		Embed. reconst. error &  $-0.61/-0.22/-0.84$  &  $-0.40/-0.25/-0.69$  &  $\mathbf{-0.98/-1.00}/-0.88$  &  $-0.19/0.77/-0.36$  \\ 
+%		PIP loss &  $-0.49/-0.32/-0.74$  &  $-0.29/-0.27/-0.61$  &  $-0.82/-0.67/-0.82$  &  $0.05/-0.07/-0.23$  \\  
+%		$1/(1-\Delta_1)$ &  $-0.62/-0.83/-0.77$  &  $-0.42/-0.79/-0.56$  &  $-0.90/-0.98/-0.90$  &  $-0.22/-0.69/-0.31$  \\  
+%		$\Delta_2$ &  $-0.46/-0.87/0.18$  &  $-0.39/-0.87/0.30$  &  $-0.70/-0.82/-0.02$  &  $-0.43/-0.72/-0.15$  \\  
+%		$1 - \mathcal{E}$ & $\mathbf{-0.81/-0.97/-0.90}$  &  $\mathbf{-0.72/-0.96/-0.73}$  &  $-0.79/-0.91/\mathbf{-0.96}$  &  $\mathbf{-0.62/-0.88/-0.67}$  \\  
+% latest p/n value version
+%		Embed. reconst. error &  $-0.59/-0.56/-0.84$  &  $-0.37/-0.46/-0.69$  &  $\mathbf{-0.98/-0.95/-0.88}$  &  $-0.37/-0.39/-0.36$  \\ 
+%		PIP loss &  $-0.49/-0.26/-0.34$  &  $-0.29/0.08/-0.21$  &  $-0.82/-0.38/-0.82$  &  $0.05/0.56/-0.21$  \\  
+%		$1/(1-\Delta_1)$ &  $-0.62/-0.35/-0.80$  &  $-0.42/-0.42/-0.69$  &  $-0.90/-0.83/-0.79$  &  $-0.22/-0.13/-0.59$  \\  
+%		$\Delta_2$ &  $-0.46/-0.40/0.48$  &  $-0.39/-0.27/0.57$  &  $-0.70/-0.42/-0.18$  &  $-0.43/-0.63/0.24$  \\  
+%		$1 - \mathcal{E}$ & $\mathbf{-0.81/-0.71/-0.91}$  &  $\mathbf{-0.72/-0.66/-0.83}$  &  $-0.79/-0.77/-0.76$  &  $\mathbf{-0.62/-0.65/-0.84}$  \\ 
+% absolute value version 
+%		Embed. reconst. error &  $0.59$&$0.56$&$0.84$  &  $0.37$&$0.46$&$0.69$  &  $\mathbf{0.97}$&$\mathbf{0.90}$&$\mathbf{0.88}$  &  $0.24$&$0.26$&$0.64$  \\ 
+		Embed. reconst. error (Frob.) &  $0.82$&$0.72$&$0.86$  &  $0.72$&$0.68$&$0.72$  &  $0.80$&$0.83$&$0.90$ &  $0.41$&$0.41$&$0.03$  \\
+		PIP loss &  $0.49$&$0.26$&$0.34$  &  $0.29$&$0.08$&$0.21$  &  $0.82$&$0.18$&$\mathbf{0.82}$  &  $0.29$&$\mathbf{0.69}$&$\mathbf{0.58}$  \\  
+		$1/(1-\Delta_1)$ &  $0.62$&$0.35$&$0.80$  &  $0.42$&$0.42$&$0.69$  &  $\mathbf{0.91}$&$0.76$&$0.79$  &  $0.07$&$0.09$&$0.03$  \\  
+		$\Delta_2$ &  $0.46$&$0.40$&$0.48$  &  $0.39$&$0.27$&$0.57$  &  $0.69$&$0.37$&$0.18$  &  $0.27$&$0.60$&$0.37$  \\  
+		$1 - \mathcal{E}$ & $\mathbf{0.81}$&$\mathbf{0.71}$&$\mathbf{0.91}$  &  $\mathbf{0.72}$&$\mathbf{0.66}$&$\mathbf{0.83}$  &  $0.80$&$\mathbf{0.81}$&$0.76$  &  $\mathbf{0.41}$&$0.51$&$0.24$  \\  
 		%%	\midrule
 		%Embed. reconst. error & & & & \\
 		%%	\midrule
