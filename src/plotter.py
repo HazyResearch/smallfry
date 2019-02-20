@@ -1005,11 +1005,12 @@ def plot_metric_vs_performance(y_metric2_evaltype, use_large_dim, logx, ave_pt=F
             #         'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta2-2', 
             #         ]  
             # y_metric1s = ['gram-large-dim-frob-error'] 
-            y_metric1s = ['embed-reconstruction-spec-error', 'embed-reconstruction-frob-error', 'gram-large-dim-frob-error', 'subspace-dist-normalized',
+            y_metric1s = ['lin-transform-reconstruction-frob-error', 'lin-transform-reconstruction-spec-error',
+                   'orth-transform-reconstruction-frob-error', 'orth-transform-reconstruction-spec-error',
+                   'embed-reconstruction-spec-error', 'embed-reconstruction-frob-error', 'gram-large-dim-frob-error', 'subspace-dist-normalized',
                    'gram-large-dim-delta1-0', 'gram-large-dim-delta1-1', 'gram-large-dim-delta1-2', 'gram-large-dim-delta1-3', 'gram-large-dim-delta1-4', 'gram-large-dim-delta1-5', 'gram-large-dim-delta1-6',
                    'gram-large-dim-delta1-0-trans', 'gram-large-dim-delta1-1-trans', 'gram-large-dim-delta1-2-trans', 'gram-large-dim-delta1-3-trans', 'gram-large-dim-delta1-4-trans', 'gram-large-dim-delta1-5-trans', 'gram-large-dim-delta1-6-trans',
-                   'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6',
-                   'orth-transform-reconstruction-frob-error', 'orth-transform-reconstruction-spec-error']    
+                   'gram-large-dim-delta2-0', 'gram-large-dim-delta2-1', 'gram-large-dim-delta2-2', 'gram-large-dim-delta2-3', 'gram-large-dim-delta2-4', 'gram-large-dim-delta2-5', 'gram-large-dim-delta2-6',]    
             # y_metric1s = ['orth-transform-reconstruction-frob-error', 'orth-transform-reconstruction-spec-error']      
     else:
         evaltype = 'synthetics'
