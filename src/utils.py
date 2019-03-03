@@ -98,6 +98,9 @@ def init_compress_parser():
     ### PCA hyperparameters
     parser.add_argument('--pcadim', type=int, required=False, default=-1,
         help='Dimension of embeddings to use for compressed PCA embeddings.')
+    ### run for saving code books
+    parser.add_argument('--codebook-saving', action='store_true',
+        help='save codebooks codes and embedding; this avoid overwrite the old embeddings')
     return parser
 
 def init_evaluate_parser():
@@ -496,6 +499,11 @@ def save_embeddings(path, embeds, wordlist):
 #     out = str(subprocess.check_output(command,
 #             stderr=subprocess.STDOUT).decode('utf-8'))
 #     return out
+
+def save_codebooks(path, codes, codebook):
+    np.save(path.split(".txt")[0] + "_codes.npy", codes)
+    np.save(path.split(".txt")[0] + "_codebook.npy", codebook)
+
 
 def perform_command_local(cmd):
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)

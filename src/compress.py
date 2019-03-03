@@ -56,7 +56,7 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
         utils.ensure_dir(dca_tmp_dir)
         dca_file_prefix = str(pathlib.PurePath(
             dca_tmp_dir, utils.config['full-runname']))
-        Xq, frob_squared_error, elapsed, results_per_epoch = compress_dca(
+        Xq, frob_squared_error, elapsed, results_per_epoch, codes, codebook = compress_dca(
             X, bit_rate, k=utils.config['k'], work_dir=dca_file_prefix,
             learning_rate=utils.config['lr'], batch_size=utils.config['batchsize'],
             grad_clip=utils.config['gradclip'], tau=utils.config['tau']
@@ -77,9 +77,14 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
     results['frob-squared-error'] = frob_squared_error
     results['elapsed'] = elapsed
     utils.config['results'] = results
-    utils.config['compressed-embed-path'] = utils.get_filename('_compressed_embeds.txt')
+    if (utils.config['compresstype'] == 'dca') and utils.config['codebook-saving']:
+        utils.config['compressed-embed-path'] = utils.get_filename('_compressed_embeds_code_saving.txt')
+    else:
+        utils.config['compressed-embed-path'] = utils.get_filename('_compressed_embeds.txt')
     logging.info('Finished making embeddings. It took {} min.'.format(elapsed/60))
     utils.save_embeddings(utils.config['compressed-embed-path'], Xq, wordlist)
+    if (utils.config['compresstype'] == 'dca') and utils.config['codebook-saving']:
+        utils.save_codebooks(utils.config['compressed-embed-path'], codes, codebook)
 
 # Compress X in R^(n x d) into X' in R^(n x k) using PCA
 def compress_pca(X, pca_dim):
@@ -123,7 +128,7 @@ def compress_dca(X, bit_rate, k=2, work_dir=os.getcwd(),
     # reshape codebook as (m,k,d), representing m codebooks, each of size k x d.
     codebook = np.array(codebook).reshape(m,k,d)
     Xq = inflate_dca_embeddings(codes, codebook, m, k, v, d)
-    return Xq, frob_squared_error, elapsed, results_per_epoch
+    return Xq, frob_squared_error, elapsed, results_per_epoch, codes, codebook
 
 def compress_uniform(X, bit_rate, adaptive_range=False, stochastic_round=False,
         skip_quantize=False):
