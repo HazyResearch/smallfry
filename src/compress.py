@@ -77,13 +77,13 @@ def compress_and_save_embeddings(X, wordlist, bit_rate):
     results['frob-squared-error'] = frob_squared_error
     results['elapsed'] = elapsed
     utils.config['results'] = results
-    if (utils.config['compresstype'] == 'dca') and utils.config['codebook-saving']:
+    if (utils.config['compresstype'] == 'dca') and utils.config['codebook_saving']:
         utils.config['compressed-embed-path'] = utils.get_filename('_compressed_embeds_code_saving.txt')
     else:
         utils.config['compressed-embed-path'] = utils.get_filename('_compressed_embeds.txt')
     logging.info('Finished making embeddings. It took {} min.'.format(elapsed/60))
     utils.save_embeddings(utils.config['compressed-embed-path'], Xq, wordlist)
-    if (utils.config['compresstype'] == 'dca') and utils.config['codebook-saving']:
+    if (utils.config['compresstype'] == 'dca') and utils.config['codebook_saving']:
         utils.save_codebooks(utils.config['compressed-embed-path'], codes, codebook)
 
 # Compress X in R^(n x d) into X' in R^(n x k) using PCA
