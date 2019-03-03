@@ -180,7 +180,7 @@ def cmds_3_3_19_compress_fiveSeeds_collect_codebook():
     dca_prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
               '/proj/smallfry/git/smallfry/src/dca_docker.sh '
               '\\"python /proj/smallfry/git/smallfry/src/compress.py')
-    rungroup = 'fiveSeeds_collect_codebook'
+    rungroup = 'fiveSeeds-collect-codebook'
     embedtype = 'glove400k'
     seeds = [1,2,3,4,5]
     with open(filename,'w') as f:
@@ -484,7 +484,7 @@ def cmds_3_3_19_compress_fastText_FiveSeeds_dca_collect_codebook():
     dca_prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
               '/proj/smallfry/git/smallfry/src/dca_docker.sh '
               '\\"python /proj/smallfry/git/smallfry/src/compress.py')
-    rungroup = 'fiveSeeds'
+    rungroup = 'fiveSeeds-collect-codebook'
     embedtype = 'fasttext1m'
     compresstype = 'dca'
     seeds = [1,2,3,4,5]
@@ -507,6 +507,7 @@ def cmds_3_3_19_compress_fastText_FiveSeeds_dca_collect_codebook():
                     '--embeddim {} --seed {}\\"\n').format(
                 prefix, rungroup, embedtype, compresstype, bitrate, embeddim, seed)
             )
+            compresstype = 'dca'
 
             for bitrate in bitrates:
                 k = bitrate_k_lr[bitrate]['k']
