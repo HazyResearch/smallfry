@@ -171,6 +171,54 @@ def cmds_11_28_18_compress_fiveSeeds():
                         embeddim, seed, k, lr)
                 )
 
+
+def cmds_3_3_19_compress_fiveSeeds_collect_codebook():
+    filename = get_cmdfile_path('3_3_19_compress_fiveSeeds_collect_codebook_cmds')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    dca_prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/dca_docker.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'fiveSeeds_collect_codebook'
+    embedtype = 'glove400k'
+    seeds = [1,2,3,4,5]
+    with open(filename,'w') as f:
+        for seed in seeds:
+            # nocompress
+            compresstype = 'nocompress'
+            bitrate = 32
+            embeddims = [300]
+            for embeddim in embeddims:
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {}\\"\n').format(
+                    prefix, rungroup, embedtype, compresstype, bitrate, embeddim, seed)
+                )
+
+            # bitrates and embeddim for k-means, uniform, and dca
+            bitrates = [1,2,4] # kmeans failed on bitrate 8
+            embeddim = 300
+
+            # dca
+            compresstype = 'dca'
+            # These are the best bitrate,k,lr combos from the 2018-11-28-tuneDCA run (keys are 'b' value).
+            # I ran 'dca_get_best_k_lr_per_bitrate()' in plotter.py to compute the above
+            # dictionary containing the best performing settings.
+            ### import plotter
+            ### bitrate_k_lr = plotter.dca_get_best_k_lr_per_bitrate()
+            bitrate_k_lr = {1: {'k': 4, 'lr': 0.0003},
+                            2: {'k': 4, 'lr': 0.0003},
+                            4: {'k': 8, 'lr': 0.0003}}
+            for bitrate in bitrates:
+                k = bitrate_k_lr[bitrate]['k']
+                lr = bitrate_k_lr[bitrate]['lr']
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {} --k {} --codebook-saving --lr {}\\"\n').format(
+                        dca_prefix, rungroup, embedtype, compresstype, bitrate,
+                        embeddim, seed, k, lr)
+                )
+
+
 def cmds_11_29_18_eval_fiveSeeds():
     cmd_file = get_cmdfile_path('11_29_18_eval_fiveSeeds_cmds')
     if utils.is_windows():
@@ -424,6 +472,47 @@ def cmds_12_18_18_compress_fastText_FiveSeeds_dca():
                 lr = bitrate_k_lr[bitrate]['lr']
                 f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
                         '--embeddim {} --seed {} --k {} --lr {}\\"\n').format(
+                        dca_prefix, rungroup, embedtype, compresstype, bitrate,
+                        embeddim, seed, k, lr)
+                )
+
+def cmds_3_3_19_compress_fastText_FiveSeeds_dca_collect_codebook():
+    filename = get_cmdfile_path('3_3_19_compress_fastText_FiveSeeds_dca_collect_codebook_cmds')
+    prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/smallfry_env.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')    
+    dca_prefix = ('qsub -V -b y -wd /proj/smallfry/wd '
+              '/proj/smallfry/git/smallfry/src/dca_docker.sh '
+              '\\"python /proj/smallfry/git/smallfry/src/compress.py')
+    rungroup = 'fiveSeeds'
+    embedtype = 'fasttext1m'
+    compresstype = 'dca'
+    seeds = [1,2,3,4,5]
+    bitrates = [1,2,4] # kmeans failed on bitrate 8
+    embeddim = 300
+    # These are the best bitrate,k,lr combos from the 2018-12-16-fasttextTuneDCA run (keys are 'b' value).
+    # I ran 'dca_get_best_k_lr_per_bitrate(regex)' in plotter.py to compute the
+    # dictionary below containing the best performing settings.
+    ### path_regex = '/proj/smallfry/embeddings/fasttext1m/2018-12-16-fasttextTuneDCA/*/*final.json'
+    ### best = plotter.dca_get_best_k_lr_per_bitrate(path_regex)
+    bitrate_k_lr = {1: {'k': 8, 'lr': 0.0001},
+                    2: {'k': 4, 'lr': 0.0001},
+                    4: {'k': 8, 'lr': 0.0001}}
+    with open(filename,'w') as f:
+        for seed in seeds:
+            compresstype = 'nocompress'
+            bitrate = 32
+            embeddim = 300
+            f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                    '--embeddim {} --seed {}\\"\n').format(
+                prefix, rungroup, embedtype, compresstype, bitrate, embeddim, seed)
+            )
+
+            for bitrate in bitrates:
+                k = bitrate_k_lr[bitrate]['k']
+                lr = bitrate_k_lr[bitrate]['lr']
+                f.write(('{} --rungroup {} --embedtype {} --compresstype {} --bitrate {} '
+                        '--embeddim {} --seed {} --k {} --codebook-saving --lr {}\\"\n').format(
                         dca_prefix, rungroup, embedtype, compresstype, bitrate,
                         embeddim, seed, k, lr)
                 )
@@ -873,4 +962,6 @@ if __name__ == '__main__':
     # cmds_2_13_19_eval_translation_main_embeddings() # performance evaluation of all embeddings for transformer translation task
     # cmds_2_13_19_eval_translation_stoch_embeddings()
     # cmds_2_18_19_eval_synthetics_large_dim_all_embeddings()
-    cmds_2_19_19_eval_intrinsics_all_embeddings()
+    # cmds_2_19_19_eval_intrinsics_all_embeddings()
+    cmds_3_3_19_compress_fiveSeeds_collect_codebook()
+    cmds_3_3_19_compress_fastText_FiveSeeds_dca_collect_codebook()
