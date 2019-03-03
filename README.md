@@ -20,4 +20,4 @@ In order to recursively clone the submodules in the smallfry repo, you might nee
 https://github.com/HazyResearch/fairseq-fork
 https://github.com/avnermay/sentence_classification
 ```
-Please reach out to [Nimit Sohoni](https://github.com/nimz) for accessing the fairse-fork repo and [Avner May](https://github.com/avnermay) for accessing the fairseq-fork repo.
+Please reach out to [Nimit Sohoni](https://github.com/nimz) for accessing the fairse-fork repo and [Avner May](https://github.com/avnermay) for accessing the sentence-classification repo.
