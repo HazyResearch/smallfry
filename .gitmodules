@@ -1,24 +1,4 @@
-[submodule "src/third_party/neuralcompressor"]
-	path = src/smallfry/third_party/neuralcompressor
-	url = https://github.com/avnermay/neuralcompressor.git
-	branch = master
-[submodule "src/third_party/GloVe"]
-	path = src/smallfry/third_party/GloVe
-	url = https://github.com/avnermay/GloVe.git
-	branch = master
 [submodule "src/third_party/DrQA"]
 	path = src/smallfry/third_party/DrQA
 	url = https://github.com/avnermay/DrQA.git
 	branch = master
-[submodule "src/third_party/sentence_classification"]
-	path = src/smallfry/third_party/sentence_classification
-	url = https://github.com/avnermay/sentence_classification.git
-	branch = master
-[submodule "src/third_party/sent-conv-torch"]
-	path = src/smallfry/third_party/sent-conv-torch
-	url = https://github.com/harvardnlp/sent-conv-torch.git
-	branch = master
-[submodule "src/third_party/fairseq"]
-	path = src/smallfry/third_party/fairseq
-	url = https://github.com/HazyResearch/fairseq-fork.git
-	branch = hazy-dev
