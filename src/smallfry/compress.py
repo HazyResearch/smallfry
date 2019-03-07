@@ -13,7 +13,7 @@ try:
     from third_party.neuralcompressor.nncompress.embed_compress import EmbeddingCompressor
 except ImportError:
     pass
-import utils
+from smallfry import utils
 
 def main():
     utils.init('compress')
