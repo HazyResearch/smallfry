@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/HazyResearch/smallfry.svg?token=DY2tqn6MMHmNqLqricH4&branch=master)](https://travis-ci.com/HazyResearch/smallfry)
+[![Build Status](https://travis-ci.com/HazyResearch/smallfry.svg?token=DY2tqn6MMHmNqLqricH4&branch=master)](https://travis-ci.com/HazyResearch/smallfry_pytorch)
 
 # SmallFry
 Word embedding is one of the key component of modern NLP models. As large vocabulary is often relevant to attain strong task performance, word embeddings can consume a large amount of memory during training and inference. 
