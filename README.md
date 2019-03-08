@@ -10,8 +10,8 @@ Our pytorch implementation is a dropin replacement for the original pytorch embe
 ## Installation
 To install smallfry package and use the compressed embedding layer, please
 ```
-git clone --recursive https://github.com/HazyResearch/smallfry.git
-cd smallfry
+git clone --recursive https://github.com/HazyResearch/smallfry_pytorch.git
+cd smallfry_pytorch
 pip install -e .
 ```
 Our implementation is tested under Python 3.6 and PyTorch 1.0.
