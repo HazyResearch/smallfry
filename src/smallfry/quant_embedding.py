@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import math
-from smallfry import compress
+import compress
 import logging
 import sys, os
 
