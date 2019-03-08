@@ -21,3 +21,11 @@ https://github.com/HazyResearch/fairseq-fork
 https://github.com/avnermay/sentence_classification
 ```
 Please reach out to [Nimit Sohoni](https://github.com/nimz) for accessing the fairse-fork repo and [Avner May](https://github.com/avnermay) for accessing the sentence-classification repo.
+
+
+Installation
+(We support python 3.6 and pytorch 1.0)
+git clone --recursive https://github.com/HazyResearch/smallfry.git
+cd smallfry
+git submodule update --init --recursive
+pip install -e .
