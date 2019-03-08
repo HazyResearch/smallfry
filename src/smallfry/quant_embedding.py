@@ -19,6 +19,11 @@ def fix_randomness(seed):
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
 
+
+##################################################################
+# The core helper functions for compressing embeddings
+# into torch int64 LongTensor.
+##################################################################
 def compress_long_mat(long_tensor, nbit):
     """
     we assume a single vector is along the last dimension.
@@ -67,23 +72,16 @@ def decompress_long_mat(byte_tensor, nbit, dim=None):
         out = out_flat.view(*out_shape)
     return out
 
-def line2vec(line, value_dict=None):
-    """
-    convert a line in embedding file to a float tensor vector
-    """
-    if value_dict is None:
-        return torch.FloatTensor(
-            [float(value) for value in line.strip('\n').split(" ")[1:]])
-    else:
-        return torch.LongTensor([
-            value_dict[float(value)]
-            for value in line.strip('\n').split(" ")[1:]
-        ])
-
+##################################################################
+# Helpers for replacing original pytorch embedding layers to 
+# the quantized embedding layer (i.e. class QuantEmbedding)
+##################################################################
 def quantize_embed(module, nbit=32):
     """
     This function replace all embedding modules
-    to QuantEmbedding layer.
+    to QuantEmbedding layer recursively.
+    The input module should be a torch.nn.Module object.
+    nbit specifies the precision for the desired compressed embedding
     """
     for name, child in module.named_children():
         if isinstance(child, torch.nn.Embedding):
@@ -119,6 +117,23 @@ def find_embedding_module_name(module, module_name=""):
                 module_name_list += find_embedding_module_name(
                     child, module_name + "." + name)
     return module_name_list
+
+##################################################################
+# Misc helpers
+##################################################################
+
+def line2vec(line, value_dict=None):
+    """
+    convert a line in embedding file to a float tensor vector
+    """
+    if value_dict is None:
+        return torch.FloatTensor(
+            [float(value) for value in line.strip('\n').split(" ")[1:]])
+    else:
+        return torch.LongTensor([
+            value_dict[float(value)]
+            for value in line.strip('\n').split(" ")[1:]
+        ])
 
 def load_embed_from_ckpt(model, ckpt_file):
     """ load normal full precision embedding modules """
@@ -187,6 +202,11 @@ def log_param_list(model):
     for name, param in model.named_parameters():
         logging.info('{} {} {} {}'.format(name, param.dtype, param.requires_grad, param.shape))
 
+
+
+##################################################################
+# The quantized embedding pytorch layer
+##################################################################
 class QuantEmbedding(nn.Embedding):
     def __init__(self,
                  num_embeddings,
