@@ -155,7 +155,7 @@ class QuantEmbeddingTest(TestCase):
             length = np.random.randint(low=10, high=50)
             input = torch.LongTensor(batch_size, length,
                                      n_dim).random_(to=n_word)
-            if cuda:
+            if cuda and torch.cuda.is_available():
                 input_embedding = input_embedding.cuda()
                 ref_embedding = ref_embedding.cuda()
                 embedding = embedding.cuda()
