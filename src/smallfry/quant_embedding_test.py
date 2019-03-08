@@ -161,8 +161,8 @@ class QuantEmbeddingTest(TestCase):
                 embedding = embedding.cuda()
                 quant_embedding = quant_embedding.cuda()
                 input = input.cuda()
-            assert quant_embedding.weight.is_cuda == cuda
-            assert quant_embedding.value_list.is_cuda == cuda
+                assert quant_embedding.weight.is_cuda == cuda
+                assert quant_embedding.value_list.is_cuda == cuda
 
             input_out = input_embedding[input]
             ref_out = ref_embedding[input]
