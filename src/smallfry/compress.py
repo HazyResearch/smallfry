@@ -5,7 +5,7 @@ import time
 import pathlib
 import traceback
 import numpy as np
-import utils
+from smallfry import utils
 
 def compress_uniform(X, bit_rate, adaptive_range=False, stochastic_round=False,
         skip_quantize=False):
