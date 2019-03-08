@@ -66,4 +66,4 @@ After the setup is done, the training can be launched via
 ```
 bash run_drqa.sh
 ```
-By the end of training, the original training embedding layer should achieve a ~78.0% dev set F1 score, which 2 bit smallfry quantized embedding achieves ~78.0%.
+By the end of training, the original training embedding layer should achieve a ~73.86% dev set F1 score, which 2 bit smallfry quantized embedding achieves ~73.72%.
