@@ -226,15 +226,11 @@ class QuantEmbedding(nn.Embedding):
         The QuantEmbedding layer save the quantized representation in
         LongTensor, during forward for inference, the bits are extracted
         from LongTensor and put into Float32 tensor for inference.
-        There are 4 ways to initialize the quantized embedding layer:
-            1. a float32 tensor containing unquantized values
-                _weight=<a float32 tensor>, quantized_input=False
-            2. a float32 containing quantized values
-                _weight=<a LongTensor>, quantized_input=True
-            3. a file containing unquantized float values
-                _weight=<file name>, quantized_input=False
-            4. a file containing quantized float values
-                _weight=<file name>, quantized_input=True
+        There are 2 ways to initialize the quantized embedding layer:
+            1. a float32 tensor containing quantized or unquantized values
+                _weight=<a float32 tensor>, embedding_file=None
+            2. a file containing quantized or unquantized float values
+                _weight=None, quantized_input=<file name>
         If you use the file-style input, for reference format,
         please refer to http://nlp.stanford.edu/data/glove.6B.zip.
         """
