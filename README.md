@@ -41,7 +41,7 @@ embed_from_file =
 ```
 The input tensor and file can contain either quantized or unquantized values, the QuantEmbedding layer will automatically detect the quantize if unquantized values are given.
 
-### Replace and existing embedding layer with a quantized embeding layer
+### Replace an existing embedding layer with a quantized embeding layer
 Another important scenerio is that given an existing model, one may want to replace all the PyTorch embedding layers with QuantEmbedding layer in a batch. We provide a helper function to achieve this in the following example where the new QuantEmbedding layers will directly initialize by quantizing the values in the original embedding layers.
 
 ```
