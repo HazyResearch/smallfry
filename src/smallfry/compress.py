@@ -9,9 +9,29 @@ from smallfry import utils
 
 def compress_uniform(X, bit_rate, adaptive_range=False, stochastic_round=False,
         skip_quantize=False):
+    '''
+    This function compresses an embedding matrix using uniform quantization.
+
+    Parameters:
+        X (numpy array): Embedding matrix (rows of X are word embeddings).
+        bit_rate (int): Number of bits to use per entry of the compressed embedding matrix.
+        adaptive_range (bool): If True, golden section search is used to find the optimal
+            value at which to clip the extreme values of the embedding matrix X before
+            performing quantization.
+        stochastic_round (bool): If True, stochastic rounding is used for the quantization.
+        skip_quantize (bool): If True, the embedding matrix will not be quantized.
+            If adaptive_range is True, the extreme values of X will still be clipped.
+
+    Returns:
+        Xq (numpy array): The compressed embedding matrix.
+        frob_squared_error (float): The Frobenius norm of the difference between
+            the compressed and uncompressed embedding matrices.
+        elapsed (float): The duration (in seconds) of this function call.
+    '''
+
     start = time.time()
     if adaptive_range:
-        # TODO: Should we pass through stochastic_round here?
+        # Note that deterministic quantization is always uses for find_optimal_range.
         range_limit = find_optimal_range(X, bit_rate, stochastic_round=False)
     else:
         range_limit = get_max_abs(X)
@@ -26,7 +46,19 @@ def compress_uniform(X, bit_rate, adaptive_range=False, stochastic_round=False,
 def _compress_uniform(X, bit_rate, range_limit, stochastic_round=False,
         skip_quantize=False):
     '''
-    Internal uniform quantization function (ADD MORE DESCRIPTION)
+    Internal uniform quantization function.
+
+    Parameters:
+        X (numpy array): Embedding matrix (rows of X are word embeddings).
+        bit_rate (int): Number of bits to use per entry of the compressed embedding matrix.
+        range_limit (float): All values in X with absolute value greater than
+            this range_limit will be clipped.
+        stochastic_round (bool): If True, stochastic rounding is used for the quantization.
+        skip_quantize (bool): If True, the embedding matrix will not be quantized.
+            If adaptive_range is True, the extreme values of X will still be clipped.
+
+    Returns:
+        Xq (numpy array): The compressed embedding matrix.
     '''
     assert range_limit >= 0, 'range_limit must be non-negative.'
     assert X.dtype == np.float or X.dtype == np.float64 or X.dtype == np.float32,\
@@ -57,6 +89,16 @@ def _compress_uniform(X, bit_rate, range_limit, stochastic_round=False,
 def find_optimal_range(X, bit_rate, stochastic_round=False, tol=1e-2):
     '''
     Find the best value to use to clip the embeddings before using uniform quantization.
+
+    Parameters:
+        X (numpy array): Embedding matrix (rows of X are word embeddings).
+        bit_rate (int): Number of bits to use per entry of the compressed embedding matrix.
+        stochastic_round (bool): If True, stochastic rounding is used for the quantization.
+        tol (float): The tolerance (maximum possible error) for the golden section search
+            algorithm.
+
+    Returns:
+        float: The optimal clipping value.
     '''
     f = lambda range_limit : compress_and_compute_frob_squared_error(
         X, bit_rate, range_limit, stochastic_round=stochastic_round)
@@ -68,13 +110,37 @@ def compress_and_compute_frob_squared_error(X, bit_rate, range_limit, stochastic
     Function which computes frob squared error after compression.  This function
     is used in the find_optimal_range function to find best clip value for
     adaptive range uniform compression.
+
+    Parameters:
+        X (numpy array): Embedding matrix (rows of X are word embeddings).
+        bit_rate (int): Number of bits to use per entry of the compressed embedding matrix.
+        range_limit (float): All values in X with absolute value greater than
+            this range_limit will be clipped.
+        stochastic_round (bool): If True, stochastic rounding is used for the quantization.
+
+    Returns:
+        float: The squared Frobenius error which results from compressing the X matrix
+            by first clipping its values to [-range_limit,range_limit], and then
+            uniformly quantizing the clipped values within this range.
     '''
     Xq = _compress_uniform(X, bit_rate, range_limit, stochastic_round=stochastic_round)
     return np.linalg.norm(X - Xq)**2
 
 def golden_section_search(f, x_min, x_max, tol=1e-2):
     '''
-    Find argmin of f between x_min and x_max (for f uni-modal).
+    Find argmin of f between x_min and x_max (for f uni-modal), to within a
+    specified tolerance (tol), using the golden section search algorithm.
+
+    Parameters:
+        f (function): f is the unimodal function we would like to find the argmin
+            for. f is assumed to take a scalar as input, and output a scalar.
+        x_min (float): The minimum input to consider when minimizing f.
+        x_max (float): The maximum input to consider when minimizing f.
+        tol (float): The tolerance (maximum possible error) for the
+            golden section search algorithm.
+
+    Returns:
+        float: The argmin of f, to within the specified tolerance.
     
     This function uses the golden-section search algorithm.
     It always maintains a list of four points [x1,x2,x3,x4],
