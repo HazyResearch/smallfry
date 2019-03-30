@@ -1,11 +1,13 @@
 [![Build Status](https://travis-ci.com/HazyResearch/smallfry_pytorch.svg?branch=master)](https://travis-ci.com/HazyResearch/smallfry_pytorch)
 
 # SmallFry
-Word embedding is one of the key component of modern NLP models. As large vocabulary is often relevant to attain strong task performance, word embeddings can consume a large amount of memory during training and inference. 
+Word embeddings are a key component of modern NLP models. To attain strong performance on various
+tasks, it is often necessary to use a very large vocabulary, and/or high-dimensional embeddings.
+As a result, word embeddings can consume a large amount of memory during training and inference. 
 
-**Smallfry is a word embedding compression algorithm based on uniform quantization with automatic clipping.** The compressed embedding can support **training NLP models and perform inference with fixed pre-trained embeddings**. It can significantly reduce the training and inference memory footprint for NLP models built on top of word embeddings.
+**Smallfry is a simple word embedding compression algorithm based on uniform quantization with automatic clipping.** It first automatically clips the extreme values of a pre-trained embedding matrix, and then compresses the clipped embeddings using uniform quantization. Once the embeddings are compressed, they can be used to significantly lower the memory for training or inference for NLP models using these embeddings.
 
-Our pytorch implementation is a dropin replacement for the original pytorch embedding layer. It first _automatically clips the extreme values of the embeddings, and then compress the embedding with uniform quantization_.
+Our PyTorch QuantEmbedding module can be used as a drop-in replacement for the PyTorch Embedding module.
 
 ## Installation
 To install smallfry package and use the compressed embedding layer, please
@@ -18,9 +20,7 @@ Our implementation is tested under Python 3.6 and PyTorch 1.0.
 
 ## Usage
 ### Directly initialize a compressed embedding layer
-The initialization argument of smallfry embedding layer is the same as original [PyTorch embedding layers](https://pytorch.org/docs/stable/nn.html#embedding). The only additional required argument is ```nbit=<the precision of the quantized numbers> ```, specifying what numerical precision is desired for the underlying smallfry embedding representation. Currently we support 1, 2, 4, 8, 16, 32 bit representations.  
-
-Smallfry compresses pre-trained embeddings for training and inference. During initialization, the pre-trained embedding values can be loaded via a ```torch.FloatTensor``` or via a file in GloVe format where everyline represent a word vector without a file header. For example,
+The parameters for initializing a QuantEmbedding module are the same as those of the [PyTorch Embedding module](https://pytorch.org/docs/stable/nn.html#embedding). The only additional required parameter is ```nbit ```, specifying the number of bits to use for each quantized embedding value. Currently we support 1, 2, 4, 8, 16, and 32 bit representations. During initialization, the pre-trained embedding values can be loaded via a ```torch.FloatTensor``` or via a file in GloVe format where every line represents a word vector (no file header). Below, we show examples of both of these initialization strategies for the QuantEmbedding module:
 
 ```
 from smallfry import QuantEmbedding
@@ -29,7 +29,7 @@ from smallfry import QuantEmbedding
 embed_from_tensor = 
     QuantEmbedding(num_embeddings=1000,    # vocabulary size
                    embedding_dim=50,       # embedding dimensionality
-                   _weight=<a PyTorch FloatTensor with shape = (100, 50)>, 
+                   _weight=<a PyTorch FloatTensor (rows are embeddings),
                    nbit=4)                 # the quantization precision
 
 # init with embedding files
@@ -37,12 +37,12 @@ embed_from_file =
     QuantEmbedding(num_embeddings=1000,    # vocabulary size
                    embedding_dim=50,       # embedding dimensionality
                    nbit=2,                 # the quantization precision
-                   embedding_file=<a GloVe style embedding file with 1000 rows>) 
+                   embedding_file=<a GloVe format embedding file>)
 ```
-The input tensor and file can contain either quantized or unquantized values, the QuantEmbedding layer will automatically detect the quantize if unquantized values are given.
+If the input embedding matrix is uncompressed, the QuantEmbedding module will automatically compress it to the specified number of bits per entry. If the embedding matrix is already quantized (meaning its number of unique values is equal to 2^n_bit), the QuantEmbedding module will directly use these values without performing any additional compression.
 
-### Replace an existing embedding layer with a quantized embeding layer
-Another important scenerio is that given an existing model, one may want to replace all the PyTorch embedding layers with QuantEmbedding layer in a batch. We provide a helper function to achieve this in the following example where the new QuantEmbedding layers will directly initialize by quantizing the values in the original embedding layers.
+### Replace an existing embedding layer with a quantized embedding layer
+Given an existing model with one or more Embedding modules, one may want to replace all these modules with QuantEmbedding modules.  This can be done using the following helper function which we provide:
 
 ```
 from smallfry import quantize_embed
@@ -51,19 +51,18 @@ quantize_embed(model,   # a model, i.e. an instance of PyTorch nn.Module,
                nbit=2,  # the quantization precision)
 ```
 
-## Example
-To present a full demonstration, we prepared an training example using smallfry QuantEmbedding layers. In this example, we train a LSTM-based [DrQA](https://github.com/facebookresearch/DrQA) model for reading comprehension on the [SQuAD1.1](https://rajpurkar.github.io/SQuAD-explorer/) dataset. We train the DrQA model on top of fixed pre-trained [GloVe](https://nlp.stanford.edu/projects/glove/) Embedding, using 2-bit quantization. 
+## End-to-end example
+We present an end-to-end example for how to use the QuantEmbedding module for training a question-answering system using less memory. In this example, we train a LSTM-based [DrQA](https://github.com/facebookresearch/DrQA) model for reading comprehension on the [SQuAD1.1](https://rajpurkar.github.io/SQuAD-explorer/) dataset. We train the DrQA model on top of a fixed pre-trained [GloVe](https://nlp.stanford.edu/projects/glove/) embedding, using 2-bit quantization.
 
 ### Setup
-In order to prepare for training the DrQA model, please run
+We provide the following script to automatically download the required data and install the DrQA package.
 ```
 bash prepare_drqa.sh
 ```
-This will automatically download the required processed data and install the DrQA package.
 
 ### Run
 After the setup is done, the training can be launched via
 ```
 bash run_drqa.sh
 ```
-By the end of training, the original training embedding layer should achieve a ~73.86% dev set F1 score, which 2 bit smallfry quantized embedding achieves ~73.72%.
+When training completes, the 2-bit compressed embeddings attain a F1 score of ~73.72% on the dev set, while the uncompressed embeddings attain ~73.86% dev set F1 score.
