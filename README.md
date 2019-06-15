@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/HazyResearch/smallfry_pytorch.svg?branch=master)](https://travis-ci.com/HazyResearch/smallfry_pytorch)
+[![Build Status](https://travis-ci.com/HazyResearch/smallfry.svg?token=SDDXppprxKsrJRr7hanX&branch=master)](https://travis-ci.com/HazyResearch/smallfry)
 
 # SmallFry
 Word embeddings are a key component of modern NLP models. To attain strong performance on various
@@ -12,8 +12,8 @@ Our PyTorch QuantEmbedding module can be used as a drop-in replacement for the P
 ## Installation
 To install the smallfry package, please clone and pip install our repository as follows:
 ```
-git clone --recursive https://github.com/HazyResearch/smallfry_pytorch.git
-cd smallfry_pytorch
+git clone --recursive https://github.com/HazyResearch/smallfry.git
+cd smallfry
 pip install -e .
 ```
 Our implementation is tested under Python 3.6 and PyTorch 1.0.
