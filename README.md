@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/HazyResearch/smallfry.svg?token=SDDXppprxKsrJRr7hanX&branch=master)](https://travis-ci.com/HazyResearch/smallfry)
+[![Build Status](https://travis-ci.com/HazyResearch/smallfry.svg?branch=master)](https://travis-ci.com/HazyResearch/smallfry)
 
 # SmallFry
 Word embeddings are a key component of modern NLP models. To attain strong performance on various
