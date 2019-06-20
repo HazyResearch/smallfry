@@ -1,4 +1,4 @@
 [submodule "src/third_party/DrQA"]
 	path = src/smallfry/third_party/DrQA
 	url = https://github.com/avnermay/DrQA.git
-	branch = master
+	branch = 00a33df
