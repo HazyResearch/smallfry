@@ -9,6 +9,8 @@ As a result, word embeddings can consume a large amount of memory during trainin
 
 Our PyTorch QuantEmbedding module can be used as a drop-in replacement for the PyTorch Embedding module.
 
+For more information about our compression algorithm, along with corresponding theoretical analysis, please see our [NeurIPS 2019 paper](https://arxiv.org/pdf/1909.01264.pdf).
+
 ## Installation
 To install the smallfry package, please clone and pip install our repository as follows:
 ```
